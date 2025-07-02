@@ -1,6 +1,8 @@
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.Cliente;
+import com.titanaxis.model.Usuario;
+import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.DatabaseConnection;
@@ -14,14 +16,25 @@ import java.util.logging.Logger;
 
 public class ClienteRepositoryImpl implements ClienteRepository {
     private static final Logger logger = AppLogger.getLogger();
+    private final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl();
 
     @Override
     public Cliente save(Cliente cliente) {
-        if (cliente.getId() == 0) {
-            return insert(cliente);
-        } else {
-            return update(cliente);
+        return this.save(cliente, null);
+    }
+
+    @Override
+    public Cliente save(Cliente cliente, Usuario ator) {
+        boolean isUpdate = cliente.getId() != 0;
+        Cliente clienteSalvo = isUpdate ? update(cliente) : insert(cliente);
+
+        if (clienteSalvo != null && ator != null) {
+            String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
+            String detalhes = String.format("Cliente '%s' (ID: %d) foi %s.",
+                    clienteSalvo.getNome(), clienteSalvo.getId(), isUpdate ? "atualizado" : "criado");
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Cliente", detalhes);
         }
+        return clienteSalvo;
     }
 
     private Cliente insert(Cliente cliente) {
@@ -107,11 +120,25 @@ public class ClienteRepositoryImpl implements ClienteRepository {
 
     @Override
     public void deleteById(Integer id) {
+        this.deleteById(id, null);
+    }
+
+    @Override
+    public void deleteById(Integer id, Usuario ator) {
+        // Primeiro, busca o cliente para obter o nome para o log
+        Optional<Cliente> clienteOpt = findById(id);
+
         String sql = "DELETE FROM clientes WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0 && ator != null && clienteOpt.isPresent()) {
+                String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", clienteOpt.get().getNome(), id);
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Cliente", detalhes);
+            }
+
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Erro ao deletar cliente ID: " + id, e);
         }

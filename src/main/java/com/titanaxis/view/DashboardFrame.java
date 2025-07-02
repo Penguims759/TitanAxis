@@ -42,11 +42,11 @@ public class DashboardFrame extends JFrame {
         JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        mainTabbedPane.addTab("Vendas", new VendaPanel(authService.getUsuarioLogadoId()));
+        // ALTERAÇÃO: Passa a instância do authService para o VendaPanel
+        mainTabbedPane.addTab("Vendas", new VendaPanel(authService));
 
         if (authService.isGerente()) {
             JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane();
-            // ALTERAÇÃO: Passa a instância do authService para o ProdutoPanel
             produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(authService));
             produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(authService));
             produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel());
@@ -55,7 +55,7 @@ public class DashboardFrame extends JFrame {
         }
 
         if (authService.isGerente()) {
-            mainTabbedPane.addTab("Clientes", new ClientePanel());
+            mainTabbedPane.addTab("Clientes", new ClientePanel(authService));
         }
 
         if (authService.isGerente()) {

@@ -1,13 +1,12 @@
-// src/main/java/com/titanaxis/view/panels/VendaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.model.*;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.repository.VendaRepository;
 import com.titanaxis.repository.impl.ClienteRepositoryImpl;
 import com.titanaxis.repository.impl.ProdutoRepositoryImpl;
-import com.titanaxis.repository.impl.VendaRepositoryImpl;
+import com.titanaxis.service.AuthService;
+import com.titanaxis.service.VendaService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +18,11 @@ import java.util.Locale;
 
 public class VendaPanel extends JPanel {
 
-    private final VendaRepository vendaRepository = new VendaRepositoryImpl();
+    // ALTERAÇÃO: Introdução dos serviços
+    private final VendaService vendaService = new VendaService();
+    private final AuthService authService;
+
+    // Repositórios ainda são usados para popular os ComboBoxes
     private final ProdutoRepository produtoRepository = new ProdutoRepositoryImpl();
     private final ClienteRepository clienteRepository = new ClienteRepositoryImpl();
 
@@ -30,12 +33,11 @@ public class VendaPanel extends JPanel {
     private JSpinner quantidadeSpinner;
     private JLabel totalLabel;
 
-    private final int usuarioLogadoId;
     private final List<VendaItem> carrinho = new ArrayList<>();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
-    public VendaPanel(int usuarioLogadoId) {
-        this.usuarioLogadoId = usuarioLogadoId;
+    public VendaPanel(AuthService authService) {
+        this.authService = authService; // Recebe o serviço de autenticação
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -52,6 +54,7 @@ public class VendaPanel extends JPanel {
         carregarDadosIniciais();
     }
 
+    // ... (métodos createTopPanel, createBottomPanel, carregarDadosIniciais, atualizarLotesDisponiveis, adicionarAoCarrinho, atualizarCarrinho e limparVenda não sofrem alterações)
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
         topPanel.setBorder(BorderFactory.createTitledBorder("Nova Venda"));
@@ -122,7 +125,6 @@ public class VendaPanel extends JPanel {
         clienteRepository.findAll().forEach(clienteComboBox::addItem);
 
         produtoComboBox.removeAllItems();
-        // AQUI ESTÁ A MUDANÇA: findAll() agora só retorna produtos ativos.
         produtoRepository.findAll().stream()
                 .filter(p -> p.getQuantidadeTotal() > 0)
                 .forEach(produtoComboBox::addItem);
@@ -201,16 +203,18 @@ public class VendaPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Selecione um cliente.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        // Obtém o utilizador logado
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
 
         double valorTotal = carrinho.stream().mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario()).sum();
-        Venda novaVenda = new Venda(clienteSelecionado.getId(), this.usuarioLogadoId, valorTotal, carrinho);
-        Venda vendaSalva = vendaRepository.save(novaVenda);
+        Venda novaVenda = new Venda(clienteSelecionado.getId(), ator != null ? ator.getId() : -1, valorTotal, carrinho);
 
-        if (vendaSalva != null) {
+        try {
+            Venda vendaSalva = vendaService.finalizarVenda(novaVenda, ator);
             JOptionPane.showMessageDialog(this, "Venda #" + vendaSalva.getId() + " finalizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             limparVenda();
-        } else {
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda. Verifique os logs.", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

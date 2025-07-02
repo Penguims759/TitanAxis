@@ -1,8 +1,9 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.model.Cliente;
-import com.titanaxis.repository.ClienteRepository;
-import com.titanaxis.repository.impl.ClienteRepositoryImpl;
+import com.titanaxis.model.Usuario;
+import com.titanaxis.service.AuthService;
+import com.titanaxis.service.ClienteService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -10,13 +11,17 @@ import java.awt.*;
 import java.util.List;
 
 public class ClientePanel extends JPanel {
-    private final ClienteRepository clienteRepository;
+    // ALTERAÇÃO: Introdução dos serviços
+    private final ClienteService clienteService;
+    private final AuthService authService;
+
     private final DefaultTableModel tableModel;
     private final JTable clienteTable;
     private final JTextField idField, nomeField, contatoField, enderecoField;
 
-    public ClientePanel() {
-        this.clienteRepository = new ClienteRepositoryImpl();
+    public ClientePanel(AuthService authService) { // Construtor atualizado
+        this.authService = authService;
+        this.clienteService = new ClienteService();
         setLayout(new BorderLayout(10, 10));
 
         // --- Painel Norte: Formulário e Botões ---
@@ -80,27 +85,23 @@ public class ClientePanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
 
         // --- Lógica dos Listeners (Ações) ---
-
-        // Seleção na tabela atualiza o formulário
         clienteTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 displaySelectedCliente();
             }
         });
 
-        // Ações dos botões
         addButton.addActionListener(e -> addOrUpdateCliente());
         updateButton.addActionListener(e -> addOrUpdateCliente());
         deleteButton.addActionListener(e -> deleteCliente());
         clearButton.addActionListener(e -> clearFields());
         searchButton.addActionListener(e -> performSearch(searchField.getText()));
-        searchField.addActionListener(e -> performSearch(searchField.getText())); // Permite buscar com Enter
+        searchField.addActionListener(e -> performSearch(searchField.getText()));
         clearSearchButton.addActionListener(e -> {
             searchField.setText("");
             loadClientes();
         });
 
-        // Carga inicial
         loadClientes();
     }
 
@@ -113,14 +114,14 @@ public class ClientePanel extends JPanel {
 
     private void performSearch(String searchTerm) {
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            popularTabela(clienteRepository.findByNomeContaining(searchTerm));
+            popularTabela(clienteService.buscarPorNome(searchTerm));
         } else {
             loadClientes();
         }
     }
 
     private void loadClientes() {
-        popularTabela(clienteRepository.findAll());
+        popularTabela(clienteService.listarTodos());
     }
 
     private void displaySelectedCliente() {
@@ -146,14 +147,15 @@ public class ClientePanel extends JPanel {
         String endereco = enderecoField.getText().trim();
 
         Cliente cliente = new Cliente(id, nome, contato, endereco);
-        Cliente savedCliente = clienteRepository.save(cliente);
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
 
-        if (savedCliente != null) {
+        try {
+            clienteService.salvar(cliente, ator);
             JOptionPane.showMessageDialog(this, "Cliente " + (isUpdate ? "atualizado" : "adicionado") + " com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             loadClientes();
             clearFields();
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar cliente: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -167,10 +169,15 @@ public class ClientePanel extends JPanel {
         int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja eliminar este cliente?", "Confirmar Eliminação", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            clienteRepository.deleteById(id);
-            JOptionPane.showMessageDialog(this, "Cliente eliminado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            loadClientes();
-            clearFields();
+            Usuario ator = authService.getUsuarioLogado().orElse(null);
+            try {
+                clienteService.deletar(id, ator);
+                JOptionPane.showMessageDialog(this, "Cliente eliminado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                loadClientes();
+                clearFields();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro ao eliminar cliente: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
