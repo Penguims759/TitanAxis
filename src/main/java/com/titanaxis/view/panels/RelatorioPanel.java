@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/panels/RelatorioPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.service.RelatorioService;
@@ -22,136 +21,212 @@ public class RelatorioPanel extends JPanel {
     private final RelatorioService relatorioService;
     private static final Logger logger = AppLogger.getLogger();
 
+    // ALTERAÇÃO: Referências para os botões para poder desativá-los
+    private JButton inventarioCsvButton, inventarioPdfButton, vendasCsvButton, vendasPdfButton;
+
     public RelatorioPanel() {
         this.relatorioService = new RelatorioService();
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Título Geral, posicionado no topo.
+        // Título Geral
         JLabel titleLabel = new JLabel("Geração de Relatórios");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(titleLabel, BorderLayout.NORTH);
 
-        // Painel central que usará GridBagLayout para centralizar o conteúdo.
+        // Painel central
         JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(10, 10, 10, 10);
-
-        // ALTERAÇÃO: Adicionando um "espaçador" com peso menor no topo.
-        // Isto cria um pequeno espaço acima dos painéis.
-        gbc.weighty = 0.2; // Ex: 20% do espaço extra vai para cima
+        gbc.weighty = 0.2;
         centerPanel.add(Box.createVerticalStrut(0), gbc);
-        gbc.weighty = 0; // Reset do peso para os componentes reais.
+        gbc.weighty = 0;
 
-        // --- PAINEL SEPARADO PARA RELATÓRIO DE INVENTÁRIO ---
+        // --- PAINEL DE RELATÓRIO DE INVENTÁRIO ---
         JPanel inventarioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         inventarioPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Inventário"));
 
-        JButton inventarioCsvButton = new JButton("Gerar CSV");
+        inventarioCsvButton = new JButton("Gerar CSV");
         inventarioCsvButton.addActionListener(e -> gerarRelatorioInventarioCsv());
         inventarioPanel.add(inventarioCsvButton);
 
-        JButton inventarioPdfButton = new JButton("Gerar PDF");
+        inventarioPdfButton = new JButton("Gerar PDF");
         inventarioPdfButton.addActionListener(e -> gerarRelatorioInventarioPdf());
         inventarioPanel.add(inventarioPdfButton);
 
         centerPanel.add(inventarioPanel, gbc);
 
-        // --- PAINEL SEPARADO PARA RELATÓRIO DE VENDAS ---
+        // --- PAINEL DE RELATÓRIO DE VENDAS ---
         JPanel vendasPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         vendasPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Vendas"));
 
-        JButton vendasCsvButton = new JButton("Gerar CSV");
+        vendasCsvButton = new JButton("Gerar CSV");
         vendasCsvButton.addActionListener(e -> gerarRelatorioVendasCsv());
         vendasPanel.add(vendasCsvButton);
 
-        JButton vendasPdfButton = new JButton("Gerar PDF");
+        vendasPdfButton = new JButton("Gerar PDF");
         vendasPdfButton.addActionListener(e -> gerarRelatorioVendasPdf());
         vendasPanel.add(vendasPdfButton);
 
         centerPanel.add(vendasPanel, gbc);
 
-        // ALTERAÇÃO: Adicionando um "espaçador" com peso maior em baixo.
-        // Isto ocupa o resto do espaço e empurra os painéis para cima, mas não totalmente.
-        gbc.weighty = 0.8; // Ex: 80% do espaço extra vai para baixo
+        gbc.weighty = 0.8;
         centerPanel.add(Box.createVerticalStrut(0), gbc);
 
         add(centerPanel, BorderLayout.CENTER);
     }
 
-    // --- LÓGICA PARA GERAR RELATÓRIOS (sem alterações) ---
+    // ALTERAÇÃO: Lógica de geração movida para dentro de um SwingWorker
     private void gerarRelatorioInventarioCsv() {
-        try {
-            logger.info("Iniciando geração do relatório de inventário (CSV)...");
-            String conteudoCSV = relatorioService.gerarRelatorioInventario();
-            salvarRelatorioCsv("Relatorio_Inventario", conteudoCSV);
-        } catch (Exception ex) {
-            handleException("Erro inesperado ao gerar o relatório de inventário (CSV).", ex);
+        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", "Arquivo CSV (*.csv)");
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
         }
+        File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
+        setBotoesAtivados(false); // Desativa os botões
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() throws Exception {
+                logger.info("Iniciando geração do relatório de inventário (CSV)...");
+                return relatorioService.gerarRelatorioInventario();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String conteudoCSV = get(); // Obtém o resultado do doInBackground()
+                    try (PrintWriter out = new PrintWriter(arquivoParaSalvar, StandardCharsets.UTF_8)) {
+                        out.print(conteudoCSV);
+                        JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    handleException("Erro inesperado ao gerar/salvar o relatório de inventário (CSV).", ex);
+                } finally {
+                    setBotoesAtivados(true); // Reativa os botões, mesmo que dê erro
+                }
+            }
+        };
+        worker.execute();
     }
 
+    // ALTERAÇÃO: Lógica de geração movida para dentro de um SwingWorker
     private void gerarRelatorioVendasCsv() {
-        try {
-            logger.info("Iniciando geração do relatório de vendas (CSV)...");
-            String conteudoCSV = relatorioService.gerarRelatorioVendas();
-            salvarRelatorioCsv("Relatorio_Vendas", conteudoCSV);
-        } catch (Exception ex) {
-            handleException("Erro inesperado ao gerar o relatório de vendas (CSV).", ex);
+        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "csv", "Arquivo CSV (*.csv)");
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
         }
+        File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
+        setBotoesAtivados(false);
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() throws Exception {
+                logger.info("Iniciando geração do relatório de vendas (CSV)...");
+                return relatorioService.gerarRelatorioVendas();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String conteudoCSV = get();
+                    try (PrintWriter out = new PrintWriter(arquivoParaSalvar, StandardCharsets.UTF_8)) {
+                        out.print(conteudoCSV);
+                        JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    handleException("Erro inesperado ao gerar/salvar o relatório de vendas (CSV).", ex);
+                } finally {
+                    setBotoesAtivados(true);
+                }
+            }
+        };
+        worker.execute();
     }
 
+    // ALTERAÇÃO: Lógica de geração movida para dentro de um SwingWorker
     private void gerarRelatorioInventarioPdf() {
-        try {
-            logger.info("Iniciando geração do relatório de inventário (PDF)...");
-            ByteArrayOutputStream baos = relatorioService.gerarRelatorioInventarioPdf();
-            salvarRelatorioPdf("Relatorio_Inventario", baos);
-        } catch (Exception ex) {
-            handleException("Erro inesperado ao gerar o relatório de inventário (PDF).", ex);
+        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "pdf", "Arquivo PDF (*.pdf)");
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
         }
+        File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
+        setBotoesAtivados(false);
+
+        SwingWorker<ByteArrayOutputStream, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ByteArrayOutputStream doInBackground() throws Exception {
+                logger.info("Iniciando geração do relatório de inventário (PDF)...");
+                return relatorioService.gerarRelatorioInventarioPdf();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    ByteArrayOutputStream baos = get();
+                    try (FileOutputStream fos = new FileOutputStream(arquivoParaSalvar)) {
+                        baos.writeTo(fos);
+                        JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    handleException("Erro inesperado ao gerar/salvar o relatório de inventário (PDF).", ex);
+                } finally {
+                    setBotoesAtivados(true);
+                }
+            }
+        };
+        worker.execute();
     }
 
+    // ALTERAÇÃO: Lógica de geração movida para dentro de um SwingWorker
     private void gerarRelatorioVendasPdf() {
-        try {
-            logger.info("Iniciando geração do relatório de vendas (PDF)...");
-            ByteArrayOutputStream baos = relatorioService.gerarRelatorioVendasPdf();
-            salvarRelatorioPdf("Relatorio_Vendas", baos);
-        } catch (Exception ex) {
-            handleException("Erro inesperado ao gerar o relatório de vendas (PDF).", ex);
+        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "pdf", "Arquivo PDF (*.pdf)");
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
         }
-    }
+        File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
+        setBotoesAtivados(false);
 
-    // --- MÉTODOS AUXILIARES PARA SALVAR FICHEIROS (sem alterações) ---
-    private void salvarRelatorioCsv(String nomeBase, String conteudo) {
-        JFileChooser fileChooser = createFileChooser(nomeBase, "csv", "Arquivo CSV (*.csv)");
-
-        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
-            try (PrintWriter out = new PrintWriter(arquivoParaSalvar, StandardCharsets.UTF_8)) {
-                out.print(conteudo);
-                JOptionPane.showMessageDialog(this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                handleException("Erro de I/O ao salvar o relatório.", ex);
+        SwingWorker<ByteArrayOutputStream, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ByteArrayOutputStream doInBackground() throws Exception {
+                logger.info("Iniciando geração do relatório de vendas (PDF)...");
+                return relatorioService.gerarRelatorioVendasPdf();
             }
-        }
-    }
 
-    private void salvarRelatorioPdf(String nomeBase, ByteArrayOutputStream baos) {
-        JFileChooser fileChooser = createFileChooser(nomeBase, "pdf", "Arquivo PDF (*.pdf)");
-
-        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
-            try (FileOutputStream fos = new FileOutputStream(arquivoParaSalvar)) {
-                baos.writeTo(fos);
-                JOptionPane.showMessageDialog(this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                handleException("Erro de I/O ao salvar o relatório.", ex);
+            @Override
+            protected void done() {
+                try {
+                    ByteArrayOutputStream baos = get();
+                    try (FileOutputStream fos = new FileOutputStream(arquivoParaSalvar)) {
+                        baos.writeTo(fos);
+                        JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    handleException("Erro inesperado ao gerar/salvar o relatório de vendas (PDF).", ex);
+                } finally {
+                    setBotoesAtivados(true);
+                }
             }
-        }
+        };
+        worker.execute();
     }
 
+    // NOVO MÉTODO: Ativa/desativa os botões para dar feedback visual ao utilizador
+    private void setBotoesAtivados(boolean ativado) {
+        inventarioCsvButton.setEnabled(ativado);
+        inventarioPdfButton.setEnabled(ativado);
+        vendasCsvButton.setEnabled(ativado);
+        vendasPdfButton.setEnabled(ativado);
+
+        // Opcional: Altera o cursor para indicar que a aplicação está ocupada
+        setCursor(ativado ? Cursor.getDefaultCursor() : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    }
+
+    // --- MÉTODOS AUXILIARES SEM ALTERAÇÃO ---
     private JFileChooser createFileChooser(String nomeBase, String extension, String description) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Salvar Relatório");
@@ -170,7 +245,10 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void handleException(String message, Exception ex) {
-        logger.log(Level.SEVERE, message, ex);
-        JOptionPane.showMessageDialog(this, "Ocorreu um erro inesperado. Verifique os logs.", "Erro", JOptionPane.ERROR_MESSAGE);
+        // Assegura que o JOptionPane é mostrado na thread correta
+        SwingUtilities.invokeLater(() -> {
+            logger.log(Level.SEVERE, message, ex);
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro inesperado. Verifique os logs.", "Erro", JOptionPane.ERROR_MESSAGE);
+        });
     }
 }
