@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/AuthService.java
 package com.titanaxis.service;
 
 import com.titanaxis.model.Usuario;
@@ -49,14 +48,16 @@ public class AuthService {
         return Optional.empty();
     }
 
-    public boolean cadastrarUsuario(String nomeUsuario, String senha, String nivelAcesso) {
+    // ALTERAÇÃO: Agora recebe o administrador que está a realizar a ação
+    public boolean cadastrarUsuario(String nomeUsuario, String senha, String nivelAcesso, Usuario ator) {
         if (usuarioRepository.findByNomeUsuario(nomeUsuario).isPresent()) {
             logger.warning("Tentativa de cadastrar usuário existente: " + nomeUsuario);
             return false;
         }
         String senhaHash = PasswordUtil.hashPassword(senha);
         Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
-        return usuarioRepository.save(novoUsuario) != null;
+        // Passa o ator para a camada de repositório
+        return usuarioRepository.save(novoUsuario, ator) != null;
     }
 
     public Optional<Usuario> getUsuarioLogado() {
@@ -100,11 +101,15 @@ public class AuthService {
         }
     }
 
-    public boolean atualizarUsuario(Usuario usuario) {
-        return usuarioRepository.save(usuario) != null;
+    // ALTERAÇÃO: Agora recebe o administrador que está a realizar a ação
+    public boolean atualizarUsuario(Usuario usuario, Usuario ator) {
+        // Passa o ator para a camada de repositório
+        return usuarioRepository.save(usuario, ator) != null;
     }
 
-    public void deletarUsuario(int id) {
-        usuarioRepository.deleteById(id);
+    // ALTERAÇÃO: Agora recebe o administrador que está a realizar a ação
+    public void deletarUsuario(int id, Usuario ator) {
+        // Passa o ator para a camada de repositório
+        usuarioRepository.deleteById(id, ator);
     }
 }

@@ -46,8 +46,8 @@ public class DashboardFrame extends JFrame {
 
         if (authService.isGerente()) {
             JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane();
-            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel());
-            // ALTERAÇÃO: Passa a instância do authService para o CategoriaPanel
+            // ALTERAÇÃO: Passa a instância do authService para o ProdutoPanel
+            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(authService));
             produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(authService));
             produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel());
             produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", new MovimentosPanel());
@@ -63,17 +63,16 @@ public class DashboardFrame extends JFrame {
         }
 
         if (authService.isAdmin()) {
-            // Aba de Administração agora tem sub-abas
             JTabbedPane adminTabbedPane = new JTabbedPane();
             adminTabbedPane.addTab("Gestão de Usuários", new UsuarioPanel(authService));
             adminTabbedPane.addTab("Logs de Auditoria", new AuditoriaPanel());
-
             mainTabbedPane.addTab("Administração", adminTabbedPane);
         }
 
         add(mainTabbedPane);
     }
 
+    // ... (resto da classe sem alterações)
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menuArquivo = new JMenu("Arquivo");

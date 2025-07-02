@@ -1,15 +1,13 @@
-// src/main/java/com/titanaxis/view/panels/ProdutoPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
-import com.titanaxis.repository.AuditoriaRepository;
+import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.CategoriaRepository;
-import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.repository.impl.AuditoriaRepositoryImpl;
 import com.titanaxis.repository.impl.CategoriaRepositoryImpl;
-import com.titanaxis.repository.impl.ProdutoRepositoryImpl;
+import com.titanaxis.service.AuthService;
+import com.titanaxis.service.ProdutoService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -24,9 +22,11 @@ import java.util.List;
 import java.util.Locale;
 
 public class ProdutoPanel extends JPanel {
-    private final ProdutoRepository produtoRepository;
-    private final CategoriaRepository categoriaRepository;
-    private final AuditoriaRepository auditoriaRepository;
+    // ALTERAÇÃO: Injeção de dependências e introdução dos serviços
+    private final AuthService authService;
+    private final ProdutoService produtoService;
+    private final CategoriaRepository categoriaRepository; // Ainda necessário para o Dialog
+
     private DefaultTableModel produtoTableModel;
     private JTable produtoTable;
     private DefaultTableModel loteTableModel;
@@ -35,13 +35,12 @@ public class ProdutoPanel extends JPanel {
     private JToggleButton showInactiveButton;
 
     private Produto produtoSelecionado;
-
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public ProdutoPanel() {
-        this.produtoRepository = new ProdutoRepositoryImpl();
+    public ProdutoPanel(AuthService authService) {
+        this.authService = authService;
+        this.produtoService = new ProdutoService();
         this.categoriaRepository = new CategoriaRepositoryImpl();
-        this.auditoriaRepository = new AuditoriaRepositoryImpl();
         setLayout(new BorderLayout(10, 10));
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createProdutoListPanel(), createDetalhesPanel());
@@ -85,7 +84,8 @@ public class ProdutoPanel extends JPanel {
                 if (produtoTable.getSelectedRow() != -1) {
                     int modelRow = produtoTable.convertRowIndexToModel(produtoTable.getSelectedRow());
                     int produtoId = (int) produtoTableModel.getValueAt(modelRow, 0);
-                    produtoRepository.findById(produtoId).ifPresent(this::displayDetalhesProduto);
+                    // Usa o serviço para buscar o produto
+                    produtoService.buscarProdutoPorId(produtoId).ifPresent(this::displayDetalhesProduto);
                 } else {
                     clearDetalhesPanel();
                 }
@@ -121,6 +121,7 @@ public class ProdutoPanel extends JPanel {
         return panel;
     }
 
+    // ... (createDetalhesPanel não tem alterações de lógica)
     private JPanel createDetalhesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Estoque e Lotes do Produto"));
@@ -142,7 +143,7 @@ public class ProdutoPanel extends JPanel {
             int selectedRow = loteTable.getSelectedRow();
             if (selectedRow != -1) {
                 int loteId = (int) loteTableModel.getValueAt(selectedRow, 0);
-                produtoRepository.findLoteById(loteId).ifPresent(this::showLoteDialog);
+                produtoService.buscarLotePorId(loteId).ifPresent(this::showLoteDialog);
             } else {
                 JOptionPane.showMessageDialog(this, "Selecione um lote para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
             }
@@ -162,11 +163,10 @@ public class ProdutoPanel extends JPanel {
         return panel;
     }
 
-    private void loadProdutos() {
-        List<Produto> produtos = showInactiveButton.isSelected()
-                ? produtoRepository.findAllIncludingInactive()
-                : produtoRepository.findAll();
 
+    private void loadProdutos() {
+        // Usa o serviço para listar os produtos
+        List<Produto> produtos = produtoService.listarProdutos(showInactiveButton.isSelected());
         produtoTableModel.setRowCount(0);
         for (Produto p : produtos) {
             produtoTableModel.addRow(new Object[]{
@@ -188,7 +188,8 @@ public class ProdutoPanel extends JPanel {
         toggleStatusButton.setEnabled(true);
         toggleStatusButton.setText(produto.isAtivo() ? "Inativar Produto" : "Reativar Produto");
 
-        List<Lote> lotes = produtoRepository.findLotesByProdutoId(produto.getId());
+        // Usa o serviço para buscar os lotes
+        List<Lote> lotes = produtoService.buscarLotesPorProdutoId(produto.getId());
         loteTableModel.setRowCount(0);
         for (Lote lote : lotes) {
             loteTableModel.addRow(new Object[]{
@@ -212,6 +213,11 @@ public class ProdutoPanel extends JPanel {
 
     private void toggleProdutoStatus() {
         if (produtoSelecionado == null) return;
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        if (ator == null) {
+            JOptionPane.showMessageDialog(this, "Não foi possível identificar o utilizador autenticado.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         boolean novoStatus = !produtoSelecionado.isAtivo();
         String acao = novoStatus ? "reativado" : "inativado";
@@ -221,21 +227,22 @@ public class ProdutoPanel extends JPanel {
                 "Confirmar Alteração de Estado", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            boolean sucesso = produtoRepository.updateStatusAtivo(produtoSelecionado.getId(), novoStatus);
-            if (sucesso) {
-                String detalhes = String.format("Produto '%s' (ID: %d) foi %s.", produtoSelecionado.getNome(), produtoSelecionado.getId(), acao);
-                auditoriaRepository.registrarAcao(1, "admin", novoStatus ? "REATIVAÇÃO" : "INATIVAÇÃO", "Produto", detalhes);
+            try {
+                // Usa o serviço para alterar o estado
+                produtoService.alterarStatusProduto(produtoSelecionado.getId(), novoStatus, ator);
                 loadProdutos();
                 clearDetalhesPanel();
                 produtoTable.clearSelection();
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro ao alterar o estado do produto.", "Erro", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao alterar o estado do produto: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private void showProdutoDialog(Produto produto) {
-        ProdutoDialog dialog = new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoRepository, categoriaRepository, produto);
+        // Passa o serviço e o ator para o diálogo
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        ProdutoDialog dialog = new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoService, categoriaRepository, produto, ator);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
@@ -245,11 +252,13 @@ public class ProdutoPanel extends JPanel {
     }
 
     private void showLoteDialog(Lote lote) {
-        LoteDialog dialog = new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoRepository, produtoSelecionado, lote);
+        // Passa o serviço e o ator para o diálogo
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        LoteDialog dialog = new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoService, produtoSelecionado, lote, ator);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            produtoRepository.findById(produtoSelecionado.getId()).ifPresent(this::displayDetalhesProduto);
+            produtoService.buscarProdutoPorId(produtoSelecionado.getId()).ifPresent(this::displayDetalhesProduto);
             loadProdutos();
         }
     }
@@ -259,30 +268,47 @@ public class ProdutoPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Selecione um lote para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        if (ator == null) {
+            JOptionPane.showMessageDialog(this, "Não foi possível identificar o utilizador autenticado.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         int loteId = (int) loteTableModel.getValueAt(loteTable.getSelectedRow(), 0);
         int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remover este lote?", "Confirmar Remoção", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            produtoRepository.deleteLoteById(loteId);
-            produtoRepository.findById(produtoSelecionado.getId()).ifPresent(this::displayDetalhesProduto);
-            loadProdutos();
+            try {
+                // Usa o serviço para remover o lote
+                produtoService.removerLote(loteId, ator);
+                produtoService.buscarProdutoPorId(produtoSelecionado.getId()).ifPresent(this::displayDetalhesProduto);
+                loadProdutos();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao remover o lote: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }
 
+// =====================================================================================
+// DIÁLOGOS ATUALIZADOS PARA USAR O SERVIÇO
+// =====================================================================================
+
 class ProdutoDialog extends JDialog {
-    private final ProdutoRepository produtoRepository;
+    private final ProdutoService produtoService;
     private final CategoriaRepository categoriaRepository;
     private final Produto produto;
+    private final Usuario ator; // O utilizador que está a realizar a ação
     private boolean saved = false;
 
     private JTextField nomeField, descricaoField, precoField;
     private JComboBox<Categoria> categoriaComboBox;
 
-    public ProdutoDialog(Frame owner, ProdutoRepository pr, CategoriaRepository cr, Produto p) {
+    public ProdutoDialog(Frame owner, ProdutoService ps, CategoriaRepository cr, Produto p, Usuario ator) {
         super(owner, "Detalhes do Produto", true);
-        this.produtoRepository = pr;
+        this.produtoService = ps;
         this.categoriaRepository = cr;
         this.produto = (p != null) ? p : new Produto("", "", 0.0, 0);
+        this.ator = ator;
 
         setTitle(p == null || p.getId() == 0 ? "Novo Produto" : "Editar Produto");
         setLayout(new BorderLayout());
@@ -356,12 +382,15 @@ class ProdutoDialog extends JDialog {
             produto.setPreco(Double.parseDouble(precoField.getText().replace(",", ".")));
             produto.setCategoriaId(((Categoria)categoriaComboBox.getSelectedItem()).getId());
 
-            produtoRepository.save(produto);
+            // Usa o serviço para salvar
+            produtoService.salvarProduto(produto, ator);
             saved = true;
             dispose();
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Preço inválido. Use ponto como separador decimal.", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -371,17 +400,19 @@ class ProdutoDialog extends JDialog {
 }
 
 class LoteDialog extends JDialog {
-    private final ProdutoRepository produtoRepository;
+    private final ProdutoService produtoService;
     private final Lote lote;
+    private final Usuario ator;
     private boolean saved = false;
 
     private JTextField numeroLoteField, quantidadeField;
     private JFormattedTextField dataValidadeField;
 
-    public LoteDialog(Frame owner, ProdutoRepository pr, Produto produtoPai, Lote l) {
+    public LoteDialog(Frame owner, ProdutoService ps, Produto produtoPai, Lote l, Usuario ator) {
         super(owner, "Detalhes do Lote", true);
-        this.produtoRepository = pr;
+        this.produtoService = ps;
         this.lote = (l != null) ? l : new Lote(produtoPai.getId(), "", 0, null);
+        this.ator = ator;
 
         setTitle(l == null || l.getId() == 0 ? "Novo Lote para " + produtoPai.getNome() : "Editar Lote");
         setLayout(new BorderLayout());
@@ -410,7 +441,7 @@ class LoteDialog extends JDialog {
         formPanel.add(numeroLoteField);
         formPanel.add(new JLabel("Quantidade:"));
         formPanel.add(quantidadeField);
-        formPanel.add(new JLabel("Data de Validade:"));
+        formPanel.add(new JLabel("Data de Validade (dd/mm/aaaa):"));
         formPanel.add(dataValidadeField);
 
         add(formPanel, BorderLayout.CENTER);
@@ -442,7 +473,7 @@ class LoteDialog extends JDialog {
             lote.setQuantidade(Integer.parseInt(quantidadeField.getText().trim()));
 
             String dataTexto = dataValidadeField.getText().replace("_", "").trim();
-            if (!dataTexto.isEmpty()) {
+            if (!dataTexto.isEmpty() && dataTexto.length() == 10) {
                 lote.setDataValidade(LocalDate.parse(dataTexto, DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             } else {
                 lote.setDataValidade(null);
@@ -453,12 +484,13 @@ class LoteDialog extends JDialog {
                 return;
             }
 
-            produtoRepository.saveLote(lote);
+            // Usa o serviço para salvar
+            produtoService.salvarLote(lote, ator);
             saved = true;
             dispose();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Dados inválidos. Verifique os campos.", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Dados inválidos. Verifique os campos.\nDetalhe: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

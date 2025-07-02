@@ -127,7 +127,9 @@ public class UsuarioPanel extends JPanel {
             return;
         }
 
-        if (authService.cadastrarUsuario(username, password, nivelAcesso)) {
+        // ALTERAÇÃO: Passa o utilizador logado (ator) para o método do serviço
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        if (authService.cadastrarUsuario(username, password, nivelAcesso, ator)) {
             JOptionPane.showMessageDialog(this, "Usuário adicionado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             loadUsuarios();
             clearFields();
@@ -161,7 +163,9 @@ public class UsuarioPanel extends JPanel {
         String senhaHash = password.isEmpty() ? userOpt.get().getSenhaHash() : PasswordUtil.hashPassword(password);
         Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivelAcesso);
 
-        if (authService.atualizarUsuario(usuarioAtualizado)) {
+        // ALTERAÇÃO: Passa o utilizador logado (ator) para o método do serviço
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        if (authService.atualizarUsuario(usuarioAtualizado, ator)) {
             JOptionPane.showMessageDialog(this, "Usuário atualizado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             loadUsuarios();
             clearFields();
@@ -183,7 +187,9 @@ public class UsuarioPanel extends JPanel {
 
         int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            authService.deletarUsuario(idToDelete);
+            // ALTERAÇÃO: Passa o utilizador logado (ator) para o método do serviço
+            Usuario ator = authService.getUsuarioLogado().orElse(null);
+            authService.deletarUsuario(idToDelete, ator);
             JOptionPane.showMessageDialog(this, "Utilizador eliminado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             loadUsuarios();
             clearFields();

@@ -1,8 +1,8 @@
-// src/main/java/com/titanaxis/repository/impl/ProdutoRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
+import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.util.AppLogger;
@@ -29,13 +29,31 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public Produto save(Produto produto) {
+        return this.save(produto, null); // Chama o método com auditoria com ator nulo
+    }
+
+    @Override
+    public Produto save(Produto produto, Usuario ator) {
         boolean isUpdate = produto.getId() != 0;
+        Produto produtoAntigo = isUpdate ? findById(produto.getId()).orElse(null) : null;
         Produto produtoSalvo = isUpdate ? update(produto) : insert(produto);
 
-        if (produtoSalvo != null && !isUpdate) {
-            String detalhes = String.format("Produto '%s' (ID: %d) foi criado.",
-                    produtoSalvo.getNome(), produtoSalvo.getId());
-            auditoriaRepository.registrarAcao(1, "admin", "CRIAÇÃO", "Produto", detalhes);
+        if (produtoSalvo != null && ator != null) {
+            String detalhes;
+            String acao;
+            if (isUpdate && produtoAntigo != null) {
+                acao = "ATUALIZAÇÃO";
+                detalhes = String.format("Produto '%s' (ID: %d) foi atualizado. Nome: '%s' -> '%s', Preço: %.2f -> %.2f, Categoria ID: %d -> %d.",
+                        produtoAntigo.getNome(), produtoSalvo.getId(),
+                        produtoAntigo.getNome(), produtoSalvo.getNome(),
+                        produtoAntigo.getPreco(), produtoSalvo.getPreco(),
+                        produtoAntigo.getCategoriaId(), produtoSalvo.getCategoriaId());
+            } else {
+                acao = "CRIAÇÃO";
+                detalhes = String.format("Produto '%s' (ID: %d) foi criado.",
+                        produtoSalvo.getNome(), produtoSalvo.getId());
+            }
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", detalhes);
         }
         return produtoSalvo;
     }
@@ -85,13 +103,22 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     }
 
     @Override
-    public boolean updateStatusAtivo(int produtoId, boolean ativo) {
+    public boolean updateStatusAtivo(int produtoId, boolean ativo, Usuario ator) {
         String sql = "UPDATE produtos SET ativo = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBoolean(1, ativo);
             ps.setInt(2, produtoId);
-            return ps.executeUpdate() > 0;
+            boolean sucesso = ps.executeUpdate() > 0;
+            if (sucesso && ator != null) {
+                findById(produtoId).ifPresent(produto -> {
+                    String acao = ativo ? "REATIVAÇÃO" : "INATIVAÇÃO";
+                    String detalhes = String.format("Produto '%s' (ID: %d) foi %s.",
+                            produto.getNome(), produto.getId(), ativo ? "reativado" : "inativado");
+                    auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", detalhes);
+                });
+            }
+            return sucesso;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Erro ao atualizar status do produto ID: " + produtoId, e);
             return false;
@@ -131,7 +158,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         return produtos;
     }
 
-    // ALTERAÇÃO: Implementação do método que estava em falta.
     @Override
     public List<Lote> findLotesByProdutoId(int produtoId) {
         List<Lote> lotes = new ArrayList<>();
@@ -152,6 +178,11 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public Lote saveLote(Lote lote) {
+        return this.saveLote(lote, null); // Chama o método auditável com ator nulo
+    }
+
+    @Override
+    public Lote saveLote(Lote lote, Usuario ator) {
         boolean isUpdate = lote.getId() != 0;
         String sqlLote = isUpdate
                 ? "UPDATE estoque_lotes SET produto_id = ?, numero_lote = ?, quantidade = ?, data_validade = ? WHERE id = ?"
@@ -182,10 +213,14 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
                 }
             }
 
-            String acao = isUpdate ? "ATUALIZAÇÃO DE LOTE" : "ENTRADA DE LOTE";
-            String detalhes = String.format("Ação de %s para o produto ID %d. Lote: '%s' (ID: %d), Qtd: %d.",
-                    acao.replace("_", " "), lote.getProdutoId(), lote.getNumeroLote(), lote.getId(), lote.getQuantidade());
-            auditoriaRepository.registrarAcao(1, "admin", acao, "Estoque", detalhes);
+            if (ator != null) {
+                findById(lote.getProdutoId()).ifPresent(produto -> {
+                    String acao = isUpdate ? "ATUALIZAÇÃO DE LOTE" : "ENTRADA DE LOTE";
+                    String detalhes = String.format("Ação no produto '%s' (ID %d). Lote: '%s' (ID: %d), Qtd: %d.",
+                            produto.getNome(), lote.getProdutoId(), lote.getNumeroLote(), lote.getId(), lote.getQuantidade());
+                    auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", detalhes);
+                });
+            }
 
             conn.commit();
             return lote;
@@ -241,16 +276,23 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
                 .collect(Collectors.toList());
     }
 
+    // MÉTODO CORRIGIDO / ADICIONADO
     @Override
     public void deleteById(Integer id) {
+        logger.warning("Método deleteById de Produto sem auditoria foi chamado. A operação não será registada.");
+        this.deleteById(id, null);
+    }
+
+    @Override
+    public void deleteById(Integer id, Usuario ator) {
         findById(id).ifPresent(produto -> {
             String sql = "DELETE FROM produtos WHERE id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, id);
-                if (ps.executeUpdate() > 0) {
+                if (ps.executeUpdate() > 0 && ator != null) {
                     String detalhes = String.format("Produto '%s' (ID: %d) e todos os seus lotes foram eliminados (AÇÃO NÃO RECOMENDADA).", produto.getNome(), id);
-                    auditoriaRepository.registrarAcao(1, "admin", "EXCLUSÃO FÍSICA", "Produto", detalhes);
+                    auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", detalhes);
                 }
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Erro ao deletar produto ID: " + id, e);
@@ -276,16 +318,18 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     }
 
     @Override
-    public void deleteLoteById(int loteId) {
+    public void deleteLoteById(int loteId, Usuario ator) {
         findLoteById(loteId).ifPresent(lote -> {
             String sql = "DELETE FROM estoque_lotes WHERE id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, loteId);
-                if (ps.executeUpdate() > 0) {
-                    String detalhes = String.format("Lote '%s' (ID: %d) do produto ID %d foi removido (Qtd: %d).",
-                            lote.getNumeroLote(), loteId, lote.getProdutoId(), lote.getQuantidade());
-                    auditoriaRepository.registrarAcao(1, "admin", "EXCLUSÃO DE LOTE", "Estoque", detalhes);
+                if (ps.executeUpdate() > 0 && ator != null) {
+                    findById(lote.getProdutoId()).ifPresent(produto -> {
+                        String detalhes = String.format("Lote '%s' (ID: %d) do produto '%s' (ID: %d) foi removido (Qtd: %d).",
+                                lote.getNumeroLote(), loteId, produto.getNome(), lote.getProdutoId(), lote.getQuantidade());
+                        auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", detalhes);
+                    });
                 }
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Erro ao deletar lote ID: " + loteId, e);
