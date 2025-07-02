@@ -1,5 +1,6 @@
 package com.titanaxis.service;
 
+import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.UsuarioRepository;
@@ -48,15 +49,13 @@ public class AuthService {
         return Optional.empty();
     }
 
-    // ALTERAÇÃO: Agora recebe o administrador que está a realizar a ação
-    public boolean cadastrarUsuario(String nomeUsuario, String senha, String nivelAcesso, Usuario ator) {
+    public boolean cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) {
         if (usuarioRepository.findByNomeUsuario(nomeUsuario).isPresent()) {
             logger.warning("Tentativa de cadastrar usuário existente: " + nomeUsuario);
             return false;
         }
         String senhaHash = PasswordUtil.hashPassword(senha);
         Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
-        // Passa o ator para a camada de repositório
         return usuarioRepository.save(novoUsuario, ator) != null;
     }
 
@@ -69,11 +68,11 @@ public class AuthService {
     }
 
     public boolean isAdmin() {
-        return usuarioLogado != null && "admin".equalsIgnoreCase(usuarioLogado.getNivelAcesso());
+        return usuarioLogado != null && usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN;
     }
 
     public boolean isGerente() {
-        return usuarioLogado != null && ("admin".equalsIgnoreCase(usuarioLogado.getNivelAcesso()) || "gerente".equalsIgnoreCase(usuarioLogado.getNivelAcesso()));
+        return usuarioLogado != null && (usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN || usuarioLogado.getNivelAcesso() == NivelAcesso.GERENTE);
     }
 
     public void logout() {
@@ -101,15 +100,11 @@ public class AuthService {
         }
     }
 
-    // ALTERAÇÃO: Agora recebe o administrador que está a realizar a ação
     public boolean atualizarUsuario(Usuario usuario, Usuario ator) {
-        // Passa o ator para a camada de repositório
         return usuarioRepository.save(usuario, ator) != null;
     }
 
-    // ALTERAÇÃO: Agora recebe o administrador que está a realizar a ação
     public void deletarUsuario(int id, Usuario ator) {
-        // Passa o ator para a camada de repositório
         usuarioRepository.deleteById(id, ator);
     }
 }

@@ -1,5 +1,6 @@
-// src/main/java/com/titanaxis/util/DatabaseConnection.java
 package com.titanaxis.util;
+
+import com.titanaxis.model.NivelAcesso;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -45,7 +46,7 @@ public class DatabaseConnection {
                     "descricao TEXT," +
                     "preco REAL NOT NULL," +
                     "categoria_id INTEGER," +
-                    "ativo INTEGER NOT NULL DEFAULT 1," + // <-- NOVA COLUNA
+                    "ativo INTEGER NOT NULL DEFAULT 1," +
                     "data_adicao TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                     "data_ultima_atualizacao TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                     "FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE SET NULL" +
@@ -146,7 +147,7 @@ public class DatabaseConnection {
                 try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
                     ps.setString(1, "admin");
                     ps.setString(2, hashedAdminPassword);
-                    ps.setString(3, "admin");
+                    ps.setString(3, NivelAcesso.ADMIN.getNome());
                     ps.executeUpdate();
                     logger.info("Usuário 'admin' criado com senha inicial.");
                 }

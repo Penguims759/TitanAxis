@@ -1,5 +1,6 @@
 package com.titanaxis.repository.impl;
 
+import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.UsuarioRepository;
@@ -19,13 +20,11 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
     @Override
     public Usuario save(Usuario usuario) {
-        // Método sem auditoria, mantido por compatibilidade com a interface genérica
         logger.warning("Método save de Usuario sem auditoria foi chamado.");
         boolean isUpdate = usuario.getId() != 0;
         return isUpdate ? update(usuario) : insert(usuario);
     }
 
-    // ALTERAÇÃO: Implementação do método que aceita o utilizador "ator"
     @Override
     public Usuario save(Usuario usuario, Usuario ator) {
         boolean isUpdate = usuario.getId() != 0;
@@ -34,8 +33,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         if (usuarioSalvo != null && ator != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Usuário '%s' (ID: %d) foi %s. Nível de Acesso: %s.",
-                    usuarioSalvo.getNomeUsuario(), usuarioSalvo.getId(), isUpdate ? "atualizado" : "criado", usuarioSalvo.getNivelAcesso());
-            // Utiliza os dados do "ator" para o registo
+                    usuarioSalvo.getNomeUsuario(), usuarioSalvo.getId(), usuarioSalvo.getNivelAcesso().getNome());
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", detalhes);
         }
         return usuarioSalvo;
@@ -47,7 +45,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, usuario.getNomeUsuario());
             ps.setString(2, usuario.getSenhaHash());
-            ps.setString(3, usuario.getNivelAcesso());
+            ps.setString(3, usuario.getNivelAcesso().getNome());
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -68,7 +66,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, usuario.getNomeUsuario());
             ps.setString(2, usuario.getSenhaHash());
-            ps.setString(3, usuario.getNivelAcesso());
+            ps.setString(3, usuario.getNivelAcesso().getNome());
             ps.setInt(4, usuario.getId());
             if (ps.executeUpdate() > 0) {
                 return usuario;
@@ -81,7 +79,6 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
     @Override
     public void deleteById(Integer id) {
-        // Método sem auditoria
         logger.warning("Método deleteById de Usuario sem auditoria foi chamado.");
         String sql = "DELETE FROM usuarios WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -93,7 +90,6 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         }
     }
 
-    // ALTERAÇÃO: Implementação do método que aceita o utilizador "ator"
     @Override
     public void deleteById(Integer id, Usuario ator) {
         findById(id).ifPresent(usuario -> {
@@ -103,7 +99,6 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
                 ps.setInt(1, id);
                 if(ps.executeUpdate() > 0 && ator != null){
                     String detalhes = String.format("Usuário '%s' (ID: %d) foi eliminado.", usuario.getNomeUsuario(), id);
-                    // Utiliza os dados do "ator" para o registo
                     auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Usuário", detalhes);
                 }
             } catch (SQLException e) {
@@ -181,11 +176,13 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
     }
 
     private Usuario mapRowToUsuario(ResultSet rs) throws SQLException {
+        NivelAcesso nivel = NivelAcesso.valueOf(rs.getString("nivel_acesso").toUpperCase());
+
         return new Usuario(
                 rs.getInt("id"),
                 rs.getString("nome_usuario"),
                 rs.getString("senha_hash"),
-                rs.getString("nivel_acesso")
+                nivel
         );
     }
 }

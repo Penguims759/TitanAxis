@@ -1,5 +1,6 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
@@ -18,7 +19,7 @@ public class UsuarioPanel extends JPanel {
     private final JTable usuarioTable;
     private final JTextField idField, usernameField;
     private final JPasswordField passwordField;
-    private final JComboBox<String> nivelAcessoComboBox;
+    private final JComboBox<NivelAcesso> nivelAcessoComboBox;
     private static final Logger logger = AppLogger.getLogger();
 
     public UsuarioPanel(AuthService authService) {
@@ -32,7 +33,9 @@ public class UsuarioPanel extends JPanel {
         idField.setEditable(false);
         usernameField = new JTextField();
         passwordField = new JPasswordField();
-        nivelAcessoComboBox = new JComboBox<>(new String[]{"padrao", "gerente", "admin"});
+
+        nivelAcessoComboBox = new JComboBox<>(NivelAcesso.values());
+
         formPanel.add(new JLabel("ID:"));
         formPanel.add(idField);
         formPanel.add(new JLabel("Nome de Utilizador:"));
@@ -112,7 +115,7 @@ public class UsuarioPanel extends JPanel {
         if (selectedRow >= 0) {
             idField.setText(tableModel.getValueAt(selectedRow, 0).toString());
             usernameField.setText(tableModel.getValueAt(selectedRow, 1).toString());
-            nivelAcessoComboBox.setSelectedItem(tableModel.getValueAt(selectedRow, 2).toString());
+            nivelAcessoComboBox.setSelectedItem(tableModel.getValueAt(selectedRow, 2));
             passwordField.setText("");
         }
     }
@@ -120,14 +123,13 @@ public class UsuarioPanel extends JPanel {
     private void addUsuario() {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
-        String nivelAcesso = (String) nivelAcessoComboBox.getSelectedItem();
+        NivelAcesso nivelAcesso = (NivelAcesso) nivelAcessoComboBox.getSelectedItem();
 
         if (username.isEmpty() || password.isEmpty() || nivelAcesso == null) {
             JOptionPane.showMessageDialog(this, "Nome, senha e nível de acesso são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // ALTERAÇÃO: Passa o utilizador logado (ator) para o método do serviço
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         if (authService.cadastrarUsuario(username, password, nivelAcesso, ator)) {
             JOptionPane.showMessageDialog(this, "Usuário adicionado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
@@ -147,7 +149,7 @@ public class UsuarioPanel extends JPanel {
         int id = Integer.parseInt(idField.getText());
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
-        String nivelAcesso = (String) nivelAcessoComboBox.getSelectedItem();
+        NivelAcesso nivelAcesso = (NivelAcesso) nivelAcessoComboBox.getSelectedItem();
 
         if (username.isEmpty() || nivelAcesso == null) {
             JOptionPane.showMessageDialog(this, "Nome e nível de acesso são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -163,7 +165,6 @@ public class UsuarioPanel extends JPanel {
         String senhaHash = password.isEmpty() ? userOpt.get().getSenhaHash() : PasswordUtil.hashPassword(password);
         Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivelAcesso);
 
-        // ALTERAÇÃO: Passa o utilizador logado (ator) para o método do serviço
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         if (authService.atualizarUsuario(usuarioAtualizado, ator)) {
             JOptionPane.showMessageDialog(this, "Usuário atualizado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
@@ -187,7 +188,6 @@ public class UsuarioPanel extends JPanel {
 
         int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza?", "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            // ALTERAÇÃO: Passa o utilizador logado (ator) para o método do serviço
             Usuario ator = authService.getUsuarioLogado().orElse(null);
             authService.deletarUsuario(idToDelete, ator);
             JOptionPane.showMessageDialog(this, "Utilizador eliminado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
