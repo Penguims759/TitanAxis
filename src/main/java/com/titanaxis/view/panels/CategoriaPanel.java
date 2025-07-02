@@ -1,23 +1,25 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.model.Categoria;
-import com.titanaxis.repository.CategoriaRepository;
-import com.titanaxis.repository.impl.CategoriaRepositoryImpl;
+import com.titanaxis.service.AuthService;
+import com.titanaxis.service.CategoriaService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import java.util.Optional;
 
 public class CategoriaPanel extends JPanel {
-    private final CategoriaRepository categoriaRepository;
+    // ALTERAÇÃO: Injeção de dependências do AuthService e introdução do CategoriaService
+    private final AuthService authService;
+    private final CategoriaService categoriaService;
     private final DefaultTableModel tableModel;
     private final JTable categoriaTable;
     private final JTextField idField, nomeField;
 
-    public CategoriaPanel() {
-        this.categoriaRepository = new CategoriaRepositoryImpl();
+    public CategoriaPanel(AuthService authService) {
+        this.authService = authService;
+        this.categoriaService = new CategoriaService(); // Serviço encapsula o repositório
         setLayout(new BorderLayout(10, 10));
 
         // --- Painel Norte: Formulário e Botões ---
@@ -99,14 +101,16 @@ public class CategoriaPanel extends JPanel {
 
     private void performSearch(String searchTerm) {
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            popularTabela(categoriaRepository.findByNomeContainingWithProductCount(searchTerm));
+            // ALTERAÇÃO: Usa o serviço
+            popularTabela(categoriaService.buscarCategoriasPorNome(searchTerm));
         } else {
             loadCategorias();
         }
     }
 
     private void loadCategorias() {
-        popularTabela(categoriaRepository.findAllWithProductCount());
+        // ALTERAÇÃO: Usa o serviço
+        popularTabela(categoriaService.listarTodasCategorias());
     }
 
     private void displaySelectedCategoria() {
@@ -126,22 +130,16 @@ public class CategoriaPanel extends JPanel {
 
         boolean isUpdate = !idField.getText().isEmpty();
         int id = isUpdate ? Integer.parseInt(idField.getText()) : 0;
-
-        Optional<Categoria> catExistenteOpt = categoriaRepository.findByNome(nome);
-        if(catExistenteOpt.isPresent() && catExistenteOpt.get().getId() != id){
-            JOptionPane.showMessageDialog(this, "Já existe uma categoria com este nome.", "Erro", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         Categoria categoria = new Categoria(id, nome);
-        Categoria savedCategoria = categoriaRepository.save(categoria);
 
-        if (savedCategoria != null) {
+        try {
+            // ALTERAÇÃO: Usa o CategoriaService, passando a informação do utilizador logado
+            categoriaService.salvar(categoria, authService.getUsuarioLogado().orElse(null));
             JOptionPane.showMessageDialog(this, "Categoria " + (isUpdate ? "atualizada" : "adicionada") + " com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             loadCategorias();
             clearFields();
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar categoria.", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar categoria: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -157,7 +155,8 @@ public class CategoriaPanel extends JPanel {
                 "Confirmar Eliminação", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            categoriaRepository.deleteById(id);
+            // ALTERAÇÃO: Usa o CategoriaService, passando o utilizador logado
+            categoriaService.deletar(id, authService.getUsuarioLogado().orElse(null));
             JOptionPane.showMessageDialog(this, "Categoria eliminada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             loadCategorias();
             clearFields();

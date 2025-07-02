@@ -1,7 +1,7 @@
-// src/main/java/com/titanaxis/repository/impl/CategoriaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.Categoria;
+import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.CategoriaRepository;
 import com.titanaxis.util.AppLogger;
@@ -20,15 +20,24 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
     @Override
     public Categoria save(Categoria categoria) {
+        // Este método agora existe por compatibilidade com a interface, mas não deve ser usado para operações auditáveis.
+        logger.warning("Método save sem auditoria foi chamado. A operação não será registada.");
+        boolean isUpdate = categoria.getId() != 0;
+        return isUpdate ? update(categoria) : insert(categoria);
+    }
+
+    // ALTERAÇÃO: Implementação do método que aceita o utilizador logado.
+    @Override
+    public Categoria save(Categoria categoria, Usuario usuarioLogado) {
         boolean isUpdate = categoria.getId() != 0;
         Categoria categoriaSalva = isUpdate ? update(categoria) : insert(categoria);
 
-        if (categoriaSalva != null) {
+        if (categoriaSalva != null && usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Categoria '%s' (ID: %d) foi %s.",
                     categoriaSalva.getNome(), categoriaSalva.getId(), isUpdate ? "atualizada" : "criada");
-            // TODO: Substituir o ID e nome fixos pelo do usuário logado na sessão
-            auditoriaRepository.registrarAcao(1, "admin", acao, "Categoria", detalhes);
+            // ALTERAÇÃO: Usa os dados dinâmicos do utilizador logado
+            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Categoria", detalhes);
         }
         return categoriaSalva;
     }
@@ -69,14 +78,30 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
     @Override
     public void deleteById(Integer id) {
+        // Método por compatibilidade, não deve ser usado para operações auditáveis.
+        logger.warning("Método deleteById sem auditoria foi chamado. A operação não será registada.");
+        String sql = "DELETE FROM categorias WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Erro ao deletar categoria ID: " + id, e);
+        }
+    }
+
+    // ALTERAÇÃO: Implementação do método que aceita o utilizador logado.
+    @Override
+    public void deleteById(Integer id, Usuario usuarioLogado) {
         findById(id).ifPresent(categoria -> {
             String sql = "DELETE FROM categorias WHERE id = ?";
             try (Connection conn = DatabaseConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, id);
-                if (ps.executeUpdate() > 0) {
+                if (ps.executeUpdate() > 0 && usuarioLogado != null) {
                     String detalhes = String.format("Categoria '%s' (ID: %d) foi eliminada.", categoria.getNome(), id);
-                    auditoriaRepository.registrarAcao(1, "admin", "EXCLUSÃO", "Categoria", detalhes);
+                    // ALTERAÇÃO: Usa os dados dinâmicos do utilizador logado
+                    auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", detalhes);
                 }
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Erro ao deletar categoria ID: " + id, e);
