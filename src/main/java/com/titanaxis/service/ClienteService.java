@@ -36,4 +36,9 @@ public class ClienteService {
     public List<Cliente> buscarPorNome(String nome) {
         return clienteRepository.findByNomeContaining(nome);
     }
+
+    // NOVO MÉTODO: Para ser usado pelo painel de vendas
+    public List<Cliente> listarTodosParaVenda() {
+        return clienteRepository.findAll();
+    }
 }

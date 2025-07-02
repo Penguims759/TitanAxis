@@ -1,11 +1,9 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.model.*;
-import com.titanaxis.repository.ClienteRepository;
-import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.repository.impl.ClienteRepositoryImpl;
-import com.titanaxis.repository.impl.ProdutoRepositoryImpl;
 import com.titanaxis.service.AuthService;
+import com.titanaxis.service.ClienteService;
+import com.titanaxis.service.ProdutoService;
 import com.titanaxis.service.VendaService;
 
 import javax.swing.*;
@@ -18,13 +16,11 @@ import java.util.Locale;
 
 public class VendaPanel extends JPanel {
 
-    // ALTERAÇÃO: Introdução dos serviços
+    // ALTERAÇÃO: Repositórios removidos e substituídos pelos serviços correspondentes
     private final VendaService vendaService = new VendaService();
     private final AuthService authService;
-
-    // Repositórios ainda são usados para popular os ComboBoxes
-    private final ProdutoRepository produtoRepository = new ProdutoRepositoryImpl();
-    private final ClienteRepository clienteRepository = new ClienteRepositoryImpl();
+    private final ClienteService clienteService = new ClienteService();
+    private final ProdutoService produtoService = new ProdutoService();
 
     private DefaultTableModel carrinhoTableModel;
     private JComboBox<Cliente> clienteComboBox;
@@ -37,7 +33,7 @@ public class VendaPanel extends JPanel {
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public VendaPanel(AuthService authService) {
-        this.authService = authService; // Recebe o serviço de autenticação
+        this.authService = authService;
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -54,7 +50,74 @@ public class VendaPanel extends JPanel {
         carregarDadosIniciais();
     }
 
-    // ... (métodos createTopPanel, createBottomPanel, carregarDadosIniciais, atualizarLotesDisponiveis, adicionarAoCarrinho, atualizarCarrinho e limparVenda não sofrem alterações)
+    private void carregarDadosIniciais() {
+        clienteComboBox.removeAllItems();
+        // ALTERAÇÃO: Usa o serviço de cliente
+        clienteService.listarTodosParaVenda().forEach(clienteComboBox::addItem);
+
+        produtoComboBox.removeAllItems();
+        // ALTERAÇÃO: Usa o serviço de produto
+        produtoService.listarProdutosAtivosParaVenda().forEach(produtoComboBox::addItem);
+
+        atualizarLotesDisponiveis();
+    }
+
+    private void atualizarLotesDisponiveis() {
+        loteComboBox.removeAllItems();
+        Produto produtoSelecionado = (Produto) produtoComboBox.getSelectedItem();
+        if (produtoSelecionado != null) {
+            // ALTERAÇÃO: Usa o serviço de produto
+            produtoService.buscarLotesDisponiveis(produtoSelecionado.getId()).forEach(loteComboBox::addItem);
+        }
+    }
+
+    private void adicionarAoCarrinho() {
+        Lote loteSelecionado = (Lote) loteComboBox.getSelectedItem();
+        Produto produtoSelecionado = (Produto) produtoComboBox.getSelectedItem();
+
+        if (loteSelecionado == null || produtoSelecionado == null) {
+            JOptionPane.showMessageDialog(this, "Selecione um produto e um lote válido.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int quantidade = (Integer) quantidadeSpinner.getValue();
+        if (quantidade > loteSelecionado.getQuantidade()) {
+            JOptionPane.showMessageDialog(this, "Quantidade solicitada excede o estoque do lote (" + loteSelecionado.getQuantidade() + ").", "Erro de Estoque", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // ALTERAÇÃO: Usa o serviço para buscar o preço mais atualizado do produto
+        Produto produtoDoLote = produtoService.buscarProdutoPorId(loteSelecionado.getProdutoId()).orElse(produtoSelecionado);
+        VendaItem novoItem = new VendaItem(loteSelecionado, quantidade);
+        novoItem.setPrecoUnitario(produtoDoLote.getPreco());
+
+        carrinho.add(novoItem);
+        atualizarCarrinho();
+    }
+
+    private void atualizarCarrinho() {
+        carrinhoTableModel.setRowCount(0);
+        double total = 0.0;
+        for (VendaItem item : carrinho) {
+            double subtotal = item.getPrecoUnitario() * item.getQuantidade();
+            // ALTERAÇÃO: Busca o nome do produto através do serviço
+            String nomeProduto = produtoService.buscarProdutoPorId(item.getLote().getProdutoId())
+                    .map(Produto::getNome)
+                    .orElse("Produto não encontrado");
+            carrinhoTableModel.addRow(new Object[]{
+                    nomeProduto,
+                    item.getLote().getNumeroLote(),
+                    item.getQuantidade(),
+                    currencyFormat.format(item.getPrecoUnitario()),
+                    currencyFormat.format(subtotal)
+            });
+            total += subtotal;
+        }
+        totalLabel.setText("Total: " + currencyFormat.format(total));
+        quantidadeSpinner.setValue(1);
+    }
+
+    // ... (Restante da classe sem alterações de lógica)
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
         topPanel.setBorder(BorderFactory.createTitledBorder("Nova Venda"));
@@ -120,72 +183,6 @@ public class VendaPanel extends JPanel {
         return bottomPanel;
     }
 
-    private void carregarDadosIniciais() {
-        clienteComboBox.removeAllItems();
-        clienteRepository.findAll().forEach(clienteComboBox::addItem);
-
-        produtoComboBox.removeAllItems();
-        produtoRepository.findAll().stream()
-                .filter(p -> p.getQuantidadeTotal() > 0)
-                .forEach(produtoComboBox::addItem);
-
-        atualizarLotesDisponiveis();
-    }
-
-    private void atualizarLotesDisponiveis() {
-        loteComboBox.removeAllItems();
-        Produto produtoSelecionado = (Produto) produtoComboBox.getSelectedItem();
-        if (produtoSelecionado != null) {
-            List<Lote> lotes = produtoRepository.findLotesByProdutoId(produtoSelecionado.getId());
-            lotes.stream()
-                    .filter(l -> l.getQuantidade() > 0)
-                    .forEach(loteComboBox::addItem);
-        }
-    }
-
-    private void adicionarAoCarrinho() {
-        Lote loteSelecionado = (Lote) loteComboBox.getSelectedItem();
-        Produto produtoSelecionado = (Produto) produtoComboBox.getSelectedItem();
-
-        if (loteSelecionado == null || produtoSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione um produto e um lote válido.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int quantidade = (Integer) quantidadeSpinner.getValue();
-        if (quantidade > loteSelecionado.getQuantidade()) {
-            JOptionPane.showMessageDialog(this, "Quantidade solicitada excede o estoque do lote (" + loteSelecionado.getQuantidade() + ").", "Erro de Estoque", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        VendaItem novoItem = new VendaItem(loteSelecionado, quantidade);
-        novoItem.setPrecoUnitario(produtoSelecionado.getPreco());
-
-        carrinho.add(novoItem);
-        atualizarCarrinho();
-    }
-
-    private void atualizarCarrinho() {
-        carrinhoTableModel.setRowCount(0);
-        double total = 0.0;
-        for (VendaItem item : carrinho) {
-            Produto produtoDoItem = produtoRepository.findById(item.getLote().getProdutoId()).orElse(null);
-            if (produtoDoItem == null) continue;
-
-            double subtotal = item.getPrecoUnitario() * item.getQuantidade();
-            carrinhoTableModel.addRow(new Object[]{
-                    produtoDoItem.getNome(),
-                    item.getLote().getNumeroLote(),
-                    item.getQuantidade(),
-                    currencyFormat.format(item.getPrecoUnitario()),
-                    currencyFormat.format(subtotal)
-            });
-            total += subtotal;
-        }
-        totalLabel.setText("Total: " + currencyFormat.format(total));
-        quantidadeSpinner.setValue(1);
-    }
-
     private void limparVenda() {
         carrinho.clear();
         atualizarCarrinho();
@@ -203,7 +200,6 @@ public class VendaPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Selecione um cliente.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        // Obtém o utilizador logado
         Usuario ator = authService.getUsuarioLogado().orElse(null);
 
         double valorTotal = carrinho.stream().mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario()).sum();
