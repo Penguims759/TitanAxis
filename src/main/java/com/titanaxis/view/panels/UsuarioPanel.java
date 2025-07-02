@@ -3,115 +3,67 @@ package com.titanaxis.view.panels;
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
-import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.PasswordUtil;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
-public class UsuarioPanel extends JPanel {
+public class UsuarioPanel extends BaseCrudPanel<Usuario> {
+
     private final AuthService authService;
-    private final DefaultTableModel tableModel;
-    private final JTable usuarioTable;
-    private final JTextField idField, usernameField;
-    private final JPasswordField passwordField;
-    private final JComboBox<NivelAcesso> nivelAcessoComboBox;
-    private static final Logger logger = AppLogger.getLogger();
+
+    private JTextField idField, usernameField;
+    private JPasswordField passwordField;
+    private JComboBox<NivelAcesso> nivelAcessoComboBox;
 
     public UsuarioPanel(AuthService authService) {
+        super();
         this.authService = authService;
-        setLayout(new BorderLayout(10, 10));
 
-        // Formulário
-        JPanel formPanel = new JPanel(new GridLayout(4, 2, 5, 5));
-        formPanel.setBorder(BorderFactory.createTitledBorder("Detalhes do Utilizador"));
+        // CORREÇÃO: Chamadas movidas para o final do construtor da subclasse
+        setupListeners();
+        loadData();
+    }
+
+    @Override
+    protected JPanel createFormPanel() {
+        JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
+        panel.setBorder(BorderFactory.createTitledBorder("Detalhes do Utilizador"));
+
         idField = new JTextField();
         idField.setEditable(false);
         usernameField = new JTextField();
         passwordField = new JPasswordField();
-
         nivelAcessoComboBox = new JComboBox<>(NivelAcesso.values());
 
-        formPanel.add(new JLabel("ID:"));
-        formPanel.add(idField);
-        formPanel.add(new JLabel("Nome de Utilizador:"));
-        formPanel.add(usernameField);
-        formPanel.add(new JLabel("Nova Senha (deixe em branco para não alterar):"));
-        formPanel.add(passwordField);
-        formPanel.add(new JLabel("Nível de Acesso:"));
-        formPanel.add(nivelAcessoComboBox);
+        panel.add(new JLabel("ID:"));
+        panel.add(idField);
+        panel.add(new JLabel("Nome de Utilizador:"));
+        panel.add(usernameField);
+        panel.add(new JLabel("Nova Senha (deixe em branco para não alterar):"));
+        panel.add(passwordField);
+        panel.add(new JLabel("Nível de Acesso:"));
+        panel.add(nivelAcessoComboBox);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton addButton = new JButton("Adicionar");
-        JButton updateButton = new JButton("Atualizar");
-        JButton deleteButton = new JButton("Eliminar");
-        JButton clearButton = new JButton("Limpar");
-        buttonPanel.add(addButton);
-        buttonPanel.add(updateButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(clearButton);
-
-        JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.add(formPanel, BorderLayout.CENTER);
-        northPanel.add(buttonPanel, BorderLayout.SOUTH);
-        add(northPanel, BorderLayout.NORTH);
-
-        // Tabela e Busca
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField searchField = new JTextField(25);
-        JButton searchButton = new JButton("Buscar");
-        searchPanel.add(new JLabel("Buscar por Nome:"));
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-
-        String[] columnNames = {"ID", "Nome de Utilizador", "Nível de Acesso"};
-        tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        usuarioTable = new JTable(tableModel);
-        usuarioTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) displaySelectedUser();
-        });
-
-        JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.add(searchPanel, BorderLayout.NORTH);
-        tableContainer.add(new JScrollPane(usuarioTable), BorderLayout.CENTER);
-        add(tableContainer, BorderLayout.CENTER);
-
-        // Ações
-        addButton.addActionListener(e -> addUsuario());
-        updateButton.addActionListener(e -> updateUsuario());
-        deleteButton.addActionListener(e -> deleteUsuario());
-        clearButton.addActionListener(e -> clearFields());
-        searchButton.addActionListener(e -> performSearch(searchField.getText()));
-        searchField.addActionListener(e -> performSearch(searchField.getText()));
-
-        loadUsuarios();
+        return panel;
     }
 
-    private void popularTabela(List<Usuario> usuarios) {
+    @Override
+    protected String[] getColumnNames() {
+        return new String[]{"ID", "Nome de Utilizador", "Nível de Acesso"};
+    }
+
+    @Override
+    protected void populateTable(List<Usuario> usuarios) {
         tableModel.setRowCount(0);
         usuarios.forEach(u -> tableModel.addRow(new Object[]{u.getId(), u.getNomeUsuario(), u.getNivelAcesso()}));
     }
 
-    private void performSearch(String searchTerm) {
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            popularTabela(authService.buscarUsuariosPorNomeContendo(searchTerm));
-        } else {
-            loadUsuarios();
-        }
-    }
-
-    private void loadUsuarios() {
-        popularTabela(authService.listarUsuarios());
-    }
-
-    private void displaySelectedUser() {
-        int selectedRow = usuarioTable.getSelectedRow();
+    @Override
+    protected void displaySelectedItem() {
+        int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
             idField.setText(tableModel.getValueAt(selectedRow, 0).toString());
             usernameField.setText(tableModel.getValueAt(selectedRow, 1).toString());
@@ -120,64 +72,75 @@ public class UsuarioPanel extends JPanel {
         }
     }
 
-    private void addUsuario() {
+    @Override
+    protected void clearFields() {
+        idField.setText("");
+        usernameField.setText("");
+        passwordField.setText("");
+        nivelAcessoComboBox.setSelectedIndex(0);
+        table.clearSelection();
+    }
+
+    @Override
+    protected void loadData() {
+        populateTable(authService.listarUsuarios());
+    }
+
+    @Override
+    protected void onSearch() {
+        String searchTerm = searchField.getText();
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            populateTable(authService.buscarUsuariosPorNomeContendo(searchTerm));
+        } else {
+            loadData();
+        }
+    }
+
+    @Override
+    protected void onSave() {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
         NivelAcesso nivelAcesso = (NivelAcesso) nivelAcessoComboBox.getSelectedItem();
 
-        if (username.isEmpty() || password.isEmpty() || nivelAcesso == null) {
-            JOptionPane.showMessageDialog(this, "Nome, senha e nível de acesso são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
+        boolean isUpdate = !idField.getText().isEmpty();
+
+        if (username.isEmpty() || nivelAcesso == null || (!isUpdate && password.isEmpty())) {
+            JOptionPane.showMessageDialog(this, "Nome, senha (para novos utilizadores) e nível de acesso são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        int id = isUpdate ? Integer.parseInt(idField.getText()) : 0;
         Usuario ator = authService.getUsuarioLogado().orElse(null);
-        if (authService.cadastrarUsuario(username, password, nivelAcesso, ator)) {
-            JOptionPane.showMessageDialog(this, "Usuário adicionado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            loadUsuarios();
-            clearFields();
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao adicionar. O nome de utilizador pode já existir.", "Erro", JOptionPane.ERROR_MESSAGE);
+
+        if (isUpdate) {
+            Optional<Usuario> userOpt = authService.listarUsuarios().stream().filter(u -> u.getId() == id).findFirst();
+            if (userOpt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Utilizador não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            String senhaHash = password.isEmpty() ? userOpt.get().getSenhaHash() : PasswordUtil.hashPassword(password);
+            Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivelAcesso);
+
+            if (authService.atualizarUsuario(usuarioAtualizado, ator)) {
+                JOptionPane.showMessageDialog(this, "Utilizador atualizado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao atualizar utilizador.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else { // É um novo utilizador
+            if (authService.cadastrarUsuario(username, password, nivelAcesso, ator)) {
+                JOptionPane.showMessageDialog(this, "Utilizador adicionado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao adicionar. O nome de utilizador pode já existir.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         }
+        loadData();
+        clearFields();
     }
 
-    private void updateUsuario() {
+    @Override
+    protected void onDelete() {
         if (idField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Selecione um usuário para atualizar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int id = Integer.parseInt(idField.getText());
-        String username = usernameField.getText().trim();
-        String password = new String(passwordField.getPassword());
-        NivelAcesso nivelAcesso = (NivelAcesso) nivelAcessoComboBox.getSelectedItem();
-
-        if (username.isEmpty() || nivelAcesso == null) {
-            JOptionPane.showMessageDialog(this, "Nome e nível de acesso são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Optional<Usuario> userOpt = authService.listarUsuarios().stream().filter(u -> u.getId() == id).findFirst();
-        if(userOpt.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Usuário não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String senhaHash = password.isEmpty() ? userOpt.get().getSenhaHash() : PasswordUtil.hashPassword(password);
-        Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivelAcesso);
-
-        Usuario ator = authService.getUsuarioLogado().orElse(null);
-        if (authService.atualizarUsuario(usuarioAtualizado, ator)) {
-            JOptionPane.showMessageDialog(this, "Usuário atualizado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            loadUsuarios();
-            clearFields();
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao atualizar usuário.", "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void deleteUsuario() {
-        if (idField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Selecione um usuário para eliminar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Selecione um utilizador para eliminar.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
         int idToDelete = Integer.parseInt(idField.getText());
@@ -191,16 +154,8 @@ public class UsuarioPanel extends JPanel {
             Usuario ator = authService.getUsuarioLogado().orElse(null);
             authService.deletarUsuario(idToDelete, ator);
             JOptionPane.showMessageDialog(this, "Utilizador eliminado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            loadUsuarios();
+            loadData();
             clearFields();
         }
-    }
-
-    private void clearFields() {
-        idField.setText("");
-        usernameField.setText("");
-        passwordField.setText("");
-        nivelAcessoComboBox.setSelectedIndex(0);
-        usuarioTable.clearSelection();
     }
 }
