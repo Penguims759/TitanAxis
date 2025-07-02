@@ -1,8 +1,8 @@
-// src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.titanaxis.app.AppContext;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.view.panels.*;
@@ -15,12 +15,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DashboardFrame extends JFrame {
+    private final AppContext appContext;
     private final AuthService authService;
     private static final Logger logger = AppLogger.getLogger();
 
-    public DashboardFrame(AuthService authService) {
+    public DashboardFrame(AppContext appContext) {
         super("Dashboard - TitanAxis");
-        this.authService = authService;
+        this.appContext = appContext;
+        this.authService = appContext.getAuthService();
 
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -42,37 +44,35 @@ public class DashboardFrame extends JFrame {
         JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        // ALTERAÇÃO: Passa a instância do authService para o VendaPanel
-        mainTabbedPane.addTab("Vendas", new VendaPanel(authService));
+        mainTabbedPane.addTab("Vendas", new VendaPanel(appContext));
 
         if (authService.isGerente()) {
             JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane();
-            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(authService));
-            produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(authService));
-            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel());
+            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(appContext));
+            produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(appContext));
+            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel(appContext));
             produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", new MovimentosPanel());
             mainTabbedPane.addTab("Produtos & Estoque", produtosEstoqueTabbedPane);
         }
 
         if (authService.isGerente()) {
-            mainTabbedPane.addTab("Clientes", new ClientePanel(authService));
+            mainTabbedPane.addTab("Clientes", new ClientePanel(appContext));
         }
 
         if (authService.isGerente()) {
-            mainTabbedPane.addTab("Relatórios", new RelatorioPanel());
+            mainTabbedPane.addTab("Relatórios", new RelatorioPanel(appContext));
         }
 
         if (authService.isAdmin()) {
             JTabbedPane adminTabbedPane = new JTabbedPane();
-            adminTabbedPane.addTab("Gestão de Usuários", new UsuarioPanel(authService));
-            adminTabbedPane.addTab("Logs de Auditoria", new AuditoriaPanel());
+            adminTabbedPane.addTab("Gestão de Usuários", new UsuarioPanel(appContext));
+            adminTabbedPane.addTab("Logs de Auditoria", new AuditoriaPanel(appContext));
             mainTabbedPane.addTab("Administração", adminTabbedPane);
         }
 
         add(mainTabbedPane);
     }
 
-    // ... (resto da classe sem alterações)
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menuArquivo = new JMenu("Arquivo");
@@ -112,7 +112,7 @@ public class DashboardFrame extends JFrame {
                 JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             authService.logout();
-            new LoginFrame().setVisible(true);
+            new LoginFrame(appContext).setVisible(true);
             this.dispose();
         }
     }

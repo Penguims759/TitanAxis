@@ -1,29 +1,27 @@
-// src/main/java/com/titanaxis/view/LoginFrame.java
 package com.titanaxis.view;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Optional; // Import necessário
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Janela de login da aplicação. Permite que os usuários insiram suas credenciais
- * para aceder ao sistema.
- */
 public class LoginFrame extends JFrame {
+    private final AppContext appContext;
     private final AuthService authService;
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private static final Logger logger = AppLogger.getLogger();
 
-    public LoginFrame() {
+    public LoginFrame(AppContext appContext) {
         super("Login - TitanAxis");
-        this.authService = new AuthService();
+        this.appContext = appContext;
+        this.authService = appContext.getAuthService();
 
         setSize(400, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -49,7 +47,6 @@ public class LoginFrame extends JFrame {
         JLabel passLabel = new JLabel("Senha:");
         passwordField = new JPasswordField(20);
 
-        // Adiciona um ActionListener ao campo de senha para permitir o login com a tecla Enter
         passwordField.addActionListener(e -> performLogin());
 
         inputPanel.add(userLabel);
@@ -82,13 +79,10 @@ public class LoginFrame extends JFrame {
 
             if (usuarioOpt.isPresent()) {
                 Usuario usuario = usuarioOpt.get();
-
                 logger.info("Usuário " + usuario.getNomeUsuario() + " logou com sucesso.");
                 JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo(a), " + usuario.getNomeUsuario() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
-                DashboardFrame dashboard = new DashboardFrame(authService);
-
-                // ALTERAÇÃO: Tornamos o dashboard visível ANTES de descartar o login.
+                DashboardFrame dashboard = new DashboardFrame(appContext);
                 dashboard.setVisible(true);
                 this.dispose();
             } else {

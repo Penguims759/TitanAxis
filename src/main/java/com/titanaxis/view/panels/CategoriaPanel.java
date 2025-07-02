@@ -1,5 +1,6 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
@@ -16,12 +17,11 @@ public class CategoriaPanel extends BaseCrudPanel<Categoria> {
 
     private JTextField idField, nomeField;
 
-    public CategoriaPanel(AuthService authService) {
+    public CategoriaPanel(AppContext appContext) {
         super();
-        this.authService = authService;
-        this.categoriaService = new CategoriaService();
+        this.authService = appContext.getAuthService();
+        this.categoriaService = appContext.getCategoriaService();
 
-        // CORREÇÃO: Chamadas movidas para o final do construtor da subclasse
         setupListeners();
         loadData();
     }

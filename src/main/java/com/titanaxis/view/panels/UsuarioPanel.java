@@ -1,5 +1,6 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
@@ -18,11 +19,10 @@ public class UsuarioPanel extends BaseCrudPanel<Usuario> {
     private JPasswordField passwordField;
     private JComboBox<NivelAcesso> nivelAcessoComboBox;
 
-    public UsuarioPanel(AuthService authService) {
+    public UsuarioPanel(AppContext appContext) {
         super();
-        this.authService = authService;
+        this.authService = appContext.getAuthService();
 
-        // CORREÇÃO: Chamadas movidas para o final do construtor da subclasse
         setupListeners();
         loadData();
     }

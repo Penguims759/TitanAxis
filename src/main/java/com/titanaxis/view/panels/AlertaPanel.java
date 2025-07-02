@@ -1,5 +1,6 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.util.AppLogger;
 
@@ -13,8 +14,8 @@ public class AlertaPanel extends JPanel {
     private final JTextArea alertaTextArea;
     private static final Logger logger = AppLogger.getLogger();
 
-    public AlertaPanel() {
-        this.alertaService = new AlertaService();
+    public AlertaPanel(AppContext appContext) {
+        this.alertaService = appContext.getAlertaService();
         setLayout(new BorderLayout(10, 10));
 
         JLabel titleLabel = new JLabel("Alertas de Estoque", SwingConstants.CENTER);

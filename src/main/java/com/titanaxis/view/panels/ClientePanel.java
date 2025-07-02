@@ -1,5 +1,6 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
@@ -16,12 +17,11 @@ public class ClientePanel extends BaseCrudPanel<Cliente> {
 
     private JTextField idField, nomeField, contatoField, enderecoField;
 
-    public ClientePanel(AuthService authService) {
+    public ClientePanel(AppContext appContext) {
         super();
-        this.authService = authService;
-        this.clienteService = new ClienteService();
+        this.authService = appContext.getAuthService();
+        this.clienteService = appContext.getClienteService();
 
-        // CORREÇÃO: Chamadas movidas para o final do construtor da subclasse
         setupListeners();
         loadData();
     }

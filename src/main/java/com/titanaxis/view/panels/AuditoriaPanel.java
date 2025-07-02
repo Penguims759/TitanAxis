@@ -1,8 +1,7 @@
-// src/main/java/com/titanaxis/view/panels/AuditoriaPanel.java
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.service.RelatorioService;
-import com.titanaxis.util.DatabaseConnection;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -28,8 +27,8 @@ public class AuditoriaPanel extends JPanel {
     private DefaultTableModel acessoTableModel;
     private RelatorioService relatorioService;
 
-    public AuditoriaPanel() {
-        this.relatorioService = new RelatorioService();
+    public AuditoriaPanel(AppContext appContext) {
+        this.relatorioService = appContext.getRelatorioService();
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createTitledBorder("Logs de Auditoria do Sistema"));
 
@@ -48,8 +47,6 @@ public class AuditoriaPanel extends JPanel {
         JTable table = new JTable(model);
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
-
-        // ... (código para ajustar a largura das colunas) ...
 
         JTextField filterField = new JTextField(30);
         filterField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -148,7 +145,6 @@ public class AuditoriaPanel extends JPanel {
         }
     }
 
-    // --- Métodos Auxiliares para Salvar (reutilizados) ---
     private void salvarRelatorioCsv(String nomeBase, String conteudo) {
         JFileChooser fileChooser = createFileChooser(nomeBase, "csv", "Arquivo CSV (*.csv)");
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {

@@ -1,5 +1,6 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.model.*;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ClienteService;
@@ -16,11 +17,10 @@ import java.util.Locale;
 
 public class VendaPanel extends JPanel {
 
-    // ALTERAÇÃO: Repositórios removidos e substituídos pelos serviços correspondentes
-    private final VendaService vendaService = new VendaService();
+    private final VendaService vendaService;
     private final AuthService authService;
-    private final ClienteService clienteService = new ClienteService();
-    private final ProdutoService produtoService = new ProdutoService();
+    private final ClienteService clienteService;
+    private final ProdutoService produtoService;
 
     private DefaultTableModel carrinhoTableModel;
     private JComboBox<Cliente> clienteComboBox;
@@ -32,8 +32,12 @@ public class VendaPanel extends JPanel {
     private final List<VendaItem> carrinho = new ArrayList<>();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
-    public VendaPanel(AuthService authService) {
-        this.authService = authService;
+    public VendaPanel(AppContext appContext) {
+        this.authService = appContext.getAuthService();
+        this.vendaService = appContext.getVendaService();
+        this.clienteService = appContext.getClienteService();
+        this.produtoService = appContext.getProdutoService();
+
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -52,11 +56,9 @@ public class VendaPanel extends JPanel {
 
     private void carregarDadosIniciais() {
         clienteComboBox.removeAllItems();
-        // ALTERAÇÃO: Usa o serviço de cliente
         clienteService.listarTodosParaVenda().forEach(clienteComboBox::addItem);
 
         produtoComboBox.removeAllItems();
-        // ALTERAÇÃO: Usa o serviço de produto
         produtoService.listarProdutosAtivosParaVenda().forEach(produtoComboBox::addItem);
 
         atualizarLotesDisponiveis();
@@ -66,7 +68,6 @@ public class VendaPanel extends JPanel {
         loteComboBox.removeAllItems();
         Produto produtoSelecionado = (Produto) produtoComboBox.getSelectedItem();
         if (produtoSelecionado != null) {
-            // ALTERAÇÃO: Usa o serviço de produto
             produtoService.buscarLotesDisponiveis(produtoSelecionado.getId()).forEach(loteComboBox::addItem);
         }
     }
@@ -86,7 +87,6 @@ public class VendaPanel extends JPanel {
             return;
         }
 
-        // ALTERAÇÃO: Usa o serviço para buscar o preço mais atualizado do produto
         Produto produtoDoLote = produtoService.buscarProdutoPorId(loteSelecionado.getProdutoId()).orElse(produtoSelecionado);
         VendaItem novoItem = new VendaItem(loteSelecionado, quantidade);
         novoItem.setPrecoUnitario(produtoDoLote.getPreco());
@@ -100,7 +100,6 @@ public class VendaPanel extends JPanel {
         double total = 0.0;
         for (VendaItem item : carrinho) {
             double subtotal = item.getPrecoUnitario() * item.getQuantidade();
-            // ALTERAÇÃO: Busca o nome do produto através do serviço
             String nomeProduto = produtoService.buscarProdutoPorId(item.getLote().getProdutoId())
                     .map(Produto::getNome)
                     .orElse("Produto não encontrado");
@@ -117,7 +116,37 @@ public class VendaPanel extends JPanel {
         quantidadeSpinner.setValue(1);
     }
 
-    // ... (Restante da classe sem alterações de lógica)
+    private void limparVenda() {
+        carrinho.clear();
+        atualizarCarrinho();
+        if (clienteComboBox.getItemCount() > 0) clienteComboBox.setSelectedIndex(0);
+        carregarDadosIniciais();
+    }
+
+    private void finalizarVenda() {
+        if (carrinho.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "O carrinho está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Cliente clienteSelecionado = (Cliente) clienteComboBox.getSelectedItem();
+        if (clienteSelecionado == null) {
+            JOptionPane.showMessageDialog(this, "Selecione um cliente.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Usuario ator = authService.getUsuarioLogado().orElse(null);
+
+        double valorTotal = carrinho.stream().mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario()).sum();
+        Venda novaVenda = new Venda(clienteSelecionado.getId(), ator != null ? ator.getId() : -1, valorTotal, carrinho);
+
+        try {
+            Venda vendaSalva = vendaService.finalizarVenda(novaVenda, ator);
+            JOptionPane.showMessageDialog(this, "Venda #" + vendaSalva.getId() + " finalizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            limparVenda();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
         topPanel.setBorder(BorderFactory.createTitledBorder("Nova Venda"));
@@ -181,36 +210,5 @@ public class VendaPanel extends JPanel {
 
         bottomPanel.add(buttonsPanel, BorderLayout.EAST);
         return bottomPanel;
-    }
-
-    private void limparVenda() {
-        carrinho.clear();
-        atualizarCarrinho();
-        if (clienteComboBox.getItemCount() > 0) clienteComboBox.setSelectedIndex(0);
-        carregarDadosIniciais();
-    }
-
-    private void finalizarVenda() {
-        if (carrinho.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "O carrinho está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        Cliente clienteSelecionado = (Cliente) clienteComboBox.getSelectedItem();
-        if (clienteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione um cliente.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        Usuario ator = authService.getUsuarioLogado().orElse(null);
-
-        double valorTotal = carrinho.stream().mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario()).sum();
-        Venda novaVenda = new Venda(clienteSelecionado.getId(), ator != null ? ator.getId() : -1, valorTotal, carrinho);
-
-        try {
-            Venda vendaSalva = vendaService.finalizarVenda(novaVenda, ator);
-            JOptionPane.showMessageDialog(this, "Venda #" + vendaSalva.getId() + " finalizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            limparVenda();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-        }
     }
 }

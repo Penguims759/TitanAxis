@@ -1,12 +1,12 @@
 package com.titanaxis.view.panels;
 
+import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
-import com.titanaxis.repository.CategoriaRepository;
-import com.titanaxis.repository.impl.CategoriaRepositoryImpl;
 import com.titanaxis.service.AuthService;
+import com.titanaxis.service.CategoriaService;
 import com.titanaxis.service.ProdutoService;
 
 import javax.swing.*;
@@ -22,10 +22,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class ProdutoPanel extends JPanel {
-    // ALTERAÇÃO: Injeção de dependências e introdução dos serviços
     private final AuthService authService;
     private final ProdutoService produtoService;
-    private final CategoriaRepository categoriaRepository; // Ainda necessário para o Dialog
+    private final CategoriaService categoriaService;
 
     private DefaultTableModel produtoTableModel;
     private JTable produtoTable;
@@ -37,10 +36,10 @@ public class ProdutoPanel extends JPanel {
     private Produto produtoSelecionado;
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public ProdutoPanel(AuthService authService) {
-        this.authService = authService;
-        this.produtoService = new ProdutoService();
-        this.categoriaRepository = new CategoriaRepositoryImpl();
+    public ProdutoPanel(AppContext appContext) {
+        this.authService = appContext.getAuthService();
+        this.produtoService = appContext.getProdutoService();
+        this.categoriaService = appContext.getCategoriaService();
         setLayout(new BorderLayout(10, 10));
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createProdutoListPanel(), createDetalhesPanel());
@@ -84,7 +83,6 @@ public class ProdutoPanel extends JPanel {
                 if (produtoTable.getSelectedRow() != -1) {
                     int modelRow = produtoTable.convertRowIndexToModel(produtoTable.getSelectedRow());
                     int produtoId = (int) produtoTableModel.getValueAt(modelRow, 0);
-                    // Usa o serviço para buscar o produto
                     produtoService.buscarProdutoPorId(produtoId).ifPresent(this::displayDetalhesProduto);
                 } else {
                     clearDetalhesPanel();
@@ -121,7 +119,6 @@ public class ProdutoPanel extends JPanel {
         return panel;
     }
 
-    // ... (createDetalhesPanel não tem alterações de lógica)
     private JPanel createDetalhesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Estoque e Lotes do Produto"));
@@ -163,9 +160,7 @@ public class ProdutoPanel extends JPanel {
         return panel;
     }
 
-
     private void loadProdutos() {
-        // Usa o serviço para listar os produtos
         List<Produto> produtos = produtoService.listarProdutos(showInactiveButton.isSelected());
         produtoTableModel.setRowCount(0);
         for (Produto p : produtos) {
@@ -188,7 +183,6 @@ public class ProdutoPanel extends JPanel {
         toggleStatusButton.setEnabled(true);
         toggleStatusButton.setText(produto.isAtivo() ? "Inativar Produto" : "Reativar Produto");
 
-        // Usa o serviço para buscar os lotes
         List<Lote> lotes = produtoService.buscarLotesPorProdutoId(produto.getId());
         loteTableModel.setRowCount(0);
         for (Lote lote : lotes) {
@@ -228,7 +222,6 @@ public class ProdutoPanel extends JPanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // Usa o serviço para alterar o estado
                 produtoService.alterarStatusProduto(produtoSelecionado.getId(), novoStatus, ator);
                 loadProdutos();
                 clearDetalhesPanel();
@@ -240,9 +233,8 @@ public class ProdutoPanel extends JPanel {
     }
 
     private void showProdutoDialog(Produto produto) {
-        // Passa o serviço e o ator para o diálogo
         Usuario ator = authService.getUsuarioLogado().orElse(null);
-        ProdutoDialog dialog = new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoService, categoriaRepository, produto, ator);
+        ProdutoDialog dialog = new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoService, categoriaService, produto, ator);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
@@ -252,7 +244,6 @@ public class ProdutoPanel extends JPanel {
     }
 
     private void showLoteDialog(Lote lote) {
-        // Passa o serviço e o ator para o diálogo
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         LoteDialog dialog = new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this), produtoService, produtoSelecionado, lote, ator);
         dialog.setVisible(true);
@@ -278,7 +269,6 @@ public class ProdutoPanel extends JPanel {
         int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remover este lote?", "Confirmar Remoção", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // Usa o serviço para remover o lote
                 produtoService.removerLote(loteId, ator);
                 produtoService.buscarProdutoPorId(produtoSelecionado.getId()).ifPresent(this::displayDetalhesProduto);
                 loadProdutos();
@@ -289,24 +279,21 @@ public class ProdutoPanel extends JPanel {
     }
 }
 
-// =====================================================================================
-// DIÁLOGOS ATUALIZADOS PARA USAR O SERVIÇO
-// =====================================================================================
-
+// CORREÇÃO: Classes de diálogo re-adicionadas e atualizadas
 class ProdutoDialog extends JDialog {
     private final ProdutoService produtoService;
-    private final CategoriaRepository categoriaRepository;
+    private final CategoriaService categoriaService;
     private final Produto produto;
-    private final Usuario ator; // O utilizador que está a realizar a ação
+    private final Usuario ator;
     private boolean saved = false;
 
     private JTextField nomeField, descricaoField, precoField;
     private JComboBox<Categoria> categoriaComboBox;
 
-    public ProdutoDialog(Frame owner, ProdutoService ps, CategoriaRepository cr, Produto p, Usuario ator) {
+    public ProdutoDialog(Frame owner, ProdutoService ps, CategoriaService cs, Produto p, Usuario ator) {
         super(owner, "Detalhes do Produto", true);
         this.produtoService = ps;
-        this.categoriaRepository = cr;
+        this.categoriaService = cs;
         this.produto = (p != null) ? p : new Produto("", "", 0.0, 0);
         this.ator = ator;
 
@@ -353,7 +340,7 @@ class ProdutoDialog extends JDialog {
     }
 
     private void populateCategoryComboBox() {
-        categoriaRepository.findAll().forEach(categoriaComboBox::addItem);
+        categoriaService.listarTodasCategorias().forEach(categoriaComboBox::addItem);
     }
 
     private void populateFields() {
@@ -382,7 +369,6 @@ class ProdutoDialog extends JDialog {
             produto.setPreco(Double.parseDouble(precoField.getText().replace(",", ".")));
             produto.setCategoriaId(((Categoria)categoriaComboBox.getSelectedItem()).getId());
 
-            // Usa o serviço para salvar
             produtoService.salvarProduto(produto, ator);
             saved = true;
             dispose();
@@ -484,7 +470,6 @@ class LoteDialog extends JDialog {
                 return;
             }
 
-            // Usa o serviço para salvar
             produtoService.salvarLote(lote, ator);
             saved = true;
             dispose();
