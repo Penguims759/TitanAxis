@@ -29,7 +29,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public Produto save(Produto produto) {
-        return this.save(produto, null); // Chama o método com auditoria com ator nulo
+        return this.save(produto, null);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public Lote saveLote(Lote lote) {
-        return this.saveLote(lote, null); // Chama o método auditável com ator nulo
+        return this.saveLote(lote, null);
     }
 
     @Override
@@ -259,14 +259,54 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         );
     }
 
+    // ALTERAÇÃO: Método otimizado para buscar um único produto por ID
     @Override
     public Optional<Produto> findById(Integer id) {
-        return this.findAllIncludingInactive().stream().filter(p -> p.getId() == id).findFirst();
+        String sql = "SELECT p.*, c.nome AS nome_categoria, " +
+                "COALESCE((SELECT SUM(el.quantidade) FROM estoque_lotes el WHERE el.produto_id = p.id), 0) as quantidade_total " +
+                "FROM produtos p " +
+                "LEFT JOIN categorias c ON p.categoria_id = c.id " +
+                "WHERE p.id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Produto produto = mapRowToProduto(rs);
+                    produto.setQuantidadeTotal(rs.getInt("quantidade_total"));
+                    return Optional.of(produto);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Erro ao buscar produto por ID: " + id, e);
+        }
+        return Optional.empty();
     }
 
+    // ALTERAÇÃO: Método otimizado para buscar um único produto por nome (lógica semelhante)
     @Override
     public Optional<Produto> findByNome(String nome) {
-        return this.findAllIncludingInactive().stream().filter(p -> p.getNome().equals(nome)).findFirst();
+        String sql = "SELECT p.*, c.nome AS nome_categoria, " +
+                "COALESCE((SELECT SUM(el.quantidade) FROM estoque_lotes el WHERE el.produto_id = p.id), 0) as quantidade_total " +
+                "FROM produtos p " +
+                "LEFT JOIN categorias c ON p.categoria_id = c.id " +
+                "WHERE p.nome = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nome);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Produto produto = mapRowToProduto(rs);
+                    produto.setQuantidadeTotal(rs.getInt("quantidade_total"));
+                    return Optional.of(produto);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Erro ao buscar produto por nome: " + nome, e);
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -276,10 +316,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
                 .collect(Collectors.toList());
     }
 
-    // MÉTODO CORRIGIDO / ADICIONADO
     @Override
     public void deleteById(Integer id) {
-        logger.warning("Método deleteById de Produto sem auditoria foi chamado. A operação não será registada.");
         this.deleteById(id, null);
     }
 
@@ -300,6 +338,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         });
     }
 
+    // ALTERAÇÃO: Método otimizado para buscar um único lote por ID
     @Override
     public Optional<Lote> findLoteById(int loteId) {
         String sql = "SELECT * FROM estoque_lotes WHERE id = ?";
