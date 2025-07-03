@@ -16,65 +16,57 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ClienteServiceTest {
 
-    // Mockamos a dependência (o repositório)
     @Mock
     private ClienteRepository clienteRepository;
 
-    // Injetamos o mock no serviço que queremos testar
     @InjectMocks
     private ClienteService clienteService;
 
     @Test
     void salvar_deveChamarRepositorioSave_quandoAtorNaoForNulo() throws Exception {
-        // Arrange
+        // --- Arrange ---
         Cliente cliente = new Cliente("Cliente Teste", "contato", "endereco");
         Usuario ator = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
 
-        // Act
+        // --- Act ---
         clienteService.salvar(cliente, ator);
 
-        // Assert
-        // Verificamos se o método 'save' do repositório foi chamado exatamente uma vez
-        // com os objetos corretos.
+        // --- Assert ---
         verify(clienteRepository, times(1)).save(cliente, ator);
     }
 
     @Test
     void salvar_deveLancarExcecao_quandoAtorForNulo() {
-        // Arrange
+        // --- Arrange ---
         Cliente cliente = new Cliente("Cliente Teste", "contato", "endereco");
-        // O ator é nulo
 
-        // Act & Assert
-        // Verificamos se uma exceção é lançada quando tentamos salvar com um ator nulo.
-        // Isto testa a sua lógica de validação no serviço.
+        // --- Act & Assert ---
         assertThrows(Exception.class, () -> {
             clienteService.salvar(cliente, null);
         });
 
-        // Garantimos que, se a exceção for lançada, o repositório NUNCA é chamado.
         verify(clienteRepository, never()).save(any(), any());
     }
 
     @Test
     void deletar_deveChamarRepositorioDeleteById_quandoAtorNaoForNulo() throws Exception {
-        // Arrange
+        // --- Arrange ---
         int clienteId = 123;
         Usuario ator = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
 
-        // Act
+        // --- Act ---
         clienteService.deletar(clienteId, ator);
 
-        // Assert
+        // --- Assert ---
         verify(clienteRepository, times(1)).deleteById(clienteId, ator);
     }
 
     @Test
     void deletar_deveLancarExcecao_quandoAtorForNulo() {
-        // Arrange
+        // --- Arrange ---
         int clienteId = 123;
 
-        // Act & Assert
+        // --- Act & Assert ---
         assertThrows(Exception.class, () -> {
             clienteService.deletar(clienteId, null);
         });

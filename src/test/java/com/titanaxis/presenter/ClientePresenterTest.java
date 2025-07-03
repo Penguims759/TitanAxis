@@ -86,9 +86,7 @@ class ClientePresenterTest {
     void aoApagar_deveApagarCliente_quandoConfirmado() throws Exception {
         when(view.getId()).thenReturn("1");
         when(view.mostrarConfirmacao(anyString(), anyString())).thenReturn(true);
-
         presenter.aoApagar();
-
         verify(clienteService).deletar(eq(1), any(Usuario.class));
         verify(view).mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
     }
@@ -97,18 +95,14 @@ class ClientePresenterTest {
     void aoApagar_naoDeveFazerNada_quandoNaoConfirmado() throws Exception {
         when(view.getId()).thenReturn("1");
         when(view.mostrarConfirmacao(anyString(), anyString())).thenReturn(false);
-
         presenter.aoApagar();
-
         verify(clienteService, never()).deletar(anyInt(), any(Usuario.class));
     }
 
     @Test
     void aoSelecionarCliente_devePreencherCamposDaView() {
         Cliente cliente = new Cliente(10, "Cliente Selecionado", "email@teste.com", "Rua X");
-
         presenter.aoSelecionarCliente(cliente);
-
         verify(view).setId("10");
         verify(view).setNome("Cliente Selecionado");
         verify(view).setContato("email@teste.com");
@@ -121,9 +115,7 @@ class ClientePresenterTest {
         List<Cliente> resultado = List.of(new Cliente(1, "Cliente Teste", "", ""));
         when(view.getTermoBusca()).thenReturn(termoBusca);
         when(clienteService.buscarPorNome(termoBusca)).thenReturn(resultado);
-
         presenter.aoBuscar();
-
         verify(clienteService).buscarPorNome(termoBusca);
         verify(view).setClientesNaTabela(resultado);
     }

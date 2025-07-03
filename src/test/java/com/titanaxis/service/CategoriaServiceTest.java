@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-// AQUI ESTÁ A CORREÇÃO: Importa todos os métodos de asserção do JUnit
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -27,26 +26,27 @@ class CategoriaServiceTest {
 
     @Test
     void salvar_deveChamarRepositorio_quandoNomeNaoExiste() throws Exception {
+        // --- Arrange ---
         Categoria novaCategoria = new Categoria("Eletrónicos");
         Usuario ator = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
-
         when(categoriaRepository.findByNome("Eletrónicos")).thenReturn(Optional.empty());
 
+        // --- Act ---
         categoriaService.salvar(novaCategoria, ator);
 
+        // --- Assert ---
         verify(categoriaRepository, times(1)).save(novaCategoria, ator);
     }
 
     @Test
     void salvar_deveLancarExcecao_quandoNomeJaExisteParaOutraCategoria() {
+        // --- Arrange ---
         Categoria categoriaAserSalva = new Categoria("Livros");
-        categoriaAserSalva.setId(0);
-
         Categoria categoriaExistente = new Categoria(5, "Livros");
         when(categoriaRepository.findByNome("Livros")).thenReturn(Optional.of(categoriaExistente));
-
         Usuario ator = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
 
+        // --- Act & Assert ---
         Exception exception = assertThrows(Exception.class, () -> {
             categoriaService.salvar(categoriaAserSalva, ator);
         });
@@ -57,13 +57,15 @@ class CategoriaServiceTest {
 
     @Test
     void salvar_devePermitirAtualizar_quandoNomeNaoMuda() throws Exception {
+        // --- Arrange ---
         Categoria categoriaParaAtualizar = new Categoria(10, "Roupas");
         Usuario ator = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
-
         when(categoriaRepository.findByNome("Roupas")).thenReturn(Optional.of(categoriaParaAtualizar));
 
+        // --- Act ---
         categoriaService.salvar(categoriaParaAtualizar, ator);
 
+        // --- Assert ---
         verify(categoriaRepository, times(1)).save(categoriaParaAtualizar, ator);
     }
 }
