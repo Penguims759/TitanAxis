@@ -18,9 +18,7 @@
             <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/titanaxis_db"/>
             <property name="jakarta.persistence.jdbc.user" value="titan_user"/>
-            <property name="jakarta.persistence.jdbc.password" value="db1"/>
-
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
+            <property name="jakarta.persistence.jdbc.password" value="sua_senha_segura_aqui"/>
 
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>

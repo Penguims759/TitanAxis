@@ -40,16 +40,14 @@ public class DatabaseConnection {
     }
 
     public static Connection getConnection() throws SQLException {
-        // Agora o getConnection também usa as credenciais
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
     public static void initializeDatabase() {
-        // CORREÇÃO: Passamos o utilizador e a senha para o Flyway
+        // A linha .baselineOnMigrate(true) foi removida para uma configuração mais limpa.
         Flyway flyway = Flyway.configure()
                 .dataSource(URL, USER, PASSWORD)
                 .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
                 .load();
 
         try {
