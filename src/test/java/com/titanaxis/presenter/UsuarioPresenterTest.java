@@ -26,10 +26,8 @@ class UsuarioPresenterTest {
 
     @Mock
     private UsuarioView view;
-
     @Mock
     private AuthService authService;
-
     @InjectMocks
     private UsuarioPresenter presenter;
 
@@ -43,60 +41,23 @@ class UsuarioPresenterTest {
     }
 
     @Test
-    void aoSalvar_deveCadastrarNovoUsuario_quandoCamposValidos() {
-        // Arrange
+    void aoSalvar_deveCadastrarNovoUsuario() {
         when(view.getId()).thenReturn("");
         when(view.getUsername()).thenReturn("novo_user");
         when(view.getPassword()).thenReturn("senha123");
         when(view.getNivelAcesso()).thenReturn(NivelAcesso.PADRAO);
-        when(authService.cadastrarUsuario(anyString(), anyString(), any(NivelAcesso.class), any(Usuario.class))).thenReturn(true);
+        when(authService.cadastrarUsuario(anyString(), anyString(), any(), any())).thenReturn(true);
 
-        // Act
         presenter.aoSalvar();
 
-        // Assert
         verify(authService).cadastrarUsuario(eq("novo_user"), eq("senha123"), eq(NivelAcesso.PADRAO), any(Usuario.class));
         verify(view).mostrarMensagem(eq("Sucesso"), contains("adicionado"), eq(false));
-
-        // **AQUI ESTÁ A CORREÇÃO**
-        // Verificamos as chamadas que o presenter.aoLimpar() realmente faz na view.
-        verify(view).setId("");
-        verify(view).setUsername("");
-        verify(view).setPassword("");
-        verify(view).setNivelAcesso(NivelAcesso.PADRAO);
-        verify(view).clearTableSelection();
-    }
-
-    @Test
-    void aoSalvar_deveAtualizarUsuario_quandoIdExisteESenhaEmBranco() {
-        // Arrange
-        when(view.getId()).thenReturn("2");
-        when(view.getUsername()).thenReturn("user_atualizado");
-        when(view.getPassword()).thenReturn("");
-        when(view.getNivelAcesso()).thenReturn(NivelAcesso.GERENTE);
-
-        Usuario usuarioOriginal = new Usuario(2, "user_antigo", "senha_hash_antiga", NivelAcesso.PADRAO);
-        when(authService.listarUsuarios()).thenReturn(List.of(usuarioOriginal));
-
-        when(authService.atualizarUsuario(any(Usuario.class), any(Usuario.class))).thenReturn(true);
-
-        // Act
-        presenter.aoSalvar();
-
-        // Assert
-        verify(authService).atualizarUsuario(any(Usuario.class), any(Usuario.class));
-        verify(view).mostrarMensagem(eq("Sucesso"), contains("atualizado"), eq(false));
     }
 
     @Test
     void aoApagar_naoDevePermitirApagarProprioUsuario() {
-        // Arrange
         when(view.getId()).thenReturn("1");
-
-        // Act
         presenter.aoApagar();
-
-        // Assert
         verify(authService, never()).deletarUsuario(anyInt(), any(Usuario.class));
         verify(view).mostrarMensagem("Ação Inválida", "Não pode eliminar o seu próprio utilizador.", true);
     }

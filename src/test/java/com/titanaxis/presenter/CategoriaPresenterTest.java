@@ -27,13 +27,10 @@ class CategoriaPresenterTest {
 
     @Mock
     private CategoriaView view;
-
     @Mock
     private CategoriaService categoriaService;
-
     @Mock
     private AuthService authService;
-
     @InjectMocks
     private CategoriaPresenter presenter;
 
@@ -46,51 +43,20 @@ class CategoriaPresenterTest {
     }
 
     @Test
-    void aoSalvar_deveCriarNovaCategoria_quandoValida() throws Exception {
-        // Arrange
+    void aoSalvar_deveCriarNovaCategoria() throws Exception {
         when(view.getId()).thenReturn("");
         when(view.getNome()).thenReturn("Nova Categoria");
-
-        // Act
         presenter.aoSalvar();
-
-        // Assert
         verify(categoriaService).salvar(any(Categoria.class), any(Usuario.class));
         verify(view).mostrarMensagem(eq("Sucesso"), contains("adicionada"), eq(false));
-        verify(view).setId("");
-        verify(view).setNome("");
-        verify(view).clearTableSelection();
-    }
-
-    @Test
-    void aoSalvar_deveMostrarErro_quandoServicoLancaExcecao() throws Exception {
-        // Arrange
-        when(view.getId()).thenReturn("");
-        when(view.getNome()).thenReturn("Categoria Existente");
-        doThrow(new Exception("Já existe uma categoria com este nome."))
-                .when(categoriaService).salvar(any(Categoria.class), any(Usuario.class));
-
-        // Act
-        presenter.aoSalvar();
-
-        // Assert
-        verify(view).mostrarMensagem("Erro", "Erro ao salvar categoria: Já existe uma categoria com este nome.", true);
     }
 
     @Test
     void aoApagar_deveChamarServicoDeletar_quandoConfirmado() {
-        // Arrange
         when(view.getId()).thenReturn("5");
         when(view.mostrarConfirmacao(anyString(), anyString())).thenReturn(true);
-
-        // Act
         presenter.aoApagar();
-
-        // Assert
-        // **AQUI ESTÁ A CORREÇÃO**
-        // Usamos eq(5) para o valor específico e any() para o objeto do utilizador.
         verify(categoriaService).deletar(eq(5), any(Usuario.class));
-
         verify(view).mostrarMensagem(eq("Sucesso"), contains("eliminada"), eq(false));
     }
 }

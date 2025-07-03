@@ -43,27 +43,19 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
     }
 
     @Override
-    public void aoClicarNovoProduto() {
-        view.mostrarDialogoDeProduto(null);
-    }
+    public void aoClicarNovoProduto() { view.mostrarDialogoDeProduto(null); }
 
     @Override
     public void aoClicarEditarProduto() {
-        if (produtoSelecionado != null) {
-            view.mostrarDialogoDeProduto(produtoSelecionado);
-        }
+        if (produtoSelecionado != null) { view.mostrarDialogoDeProduto(produtoSelecionado); }
     }
 
-    // **AQUI ESTÁ A CORREÇÃO**
-    // O método agora usa try-catch e não lança mais a exceção.
     @Override
     public void aoAlternarStatusDoProduto() {
         if (produtoSelecionado == null) return;
-
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         boolean novoStatus = !produtoSelecionado.isAtivo();
         String acao = novoStatus ? "reativar" : "inativar";
-
         if (view.mostrarConfirmacao("Confirmar Alteração", "Tem certeza que deseja " + acao + " o produto '" + produtoSelecionado.getNome() + "'?")) {
             try {
                 produtoService.alterarStatusProduto(produtoSelecionado.getId(), novoStatus, ator);
@@ -78,9 +70,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
 
     @Override
     public void aoClicarAdicionarLote() {
-        if (produtoSelecionado != null) {
-            view.mostrarDialogoDeLote(produtoSelecionado, null);
-        }
+        if (produtoSelecionado != null) { view.mostrarDialogoDeLote(produtoSelecionado, null); }
     }
 
     @Override
@@ -100,7 +90,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
             view.mostrarMensagem("Aviso", "Selecione um lote para remover.", false);
             return;
         }
-
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         if (view.mostrarConfirmacao("Confirmar Remoção", "Tem certeza que deseja remover este lote?")) {
             try {
