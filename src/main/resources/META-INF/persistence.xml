@@ -14,11 +14,15 @@
         <class>com.titanaxis.model.Venda</class>
         <class>com.titanaxis.model.VendaItem</class>
 
+        <class>com.titanaxis.model.NivelAcessoConverter</class>
+
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/titanaxis_db"/>
             <property name="jakarta.persistence.jdbc.user" value="titan_user"/>
-            <property name="jakarta.persistence.jdbc.password" value="sua_senha_segura_aqui"/>
+            <property name="jakarta.persistence.jdbc.password" value="titanpass"/>
+
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
 
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>

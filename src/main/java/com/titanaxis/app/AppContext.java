@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/app/AppContext.java
 package com.titanaxis.app;
 
 import com.titanaxis.repository.*;
@@ -8,7 +7,7 @@ import com.titanaxis.service.*;
 /**
  * Contexto da Aplicação (Inversion of Control / Dependency Injection Container).
  * Responsável por criar e gerir as instâncias de todos os repositórios e serviços,
- * injetando as dependências necessárias (como repositórios nos serviços).
+ * injetando as dependências necessárias.
  */
 public class AppContext {
 
@@ -20,9 +19,10 @@ public class AppContext {
     private final VendaService vendaService;
     private final RelatorioService relatorioService;
     private final AlertaService alertaService;
+    private final TransactionService transactionService; // NOVO SERVIÇO
 
     public AppContext() {
-        // 1. Criação dos Repositórios (as dependências)
+        // 1. Criação dos Repositórios (dependências de baixo nível)
         final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl();
         final UsuarioRepository usuarioRepository = new UsuarioRepositoryImpl(auditoriaRepository);
         final CategoriaRepository categoriaRepository = new CategoriaRepositoryImpl(auditoriaRepository);
@@ -30,13 +30,15 @@ public class AppContext {
         final ProdutoRepository produtoRepository = new ProdutoRepositoryImpl(auditoriaRepository);
         final VendaRepository vendaRepository = new VendaRepositoryImpl(auditoriaRepository);
 
-        // 2. Criação e Injeção dos Serviços
-        // As dependências (repositórios) são passadas via construtor.
+        // 2. Criação dos Serviços (as dependências são injetadas via construtor)
+        this.transactionService = new TransactionService(); // Instancia o novo serviço de transações
+
         this.authService = new AuthService(usuarioRepository, auditoriaRepository);
         this.categoriaService = new CategoriaService(categoriaRepository);
         this.clienteService = new ClienteService(clienteRepository);
-        this.produtoService = new ProdutoService(produtoRepository);
-        this.vendaService = new VendaService(vendaRepository);
+        // O ProdutoService e o VendaService agora recebem o TransactionService
+        this.produtoService = new ProdutoService(produtoRepository, transactionService);
+        this.vendaService = new VendaService(vendaRepository, produtoRepository, transactionService);
         this.relatorioService = new RelatorioService(produtoRepository, vendaRepository);
         this.alertaService = new AlertaService(produtoRepository);
     }

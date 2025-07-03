@@ -2,10 +2,6 @@ package com.titanaxis.model;
 
 import jakarta.persistence.*;
 
-/**
- * Representa a entidade Usuário no sistema.
- * Contém informações como ID, nome de usuário, hash da senha e nível de acesso.
- */
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
@@ -19,12 +15,10 @@ public class Usuario {
     @Column(name = "senha_hash", nullable = false)
     private String senhaHash;
 
-    // CORREÇÃO: Removemos a anotação @Enumerated.
-    // O @Converter(autoApply = true) na classe NivelAcessoConverter fará o trabalho.
+    // A anotação @Enumerated foi removida. O nosso NivelAcessoConverter fará o trabalho.
     @Column(name = "nivel_acesso", nullable = false)
     private NivelAcesso nivelAcesso;
 
-    // Construtor vazio exigido pelo JPA
     public Usuario() {
     }
 
@@ -41,7 +35,7 @@ public class Usuario {
         this.nivelAcesso = nivelAcesso;
     }
 
-    // Getters e Setters (sem alterações)
+    // Getters e Setters
     public int getId() { return id; }
     public String getNomeUsuario() { return nomeUsuario; }
     public String getSenhaHash() { return senhaHash; }

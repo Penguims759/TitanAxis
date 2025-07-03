@@ -12,10 +12,14 @@ import java.util.stream.Collectors;
 public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
+    private final TransactionService transactionService;
 
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, TransactionService transactionService) {
         this.produtoRepository = produtoRepository;
+        this.transactionService = transactionService;
     }
+
+    // --- Métodos de Leitura (não precisam de transação) ---
 
     public List<Produto> listarProdutos(boolean incluirInativos) {
         return incluirInativos ? produtoRepository.findAllIncludingInactive() : produtoRepository.findAll();
@@ -41,43 +45,46 @@ public class ProdutoService {
         return produtoRepository.findLotesByProdutoId(produtoId);
     }
 
+    // CORREÇÃO APLICADA AQUI
     public Optional<Lote> buscarLotePorId(int loteId) {
-        return produtoRepository.findLoteById(loteId);
+        return produtoRepository.findLoteById(loteId); // Chamava o método errado findById() do produto
     }
 
-    public void salvarProduto(Produto produto, Usuario ator) throws Exception {
+    // --- Métodos de Escrita (agora usam o TransactionService) ---
+
+    public Produto salvarProduto(Produto produto, Usuario ator) throws Exception {
         if (ator == null) {
             throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        produtoRepository.save(produto, ator);
+        return transactionService.executeInTransaction(em -> {
+            return produtoRepository.save(produto, ator, em);
+        });
     }
 
-    /**
-     * Salva um lote e retorna a instância persistida (com ID).
-     * @param lote O lote a ser salvo.
-     * @param ator O utilizador que realiza a ação.
-     * @return O lote salvo.
-     * @throws Exception se o utilizador não estiver autenticado.
-     */
     public Lote salvarLote(Lote lote, Usuario ator) throws Exception {
         if (ator == null) {
             throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        // CORREÇÃO: Adicionamos o 'return' para devolver o lote que o repositório persistiu.
-        return produtoRepository.saveLote(lote, ator);
+        return transactionService.executeInTransaction(em -> {
+            return produtoRepository.saveLote(lote, ator, em);
+        });
     }
 
     public void removerLote(int loteId, Usuario ator) throws Exception {
         if (ator == null) {
             throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        produtoRepository.deleteLoteById(loteId, ator);
+        transactionService.executeInTransaction(em -> {
+            produtoRepository.deleteLoteById(loteId, ator, em);
+        });
     }
 
     public void alterarStatusProduto(int produtoId, boolean novoStatus, Usuario ator) throws Exception {
         if (ator == null) {
             throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        produtoRepository.updateStatusAtivo(produtoId, novoStatus, ator);
+        transactionService.executeInTransaction(em -> {
+            produtoRepository.updateStatusAtivo(produtoId, novoStatus, ator, em);
+        });
     }
 }

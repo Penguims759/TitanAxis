@@ -13,17 +13,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings; // IMPORTAR ESTA LINHA
-import org.mockito.quality.Strictness;             // IMPORTAR ESTA LINHA
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-// CORREÇÃO: Adicionamos esta anotação para dizer ao Mockito para não se preocupar com preparações não utilizadas.
-@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CategoriaPresenterTest {
 
     @Mock
@@ -41,7 +40,6 @@ class CategoriaPresenterTest {
     @BeforeEach
     void setUp() {
         admin = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
-        // Esta preparação agora é permitida mesmo que nem todos os testes a usem.
         when(authService.getUsuarioLogado()).thenReturn(Optional.of(admin));
     }
 
@@ -88,7 +86,6 @@ class CategoriaPresenterTest {
         verify(categoriaService, never()).salvar(any(), any());
         verify(view).mostrarMensagem(eq("Erro de Validação"), anyString(), eq(true));
     }
-
 
     @Test
     void aoApagar_deveChamarServicoDeletar_quandoConfirmado() throws Exception {
