@@ -1,7 +1,6 @@
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
-// Remova os imports do hibernate (JdbcTypeCode e SqlTypes) se não forem mais usados em outros campos.
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -23,11 +22,9 @@ public class Lote {
     @Column(nullable = false)
     private int quantidade;
 
-    // A anotação @JdbcTypeCode foi removida. O nosso novo converter fará o trabalho.
     @Column(name = "data_validade")
     private LocalDate dataValidade;
 
-    // ... (o resto da classe permanece igual) ...
     public Lote() {}
 
     public Lote(int id, Produto produto, String numeroLote, int quantidade, LocalDate dataValidade) {

@@ -1,8 +1,6 @@
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +17,8 @@ public class Produto {
 
     private String descricao;
 
-    @Column(nullable = false)
+    // CORREÇÃO: Especificamos a definição exata da coluna para corresponder ao script SQL.
+    @Column(name = "preco", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double preco;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,7 +26,6 @@ public class Produto {
     private Categoria categoria;
 
     @Column(nullable = false)
-    @JdbcTypeCode(SqlTypes.INTEGER)
     private boolean ativo;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -50,17 +48,12 @@ public class Produto {
         this.ativo = true;
     }
 
-    /**
-     * Método auxiliar para adicionar um lote a este produto,
-     * garantindo que a relação bidirecional é mantida corretamente.
-     * @param lote O lote a ser adicionado.
-     */
     public void addLote(Lote lote) {
         this.lotes.add(lote);
         lote.setProduto(this);
     }
 
-    // --- Getters e Setters ---
+    // --- Getters e Setters (sem alterações) ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getNome() { return nome; }

@@ -10,35 +10,31 @@ public class VendaItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // Relação inversa: Muitos itens de venda pertencem a uma venda.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venda_id", nullable = false)
     private Venda venda;
 
-    // Muitos itens de venda podem apontar para o mesmo lote.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lote_id") // Permite nulo, se o controlo de lote não for estrito
+    @JoinColumn(name = "lote_id")
     private Lote lote;
 
     @Column(nullable = false)
     private int quantidade;
 
-    @Column(name = "preco_unitario", nullable = false)
+    @Column(name = "preco_unitario", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double precoUnitario;
 
-    // Construtor vazio para JPA
+    // ... (resto da classe sem alterações) ...
     public VendaItem() {}
 
     public VendaItem(Lote lote, int quantidade) {
         this.lote = lote;
         this.quantidade = quantidade;
-        // O preço vem do produto associado ao lote
         if (lote != null && lote.getProduto() != null) {
             this.precoUnitario = lote.getProduto().getPreco();
         }
     }
 
-    // --- Getters e Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public Venda getVenda() { return venda; }

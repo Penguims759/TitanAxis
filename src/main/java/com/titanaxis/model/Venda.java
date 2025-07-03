@@ -1,7 +1,6 @@
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
-// Remova os imports do hibernate (JdbcTypeCode e SqlTypes)
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +20,16 @@ public class Venda {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    // A anotação @JdbcTypeCode foi removida.
     @Column(name = "data_venda", nullable = false)
     private LocalDateTime dataVenda;
 
-    @Column(name = "valor_total", nullable = false)
+    @Column(name = "valor_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double valorTotal;
 
-    // ... (o resto da classe permanece igual) ...
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<VendaItem> itens = new ArrayList<>();
 
+    // ... (resto da classe sem alterações) ...
     @Transient
     private String nomeCliente;
 

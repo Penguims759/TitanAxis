@@ -18,8 +18,9 @@ public class DatabaseConnection {
     private static final Logger logger = AppLogger.getLogger();
     private static final Properties properties = new Properties();
     private static final String URL;
+    private static final String USER;
+    private static final String PASSWORD;
 
-    // Bloco estático para carregar a configuração do ficheiro .properties
     static {
         try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
@@ -29,6 +30,8 @@ public class DatabaseConnection {
             }
             properties.load(input);
             URL = properties.getProperty("database.url");
+            USER = properties.getProperty("database.user");
+            PASSWORD = properties.getProperty("database.password");
             logger.info("Configuração da base de dados carregada com sucesso.");
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Erro ao carregar o ficheiro de configuração.", ex);
@@ -36,45 +39,30 @@ public class DatabaseConnection {
         }
     }
 
-    /**
-     * Obtém uma nova conexão com a base de dados.
-     * @return Uma instância de Connection.
-     * @throws SQLException se ocorrer um erro ao conectar.
-     */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL);
+        // Agora o getConnection também usa as credenciais
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    /**
-     * Inicializa a base de dados, executando as migrações pendentes com o Flyway
-     * e garantindo que os dados iniciais essenciais existam.
-     */
     public static void initializeDatabase() {
-        // Configura e executa as migrações do Flyway
+        // CORREÇÃO: Passamos o utilizador e a senha para o Flyway
         Flyway flyway = Flyway.configure()
-                .dataSource(URL, null, null) // Para SQLite, user e password podem ser nulos
-                .locations("classpath:db/migration") // Diz ao Flyway onde encontrar os scripts SQL
-                .baselineOnMigrate(true) // <<< --- ESTA É A LINHA ADICIONADA
+                .dataSource(URL, USER, PASSWORD)
+                .locations("classpath:db/migration")
+                .baselineOnMigrate(true)
                 .load();
 
         try {
             logger.info("A verificar e executar migrações da base de dados com o Flyway...");
             flyway.migrate();
             logger.info("Migrações da base de dados concluídas com sucesso!");
-
-            // Após garantir que o esquema está atualizado, verifica/insere os dados iniciais.
             ensureInitialDataExists();
-
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro ao executar as migrações do Flyway: " + e.getMessage(), e);
             throw new RuntimeException("Falha crítica ao migrar a base de dados.", e);
         }
     }
 
-    /**
-     * Garante que os dados essenciais para o primeiro arranque (como o utilizador admin) existam.
-     * Esta verificação é feita após as migrações do esquema.
-     */
     private static void ensureInitialDataExists() {
         try (Connection conn = getConnection()) {
             if (!userExists(conn, "admin")) {
