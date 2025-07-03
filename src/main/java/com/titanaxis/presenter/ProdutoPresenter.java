@@ -6,6 +6,7 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.view.interfaces.ProdutoView;
+
 import java.util.Optional;
 
 public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
@@ -20,7 +21,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         this.authService = authService;
         this.view.setListener(this);
         aoCarregarProdutos();
-        view.limparPainelDeDetalhes();
     }
 
     @Override
@@ -54,6 +54,8 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         }
     }
 
+    // **AQUI ESTÁ A CORREÇÃO**
+    // O método agora usa try-catch e não lança mais a exceção.
     @Override
     public void aoAlternarStatusDoProduto() {
         if (produtoSelecionado == null) return;
@@ -66,10 +68,10 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
             try {
                 produtoService.alterarStatusProduto(produtoSelecionado.getId(), novoStatus, ator);
                 aoCarregarProdutos();
-                view.limparSelecaoDaTabelaDeProdutos();
                 view.limparPainelDeDetalhes();
-            } catch (Exception ex) {
-                view.mostrarMensagem("Erro", "Erro ao alterar o estado do produto: " + ex.getMessage(), true);
+                view.limparSelecaoDaTabelaDeProdutos();
+            } catch (Exception e) {
+                view.mostrarMensagem("Erro", "Erro ao alterar o estado do produto: " + e.getMessage(), true);
             }
         }
     }
@@ -103,10 +105,10 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         if (view.mostrarConfirmacao("Confirmar Remoção", "Tem certeza que deseja remover este lote?")) {
             try {
                 produtoService.removerLote(loteId, ator);
-                aoSelecionarProduto(produtoSelecionado.getId()); // Recarrega os lotes
-                aoCarregarProdutos(); // Recarrega a quantidade total na tabela de produtos
-            } catch (Exception ex) {
-                view.mostrarMensagem("Erro", "Erro ao remover o lote: " + ex.getMessage(), true);
+                aoSelecionarProduto(produtoSelecionado.getId());
+                aoCarregarProdutos();
+            } catch (Exception e) {
+                view.mostrarMensagem("Erro", "Erro ao remover o lote: " + e.getMessage(), true);
             }
         }
     }
