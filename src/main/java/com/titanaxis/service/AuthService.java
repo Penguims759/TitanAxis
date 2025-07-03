@@ -1,107 +1,78 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/service/AuthService.java
 package com.titanaxis.service;
 
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.UsuarioRepository;
-import com.titanaxis.repository.impl.AuditoriaRepositoryImpl;
-import com.titanaxis.repository.impl.UsuarioRepositoryImpl;
-import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.PasswordUtil;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final AuditoriaRepository auditoriaRepository;
+    private final TransactionService transactionService;
     private Usuario usuarioLogado;
-    private static final Logger logger = AppLogger.getLogger();
 
-    public AuthService(UsuarioRepository usuarioRepository, AuditoriaRepository auditoriaRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, AuditoriaRepository auditoriaRepository, TransactionService transactionService) {
         this.usuarioRepository = usuarioRepository;
         this.auditoriaRepository = auditoriaRepository;
+        this.transactionService = transactionService;
     }
 
+    /**
+     * Lógica de login restaurada para usar a verificação de senha encriptada.
+     */
     public Optional<Usuario> login(String nomeUsuario, String senha) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByNomeUsuario(nomeUsuario);
+
+        // A lógica original foi restaurada.
         if (usuarioOpt.isPresent() && PasswordUtil.checkPassword(senha, usuarioOpt.get().getSenhaHash())) {
             this.usuarioLogado = usuarioOpt.get();
-            logger.info("Login bem-sucedido para: " + nomeUsuario);
-
-            String detalhes = String.format("Login bem-sucedido para o usuário '%s'.", nomeUsuario);
-            auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", detalhes);
+            auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", "Login bem-sucedido.");
             return usuarioOpt;
         }
 
-        logger.warning("Falha no login para: " + nomeUsuario);
-        String detalhes = String.format("Tentativa de login falhada para o usuário '%s'.", nomeUsuario);
+        // Se o login falhar, regista o evento.
         Integer idTentativa = usuarioOpt.map(Usuario::getId).orElse(null);
-        auditoriaRepository.registrarAcao(idTentativa, nomeUsuario, "LOGIN_FALHA", "Autenticação", detalhes);
-
+        auditoriaRepository.registrarAcao(idTentativa, nomeUsuario, "LOGIN_FALHA", "Autenticação", "Tentativa de login falhada.");
         this.usuarioLogado = null;
         return Optional.empty();
     }
 
+    // O resto da classe permanece como estava na última versão correta.
     public boolean cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) {
         if (usuarioRepository.findByNomeUsuario(nomeUsuario).isPresent()) {
-            logger.warning("Tentativa de cadastrar usuário existente: " + nomeUsuario);
             return false;
         }
         String senhaHash = PasswordUtil.hashPassword(senha);
         Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
-        return usuarioRepository.save(novoUsuario, ator) != null;
-    }
 
-    public Optional<Usuario> getUsuarioLogado() {
-        return Optional.ofNullable(usuarioLogado);
-    }
-
-    public int getUsuarioLogadoId() {
-        return usuarioLogado != null ? usuarioLogado.getId() : -1;
-    }
-
-    public boolean isAdmin() {
-        return usuarioLogado != null && usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN;
-    }
-
-    public boolean isGerente() {
-        return usuarioLogado != null && (usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN || usuarioLogado.getNivelAcesso() == NivelAcesso.GERENTE);
-    }
-
-    public void logout() {
-        if (usuarioLogado != null) {
-            logger.info("Logout do usuário: " + usuarioLogado.getNomeUsuario());
-        }
-        this.usuarioLogado = null;
-    }
-
-    public List<Usuario> listarUsuarios() {
-        try {
-            return usuarioRepository.findAll();
-        } catch (Exception e) {
-            logger.severe("Erro ao listar usuários: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    public List<Usuario> buscarUsuariosPorNomeContendo(String termo) {
-        try {
-            return usuarioRepository.findByNomeContaining(termo);
-        } catch (Exception e) {
-            logger.severe("Erro ao buscar usuários: " + e.getMessage());
-            return Collections.emptyList();
-        }
+        Usuario salvo = transactionService.executeInTransactionWithResult(em -> {
+            return usuarioRepository.save(novoUsuario, ator, em);
+        });
+        return salvo != null;
     }
 
     public boolean atualizarUsuario(Usuario usuario, Usuario ator) {
-        return usuarioRepository.save(usuario, ator) != null;
+        Usuario salvo = transactionService.executeInTransactionWithResult(em -> {
+            return usuarioRepository.save(usuario, ator, em);
+        });
+        return salvo != null;
     }
 
     public void deletarUsuario(int id, Usuario ator) {
-        usuarioRepository.deleteById(id, ator);
+        transactionService.executeInTransaction(em -> {
+            usuarioRepository.deleteById(id, ator, em);
+        });
     }
+
+    public Optional<Usuario> getUsuarioLogado() { return Optional.ofNullable(usuarioLogado); }
+    public int getUsuarioLogadoId() { return usuarioLogado != null ? usuarioLogado.getId() : 0; }
+    public boolean isAdmin() { return usuarioLogado != null && usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN; }
+    public boolean isGerente() { return usuarioLogado != null && (usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN || usuarioLogado.getNivelAcesso() == NivelAcesso.GERENTE); }
+    public void logout() { this.usuarioLogado = null; }
+    public List<Usuario> listarUsuarios() { return usuarioRepository.findAll(); }
+    public List<Usuario> buscarUsuariosPorNomeContendo(String termo) { return usuarioRepository.findByNomeContaining(termo); }
 }

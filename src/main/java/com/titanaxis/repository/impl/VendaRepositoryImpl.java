@@ -25,7 +25,7 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public Venda save(Venda venda, Usuario ator, EntityManager em) {
-        // Persiste a entidade Venda. O JPA/Hibernate trata de salvar os VendaItems em cascata.
+        // Persiste a entidade Venda. O JPA trata de salvar os VendaItems em cascata.
         Venda vendaSalva = em.merge(venda);
 
         // Regista os movimentos de estoque usando o mesmo EntityManager
@@ -52,6 +52,14 @@ public class VendaRepositoryImpl implements VendaRepository {
     }
 
     @Override
+    public void deleteById(Integer id, Usuario ator, EntityManager em) {
+        logger.warning("A função de apagar vendas não está implementada por razões de integridade de dados.");
+        // Se fosse implementado, a lógica de apagar a venda estaria aqui.
+        // Venda venda = em.find(Venda.class, id);
+        // if (venda != null) { em.remove(venda); }
+    }
+
+    @Override
     public List<Venda> findAll() {
         EntityManager em = JpaUtil.getEntityManager();
         try {
@@ -65,13 +73,6 @@ public class VendaRepositoryImpl implements VendaRepository {
         }
     }
 
-    // --- Métodos de compatibilidade ou não implementados ---
-
-    @Override
-    public Venda save(Venda venda, Usuario ator) {
-        throw new UnsupportedOperationException("O método save deve ser chamado com um EntityManager para garantir a atomicidade da transação.");
-    }
-
     @Override
     public Optional<Venda> findById(Integer id) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -82,15 +83,5 @@ public class VendaRepositoryImpl implements VendaRepository {
                 em.close();
             }
         }
-    }
-
-    @Override
-    public Venda save(Venda entity) {
-        return save(entity, null);
-    }
-
-    @Override
-    public void deleteById(Integer id) {
-        logger.warning("A função de apagar vendas não está implementada por razões de integridade de dados.");
     }
 }

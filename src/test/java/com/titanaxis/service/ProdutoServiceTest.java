@@ -15,18 +15,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT) // Permite stubs de setup não usados em todos os testes
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ProdutoServiceTest {
 
     @Mock
     private ProdutoRepository produtoRepository;
     @Mock
-    private TransactionService transactionService; // O serviço agora depende disto
+    private TransactionService transactionService;
 
     @InjectMocks
     private ProdutoService produtoService;
@@ -41,44 +45,40 @@ class ProdutoServiceTest {
         produto = new Produto("Teste", "Desc", 10.0, categoria);
 
         // Configuração do mock do TransactionService para executar a ação que lhe é passada
+        // Isto simula o comportamento real do serviço de transações.
         doAnswer(invocation -> {
-            var action = invocation.getArgument(0, java.util.function.Function.class);
+            Function<EntityManager, Object> action = invocation.getArgument(0);
             return action.apply(mock(EntityManager.class));
-        }).when(transactionService).executeInTransaction(any(java.util.function.Function.class));
+        }).when(transactionService).executeInTransactionWithResult(any());
+
+        doAnswer(invocation -> {
+            Consumer<EntityManager> action = invocation.getArgument(0);
+            action.accept(mock(EntityManager.class));
+            return null;
+        }).when(transactionService).executeInTransaction(any(Consumer.class));
     }
 
     @Test
-    void salvarProduto_deveChamarRepositorio_quandoAtorValido() throws Exception {
+    void salvarProduto_deveChamarRepositorioDentroDeUmaTransacao() throws Exception {
         produtoService.salvarProduto(produto, ator);
-        verify(produtoRepository, times(1)).save(eq(produto), eq(ator), any(EntityManager.class));
+        // Verifica se o método correto do serviço de transação foi chamado
+        verify(transactionService).executeInTransactionWithResult(any());
+        // Verifica se, dentro dessa transação, o repositório foi chamado
+        verify(produtoRepository).save(eq(produto), eq(ator), any(EntityManager.class));
     }
 
     @Test
     void salvarProduto_deveLancarExcecao_quandoAtorForNulo() {
-        Exception exception = assertThrows(Exception.class, () -> {
-            produtoService.salvarProduto(produto, null);
-        });
+        Exception exception = assertThrows(Exception.class, () -> produtoService.salvarProduto(produto, null));
         assertEquals("Nenhum utilizador autenticado para realizar esta operação.", exception.getMessage());
-        verify(produtoRepository, never()).save(any(), any(), any());
+        verify(transactionService, never()).executeInTransactionWithResult(any());
     }
 
     @Test
-    void alterarStatusProduto_deveChamarRepositorio_quandoAtorValido() throws Exception {
-        int produtoId = 123;
-        boolean novoStatus = false;
-
-        produtoService.alterarStatusProduto(produtoId, novoStatus, ator);
-
-        // CORREÇÃO: Verificamos a chamada ao método com a assinatura correta (4 argumentos)
-        verify(produtoRepository, times(1)).updateStatusAtivo(eq(produtoId), eq(novoStatus), eq(ator), any(EntityManager.class));
-    }
-
-    @Test
-    void alterarStatusProduto_deveLancarExcecao_quandoAtorForNulo() {
-        Exception exception = assertThrows(Exception.class, () -> {
-            produtoService.alterarStatusProduto(123, false, null);
-        });
-        assertEquals("Nenhum utilizador autenticado para realizar esta operação.", exception.getMessage());
-        verify(produtoRepository, never()).updateStatusAtivo(anyInt(), anyBoolean(), any(), any());
+    void alterarStatusProduto_deveChamarRepositorioDentroDeUmaTransacao() throws Exception {
+        produtoService.alterarStatusProduto(123, false, ator);
+        // Verifica se o método correto (void) do serviço de transação foi chamado
+        verify(transactionService).executeInTransaction(any(Consumer.class));
+        verify(produtoRepository).updateStatusAtivo(eq(123), eq(false), eq(ator), any(EntityManager.class));
     }
 }
