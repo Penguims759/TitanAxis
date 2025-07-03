@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/repository/impl/ProdutoRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.Lote;
@@ -24,8 +25,12 @@ import java.util.stream.Collectors;
 
 public class ProdutoRepositoryImpl implements ProdutoRepository {
     private static final Logger logger = AppLogger.getLogger();
-    private final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl();
+    private final AuditoriaRepository auditoriaRepository;
     private static final DateTimeFormatter DB_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public ProdutoRepositoryImpl(AuditoriaRepository auditoriaRepository) {
+        this.auditoriaRepository = auditoriaRepository;
+    }
 
     @Override
     public Produto save(Produto produto) {
@@ -259,7 +264,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         );
     }
 
-    // ALTERAÇÃO: Método otimizado para buscar um único produto por ID
     @Override
     public Optional<Produto> findById(Integer id) {
         String sql = "SELECT p.*, c.nome AS nome_categoria, " +
@@ -284,7 +288,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         return Optional.empty();
     }
 
-    // ALTERAÇÃO: Método otimizado para buscar um único produto por nome (lógica semelhante)
     @Override
     public Optional<Produto> findByNome(String nome) {
         String sql = "SELECT p.*, c.nome AS nome_categoria, " +
@@ -338,7 +341,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         });
     }
 
-    // ALTERAÇÃO: Método otimizado para buscar um único lote por ID
     @Override
     public Optional<Lote> findLoteById(int loteId) {
         String sql = "SELECT * FROM estoque_lotes WHERE id = ?";

@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/service/ClienteService.java
 package com.titanaxis.service;
 
 import com.titanaxis.model.Cliente;
@@ -11,8 +12,8 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
 
-    public ClienteService() {
-        this.clienteRepository = new ClienteRepositoryImpl();
+    public ClienteService(ClienteRepository clienteRepository) {
+        this.clienteRepository = clienteRepository;
     }
 
     public void salvar(Cliente cliente, Usuario ator) throws Exception {

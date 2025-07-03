@@ -1,6 +1,6 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
-import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
@@ -22,8 +22,12 @@ import java.util.logging.Logger;
 
 public class VendaRepositoryImpl implements VendaRepository {
     private static final Logger logger = AppLogger.getLogger();
-    private final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl(); // Auditoria
+    private final AuditoriaRepository auditoriaRepository;
     private static final DateTimeFormatter DB_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public VendaRepositoryImpl(AuditoriaRepository auditoriaRepository) {
+        this.auditoriaRepository = auditoriaRepository;
+    }
 
     @Override
     public Venda save(Venda venda) {
@@ -134,7 +138,6 @@ public class VendaRepositoryImpl implements VendaRepository {
         return "N/A";
     }
 
-    // ... (restante da classe sem alterações)
     @Override
     public List<Venda> findAll() {
         List<Venda> vendas = new ArrayList<>();

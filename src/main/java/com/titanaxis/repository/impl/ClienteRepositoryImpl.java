@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.Cliente;
@@ -16,7 +17,11 @@ import java.util.logging.Logger;
 
 public class ClienteRepositoryImpl implements ClienteRepository {
     private static final Logger logger = AppLogger.getLogger();
-    private final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl();
+    private final AuditoriaRepository auditoriaRepository;
+
+    public ClienteRepositoryImpl(AuditoriaRepository auditoriaRepository) {
+        this.auditoriaRepository = auditoriaRepository;
+    }
 
     @Override
     public Cliente save(Cliente cliente) {

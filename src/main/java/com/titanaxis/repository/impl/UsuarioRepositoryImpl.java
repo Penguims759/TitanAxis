@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/repository/impl/UsuarioRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.NivelAcesso;
@@ -16,7 +17,11 @@ import java.util.logging.Logger;
 
 public class UsuarioRepositoryImpl implements UsuarioRepository {
     private static final Logger logger = AppLogger.getLogger();
-    private final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl();
+    private final AuditoriaRepository auditoriaRepository;
+
+    public UsuarioRepositoryImpl(AuditoriaRepository auditoriaRepository) {
+        this.auditoriaRepository = auditoriaRepository;
+    }
 
     @Override
     public Usuario save(Usuario usuario) {
@@ -33,7 +38,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         if (usuarioSalvo != null && ator != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Usuário '%s' (ID: %d) foi %s. Nível de Acesso: %s.",
-                    usuarioSalvo.getNomeUsuario(), usuarioSalvo.getId(), usuarioSalvo.getNivelAcesso().getNome());
+                    usuarioSalvo.getNomeUsuario(), usuarioSalvo.getId(), isUpdate ? "atualizado" : "criado", usuarioSalvo.getNivelAcesso().getNome());
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", detalhes);
         }
         return usuarioSalvo;

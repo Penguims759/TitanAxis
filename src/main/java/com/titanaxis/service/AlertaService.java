@@ -1,4 +1,4 @@
-// src/main/java/com/titanaxis/service/AlertaService.java
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/service/AlertaService.java
 package com.titanaxis.service;
 
 import com.titanaxis.model.Lote;
@@ -20,10 +20,6 @@ public class AlertaService {
     private static final int DIAS_PARA_VENCIMENTO_ALERTA = 30;
     private static final Logger logger = AppLogger.getLogger();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-    public AlertaService() {
-        this(new ProdutoRepositoryImpl());
-    }
 
     public AlertaService(ProdutoRepository produtoRepository) {
         this.produtoRepository = produtoRepository;

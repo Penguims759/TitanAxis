@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/service/AuthService.java
 package com.titanaxis.service;
 
 import com.titanaxis.model.NivelAcesso;
@@ -20,13 +21,9 @@ public class AuthService {
     private Usuario usuarioLogado;
     private static final Logger logger = AppLogger.getLogger();
 
-    public AuthService(UsuarioRepository usuarioRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, AuditoriaRepository auditoriaRepository) {
         this.usuarioRepository = usuarioRepository;
-        this.auditoriaRepository = new AuditoriaRepositoryImpl();
-    }
-
-    public AuthService() {
-        this(new UsuarioRepositoryImpl());
+        this.auditoriaRepository = auditoriaRepository;
     }
 
     public Optional<Usuario> login(String nomeUsuario, String senha) {
