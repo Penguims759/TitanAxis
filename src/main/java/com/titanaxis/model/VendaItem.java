@@ -1,26 +1,48 @@
-// src/main/java/com/titanaxis/model/VendaItem.java
 package com.titanaxis.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "venda_itens")
 public class VendaItem {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int vendaId;
-    private Lote lote; // <-- ALTERAÇÃO: Agora guarda o Lote específico
+
+    // Relação inversa: Muitos itens de venda pertencem a uma venda.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "venda_id", nullable = false)
+    private Venda venda;
+
+    // Muitos itens de venda podem apontar para o mesmo lote.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lote_id") // Permite nulo, se o controlo de lote não for estrito
+    private Lote lote;
+
+    @Column(nullable = false)
     private int quantidade;
+
+    @Column(name = "preco_unitario", nullable = false)
     private double precoUnitario;
+
+    // Construtor vazio para JPA
+    public VendaItem() {}
 
     public VendaItem(Lote lote, int quantidade) {
         this.lote = lote;
         this.quantidade = quantidade;
-        // O preço ainda vem do produto genérico, associado ao lote
-        // (Futuramente, o preço poderia até estar no lote, se houver promoções)
-        this.precoUnitario = 0; // Será definido ao buscar o produto
+        // O preço vem do produto associado ao lote
+        if (lote != null && lote.getProduto() != null) {
+            this.precoUnitario = lote.getProduto().getPreco();
+        }
     }
 
     // --- Getters e Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-    public int getVendaId() { return vendaId; }
-    public void setVendaId(int vendaId) { this.vendaId = vendaId; }
+    public Venda getVenda() { return venda; }
+    public void setVenda(Venda venda) { this.venda = venda; }
     public Lote getLote() { return lote; }
     public void setLote(Lote lote) { this.lote = lote; }
     public int getQuantidade() { return quantidade; }

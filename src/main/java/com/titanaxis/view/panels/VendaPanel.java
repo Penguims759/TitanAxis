@@ -29,10 +29,12 @@ public class VendaPanel extends JPanel {
     private JSpinner quantidadeSpinner;
     private JLabel totalLabel;
 
+    // A lista de itens do carrinho agora é do tipo da entidade JPA
     private final List<VendaItem> carrinho = new ArrayList<>();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public VendaPanel(AppContext appContext) {
+        // ... (construtor e outros métodos permanecem iguais) ...
         this.authService = appContext.getAuthService();
         this.vendaService = appContext.getVendaService();
         this.clienteService = appContext.getClienteService();
@@ -54,9 +56,12 @@ public class VendaPanel extends JPanel {
         carregarDadosIniciais();
     }
 
+    // ... (métodos carregarDadosIniciais, atualizarLotesDisponiveis permanecem iguais) ...
     private void carregarDadosIniciais() {
         clienteComboBox.removeAllItems();
-        clienteService.listarTodosParaVenda().forEach(clienteComboBox::addItem);
+        // Adiciona um cliente "Nulo" ou "Consumidor Final" como opção
+        clienteComboBox.addItem(null); // Permite vendas sem cliente selecionado
+        clienteService.listarTodos().forEach(clienteComboBox::addItem);
 
         produtoComboBox.removeAllItems();
         produtoService.listarProdutosAtivosParaVenda().forEach(produtoComboBox::addItem);
@@ -74,9 +79,7 @@ public class VendaPanel extends JPanel {
 
     private void adicionarAoCarrinho() {
         Lote loteSelecionado = (Lote) loteComboBox.getSelectedItem();
-        Produto produtoSelecionado = (Produto) produtoComboBox.getSelectedItem();
-
-        if (loteSelecionado == null || produtoSelecionado == null) {
+        if (loteSelecionado == null) {
             JOptionPane.showMessageDialog(this, "Selecione um produto e um lote válido.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -87,10 +90,8 @@ public class VendaPanel extends JPanel {
             return;
         }
 
-        Produto produtoDoLote = produtoService.buscarProdutoPorId(loteSelecionado.getProdutoId()).orElse(produtoSelecionado);
+        // Cria o item de venda
         VendaItem novoItem = new VendaItem(loteSelecionado, quantidade);
-        novoItem.setPrecoUnitario(produtoDoLote.getPreco());
-
         carrinho.add(novoItem);
         atualizarCarrinho();
     }
@@ -100,9 +101,7 @@ public class VendaPanel extends JPanel {
         double total = 0.0;
         for (VendaItem item : carrinho) {
             double subtotal = item.getPrecoUnitario() * item.getQuantidade();
-            String nomeProduto = produtoService.buscarProdutoPorId(item.getLote().getProdutoId())
-                    .map(Produto::getNome)
-                    .orElse("Produto não encontrado");
+            String nomeProduto = item.getLote().getProduto().getNome();
             carrinhoTableModel.addRow(new Object[]{
                     nomeProduto,
                     item.getLote().getNumeroLote(),
@@ -128,26 +127,32 @@ public class VendaPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "O carrinho está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        // CORREÇÃO: Obtém os objetos completos, não apenas os IDs
         Cliente clienteSelecionado = (Cliente) clienteComboBox.getSelectedItem();
-        if (clienteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione um cliente.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
         Usuario ator = authService.getUsuarioLogado().orElse(null);
 
+        // Calcula o valor total e cria o objeto Venda
         double valorTotal = carrinho.stream().mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario()).sum();
-        Venda novaVenda = new Venda(clienteSelecionado.getId(), ator != null ? ator.getId() : -1, valorTotal, carrinho);
+        Venda novaVenda = new Venda(clienteSelecionado, ator, valorTotal);
+
+        // Adiciona os itens à venda
+        for (VendaItem item : carrinho) {
+            novaVenda.adicionarItem(item);
+        }
 
         try {
-            Venda vendaSalva = vendaService.finalizarVenda(novaVenda, ator);
-            JOptionPane.showMessageDialog(this, "Venda #" + vendaSalva.getId() + " finalizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            // O serviço agora recebe o objeto Venda completo
+            vendaService.finalizarVenda(novaVenda, ator);
+            JOptionPane.showMessageDialog(this, "Venda finalizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             limparVenda();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda:\n" + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private JPanel createTopPanel() {
+        // ... (código do painel permanece o mesmo) ...
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
         topPanel.setBorder(BorderFactory.createTitledBorder("Nova Venda"));
 
@@ -195,6 +200,7 @@ public class VendaPanel extends JPanel {
     }
 
     private JPanel createBottomPanel() {
+        // ... (código do painel permanece o mesmo) ...
         JPanel bottomPanel = new JPanel(new BorderLayout());
         totalLabel = new JLabel("Total: " + currencyFormat.format(0.0));
         totalLabel.setFont(new Font("Arial", Font.BOLD, 18));

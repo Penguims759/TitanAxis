@@ -1,4 +1,3 @@
-// FICHEIRO NOVO: src/main/java/com/titanaxis/view/dialogs/ProdutoDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.model.Categoria;
@@ -25,8 +24,8 @@ public class ProdutoDialog extends JDialog {
         super(owner, "Detalhes do Produto", true);
         this.produtoService = ps;
         this.categoriaService = cs;
-        // Se o produto for nulo, cria um novo para adição. Senão, usa o existente para edição.
-        this.produto = (p != null) ? p : new Produto("", "", 0.0, 0);
+        // CORREÇÃO: Ao criar um novo produto, a categoria inicial é nula.
+        this.produto = (p != null) ? p : new Produto("", "", 0.0, null);
         this.ator = ator;
 
         setTitle(p == null || p.getId() == 0 ? "Novo Produto" : "Editar Produto");
@@ -80,11 +79,9 @@ public class ProdutoDialog extends JDialog {
             nomeField.setText(produto.getNome());
             descricaoField.setText(produto.getDescricao());
             precoField.setText(String.format(Locale.US, "%.2f", produto.getPreco()));
-            for (int i = 0; i < categoriaComboBox.getItemCount(); i++) {
-                if (categoriaComboBox.getItemAt(i).getId() == produto.getCategoriaId()) {
-                    categoriaComboBox.setSelectedIndex(i);
-                    break;
-                }
+            // CORREÇÃO: Define o item selecionado com base no objeto Categoria, não no ID.
+            if (produto.getCategoria() != null) {
+                categoriaComboBox.setSelectedItem(produto.getCategoria());
             }
         }
     }
@@ -99,7 +96,9 @@ public class ProdutoDialog extends JDialog {
             produto.setNome(nomeField.getText().trim());
             produto.setDescricao(descricaoField.getText().trim());
             produto.setPreco(Double.parseDouble(precoField.getText().replace(",", ".")));
-            produto.setCategoriaId(((Categoria)categoriaComboBox.getSelectedItem()).getId());
+            // CORREÇÃO: Define o objeto Categoria inteiro, não apenas o seu ID.
+            produto.setCategoria((Categoria) categoriaComboBox.getSelectedItem());
+
             // Mantém o estado 'ativo' do produto ao salvar
             if (produto.getId() == 0) { // Se for um novo produto
                 produto.setAtivo(true);

@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.model.Cliente;
@@ -6,10 +5,10 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.DatabaseConnection;
+import com.titanaxis.util.JpaUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -24,151 +23,96 @@ public class ClienteRepositoryImpl implements ClienteRepository {
     }
 
     @Override
-    public Cliente save(Cliente cliente) {
-        return this.save(cliente, null);
-    }
-
-    @Override
     public Cliente save(Cliente cliente, Usuario ator) {
         boolean isUpdate = cliente.getId() != 0;
-        Cliente clienteSalvo = isUpdate ? update(cliente) : insert(cliente);
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Cliente clienteSalvo = em.merge(cliente);
+            em.getTransaction().commit();
 
-        if (clienteSalvo != null && ator != null) {
-            String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            String detalhes = String.format("Cliente '%s' (ID: %d) foi %s.",
-                    clienteSalvo.getNome(), clienteSalvo.getId(), isUpdate ? "atualizado" : "criado");
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Cliente", detalhes);
-        }
-        return clienteSalvo;
-    }
-
-    private Cliente insert(Cliente cliente) {
-        String sql = "INSERT INTO clientes (nome, contato, endereco) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, cliente.getNome());
-            ps.setString(2, cliente.getContato());
-            ps.setString(3, cliente.getEndereco());
-            if (ps.executeUpdate() > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        cliente.setId(rs.getInt(1));
-                        return cliente;
-                    }
-                }
+            if (ator != null) {
+                String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
+                String detalhes = String.format("Cliente '%s' (ID: %d) foi %s.",
+                        clienteSalvo.getNome(), clienteSalvo.getId(), isUpdate ? "atualizado" : "criado");
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Cliente", detalhes);
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao inserir cliente: " + cliente.getNome(), e);
+            return clienteSalvo;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            logger.log(Level.SEVERE, "Erro ao salvar cliente: " + e.getMessage(), e);
+            return null;
+        } finally {
+            if (em.isOpen()) em.close();
         }
-        return null;
-    }
-
-    private Cliente update(Cliente cliente) {
-        String sql = "UPDATE clientes SET nome = ?, contato = ?, endereco = ? WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, cliente.getNome());
-            ps.setString(2, cliente.getContato());
-            ps.setString(3, cliente.getEndereco());
-            ps.setInt(4, cliente.getId());
-            if (ps.executeUpdate() > 0) {
-                return cliente;
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao atualizar cliente ID: " + cliente.getId(), e);
-        }
-        return null;
-    }
-
-    @Override
-    public Optional<Cliente> findById(Integer id) {
-        String sql = "SELECT id, nome, contato, endereco FROM clientes WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(new Cliente(
-                            rs.getInt("id"),
-                            rs.getString("nome"),
-                            rs.getString("contato"),
-                            rs.getString("endereco")
-                    ));
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao buscar cliente por ID: " + id, e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<Cliente> findAll() {
-        List<Cliente> clientes = new ArrayList<>();
-        String sql = "SELECT id, nome, contato, endereco FROM clientes ORDER BY nome";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                clientes.add(new Cliente(
-                        rs.getInt("id"),
-                        rs.getString("nome"),
-                        rs.getString("contato"),
-                        rs.getString("endereco")
-                ));
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao listar clientes", e);
-        }
-        return clientes;
-    }
-
-    @Override
-    public void deleteById(Integer id) {
-        this.deleteById(id, null);
     }
 
     @Override
     public void deleteById(Integer id, Usuario ator) {
-        // Primeiro, busca o cliente para obter o nome para o log
-        Optional<Cliente> clienteOpt = findById(id);
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Cliente cliente = em.find(Cliente.class, id);
+            if (cliente != null) {
+                em.remove(cliente);
+                em.getTransaction().commit();
 
-        String sql = "DELETE FROM clientes WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            int affectedRows = ps.executeUpdate();
-
-            if (affectedRows > 0 && ator != null && clienteOpt.isPresent()) {
-                String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", clienteOpt.get().getNome(), id);
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Cliente", detalhes);
+                if (ator != null) {
+                    String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", cliente.getNome(), id);
+                    auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Cliente", detalhes);
+                }
+            } else {
+                em.getTransaction().rollback();
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             logger.log(Level.SEVERE, "Erro ao deletar cliente ID: " + id, e);
+        } finally {
+            if (em.isOpen()) em.close();
+        }
+    }
+
+    @Override
+    public Optional<Cliente> findById(Integer id) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(Cliente.class, id));
+        } finally {
+            if (em.isOpen()) em.close();
+        }
+    }
+
+    @Override
+    public List<Cliente> findAll() {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c ORDER BY c.nome", Cliente.class);
+            return query.getResultList();
+        } finally {
+            if (em.isOpen()) em.close();
         }
     }
 
     @Override
     public List<Cliente> findByNomeContaining(String nome) {
-        List<Cliente> clientes = new ArrayList<>();
-        String sql = "SELECT id, nome, contato, endereco FROM clientes WHERE LOWER(nome) LIKE LOWER(?) ORDER BY nome";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + nome + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    clientes.add(new Cliente(
-                            rs.getInt("id"),
-                            rs.getString("nome"),
-                            rs.getString("contato"),
-                            rs.getString("endereco")
-                    ));
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao buscar clientes por nome: " + nome, e);
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c WHERE LOWER(c.nome) LIKE LOWER(:nome) ORDER BY c.nome", Cliente.class);
+            query.setParameter("nome", "%" + nome + "%");
+            return query.getResultList();
+        } finally {
+            if (em.isOpen()) em.close();
         }
-        return clientes;
+    }
+
+    // Métodos antigos que delegam para os novos
+    @Override
+    public Cliente save(Cliente cliente) {
+        return save(cliente, null);
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        deleteById(id, null);
     }
 }

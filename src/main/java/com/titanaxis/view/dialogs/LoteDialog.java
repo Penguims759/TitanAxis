@@ -1,4 +1,3 @@
-// FICHEIRO NOVO: src/main/java/com/titanaxis/view/dialogs/LoteDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.model.Lote;
@@ -12,12 +11,16 @@ import java.awt.*;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class LoteDialog extends JDialog {
     private final ProdutoService produtoService;
     private final Lote lote;
     private final Usuario ator;
+    private final Produto produtoPai;
     private boolean saved = false;
+
+    private Lote loteSalvo;
 
     private JTextField numeroLoteField, quantidadeField;
     private JFormattedTextField dataValidadeField;
@@ -25,7 +28,8 @@ public class LoteDialog extends JDialog {
     public LoteDialog(Frame owner, ProdutoService ps, Produto produtoPai, Lote l, Usuario ator) {
         super(owner, "Detalhes do Lote", true);
         this.produtoService = ps;
-        this.lote = (l != null) ? l : new Lote(produtoPai.getId(), "", 0, null);
+        this.produtoPai = produtoPai;
+        this.lote = (l != null) ? l : new Lote();
         this.ator = ator;
 
         setTitle(l == null || l.getId() == 0 ? "Novo Lote para " + produtoPai.getNome() : "Editar Lote");
@@ -36,6 +40,14 @@ public class LoteDialog extends JDialog {
 
         pack();
         setLocationRelativeTo(owner);
+    }
+
+    public Optional<Lote> getLoteSalvo() {
+        return Optional.ofNullable(loteSalvo);
+    }
+
+    public boolean isSaved() {
+        return saved;
     }
 
     private void initComponents() {
@@ -87,7 +99,6 @@ public class LoteDialog extends JDialog {
         try {
             lote.setNumeroLote(numeroLoteField.getText().trim());
             lote.setQuantidade(Integer.parseInt(quantidadeField.getText().trim()));
-
             String dataTexto = dataValidadeField.getText().replace("/", "").replace("_", "").trim();
             if (!dataTexto.isEmpty()) {
                 lote.setDataValidade(LocalDate.parse(dataTexto, DateTimeFormatter.ofPattern("ddMMyyyy")));
@@ -100,20 +111,24 @@ public class LoteDialog extends JDialog {
                 return;
             }
 
-            produtoService.salvarLote(lote, ator);
-            saved = true;
-            dispose();
+            lote.setProduto(this.produtoPai);
+
+            this.loteSalvo = produtoService.salvarLote(lote, ator);
+
+            if (this.loteSalvo != null) {
+                saved = true;
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Ocorreu um erro e o lote não foi salvo.", "Erro de Salvamento", JOptionPane.ERROR_MESSAGE);
+            }
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "A quantidade deve ser um número válido.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (java.time.format.DateTimeParseException e) {
             JOptionPane.showMessageDialog(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-    }
-
-    public boolean isSaved() {
-        return saved;
     }
 }

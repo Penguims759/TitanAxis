@@ -7,6 +7,7 @@ import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.view.interfaces.ProdutoView;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
@@ -33,7 +34,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         Optional<Produto> produtoOpt = produtoService.buscarProdutoPorId(produtoId);
         if (produtoOpt.isPresent()) {
             this.produtoSelecionado = produtoOpt.get();
-            view.setLotesNaTabela(produtoService.buscarLotesPorProdutoId(produtoId));
+            view.setLotesNaTabela(this.produtoSelecionado.getLotes());
             view.setBotoesDeAcaoEnabled(true);
             view.setTextoBotaoStatus(produtoSelecionado.isAtivo() ? "Inativar Produto" : "Reativar Produto");
         } else {
@@ -94,11 +95,28 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         if (view.mostrarConfirmacao("Confirmar Remoção", "Tem certeza que deseja remover este lote?")) {
             try {
                 produtoService.removerLote(loteId, ator);
+                // Força o recarregamento do produto para atualizar a lista de lotes e contagens
                 aoSelecionarProduto(produtoSelecionado.getId());
                 aoCarregarProdutos();
             } catch (Exception e) {
                 view.mostrarMensagem("Erro", "Erro ao remover o lote: " + e.getMessage(), true);
             }
         }
+    }
+
+    @Override
+    public void aoLoteSalvo(Lote loteSalvo) {
+        if (produtoSelecionado == null || loteSalvo == null) return;
+
+        // Atualiza o estado da lista em memória para evitar uma nova ida à base de dados
+        produtoSelecionado.getLotes().removeIf(l -> l.getId() == loteSalvo.getId()); // Remove o lote antigo se for uma edição
+        produtoSelecionado.getLotes().add(loteSalvo); // Adiciona a versão mais recente
+        produtoSelecionado.getLotes().sort(Comparator.comparing(Lote::getDataValidade, Comparator.nullsLast(Comparator.naturalOrder())));
+
+        // Refresca a tabela de lotes com a lista já atualizada
+        view.setLotesNaTabela(produtoSelecionado.getLotes());
+
+        // Refresca a tabela de produtos para atualizar a contagem de stock
+        aoCarregarProdutos();
     }
 }

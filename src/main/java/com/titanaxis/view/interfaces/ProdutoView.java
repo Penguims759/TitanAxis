@@ -18,16 +18,22 @@ public interface ProdutoView {
     void mostrarDialogoDeProduto(Produto produto);
     void mostrarDialogoDeLote(Produto produtoPai, Lote lote);
 
-    // O Contrato: Nenhum destes métodos pode lançar exceções verificadas.
     interface ProdutoViewListener {
         void aoCarregarProdutos();
         void aoSelecionarProduto(int produtoId);
         void aoClicarNovoProduto();
         void aoClicarEditarProduto();
-        void aoAlternarStatusDoProduto(); // Não tem 'throws'
+        void aoAlternarStatusDoProduto();
         void aoClicarAdicionarLote();
         void aoClicarEditarLote();
-        void aoClicarRemoverLote();      // Não tem 'throws'
+        void aoClicarRemoverLote();
+
+        /**
+         * Evento acionado após um lote ser salvo com sucesso,
+         * passando o lote persistido para o presenter.
+         * @param lote O lote que foi salvo ou atualizado.
+         */
+        void aoLoteSalvo(Lote lote);
     }
 
     void setListener(ProdutoViewListener listener);

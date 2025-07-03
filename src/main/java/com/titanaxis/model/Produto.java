@@ -1,39 +1,63 @@
-// src/main/java/com/titanaxis/model/Produto.java
 package com.titanaxis.model;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "produtos")
 public class Produto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(nullable = false)
     private String nome;
+
     private String descricao;
+
+    @Column(nullable = false)
     private double preco;
-    private int categoriaId;
-    private String nomeCategoria;
-    private boolean ativo; // <-- NOVO CAMPO
 
-    // Campos transitórios
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
+
+    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    private boolean ativo;
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Lote> lotes = new ArrayList<>();
+
+    @Transient
     private int quantidadeTotal;
-    private List<Lote> lotes;
 
-    // Construtor principal para ler do banco de dados
-    public Produto(int id, String nome, String descricao, double preco, int categoriaId, String nomeCategoria, boolean ativo) {
-        this.id = id;
+    @Transient
+    private String nomeCategoria;
+
+    // Construtores
+    public Produto() {}
+
+    public Produto(String nome, String descricao, double preco, Categoria categoria) {
         this.nome = nome;
         this.descricao = descricao;
         this.preco = preco;
-        this.categoriaId = categoriaId;
-        this.nomeCategoria = nomeCategoria;
-        this.ativo = ativo;
+        this.categoria = categoria;
+        this.ativo = true;
     }
 
-    // Construtor para criar novos produtos na UI
-    public Produto(String nome, String descricao, double preco, int categoriaId) {
-        this.nome = nome;
-        this.descricao = descricao;
-        this.preco = preco;
-        this.categoriaId = categoriaId;
-        this.ativo = true; // Novos produtos são ativos por defeito
+    /**
+     * Método auxiliar para adicionar um lote a este produto,
+     * garantindo que a relação bidirecional é mantida corretamente.
+     * @param lote O lote a ser adicionado.
+     */
+    public void addLote(Lote lote) {
+        this.lotes.add(lote);
+        lote.setProduto(this);
     }
 
     // --- Getters e Setters ---
@@ -45,17 +69,24 @@ public class Produto {
     public void setDescricao(String descricao) { this.descricao = descricao; }
     public double getPreco() { return preco; }
     public void setPreco(double preco) { this.preco = preco; }
-    public int getCategoriaId() { return categoriaId; }
-    public void setCategoriaId(int categoriaId) { this.categoriaId = categoriaId; }
-    public String getNomeCategoria() { return nomeCategoria; }
-    public void setNomeCategoria(String nomeCategoria) { this.nomeCategoria = nomeCategoria; }
-    public boolean isAtivo() { return ativo; } // <-- NOVO
-    public void setAtivo(boolean ativo) { this.ativo = ativo; } // <-- NOVO
-
-    public int getQuantidadeTotal() { return quantidadeTotal; }
-    public void setQuantidadeTotal(int quantidadeTotal) { this.quantidadeTotal = quantidadeTotal; }
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
     public List<Lote> getLotes() { return lotes; }
     public void setLotes(List<Lote> lotes) { this.lotes = lotes; }
+
+    public int getQuantidadeTotal() {
+        if (this.lotes == null) {
+            return 0;
+        }
+        return this.lotes.stream().mapToInt(Lote::getQuantidade).sum();
+    }
+    public void setQuantidadeTotal(int quantidadeTotal) { this.quantidadeTotal = quantidadeTotal; }
+
+    public String getNomeCategoria() {
+        return (categoria != null) ? categoria.getNome() : null;
+    }
 
     @Override
     public String toString() {

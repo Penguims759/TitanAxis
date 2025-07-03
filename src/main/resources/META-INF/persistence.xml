@@ -1,0 +1,28 @@
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
+             version="3.1">
+
+    <persistence-unit name="TitanAxisPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>com.titanaxis.model.Categoria</class>
+        <class>com.titanaxis.model.Produto</class>
+        <class>com.titanaxis.model.Lote</class>
+        <class>com.titanaxis.model.Usuario</class>
+        <class>com.titanaxis.model.Cliente</class>
+        <class>com.titanaxis.model.Venda</class>
+        <class>com.titanaxis.model.VendaItem</class>
+
+        <class>com.titanaxis.model.NivelAcessoConverter</class>
+        <class>com.titanaxis.model.LocalDateConverter</class>     <class>com.titanaxis.model.LocalDateTimeConverter</class> <properties>
+        <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
+        <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:titanaxis.db"/>
+        <property name="hibernate.dialect" value="org.hibernate.community.dialect.SQLiteDialect"/>
+        <property name="hibernate.show_sql" value="true"/>
+        <property name="hibernate.format_sql" value="true"/>
+        <property name="hibernate.hbm2ddl.auto" value="validate"/>
+    </properties>
+    </persistence-unit>
+
+</persistence>

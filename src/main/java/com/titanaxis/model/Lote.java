@@ -1,42 +1,64 @@
-// src/main/java/com/titanaxis/model/Lote.java
 package com.titanaxis.model;
 
+import jakarta.persistence.*;
+// Remova os imports do hibernate (JdbcTypeCode e SqlTypes) se não forem mais usados em outros campos.
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+@Entity
+@Table(name = "estoque_lotes")
 public class Lote {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int produtoId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produto_id", nullable = false)
+    private Produto produto;
+
+    @Column(name = "numero_lote", nullable = false)
     private String numeroLote;
+
+    @Column(nullable = false)
     private int quantidade;
+
+    // A anotação @JdbcTypeCode foi removida. O nosso novo converter fará o trabalho.
+    @Column(name = "data_validade")
     private LocalDate dataValidade;
 
-    public Lote(int id, int produtoId, String numeroLote, int quantidade, LocalDate dataValidade) {
+    // ... (o resto da classe permanece igual) ...
+    public Lote() {}
+
+    public Lote(int id, Produto produto, String numeroLote, int quantidade, LocalDate dataValidade) {
         this.id = id;
-        this.produtoId = produtoId;
+        this.produto = produto;
         this.numeroLote = numeroLote;
         this.quantidade = quantidade;
         this.dataValidade = dataValidade;
     }
 
-    public Lote(int produtoId, String numeroLote, int quantidade, LocalDate dataValidade) {
-        this.produtoId = produtoId;
+    public Lote(Produto produto, String numeroLote, int quantidade, LocalDate dataValidade) {
+        this.produto = produto;
         this.numeroLote = numeroLote;
         this.quantidade = quantidade;
         this.dataValidade = dataValidade;
     }
 
-    // --- Getters e Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-    public int getProdutoId() { return produtoId; }
-    public void setProdutoId(int produtoId) { this.produtoId = produtoId; }
+    public Produto getProduto() { return produto; }
+    public void setProduto(Produto produto) { this.produto = produto; }
     public String getNumeroLote() { return numeroLote; }
     public void setNumeroLote(String numeroLote) { this.numeroLote = numeroLote; }
     public int getQuantidade() { return quantidade; }
     public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
     public LocalDate getDataValidade() { return dataValidade; }
     public void setDataValidade(LocalDate dataValidade) { this.dataValidade = dataValidade; }
+
+    public int getProdutoId() {
+        return (produto != null) ? produto.getId() : 0;
+    }
 
     @Override
     public String toString() {

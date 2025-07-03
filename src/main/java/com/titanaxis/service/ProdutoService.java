@@ -1,11 +1,9 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-7ba36152a6e3502010a8be48ce02c9ed9fcd8bf0/src/main/java/com/titanaxis/service/ProdutoService.java
 package com.titanaxis.service;
 
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.repository.impl.ProdutoRepositoryImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,14 +21,12 @@ public class ProdutoService {
         return incluirInativos ? produtoRepository.findAllIncludingInactive() : produtoRepository.findAll();
     }
 
-    // NOVO MÉTODO: Retorna apenas produtos ativos com stock para o painel de vendas
     public List<Produto> listarProdutosAtivosParaVenda() {
         return produtoRepository.findAll().stream()
                 .filter(p -> p.getQuantidadeTotal() > 0)
                 .collect(Collectors.toList());
     }
 
-    // NOVO MÉTODO: Retorna apenas lotes com stock para o painel de vendas
     public List<Lote> buscarLotesDisponiveis(int produtoId) {
         return produtoRepository.findLotesByProdutoId(produtoId).stream()
                 .filter(l -> l.getQuantidade() > 0)
@@ -56,11 +52,19 @@ public class ProdutoService {
         produtoRepository.save(produto, ator);
     }
 
-    public void salvarLote(Lote lote, Usuario ator) throws Exception {
+    /**
+     * Salva um lote e retorna a instância persistida (com ID).
+     * @param lote O lote a ser salvo.
+     * @param ator O utilizador que realiza a ação.
+     * @return O lote salvo.
+     * @throws Exception se o utilizador não estiver autenticado.
+     */
+    public Lote salvarLote(Lote lote, Usuario ator) throws Exception {
         if (ator == null) {
             throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        produtoRepository.saveLote(lote, ator);
+        // CORREÇÃO: Adicionamos o 'return' para devolver o lote que o repositório persistiu.
+        return produtoRepository.saveLote(lote, ator);
     }
 
     public void removerLote(int loteId, Usuario ator) throws Exception {
