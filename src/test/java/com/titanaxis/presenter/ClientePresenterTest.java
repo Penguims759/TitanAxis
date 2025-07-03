@@ -44,8 +44,6 @@ class ClientePresenterTest {
         presenter = new ClientePresenter(view, clienteService, authService);
     }
 
-    // **AQUI ESTÁ A CORREÇÃO**
-    // Adicionado "throws Exception" porque chama aoSalvar()
     @Test
     void aoSalvar_deveMostrarErro_seNomeForVazio() throws Exception {
         when(view.getNome()).thenReturn("   ");
@@ -54,10 +52,8 @@ class ClientePresenterTest {
         verify(view).mostrarMensagem("Erro de Validação", "O nome do cliente é obrigatório.", true);
     }
 
-    // **AQUI ESTÁ A CORREÇÃO**
-    // Adicionado "throws Exception" porque chama aoSalvar()
     @Test
-    void aoSalvar_deveCriarNovoCliente_eLimparCampos() throws Exception {
+    void aoSalvar_deveCriarNovoCliente_seIdForVazio() throws Exception {
         when(view.getId()).thenReturn("");
         when(view.getNome()).thenReturn("Cliente Teste");
         when(view.getContato()).thenReturn("");
@@ -67,13 +63,8 @@ class ClientePresenterTest {
 
         verify(clienteService).salvar(any(Cliente.class), any(Usuario.class));
         verify(view).mostrarMensagem(eq("Sucesso"), contains("adicionado"), eq(false));
-        verify(view).setId("");
-        verify(view).setNome("");
-        verify(view).clearTableSelection();
     }
 
-    // **AQUI ESTÁ A CORREÇÃO**
-    // Adicionado "throws Exception" porque chama aoSalvar()
     @Test
     void aoSalvar_deveAtualizarCliente_seIdEstiverPreenchido() throws Exception {
         when(view.getId()).thenReturn("123");
@@ -89,5 +80,51 @@ class ClientePresenterTest {
         assertEquals(123, clienteAtualizado.getId());
         assertEquals("Nome Atualizado", clienteAtualizado.getNome());
         verify(view).mostrarMensagem(eq("Sucesso"), contains("atualizado"), eq(false));
+    }
+
+    @Test
+    void aoApagar_deveApagarCliente_quandoConfirmado() throws Exception {
+        when(view.getId()).thenReturn("1");
+        when(view.mostrarConfirmacao(anyString(), anyString())).thenReturn(true);
+
+        presenter.aoApagar();
+
+        verify(clienteService).deletar(eq(1), any(Usuario.class));
+        verify(view).mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
+    }
+
+    @Test
+    void aoApagar_naoDeveFazerNada_quandoNaoConfirmado() throws Exception {
+        when(view.getId()).thenReturn("1");
+        when(view.mostrarConfirmacao(anyString(), anyString())).thenReturn(false);
+
+        presenter.aoApagar();
+
+        verify(clienteService, never()).deletar(anyInt(), any(Usuario.class));
+    }
+
+    @Test
+    void aoSelecionarCliente_devePreencherCamposDaView() {
+        Cliente cliente = new Cliente(10, "Cliente Selecionado", "email@teste.com", "Rua X");
+
+        presenter.aoSelecionarCliente(cliente);
+
+        verify(view).setId("10");
+        verify(view).setNome("Cliente Selecionado");
+        verify(view).setContato("email@teste.com");
+        verify(view).setEndereco("Rua X");
+    }
+
+    @Test
+    void aoBuscar_deveChamarServico_eAtualizarTabela() {
+        String termoBusca = "Teste";
+        List<Cliente> resultado = List.of(new Cliente(1, "Cliente Teste", "", ""));
+        when(view.getTermoBusca()).thenReturn(termoBusca);
+        when(clienteService.buscarPorNome(termoBusca)).thenReturn(resultado);
+
+        presenter.aoBuscar();
+
+        verify(clienteService).buscarPorNome(termoBusca);
+        verify(view).setClientesNaTabela(resultado);
     }
 }
