@@ -18,9 +18,8 @@ public class LoteDialog extends JDialog {
     private final Lote lote;
     private final Usuario ator;
     private final Produto produtoPai;
-    private boolean saved = false;
 
-    private Lote loteSalvo;
+    private Lote loteSalvo; // Armazena o resultado da operação
 
     private JTextField numeroLoteField, quantidadeField;
     private JFormattedTextField dataValidadeField;
@@ -42,12 +41,12 @@ public class LoteDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
 
+    /**
+     * Permite que o chamador (Presenter) obtenha o Lote que foi salvo.
+     * @return Um Optional contendo o lote salvo, ou vazio se a operação falhou ou foi cancelada.
+     */
     public Optional<Lote> getLoteSalvo() {
         return Optional.ofNullable(loteSalvo);
-    }
-
-    public boolean isSaved() {
-        return saved;
     }
 
     private void initComponents() {
@@ -113,14 +112,9 @@ public class LoteDialog extends JDialog {
 
             lote.setProduto(this.produtoPai);
 
+            // Salva o resultado e fecha o diálogo
             this.loteSalvo = produtoService.salvarLote(lote, ator);
-
-            if (this.loteSalvo != null) {
-                saved = true;
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Ocorreu um erro e o lote não foi salvo.", "Erro de Salvamento", JOptionPane.ERROR_MESSAGE);
-            }
+            dispose();
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "A quantidade deve ser um número válido.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
@@ -128,6 +122,7 @@ public class LoteDialog extends JDialog {
             JOptionPane.showMessageDialog(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
+            this.loteSalvo = null; // Garante que não há resultado em caso de erro
             e.printStackTrace();
         }
     }

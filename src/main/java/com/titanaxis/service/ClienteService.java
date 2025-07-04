@@ -5,6 +5,7 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.ClienteRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ClienteService {
 
@@ -16,13 +17,26 @@ public class ClienteService {
         this.transactionService = transactionService;
     }
 
-    public List<Cliente> listarTodos() { return clienteRepository.findAll(); }
-    public List<Cliente> listarTodosParaVenda() { return clienteRepository.findAll(); }
-    public List<Cliente> buscarPorNome(String nome) { return clienteRepository.findByNomeContaining(nome); }
+    public List<Cliente> listarTodos() {
+        return transactionService.executeInTransactionWithResult(em ->
+                clienteRepository.findAll(em)
+        );
+    }
+
+    public Optional<Cliente> buscarPorId(int id) {
+        return transactionService.executeInTransactionWithResult(em ->
+                clienteRepository.findById(id, em)
+        );
+    }
+
+    public List<Cliente> buscarPorNome(String nome) {
+        return transactionService.executeInTransactionWithResult(em ->
+                clienteRepository.findByNomeContaining(nome, em)
+        );
+    }
 
     public Cliente salvar(Cliente cliente, Usuario usuarioLogado) throws Exception {
         if (usuarioLogado == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
-        // CORREÇÃO: Chamamos o método que retorna um resultado.
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.save(cliente, usuarioLogado, em)
         );

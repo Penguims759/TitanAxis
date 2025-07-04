@@ -11,7 +11,6 @@ public class VendaService {
     private final VendaRepository vendaRepository;
     private final TransactionService transactionService;
 
-    // O construtor estava a pedir um ProdutoRepository que já não é necessário aqui.
     public VendaService(VendaRepository vendaRepository, TransactionService transactionService) {
         this.vendaRepository = vendaRepository;
         this.transactionService = transactionService;
@@ -25,18 +24,20 @@ public class VendaService {
             throw new Exception("A venda não contém itens.");
         }
 
-        // CORREÇÃO: Usamos o método com o nome explícito que retorna um resultado.
-        return transactionService.executeInTransactionWithResult(em -> {
-
-            for (VendaItem item : venda.getItens()) {
-                Lote lote = em.find(Lote.class, item.getLote().getId());
-                if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
-                    throw new RuntimeException("Stock insuficiente para o produto: " + item.getLote().getProduto().getNome());
+        try {
+            return transactionService.executeInTransactionWithResult(em -> {
+                for (VendaItem item : venda.getItens()) {
+                    // Re-anexa a entidade Lote à sessão de persistência atual
+                    Lote lote = em.find(Lote.class, item.getLote().getId());
+                    if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
+                        throw new RuntimeException("Stock insuficiente para o produto: " + item.getLote().getProduto().getNome());
+                    }
+                    lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
                 }
-                lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
-            }
-
-            return vendaRepository.save(venda, ator, em);
-        });
+                return vendaRepository.save(venda, ator, em);
+            });
+        } catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 }

@@ -21,51 +21,59 @@ public class AuthService {
         this.transactionService = transactionService;
     }
 
-    /**
-     * Lógica de login restaurada para usar a verificação de senha encriptada.
-     */
     public Optional<Usuario> login(String nomeUsuario, String senha) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByNomeUsuario(nomeUsuario);
+        // A operação de login é uma consulta, então também é envolvida numa transação de leitura.
+        Optional<Usuario> usuarioOpt = transactionService.executeInTransactionWithResult(em ->
+                usuarioRepository.findByNomeUsuario(nomeUsuario, em)
+        );
 
-        // A lógica original foi restaurada.
         if (usuarioOpt.isPresent() && PasswordUtil.checkPassword(senha, usuarioOpt.get().getSenhaHash())) {
             this.usuarioLogado = usuarioOpt.get();
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", "Login bem-sucedido.");
             return usuarioOpt;
         }
 
-        // Se o login falhar, regista o evento.
         Integer idTentativa = usuarioOpt.map(Usuario::getId).orElse(null);
         auditoriaRepository.registrarAcao(idTentativa, nomeUsuario, "LOGIN_FALHA", "Autenticação", "Tentativa de login falhada.");
         this.usuarioLogado = null;
         return Optional.empty();
     }
 
-    // O resto da classe permanece como estava na última versão correta.
     public boolean cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) {
-        if (usuarioRepository.findByNomeUsuario(nomeUsuario).isPresent()) {
-            return false;
-        }
-        String senhaHash = PasswordUtil.hashPassword(senha);
-        Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
-
-        Usuario salvo = transactionService.executeInTransactionWithResult(em -> {
-            return usuarioRepository.save(novoUsuario, ator, em);
+        return transactionService.executeInTransactionWithResult(em -> {
+            if (usuarioRepository.findByNomeUsuario(nomeUsuario, em).isPresent()) {
+                // Lançar exceção dentro da transação para garantir o rollback
+                throw new RuntimeException("O nome de utilizador já existe.");
+            }
+            String senhaHash = PasswordUtil.hashPassword(senha);
+            Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
+            return usuarioRepository.save(novoUsuario, ator, em) != null;
         });
-        return salvo != null;
     }
 
     public boolean atualizarUsuario(Usuario usuario, Usuario ator) {
-        Usuario salvo = transactionService.executeInTransactionWithResult(em -> {
-            return usuarioRepository.save(usuario, ator, em);
-        });
+        Usuario salvo = transactionService.executeInTransactionWithResult(em ->
+                usuarioRepository.save(usuario, ator, em)
+        );
         return salvo != null;
     }
 
     public void deletarUsuario(int id, Usuario ator) {
-        transactionService.executeInTransaction(em -> {
-            usuarioRepository.deleteById(id, ator, em);
-        });
+        transactionService.executeInTransaction(em ->
+                usuarioRepository.deleteById(id, ator, em)
+        );
+    }
+
+    public List<Usuario> listarUsuarios() {
+        return transactionService.executeInTransactionWithResult(em ->
+                usuarioRepository.findAll(em)
+        );
+    }
+
+    public List<Usuario> buscarUsuariosPorNomeContendo(String termo) {
+        return transactionService.executeInTransactionWithResult(em ->
+                usuarioRepository.findByNomeContaining(termo, em)
+        );
     }
 
     public Optional<Usuario> getUsuarioLogado() { return Optional.ofNullable(usuarioLogado); }
@@ -73,6 +81,4 @@ public class AuthService {
     public boolean isAdmin() { return usuarioLogado != null && usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN; }
     public boolean isGerente() { return usuarioLogado != null && (usuarioLogado.getNivelAcesso() == NivelAcesso.ADMIN || usuarioLogado.getNivelAcesso() == NivelAcesso.GERENTE); }
     public void logout() { this.usuarioLogado = null; }
-    public List<Usuario> listarUsuarios() { return usuarioRepository.findAll(); }
-    public List<Usuario> buscarUsuariosPorNomeContendo(String termo) { return usuarioRepository.findByNomeContaining(termo); }
 }

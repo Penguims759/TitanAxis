@@ -19,15 +19,45 @@ public class ProdutoService {
         this.transactionService = transactionService;
     }
 
-    public List<Produto> listarProdutos(boolean incluirInativos) { return produtoRepository.findAllIncludingInactive(); }
-    public List<Produto> listarProdutosAtivosParaVenda() { return produtoRepository.findAll().stream().filter(p -> p.getQuantidadeTotal() > 0).collect(Collectors.toList()); }
-    public List<Lote> buscarLotesDisponiveis(int produtoId) { return produtoRepository.findLotesByProdutoId(produtoId).stream().filter(l -> l.getQuantidade() > 0).collect(Collectors.toList()); }
-    public Optional<Produto> buscarProdutoPorId(int id) { return produtoRepository.findById(id); }
-    public Optional<Lote> buscarLotePorId(int loteId) { return produtoRepository.findLoteById(loteId); }
+    public List<Produto> listarProdutos(boolean incluirInativos) {
+        return transactionService.executeInTransactionWithResult(em -> {
+            if (incluirInativos) {
+                return produtoRepository.findAllIncludingInactive(em);
+            }
+            return produtoRepository.findAll(em);
+        });
+    }
+
+    public List<Produto> listarProdutosAtivosParaVenda() {
+        return transactionService.executeInTransactionWithResult(em ->
+                produtoRepository.findAll(em).stream()
+                        .filter(p -> p.getQuantidadeTotal() > 0)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    public List<Lote> buscarLotesDisponiveis(int produtoId) {
+        return transactionService.executeInTransactionWithResult(em ->
+                produtoRepository.findLotesByProdutoId(produtoId, em).stream()
+                        .filter(l -> l.getQuantidade() > 0)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    public Optional<Produto> buscarProdutoPorId(int id) {
+        return transactionService.executeInTransactionWithResult(em ->
+                produtoRepository.findById(id, em)
+        );
+    }
+
+    public Optional<Lote> buscarLotePorId(int loteId) {
+        return transactionService.executeInTransactionWithResult(em ->
+                produtoRepository.findLoteById(loteId, em)
+        );
+    }
 
     public Produto salvarProduto(Produto produto, Usuario ator) throws Exception {
         if (ator == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
-        // CORREÇÃO: Chamamos o método que retorna um resultado.
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.save(produto, ator, em)
         );
@@ -35,7 +65,6 @@ public class ProdutoService {
 
     public Lote salvarLote(Lote lote, Usuario ator) throws Exception {
         if (ator == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
-        // CORREÇÃO: Chamamos o método que retorna um resultado.
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.saveLote(lote, ator, em)
         );

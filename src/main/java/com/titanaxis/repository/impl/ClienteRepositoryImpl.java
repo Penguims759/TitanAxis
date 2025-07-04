@@ -4,7 +4,6 @@ import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
-import com.titanaxis.util.JpaUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
@@ -34,45 +33,30 @@ public class ClienteRepositoryImpl implements ClienteRepository {
 
     @Override
     public void deleteById(Integer id, Usuario usuarioLogado, EntityManager em) {
-        Cliente cliente = em.find(Cliente.class, id);
-        if (cliente != null) {
+        Optional<Cliente> clienteOpt = findById(id, em);
+        clienteOpt.ifPresent(cliente -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", cliente.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Cliente", detalhes);
             }
             em.remove(cliente);
-        }
+        });
     }
 
     @Override
-    public Optional<Cliente> findById(Integer id) {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(Cliente.class, id));
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public Optional<Cliente> findById(Integer id, EntityManager em) {
+        return Optional.ofNullable(em.find(Cliente.class, id));
     }
 
     @Override
-    public List<Cliente> findAll() {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT c FROM Cliente c ORDER BY c.nome", Cliente.class).getResultList();
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public List<Cliente> findAll(EntityManager em) {
+        return em.createQuery("SELECT c FROM Cliente c ORDER BY c.nome", Cliente.class).getResultList();
     }
 
     @Override
-    public List<Cliente> findByNomeContaining(String nome) {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c WHERE LOWER(c.nome) LIKE LOWER(:nome)", Cliente.class);
-            query.setParameter("nome", "%" + nome + "%");
-            return query.getResultList();
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public List<Cliente> findByNomeContaining(String nome, EntityManager em) {
+        TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c WHERE LOWER(c.nome) LIKE LOWER(:nome)", Cliente.class);
+        query.setParameter("nome", "%" + nome + "%");
+        return query.getResultList();
     }
 }

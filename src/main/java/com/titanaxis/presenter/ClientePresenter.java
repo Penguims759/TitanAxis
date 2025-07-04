@@ -1,4 +1,3 @@
-// FICHEIRO: src/main/java/com/titanaxis/presenter/ClientePresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.model.Cliente;
@@ -19,7 +18,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         this.view = view;
         this.clienteService = clienteService;
         this.authService = authService;
-        this.view.setListener(this); // O Presenter "ouve" os eventos da View
+        this.view.setListener(this);
         carregarDadosIniciais();
     }
 
@@ -59,8 +58,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             return;
         }
 
-        boolean confirmado = view.mostrarConfirmacao("Confirmar Eliminação", "Tem certeza que deseja eliminar este cliente?");
-        if (!confirmado) {
+        if (!view.mostrarConfirmacao("Confirmar Eliminação", "Tem certeza que deseja eliminar este cliente?")) {
             return;
         }
 

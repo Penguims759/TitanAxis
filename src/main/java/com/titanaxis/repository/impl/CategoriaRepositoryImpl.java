@@ -4,7 +4,6 @@ import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.CategoriaRepository;
-import com.titanaxis.util.JpaUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -34,73 +33,50 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
     @Override
     public void deleteById(Integer id, Usuario usuarioLogado, EntityManager em) {
-        Categoria categoria = em.find(Categoria.class, id);
-        if (categoria != null) {
+        Optional<Categoria> categoriaOpt = findById(id, em);
+        categoriaOpt.ifPresent(categoria -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Categoria '%s' (ID: %d) foi eliminada.", categoria.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", detalhes);
             }
             em.remove(categoria);
-        }
+        });
     }
 
     @Override
-    public Optional<Categoria> findById(Integer id) {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(Categoria.class, id));
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public Optional<Categoria> findById(Integer id, EntityManager em) {
+        return Optional.ofNullable(em.find(Categoria.class, id));
     }
 
     @Override
-    public Optional<Categoria> findByNome(String nome) {
-        EntityManager em = JpaUtil.getEntityManager();
+    public Optional<Categoria> findByNome(String nome, EntityManager em) {
         try {
             TypedQuery<Categoria> query = em.createQuery("SELECT c FROM Categoria c WHERE c.nome = :nome", Categoria.class);
             query.setParameter("nome", nome);
             return Optional.of(query.getSingleResult());
         } catch (NoResultException e) {
             return Optional.empty();
-        } finally {
-            if (em.isOpen()) em.close();
         }
     }
 
     @Override
-    public List<Categoria> findAll() {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT c FROM Categoria c ORDER BY c.nome", Categoria.class).getResultList();
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public List<Categoria> findAll(EntityManager em) {
+        return em.createQuery("SELECT c FROM Categoria c ORDER BY c.nome", Categoria.class).getResultList();
     }
 
     @Override
-    public List<Categoria> findAllWithProductCount() {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            String jpql = "SELECT new com.titanaxis.model.Categoria(c.id, c.nome, SIZE(c.produtos)) " +
-                    "FROM Categoria c ORDER BY c.nome";
-            return em.createQuery(jpql, Categoria.class).getResultList();
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public List<Categoria> findAllWithProductCount(EntityManager em) {
+        String jpql = "SELECT new com.titanaxis.model.Categoria(c.id, c.nome, SIZE(c.produtos)) " +
+                "FROM Categoria c ORDER BY c.nome";
+        return em.createQuery(jpql, Categoria.class).getResultList();
     }
 
     @Override
-    public List<Categoria> findByNomeContainingWithProductCount(String termo) {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            String jpql = "SELECT new com.titanaxis.model.Categoria(c.id, c.nome, SIZE(c.produtos)) " +
-                    "FROM Categoria c WHERE LOWER(c.nome) LIKE LOWER(:termo) ORDER BY c.nome";
-            TypedQuery<Categoria> query = em.createQuery(jpql, Categoria.class);
-            query.setParameter("termo", "%" + termo + "%");
-            return query.getResultList();
-        } finally {
-            if (em.isOpen()) em.close();
-        }
+    public List<Categoria> findByNomeContainingWithProductCount(String termo, EntityManager em) {
+        String jpql = "SELECT new com.titanaxis.model.Categoria(c.id, c.nome, SIZE(c.produtos)) " +
+                "FROM Categoria c WHERE LOWER(c.nome) LIKE LOWER(:termo) ORDER BY c.nome";
+        TypedQuery<Categoria> query = em.createQuery(jpql, Categoria.class);
+        query.setParameter("termo", "%" + termo + "%");
+        return query.getResultList();
     }
 }

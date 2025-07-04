@@ -1,12 +1,11 @@
-// FICHEIRO ALTERADO: src/main/java/com/titanaxis/view/panels/ProdutoPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.presenter.ProdutoPresenter;
-import com.titanaxis.view.dialogs.LoteDialog;         // <-- ADICIONE ESTE IMPORT
-import com.titanaxis.view.dialogs.ProdutoDialog;   // <-- ADICIONE ESTE IMPORT
+import com.titanaxis.view.dialogs.LoteDialog;
+import com.titanaxis.view.dialogs.ProdutoDialog;
 import com.titanaxis.view.interfaces.ProdutoView;
 
 import javax.swing.*;
@@ -31,9 +30,32 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     public ProdutoPanel(AppContext appContext) {
         this.appContext = appContext;
         initComponents();
+        // O Presenter é inicializado aqui, como antes.
         new ProdutoPresenter(this, appContext.getProdutoService(), appContext.getAuthService());
     }
 
+    // O método initComponents() e outros métodos de configuração da UI permanecem os mesmos.
+    // ...
+
+    // ALTERADO: A view agora é responsável por criar e retornar o diálogo.
+    // O presenter cuidará de o tornar visível e processar o resultado.
+    @Override
+    public ProdutoDialog mostrarDialogoDeProduto(Produto produto) {
+        return new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this),
+                appContext.getProdutoService(), appContext.getCategoriaService(), produto,
+                appContext.getAuthService().getUsuarioLogado().orElse(null));
+    }
+
+    // ALTERADO: A view agora é responsável por criar e retornar o diálogo.
+    @Override
+    public LoteDialog mostrarDialogoDeLote(Produto produtoPai, Lote lote) {
+        return new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this),
+                appContext.getProdutoService(), produtoPai, lote,
+                appContext.getAuthService().getUsuarioLogado().orElse(null));
+    }
+
+    // Todos os outros métodos da implementação da interface (setProdutosNaTabela, etc.) permanecem iguais.
+    // ...
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createProdutoListPanel(), createDetalhesPanel());
@@ -211,30 +233,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     public boolean mostrarConfirmacao(String titulo, String mensagem) {
         return JOptionPane.showConfirmDialog(this, mensagem, titulo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
-
-    @Override
-    public void mostrarDialogoDeProduto(Produto produto) {
-        ProdutoDialog dialog = new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this),
-                appContext.getProdutoService(), appContext.getCategoriaService(), produto,
-                appContext.getAuthService().getUsuarioLogado().orElse(null));
-        dialog.setVisible(true);
-        if (dialog.isSaved()) {
-            listener.aoCarregarProdutos();
-        }
-    }
-
-    @Override
-    public void mostrarDialogoDeLote(Produto produtoPai, Lote lote) {
-        LoteDialog dialog = new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this),
-                appContext.getProdutoService(), produtoPai, lote,
-                appContext.getAuthService().getUsuarioLogado().orElse(null));
-        dialog.setVisible(true);
-        if (dialog.isSaved()) {
-            listener.aoSelecionarProduto(produtoPai.getId());
-            listener.aoCarregarProdutos();
-        }
-    }
-
     @Override
     public void setListener(ProdutoViewListener listener) {
         this.listener = listener;

@@ -24,7 +24,6 @@ public class ProdutoDialog extends JDialog {
         super(owner, "Detalhes do Produto", true);
         this.produtoService = ps;
         this.categoriaService = cs;
-        // CORREÇÃO: Ao criar um novo produto, a categoria inicial é nula.
         this.produto = (p != null) ? p : new Produto("", "", 0.0, null);
         this.ator = ator;
 
@@ -36,6 +35,15 @@ public class ProdutoDialog extends JDialog {
 
         pack();
         setLocationRelativeTo(owner);
+    }
+
+    /**
+     * Permite que o chamador (Presenter) verifique se o diálogo
+     * foi fechado após uma operação de gravação bem-sucedida.
+     * @return true se o produto foi salvo, false caso contrário.
+     */
+    public boolean isSaved() {
+        return saved;
     }
 
     private void initComponents() {
@@ -79,7 +87,6 @@ public class ProdutoDialog extends JDialog {
             nomeField.setText(produto.getNome());
             descricaoField.setText(produto.getDescricao());
             precoField.setText(String.format(Locale.US, "%.2f", produto.getPreco()));
-            // CORREÇÃO: Define o item selecionado com base no objeto Categoria, não no ID.
             if (produto.getCategoria() != null) {
                 categoriaComboBox.setSelectedItem(produto.getCategoria());
             }
@@ -96,26 +103,20 @@ public class ProdutoDialog extends JDialog {
             produto.setNome(nomeField.getText().trim());
             produto.setDescricao(descricaoField.getText().trim());
             produto.setPreco(Double.parseDouble(precoField.getText().replace(",", ".")));
-            // CORREÇÃO: Define o objeto Categoria inteiro, não apenas o seu ID.
             produto.setCategoria((Categoria) categoriaComboBox.getSelectedItem());
 
-            // Mantém o estado 'ativo' do produto ao salvar
-            if (produto.getId() == 0) { // Se for um novo produto
+            if (produto.getId() == 0) {
                 produto.setAtivo(true);
             }
 
             produtoService.salvarProduto(produto, ator);
-            saved = true;
-            dispose();
+            this.saved = true; // Define o estado de sucesso
+            dispose();         // Apenas fecha o diálogo
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Preço inválido. Use ponto como separador decimal.", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Preço inválido. Use ponto como separador decimal.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    public boolean isSaved() {
-        return saved;
     }
 }

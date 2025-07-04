@@ -17,7 +17,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
         this.view = view;
         this.categoriaService = categoriaService;
         this.authService = authService;
-        this.view.setListener(this); // O Presenter regista-se para ouvir eventos da View
+        this.view.setListener(this);
         carregarDadosIniciais();
     }
 
@@ -46,6 +46,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             aoLimpar();
             carregarDadosIniciais();
         } catch (Exception e) {
+            // A exceção de nome duplicado vinda do serviço será exibida aqui.
             view.mostrarMensagem("Erro", "Erro ao salvar categoria: " + e.getMessage(), true);
         }
     }

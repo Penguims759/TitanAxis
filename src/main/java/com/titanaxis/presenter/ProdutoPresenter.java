@@ -5,6 +5,8 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ProdutoService;
+import com.titanaxis.view.dialogs.LoteDialog;
+import com.titanaxis.view.dialogs.ProdutoDialog;
 import com.titanaxis.view.interfaces.ProdutoView;
 
 import java.util.Comparator;
@@ -34,6 +36,8 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         Optional<Produto> produtoOpt = produtoService.buscarProdutoPorId(produtoId);
         if (produtoOpt.isPresent()) {
             this.produtoSelecionado = produtoOpt.get();
+            // Ordena os lotes antes de exibi-los
+            this.produtoSelecionado.getLotes().sort(Comparator.comparing(Lote::getDataValidade, Comparator.nullsLast(Comparator.naturalOrder())));
             view.setLotesNaTabela(this.produtoSelecionado.getLotes());
             view.setBotoesDeAcaoEnabled(true);
             view.setTextoBotaoStatus(produtoSelecionado.isAtivo() ? "Inativar Produto" : "Reativar Produto");
@@ -44,11 +48,28 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
     }
 
     @Override
-    public void aoClicarNovoProduto() { view.mostrarDialogoDeProduto(null); }
+    public void aoClicarNovoProduto() {
+        // O presenter pede o diálogo à view e o exibe
+        ProdutoDialog dialog = view.mostrarDialogoDeProduto(null);
+        dialog.setVisible(true); // Bloqueia a execução até o diálogo ser fechado
+
+        // Após o diálogo fechar, o presenter verifica o resultado
+        if (dialog.isSaved()) {
+            aoCarregarProdutos(); // Se foi salvo, atualiza a lista de produtos
+        }
+    }
 
     @Override
     public void aoClicarEditarProduto() {
-        if (produtoSelecionado != null) { view.mostrarDialogoDeProduto(produtoSelecionado); }
+        if (produtoSelecionado != null) {
+            ProdutoDialog dialog = view.mostrarDialogoDeProduto(produtoSelecionado);
+            dialog.setVisible(true);
+
+            if (dialog.isSaved()) {
+                aoCarregarProdutos();
+                aoSelecionarProduto(produtoSelecionado.getId()); // Recarrega os detalhes
+            }
+        }
     }
 
     @Override
@@ -57,7 +78,8 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         boolean novoStatus = !produtoSelecionado.isAtivo();
         String acao = novoStatus ? "reativar" : "inativar";
-        if (view.mostrarConfirmacao("Confirmar Alteração", "Tem certeza que deseja " + acao + " o produto '" + produtoSelecionado.getNome() + "'?")) {
+        String mensagem = String.format("Tem certeza que deseja %s o produto '%s'?", acao, produtoSelecionado.getNome());
+        if (view.mostrarConfirmacao("Confirmar Alteração", mensagem)) {
             try {
                 produtoService.alterarStatusProduto(produtoSelecionado.getId(), novoStatus, ator);
                 aoCarregarProdutos();
@@ -71,26 +93,40 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
 
     @Override
     public void aoClicarAdicionarLote() {
-        if (produtoSelecionado != null) { view.mostrarDialogoDeLote(produtoSelecionado, null); }
+        if (produtoSelecionado != null) {
+            LoteDialog dialog = view.mostrarDialogoDeLote(produtoSelecionado, null);
+            dialog.setVisible(true);
+
+            // Processa o resultado retornado pelo diálogo
+            dialog.getLoteSalvo().ifPresent(this::processarLoteSalvo);
+        }
     }
 
     @Override
     public void aoClicarEditarLote() {
+        if (produtoSelecionado == null) return;
         int loteId = view.getSelectedLoteId();
         if (loteId == -1) {
             view.mostrarMensagem("Aviso", "Selecione um lote para editar.", false);
             return;
         }
-        produtoService.buscarLotePorId(loteId).ifPresent(lote -> view.mostrarDialogoDeLote(produtoSelecionado, lote));
+
+        produtoService.buscarLotePorId(loteId).ifPresent(lote -> {
+            LoteDialog dialog = view.mostrarDialogoDeLote(produtoSelecionado, lote);
+            dialog.setVisible(true);
+            dialog.getLoteSalvo().ifPresent(this::processarLoteSalvo);
+        });
     }
 
     @Override
     public void aoClicarRemoverLote() {
+        if (produtoSelecionado == null) return;
         int loteId = view.getSelectedLoteId();
         if (loteId == -1) {
             view.mostrarMensagem("Aviso", "Selecione um lote para remover.", false);
             return;
         }
+
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         if (view.mostrarConfirmacao("Confirmar Remoção", "Tem certeza que deseja remover este lote?")) {
             try {
@@ -104,19 +140,19 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         }
     }
 
-    @Override
-    public void aoLoteSalvo(Lote loteSalvo) {
-        if (produtoSelecionado == null || loteSalvo == null) return;
+    /**
+     * Centraliza a lógica de atualização após um lote ser salvo.
+     * @param loteSalvo O lote que foi persistido.
+     */
+    private void processarLoteSalvo(Lote loteSalvo) {
+        if (produtoSelecionado == null) return;
 
-        // Atualiza o estado da lista em memória para evitar uma nova ida à base de dados
-        produtoSelecionado.getLotes().removeIf(l -> l.getId() == loteSalvo.getId()); // Remove o lote antigo se for uma edição
-        produtoSelecionado.getLotes().add(loteSalvo); // Adiciona a versão mais recente
-        produtoSelecionado.getLotes().sort(Comparator.comparing(Lote::getDataValidade, Comparator.nullsLast(Comparator.naturalOrder())));
+        // Atualiza a lista de lotes no objeto Produto em memória
+        produtoSelecionado.getLotes().removeIf(l -> l.getId() == loteSalvo.getId());
+        produtoSelecionado.getLotes().add(loteSalvo);
 
-        // Refresca a tabela de lotes com a lista já atualizada
-        view.setLotesNaTabela(produtoSelecionado.getLotes());
-
-        // Refresca a tabela de produtos para atualizar a contagem de stock
+        // Reordena e atualiza a view
+        aoSelecionarProduto(produtoSelecionado.getId());
         aoCarregarProdutos();
     }
 }
