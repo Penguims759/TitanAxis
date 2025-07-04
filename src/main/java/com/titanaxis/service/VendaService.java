@@ -2,6 +2,7 @@
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
+import com.titanaxis.exception.CarrinhoVazioException; // Importado
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Lote;
@@ -21,27 +22,27 @@ public class VendaService {
         this.transactionService = transactionService;
     }
 
-    public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException, Exception {
+    // ALTERADO: Assinatura do método para lançar exceções específicas
+    public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a venda.");
         }
         if (venda.getItens() == null || venda.getItens().isEmpty()) {
-            throw new Exception("A venda não contém itens.");
+            throw new CarrinhoVazioException("A venda não contém itens."); // ALTERADO: Lança CarrinhoVazioException
         }
 
-        try {
-            return transactionService.executeInTransactionWithResult(em -> {
-                for (VendaItem item : venda.getItens()) {
-                    Lote lote = em.find(Lote.class, item.getLote().getId());
-                    if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
-                        throw new RuntimeException("Stock insuficiente para o produto: " + item.getLote().getProduto().getNome());
-                    }
-                    lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
+        // ALTERADO: O bloco try-catch de RuntimeException foi removido,
+        // pois TransactionService agora encapsula tudo em PersistenciaException
+        return transactionService.executeInTransactionWithResult(em -> {
+            for (VendaItem item : venda.getItens()) {
+                Lote lote = em.find(Lote.class, item.getLote().getId());
+                if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
+                    // Lança RuntimeException que será encapsulada em PersistenciaException pelo TransactionService
+                    throw new RuntimeException("Estoque insuficiente para o produto: " + item.getLote().getProduto().getNome());
                 }
-                return vendaRepository.save(venda, ator, em);
-            });
-        } catch (RuntimeException e) {
-            throw new Exception(e.getMessage());
-        }
+                lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
+            }
+            return vendaRepository.save(venda, ator, em);
+        });
     }
 }

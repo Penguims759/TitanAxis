@@ -84,6 +84,13 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
                 appContext.getAuthService().getUsuarioLogado().orElse(null));
     }
 
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
+        if (listener != null) {
+            listener.aoCarregarProdutos();
+        }
+    }
+
     // Todos os outros métodos da implementação da interface (setProdutosNaTabela, etc.) permanecem iguais.
     // ...
     private void initComponents() {

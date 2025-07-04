@@ -167,6 +167,13 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     @Override
     public void clearTableSelection() { table.clearSelection(); }
 
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
+        if (listener != null) {
+            listener.aoCarregarDadosIniciais(); // Chama o método da interface do listener
+        }
+    }
+
     @Override
     public void setListener(UsuarioViewListener listener) { this.listener = listener; }
 }

@@ -1,4 +1,3 @@
-// FICHEIRO: src/main/java/com/titanaxis/view/interfaces/ClienteView.java
 package com.titanaxis.view.interfaces;
 
 import com.titanaxis.model.Cliente;
@@ -37,6 +36,7 @@ public interface ClienteView {
         void aoBuscar();
         void aoLimparBusca();
         void aoSelecionarCliente(Cliente cliente);
+        void aoCarregarDadosIniciais(); // NOVO: Método para o Presenter carregar os dados iniciais
     }
 
     void setListener(ClienteViewListener listener);

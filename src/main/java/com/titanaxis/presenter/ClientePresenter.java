@@ -21,10 +21,12 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         this.clienteService = clienteService;
         this.authService = authService;
         this.view.setListener(this);
-        carregarDadosIniciais();
+        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
     }
 
-    private void carregarDadosIniciais() {
+    // ALTERADO: Método tornado público por ser parte da interface ClienteViewListener
+    @Override
+    public void aoCarregarDadosIniciais() {
         try {
             List<Cliente> clientes = clienteService.listarTodos();
             view.setClientesNaTabela(clientes);
@@ -50,7 +52,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             clienteService.salvar(cliente, ator);
             view.mostrarMensagem("Sucesso", "Cliente " + (isUpdate ? "atualizado" : "adicionado") + " com sucesso!", false);
             aoLimpar();
-            carregarDadosIniciais();
+            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
@@ -74,7 +76,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             clienteService.deletar(id, ator);
             view.mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
             aoLimpar();
-            carregarDadosIniciais();
+            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
@@ -99,7 +101,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             if (termo != null && !termo.trim().isEmpty()) {
                 view.setClientesNaTabela(clienteService.buscarPorNome(termo));
             } else {
-                carregarDadosIniciais();
+                aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
             }
         } catch (PersistenciaException e) {
             // ALTERADO: Mensagem mais informativa
@@ -110,7 +112,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
     @Override
     public void aoLimparBusca() {
         view.setTermoBusca("");
-        carregarDadosIniciais();
+        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
     }
 
     @Override

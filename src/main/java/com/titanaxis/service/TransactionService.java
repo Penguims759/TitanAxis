@@ -14,9 +14,9 @@ public class TransactionService {
      * Captura exceções de persistência e as encapsula em uma PersistenciaException.
      *
      * @param action A função a ser executada.
+     * @param <T> O tipo do resultado da função.
      * @return O resultado da função.
-     * @throws PersistenciaException se ocorrer um erro na base de dados.
-     * @throws RuntimeException se ocorrer outro erro inesperado.
+     * @throws PersistenciaException se ocorrer um erro na base de dados ou outra exceção durante a transação.
      */
     public <T> T executeInTransactionWithResult(Function<EntityManager, T> action) throws PersistenciaException {
         EntityManager em = JpaUtil.getEntityManager();
@@ -30,11 +30,11 @@ public class TransactionService {
                 em.getTransaction().rollback();
             }
             throw new PersistenciaException("Ocorreu um erro na comunicação com a base de dados.", e);
-        } catch (Exception e) {
+        } catch (Exception e) { // ALTERADO: Agora encapsula qualquer Exception em PersistenciaException
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw new RuntimeException("Falha na transação: " + e.getMessage(), e);
+            throw new PersistenciaException("Falha na transação: " + e.getMessage(), e);
         } finally {
             if (em.isOpen()) {
                 em.close();

@@ -30,6 +30,12 @@ public class RelatorioPanel extends JPanel {
     public RelatorioPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
 
+        // Inicialização dos botões para serem final
+        inventarioCsvButton = new JButton("Gerar CSV");
+        inventarioPdfButton = new JButton("Gerar PDF");
+        vendasCsvButton = new JButton("Gerar CSV");
+        vendasPdfButton = new JButton("Gerar PDF");
+
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -45,20 +51,18 @@ public class RelatorioPanel extends JPanel {
 
         JPanel inventarioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         inventarioPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Inventário"));
-        inventarioCsvButton = new JButton("Gerar CSV");
+        // botões já inicializados no construtor
         inventarioCsvButton.addActionListener(e -> gerarRelatorioInventarioCsv());
         inventarioPanel.add(inventarioCsvButton);
-        inventarioPdfButton = new JButton("Gerar PDF");
         inventarioPdfButton.addActionListener(e -> gerarRelatorioInventarioPdf());
         inventarioPanel.add(inventarioPdfButton);
         centerPanel.add(inventarioPanel, gbc);
 
         JPanel vendasPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         vendasPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Vendas"));
-        vendasCsvButton = new JButton("Gerar CSV");
+        // botões já inicializados no construtor
         vendasCsvButton.addActionListener(e -> gerarRelatorioVendasCsv());
         vendasPanel.add(vendasCsvButton);
-        vendasPdfButton = new JButton("Gerar PDF");
         vendasPdfButton.addActionListener(e -> gerarRelatorioVendasPdf());
         vendasPanel.add(vendasPdfButton);
         centerPanel.add(vendasPanel, gbc);
@@ -220,5 +224,12 @@ public class RelatorioPanel extends JPanel {
             file = new File(file.getParentFile(), file.getName() + ext);
         }
         return file;
+    }
+
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame).
+    // Para RelatorioPanel, "refresh" significa reativar botões ou garantir estado.
+    public void refreshData() {
+        logger.info("RelatorioPanel refreshData() chamado. Botões de relatório reativados.");
+        setBotoesAtivados(true); // Garante que os botões não estejam desativados
     }
 }

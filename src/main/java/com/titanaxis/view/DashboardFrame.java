@@ -10,6 +10,8 @@ import com.titanaxis.util.UIMessageUtil; // Importado
 import com.titanaxis.view.panels.*;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent; // Importado
+import javax.swing.event.ChangeListener; // Importado
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -46,31 +48,117 @@ public class DashboardFrame extends JFrame {
         final JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT); // Adicionado final
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        mainTabbedPane.addTab("Vendas", new VendaPanel(appContext));
+        final VendaPanel vendaPanel = new VendaPanel(appContext); // Instância do VendaPanel
+        mainTabbedPane.addTab("Vendas", vendaPanel);
 
         if (authService.isGerente()) {
             final JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane(); // Adicionado final
-            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(appContext));
-            produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(appContext));
-            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel(appContext));
-            // ALTERADO: Agora usa o novo MovimentosPanel que segue o padrão MVP
-            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", new MovimentosPanel(appContext));
+            final ProdutoPanel produtoPanel = new ProdutoPanel(appContext); // Instância do ProdutoPanel
+            final CategoriaPanel categoriaPanel = new CategoriaPanel(appContext); // Instância da CategoriaPanel
+            final AlertaPanel alertaPanel = new AlertaPanel(appContext); // Instância da AlertaPanel
+            final MovimentosPanel movimentosPanel = new MovimentosPanel(appContext); // Instância da MovimentosPanel
+
+            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel); // Adicionado instância
+            produtosEstoqueTabbedPane.addTab("Categorias", categoriaPanel); // Adicionado instância
+            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", alertaPanel); // Adicionado instância
+            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", movimentosPanel); // Adicionado instância
             mainTabbedPane.addTab("Produtos & Estoque", produtosEstoqueTabbedPane);
+
+            // ALTERADO: Adiciona ChangeListener para recarregar dados dos sub-painéis ao selecionar *suas* abas
+            produtosEstoqueTabbedPane.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (produtosEstoqueTabbedPane.getSelectedComponent() == produtoPanel) {
+                        produtoPanel.refreshData();
+                    } else if (produtosEstoqueTabbedPane.getSelectedComponent() == categoriaPanel) { // NOVO: Refresh para CategoriaPanel
+                        categoriaPanel.refreshData();
+                    } else if (produtosEstoqueTabbedPane.getSelectedComponent() == alertaPanel) { // NOVO: Refresh para AlertaPanel
+                        alertaPanel.refreshData();
+                    } else if (produtosEstoqueTabbedPane.getSelectedComponent() == movimentosPanel) { // NOVO: Refresh para MovimentosPanel
+                        movimentosPanel.refreshData();
+                    }
+                }
+            });
+
+            // NOVO: Adiciona ChangeListener para o mainTabbedPane para recarregar todos os dados
+            // quando a aba "Produtos & Estoque" (pai) é selecionada
+            mainTabbedPane.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (mainTabbedPane.getSelectedComponent() == produtosEstoqueTabbedPane) {
+                        logger.info("Aba 'Produtos & Estoque' selecionada. Recarregando dados dos subpainéis.");
+                        produtoPanel.refreshData();
+                        categoriaPanel.refreshData();
+                        alertaPanel.refreshData();
+                        movimentosPanel.refreshData();
+                    }
+                }
+            });
         }
 
         if (authService.isGerente()) {
-            mainTabbedPane.addTab("Clientes", new ClientePanel(appContext));
+            final ClientePanel clientePanel = new ClientePanel(appContext); // Instância do ClientePanel
+            mainTabbedPane.addTab("Clientes", clientePanel);
+            // NOVO: ChangeListener para aba de Clientes
+            mainTabbedPane.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (mainTabbedPane.getSelectedComponent() == clientePanel) {
+                        logger.info("Aba 'Clientes' selecionada. Recarregando dados.");
+                        clientePanel.refreshData();
+                    }
+                }
+            });
         }
 
         if (authService.isGerente()) {
-            mainTabbedPane.addTab("Relatórios", new RelatorioPanel(appContext));
+            final RelatorioPanel relatorioPanel = new RelatorioPanel(appContext); // Instância do RelatorioPanel
+            mainTabbedPane.addTab("Relatórios", relatorioPanel);
+            // NOVO: ChangeListener para aba de Relatórios
+            mainTabbedPane.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (mainTabbedPane.getSelectedComponent() == relatorioPanel) {
+                        logger.info("Aba 'Relatórios' selecionada. Recarregando dados.");
+                        relatorioPanel.refreshData();
+                    }
+                }
+            });
         }
 
         if (authService.isAdmin()) {
             final JTabbedPane adminTabbedPane = new JTabbedPane(); // Adicionado final
-            adminTabbedPane.addTab("Gestão de Usuários", new UsuarioPanel(appContext));
-            adminTabbedPane.addTab("Logs de Auditoria", new AuditoriaPanel(appContext));
+            // NOVO: Instâncias dos painéis de administração para poder referenciá-los no ChangeListener
+            final UsuarioPanel usuarioPanel = new UsuarioPanel(appContext);
+            final AuditoriaPanel auditoriaPanel = new AuditoriaPanel(appContext);
+
+            adminTabbedPane.addTab("Gestão de Usuários", usuarioPanel);
+            adminTabbedPane.addTab("Logs de Auditoria", auditoriaPanel);
             mainTabbedPane.addTab("Administração", adminTabbedPane);
+
+            // NOVO: ChangeListener para abas de Administração
+            adminTabbedPane.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (adminTabbedPane.getSelectedComponent() == usuarioPanel) {
+                        usuarioPanel.refreshData();
+                    } else if (adminTabbedPane.getSelectedComponent() == auditoriaPanel) {
+                        auditoriaPanel.refreshData();
+                    }
+                }
+            });
+
+            // NOVO: ChangeListener para aba principal "Administração"
+            mainTabbedPane.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (mainTabbedPane.getSelectedComponent() == adminTabbedPane) {
+                        logger.info("Aba 'Administração' selecionada. Recarregando dados dos subpainéis.");
+                        usuarioPanel.refreshData();
+                        auditoriaPanel.refreshData();
+                    }
+                }
+            });
         }
 
         add(mainTabbedPane);

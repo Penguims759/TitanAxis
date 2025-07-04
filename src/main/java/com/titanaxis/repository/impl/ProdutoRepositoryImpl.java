@@ -112,12 +112,16 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public Optional<Lote> findLoteById(int loteId, EntityManager em) {
-        return Optional.ofNullable(em.find(Lote.class, loteId));
+        // ALTERADO: Adicionado FETCH JOIN para buscar o Produto associado ao Lote
+        TypedQuery<Lote> query = em.createQuery("SELECT l FROM Lote l LEFT JOIN FETCH l.produto WHERE l.id = :loteId", Lote.class);
+        query.setParameter("loteId", loteId);
+        return Optional.ofNullable(query.getSingleResult());
     }
 
     @Override
     public List<Lote> findLotesByProdutoId(int produtoId, EntityManager em) {
-        TypedQuery<Lote> query = em.createQuery("SELECT l FROM Lote l WHERE l.produto.id = :produtoId ORDER BY l.dataValidade ASC", Lote.class);
+        // ALTERADO: Adicionado FETCH JOIN para buscar o Produto associado ao Lote
+        TypedQuery<Lote> query = em.createQuery("SELECT l FROM Lote l LEFT JOIN FETCH l.produto WHERE l.produto.id = :produtoId ORDER BY l.dataValidade ASC", Lote.class);
         query.setParameter("produtoId", produtoId);
         return query.getResultList();
     }

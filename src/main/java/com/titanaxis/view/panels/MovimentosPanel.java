@@ -47,7 +47,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         topPanel.add(filterPanel, BorderLayout.WEST);
 
         JButton refreshButton = new JButton("Atualizar");
-        refreshButton.addActionListener(e -> listener.aoCarregarMovimentos());
+        refreshButton.addActionListener(e -> refreshData()); // ALTERADO: Chama refreshData()
         JPanel refreshPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         refreshPanel.add(refreshButton);
         topPanel.add(refreshPanel, BorderLayout.EAST);
@@ -92,6 +92,13 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     @Override
     public void setCursorEspera(boolean emEspera) {
         setCursor(emEspera ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
+    }
+
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
+        if (listener != null) {
+            listener.aoCarregarMovimentos();
+        }
     }
 
     @Override

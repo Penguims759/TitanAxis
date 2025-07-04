@@ -25,23 +25,40 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 public class AuditoriaPanel extends JPanel {
-    private JTabbedPane tabbedPane;
-    private JTable acoesTable;
-    private JTable acessoTable;
-    private DefaultTableModel acoesTableModel;
-    private DefaultTableModel acessoTableModel;
-    private final RelatorioService relatorioService;
+    private final JTabbedPane tabbedPane; // Adicionado final
+    private final JTable acoesTable; // Adicionado final
+    private final JTable acessoTable; // Adicionado final
+    private final DefaultTableModel acoesTableModel; // Adicionado final
+    private final DefaultTableModel acessoTableModel; // Adicionado final
+    private final RelatorioService relatorioService; // Adicionado final
 
     public AuditoriaPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createTitledBorder("Logs de Auditoria do Sistema"));
 
+        // Inicialização dos table models e tabelas para serem final
+        acoesTableModel = new DefaultTableModel(new String[]{"Data/Hora", "Utilizador", "Ação", "Entidade", "Detalhes"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        acoesTable = new JTable(acoesTableModel);
+
+        acessoTableModel = new DefaultTableModel(new String[]{"Data/Hora", "Utilizador", "Resultado", "Entidade", "Detalhes"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        acessoTable = new JTable(acessoTableModel);
+
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Logs de Ações", createLogPanel(true));
         tabbedPane.addTab("Logs de Acesso", createLogPanel(false));
 
+        // NOVO: ChangeListener para recarregar a aba ativa ao mudar de sub-aba
+        tabbedPane.addChangeListener(e -> refreshData());
+
         add(tabbedPane, BorderLayout.CENTER);
+
+        // Chamada inicial de refresh para a aba padrão (Logs de Ações)
+        refreshData();
     }
 
     private JPanel createLogPanel(boolean isAcoes) {
@@ -51,10 +68,9 @@ public class AuditoriaPanel extends JPanel {
                 new String[]{"Data/Hora", "Utilizador", "Resultado", "Entidade", "Detalhes"};
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        DefaultTableModel model = new DefaultTableModel(headers, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        JTable table = new JTable(model);
+        DefaultTableModel model = isAcoes ? acoesTableModel : acessoTableModel; // Usa o table model já inicializado
+        JTable table = isAcoes ? acoesTable : acessoTable; // Usa a tabela já inicializada
+
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
 
@@ -77,7 +93,7 @@ public class AuditoriaPanel extends JPanel {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton refreshButton = new JButton("Atualizar");
         refreshButton.addActionListener(e -> {
-            if (isAcoes) loadAcoesLogs(model); else loadAcessoLogs(model);
+            if (isAcoes) loadAcoesLogs(); else loadAcessoLogs(); // ALTERADO: Chamada direta sem passar model
         });
         buttonsPanel.add(refreshButton);
 
@@ -93,26 +109,20 @@ public class AuditoriaPanel extends JPanel {
         panel.add(topPanel, BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        if (isAcoes) {
-            acoesTableModel = model;
-            acoesTable = table;
-            loadAcoesLogs(model);
-        } else {
-            acessoTableModel = model;
-            acessoTable = table;
-            loadAcessoLogs(model);
-        }
+        // Remove chamadas de load inicial aqui, pois refreshData() no construtor já cuida disso.
         return panel;
     }
 
-    private void loadAcoesLogs(DefaultTableModel model) {
-        carregarDadosDeLog(model, true);
+    // ALTERADO: Tornados private novamente, mas sem parâmetro model
+    private void loadAcoesLogs() {
+        carregarDadosDeLog(acoesTableModel, true);
     }
 
-    private void loadAcessoLogs(DefaultTableModel model) {
-        carregarDadosDeLog(model, false);
+    private void loadAcessoLogs() {
+        carregarDadosDeLog(acessoTableModel, false);
     }
 
+    // ALTERADO: Método privado para carregamento de dados, chamado por loadAcoesLogs/loadAcessoLogs
     private void carregarDadosDeLog(DefaultTableModel model, boolean isAcoes) {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingWorker<List<Vector<Object>>, Void> worker = new SwingWorker<>() {
@@ -241,5 +251,14 @@ public class AuditoriaPanel extends JPanel {
             file = new File(file.getParentFile(), file.getName() + ext);
         }
         return file;
+    }
+
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
+        if (tabbedPane.getSelectedIndex() == 0) { // Log de Ações
+            loadAcoesLogs();
+        } else { // Log de Acesso
+            loadAcessoLogs();
+        }
     }
 }

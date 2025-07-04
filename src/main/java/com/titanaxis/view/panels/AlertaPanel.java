@@ -35,15 +35,16 @@ public class AlertaPanel extends JPanel {
         add(new JScrollPane(alertaTextArea), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("Atualizar Alertas");
-        refreshButton.addActionListener(e -> carregarAlertas());
+        refreshButton.addActionListener(e -> refreshData()); // ALTERADO: Chama refreshData()
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(refreshButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        carregarAlertas();
+        refreshData(); // Chama o refresh inicial
     }
 
-    private void carregarAlertas() {
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingWorker<List<String>, Void> worker = new SwingWorker<>() {
             @Override

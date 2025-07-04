@@ -156,6 +156,13 @@ public class ClientePanel extends JPanel implements ClienteView {
         return UIMessageUtil.showConfirmDialog(this, mensagem, titulo);
     }
 
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
+        if (listener != null) {
+            listener.aoCarregarDadosIniciais(); // Chama o método da interface do listener
+        }
+    }
+
     @Override
     public void setListener(ClienteViewListener listener) {
         this.listener = listener;

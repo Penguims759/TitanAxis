@@ -20,10 +20,12 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         this.view = view;
         this.authService = authService;
         this.view.setListener(this);
-        carregarDadosIniciais();
+        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
     }
 
-    private void carregarDadosIniciais() {
+    // ALTERADO: Método tornado público por ser parte da interface UsuarioViewListener
+    @Override
+    public void aoCarregarDadosIniciais() {
         try {
             view.setUsuariosNaTabela(authService.listarUsuarios());
         } catch (PersistenciaException e) {
@@ -62,7 +64,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
                 view.mostrarMensagem("Sucesso", "Utilizador adicionado!", false);
             }
             aoLimpar();
-            carregarDadosIniciais();
+            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (NomeDuplicadoException e) {
             view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
@@ -89,7 +91,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             authService.deletarUsuario(idToDelete, ator);
             view.mostrarMensagem("Sucesso", "Utilizador eliminado!", false);
             aoLimpar();
-            carregarDadosIniciais();
+            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
             // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro", "Erro ao eliminar utilizador: " + e.getMessage(), true);
@@ -112,7 +114,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             if (termo != null && !termo.trim().isEmpty()) {
                 view.setUsuariosNaTabela(authService.buscarUsuariosPorNomeContendo(termo));
             } else {
-                carregarDadosIniciais();
+                aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
             }
         } catch (PersistenciaException e) {
             // ALTERADO: Mensagem mais informativa
@@ -123,7 +125,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
     @Override
     public void aoLimparBusca() {
         view.setTermoBusca("");
-        carregarDadosIniciais();
+        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
     }
 
     @Override

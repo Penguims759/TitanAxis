@@ -22,10 +22,12 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
         this.categoriaService = categoriaService;
         this.authService = authService;
         this.view.setListener(this);
-        carregarDadosIniciais();
+        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
     }
 
-    private void carregarDadosIniciais() {
+    // ALTERADO: Método tornado público por ser parte da interface CategoriaViewListener
+    @Override
+    public void aoCarregarDadosIniciais() {
         try {
             List<Categoria> categorias = categoriaService.listarTodasCategorias();
             view.setCategoriasNaTabela(categorias);
@@ -52,7 +54,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             categoriaService.salvar(categoria, ator);
             view.mostrarMensagem("Sucesso", "Categoria " + (isUpdate ? "atualizada" : "adicionada") + " com sucesso!", false);
             aoLimpar();
-            carregarDadosIniciais();
+            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (NomeDuplicadoException e) {
             view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
         } catch (UtilizadorNaoAutenticadoException e) {
@@ -78,7 +80,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             categoriaService.deletar(id, ator);
             view.mostrarMensagem("Sucesso", "Categoria eliminada com sucesso!", false);
             aoLimpar();
-            carregarDadosIniciais();
+            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
@@ -101,9 +103,10 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             if (termo != null && !termo.trim().isEmpty()) {
                 view.setCategoriasNaTabela(categoriaService.buscarCategoriasPorNome(termo));
             } else {
-                carregarDadosIniciais();
+                aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
             }
-        } catch (PersistenciaException e) {
+        }
+        catch (PersistenciaException e) {
             // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar categorias: " + e.getMessage(), true);
         }
@@ -112,7 +115,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
     @Override
     public void aoLimparBusca() {
         view.setTermoBusca("");
-        carregarDadosIniciais();
+        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
     }
 
     @Override

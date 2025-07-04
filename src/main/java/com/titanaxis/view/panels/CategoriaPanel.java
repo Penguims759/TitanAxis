@@ -150,6 +150,13 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
     @Override
     public void clearTableSelection() { table.clearSelection(); }
 
+    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    public void refreshData() {
+        if (listener != null) { // Garante que o listener foi setado
+            listener.aoCarregarDadosIniciais(); // ALTERADO: Chama o método da interface do listener
+        }
+    }
+
     @Override
     public void setListener(CategoriaViewListener listener) {
         this.listener = listener;
