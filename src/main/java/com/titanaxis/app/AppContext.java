@@ -1,9 +1,14 @@
 package com.titanaxis.app;
 
-import com.titanaxis.repository.*;
-import com.titanaxis.repository.impl.*;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.titanaxis.service.*;
 
+/**
+ * O AppContext agora atua como um 'Facade' ou um ponto de acesso central
+ * aos serviços da aplicação, com as suas dependências a serem injetadas pelo Guice.
+ */
+@Singleton // Garante que o Guice só criará uma instância desta classe.
 public class AppContext {
 
     private final AuthService authService;
@@ -13,32 +18,26 @@ public class AppContext {
     private final VendaService vendaService;
     private final RelatorioService relatorioService;
     private final AlertaService alertaService;
-    private final MovimentoService movimentoService; // ADICIONADO
-    private final TransactionService transactionService;
+    private final MovimentoService movimentoService;
 
-    public AppContext() {
-        // Repositórios
-        final AuditoriaRepository auditoriaRepository = new AuditoriaRepositoryImpl();
-        final UsuarioRepository usuarioRepository = new UsuarioRepositoryImpl(auditoriaRepository);
-        final CategoriaRepository categoriaRepository = new CategoriaRepositoryImpl(auditoriaRepository);
-        final ClienteRepository clienteRepository = new ClienteRepositoryImpl(auditoriaRepository);
-        final ProdutoRepository produtoRepository = new ProdutoRepositoryImpl(auditoriaRepository);
-        final VendaRepository vendaRepository = new VendaRepositoryImpl(auditoriaRepository);
-        final MovimentoRepository movimentoRepository = new MovimentoRepositoryImpl(); // ADICIONADO
-
-        // Serviços
-        this.transactionService = new TransactionService();
-        this.authService = new AuthService(usuarioRepository, auditoriaRepository, transactionService);
-        this.categoriaService = new CategoriaService(categoriaRepository, transactionService);
-        this.clienteService = new ClienteService(clienteRepository, transactionService);
-        this.produtoService = new ProdutoService(produtoRepository, transactionService);
-        this.vendaService = new VendaService(vendaRepository, transactionService);
-        this.relatorioService = new RelatorioService(produtoRepository, vendaRepository, auditoriaRepository, transactionService);
-        this.alertaService = new AlertaService(produtoRepository, transactionService);
-        this.movimentoService = new MovimentoService(movimentoRepository, transactionService); // ADICIONADO
+    // A anotação @Inject diz ao Guice para usar este construtor e
+    // fornecer automaticamente as instâncias dos serviços necessários.
+    @Inject
+    public AppContext(AuthService authService, CategoriaService categoriaService,
+                      ClienteService clienteService, ProdutoService produtoService,
+                      VendaService vendaService, RelatorioService relatorioService,
+                      AlertaService alertaService, MovimentoService movimentoService) {
+        this.authService = authService;
+        this.categoriaService = categoriaService;
+        this.clienteService = clienteService;
+        this.produtoService = produtoService;
+        this.vendaService = vendaService;
+        this.relatorioService = relatorioService;
+        this.alertaService = alertaService;
+        this.movimentoService = movimentoService;
     }
 
-    // Getters
+    // Os Getters permanecem exatamente os mesmos.
     public AuthService getAuthService() { return authService; }
     public CategoriaService getCategoriaService() { return categoriaService; }
     public ClienteService getClienteService() { return clienteService; }
@@ -46,5 +45,5 @@ public class AppContext {
     public VendaService getVendaService() { return vendaService; }
     public RelatorioService getRelatorioService() { return relatorioService; }
     public AlertaService getAlertaService() { return alertaService; }
-    public MovimentoService getMovimentoService() { return movimentoService; } // ADICIONADO
+    public MovimentoService getMovimentoService() { return movimentoService; }
 }
