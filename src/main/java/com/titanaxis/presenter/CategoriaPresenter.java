@@ -1,10 +1,14 @@
 package com.titanaxis.presenter;
 
+import com.titanaxis.exception.NomeDuplicadoException;
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.CategoriaService;
 import com.titanaxis.view.interfaces.CategoriaView;
+
 import java.util.List;
 
 public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
@@ -22,8 +26,12 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
     }
 
     private void carregarDadosIniciais() {
-        List<Categoria> categorias = categoriaService.listarTodasCategorias();
-        view.setCategoriasNaTabela(categorias);
+        try {
+            List<Categoria> categorias = categoriaService.listarTodasCategorias();
+            view.setCategoriasNaTabela(categorias);
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar categorias. Verifique os logs.", true);
+        }
     }
 
     @Override
@@ -36,7 +44,6 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
 
         boolean isUpdate = !view.getId().isEmpty();
         int id = isUpdate ? Integer.parseInt(view.getId()) : 0;
-
         Categoria categoria = new Categoria(id, nome);
         Usuario ator = authService.getUsuarioLogado().orElse(null);
 
@@ -45,9 +52,12 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             view.mostrarMensagem("Sucesso", "Categoria " + (isUpdate ? "atualizada" : "adicionada") + " com sucesso!", false);
             aoLimpar();
             carregarDadosIniciais();
-        } catch (Exception e) {
-            // A exceção de nome duplicado vinda do serviço será exibida aqui.
-            view.mostrarMensagem("Erro", "Erro ao salvar categoria: " + e.getMessage(), true);
+        } catch (NomeDuplicadoException e) {
+            view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
+        } catch (UtilizadorNaoAutenticadoException e) {
+            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar a categoria. Verifique os logs.", true);
         }
     }
 
@@ -57,12 +67,9 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             view.mostrarMensagem("Aviso", "Selecione uma categoria para eliminar.", true);
             return;
         }
-
-        String mensagemConfirmacao = "Tem certeza que deseja eliminar esta categoria?\n(Os produtos nesta categoria ficarão sem categoria definida)";
-        if (!view.mostrarConfirmacao("Confirmar Eliminação", mensagemConfirmacao)) {
+        if (!view.mostrarConfirmacao("Confirmar Eliminação", "Tem certeza que deseja eliminar esta categoria?\n(Os produtos nesta categoria ficarão sem categoria definida)")) {
             return;
         }
-
         int id = Integer.parseInt(view.getId());
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
@@ -70,8 +77,10 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             view.mostrarMensagem("Sucesso", "Categoria eliminada com sucesso!", false);
             aoLimpar();
             carregarDadosIniciais();
-        } catch (Exception e) {
-            view.mostrarMensagem("Erro", "Erro ao eliminar categoria: " + e.getMessage(), true);
+        } catch (UtilizadorNaoAutenticadoException e) {
+            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar a categoria. Verifique os logs.", true);
         }
     }
 
@@ -84,11 +93,15 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
 
     @Override
     public void aoBuscar() {
-        String termo = view.getTermoBusca();
-        if (termo != null && !termo.trim().isEmpty()) {
-            view.setCategoriasNaTabela(categoriaService.buscarCategoriasPorNome(termo));
-        } else {
-            carregarDadosIniciais();
+        try {
+            String termo = view.getTermoBusca();
+            if (termo != null && !termo.trim().isEmpty()) {
+                view.setCategoriasNaTabela(categoriaService.buscarCategoriasPorNome(termo));
+            } else {
+                carregarDadosIniciais();
+            }
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar categorias. Verifique os logs.", true);
         }
     }
 

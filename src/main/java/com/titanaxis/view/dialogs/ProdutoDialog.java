@@ -1,14 +1,18 @@
 package com.titanaxis.view.dialogs;
 
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.CategoriaService;
 import com.titanaxis.service.ProdutoService;
+import com.titanaxis.util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Locale;
+import java.util.logging.Level;
 
 public class ProdutoDialog extends JDialog {
     private final ProdutoService produtoService;
@@ -16,7 +20,6 @@ public class ProdutoDialog extends JDialog {
     private final Produto produto;
     private final Usuario ator;
     private boolean saved = false;
-
     private JTextField nomeField, descricaoField, precoField;
     private JComboBox<Categoria> categoriaComboBox;
 
@@ -29,19 +32,12 @@ public class ProdutoDialog extends JDialog {
 
         setTitle(p == null || p.getId() == 0 ? "Novo Produto" : "Editar Produto");
         setLayout(new BorderLayout());
-
         initComponents();
         populateFields();
-
         pack();
         setLocationRelativeTo(owner);
     }
 
-    /**
-     * Permite que o chamador (Presenter) verifique se o diálogo
-     * foi fechado após uma operação de gravação bem-sucedida.
-     * @return true se o produto foi salvo, false caso contrário.
-     */
     public boolean isSaved() {
         return saved;
     }
@@ -54,7 +50,11 @@ public class ProdutoDialog extends JDialog {
         descricaoField = new JTextField();
         precoField = new JTextField();
         categoriaComboBox = new JComboBox<>();
-        populateCategoryComboBox();
+        try {
+            populateCategoryComboBox();
+        } catch (PersistenciaException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage(), "Erro de Base de Dados", JOptionPane.ERROR_MESSAGE);
+        }
 
         formPanel.add(new JLabel("Nome:"));
         formPanel.add(nomeField);
@@ -64,7 +64,6 @@ public class ProdutoDialog extends JDialog {
         formPanel.add(precoField);
         formPanel.add(new JLabel("Categoria:"));
         formPanel.add(categoriaComboBox);
-
         add(formPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -72,13 +71,12 @@ public class ProdutoDialog extends JDialog {
         saveButton.addActionListener(e -> save());
         JButton cancelButton = new JButton("Cancelar");
         cancelButton.addActionListener(e -> dispose());
-
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void populateCategoryComboBox() {
+    private void populateCategoryComboBox() throws PersistenciaException {
         categoriaService.listarTodasCategorias().forEach(categoriaComboBox::addItem);
     }
 
@@ -98,7 +96,6 @@ public class ProdutoDialog extends JDialog {
             JOptionPane.showMessageDialog(this, "Nome e Categoria são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         try {
             produto.setNome(nomeField.getText().trim());
             produto.setDescricao(descricaoField.getText().trim());
@@ -108,14 +105,17 @@ public class ProdutoDialog extends JDialog {
             if (produto.getId() == 0) {
                 produto.setAtivo(true);
             }
-
             produtoService.salvarProduto(produto, ator);
-            this.saved = true; // Define o estado de sucesso
-            dispose();         // Apenas fecha o diálogo
-
+            saved = true;
+            dispose();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Preço inválido. Use ponto como separador decimal.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (UtilizadorNaoAutenticadoException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+        } catch (PersistenciaException e) {
+            JOptionPane.showMessageDialog(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
+            AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o produto.", e);
             JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
         }
     }

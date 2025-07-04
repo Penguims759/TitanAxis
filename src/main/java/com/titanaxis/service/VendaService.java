@@ -1,5 +1,7 @@
 package com.titanaxis.service;
 
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.model.Venda;
@@ -16,9 +18,9 @@ public class VendaService {
         this.transactionService = transactionService;
     }
 
-    public Venda finalizarVenda(Venda venda, Usuario ator) throws Exception {
+    public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException, Exception {
         if (ator == null) {
-            throw new Exception("Nenhum utilizador autenticado para realizar a venda.");
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a venda.");
         }
         if (venda.getItens() == null || venda.getItens().isEmpty()) {
             throw new Exception("A venda não contém itens.");
@@ -27,7 +29,6 @@ public class VendaService {
         try {
             return transactionService.executeInTransactionWithResult(em -> {
                 for (VendaItem item : venda.getItens()) {
-                    // Re-anexa a entidade Lote à sessão de persistência atual
                     Lote lote = em.find(Lote.class, item.getLote().getId());
                     if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
                         throw new RuntimeException("Stock insuficiente para o produto: " + item.getLote().getProduto().getNome());

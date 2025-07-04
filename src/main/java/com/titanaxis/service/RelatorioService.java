@@ -1,6 +1,7 @@
 package com.titanaxis.service;
 
 import com.lowagie.text.DocumentException;
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Venda;
 import com.titanaxis.repository.AuditoriaRepository;
@@ -33,13 +34,10 @@ public class RelatorioService {
         this.transactionService = transactionService;
     }
 
-    // --- MÉTODOS DE RELATÓRIO DE INVENTÁRIO (CSV e PDF) ---
-
-    public String gerarRelatorioInventario() {
+    public String gerarRelatorioInventario() throws PersistenciaException {
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
-
         StringBuilder csv = new StringBuilder();
         csv.append("ID;Nome;Categoria;Qtd. Total;Preço Unit.;Valor Total do Estoque\n");
         for (Produto p : produtos) {
@@ -53,20 +51,17 @@ public class RelatorioService {
         return csv.toString();
     }
 
-    public ByteArrayOutputStream gerarRelatorioInventarioPdf() throws DocumentException, IOException {
+    public ByteArrayOutputStream gerarRelatorioInventarioPdf() throws DocumentException, IOException, PersistenciaException {
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
         return PdfReportGenerator.generateInventarioPdf(produtos);
     }
 
-    // --- MÉTODOS DE RELATÓRIO DE VENDAS (CSV e PDF) ---
-
-    public String gerarRelatorioVendas() {
+    public String gerarRelatorioVendas() throws PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
-
         StringBuilder csv = new StringBuilder();
         csv.append("ID Venda;Data;Cliente;Utilizador;Valor Total\n");
         for (Venda v : vendas) {
@@ -79,14 +74,12 @@ public class RelatorioService {
         return csv.toString();
     }
 
-    public ByteArrayOutputStream gerarRelatorioVendasPdf() throws DocumentException, IOException {
+    public ByteArrayOutputStream gerarRelatorioVendasPdf() throws DocumentException, IOException, PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
         return PdfReportGenerator.generateVendasPdf(vendas);
     }
-
-    // --- MÉTODOS PARA RELATÓRIOS DE AUDITORIA ---
 
     public String gerarRelatorioAuditoriaCsv(List<Vector<Object>> data, String[] headers) {
         StringBuilder csv = new StringBuilder();
@@ -104,27 +97,24 @@ public class RelatorioService {
         return PdfReportGenerator.generateAuditoriaPdf(title, headers, data);
     }
 
-    public List<Vector<Object>> getAuditoriaAcoes() {
+    public List<Vector<Object>> getAuditoriaAcoes() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 auditoriaRepository.getAuditoriaAcoes(em)
         );
     }
 
-    public List<Vector<Object>> getAuditoriaAcesso() {
+    public List<Vector<Object>> getAuditoriaAcesso() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 auditoriaRepository.getAuditoriaAcesso(em)
         );
     }
 
-    // --- MÉTODOS AUXILIARES ---
     private String tratarStringParaCSV(String texto) {
         if (texto == null) return "";
-        String textoTratado = texto.replace("\"", "\"\"");
-        return "\"" + textoTratado + "\"";
+        return "\"" + texto.replace("\"", "\"\"") + "\"";
     }
 
     private String formatarMoedaParaCSV(double valor) {
-        // Usa o formato americano (ponto decimal) para evitar problemas com vírgulas em CSV
         return String.format(Locale.US, "%.2f", valor);
     }
 }

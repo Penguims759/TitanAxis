@@ -1,19 +1,35 @@
 package com.titanaxis.service;
 
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.util.JpaUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TransactionService {
 
-    public <T> T executeInTransactionWithResult(Function<EntityManager, T> action) {
+    /**
+     * Executa uma ação dentro de uma transação e retorna um resultado.
+     * Captura exceções de persistência e as encapsula em uma PersistenciaException.
+     *
+     * @param action A função a ser executada.
+     * @return O resultado da função.
+     * @throws PersistenciaException se ocorrer um erro na base de dados.
+     * @throws RuntimeException se ocorrer outro erro inesperado.
+     */
+    public <T> T executeInTransactionWithResult(Function<EntityManager, T> action) throws PersistenciaException {
         EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             T result = action.apply(em);
             em.getTransaction().commit();
             return result;
+        } catch (PersistenceException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new PersistenciaException("Ocorreu um erro na comunicação com a base de dados.", e);
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -26,7 +42,13 @@ public class TransactionService {
         }
     }
 
-    public void executeInTransaction(Consumer<EntityManager> action) {
+    /**
+     * Executa uma ação sem retorno dentro de uma transação.
+     *
+     * @param action A ação a ser executada.
+     * @throws PersistenciaException se ocorrer um erro na base de dados.
+     */
+    public void executeInTransaction(Consumer<EntityManager> action) throws PersistenciaException {
         executeInTransactionWithResult(em -> {
             action.accept(em);
             return null;

@@ -1,5 +1,6 @@
 package com.titanaxis.service;
 
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.repository.MovimentoRepository;
 import java.util.List;
@@ -13,7 +14,8 @@ public class MovimentoService {
         this.transactionService = transactionService;
     }
 
-    public List<MovimentoEstoque> listarTodosMovimentos() {
+    // ALTERADO: Adicionada a declaração "throws"
+    public List<MovimentoEstoque> listarTodosMovimentos() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 movimentoRepository.findAll(em)
         );

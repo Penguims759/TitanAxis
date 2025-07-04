@@ -1,6 +1,7 @@
 package com.titanaxis.view;
 
 import com.titanaxis.app.AppContext;
+import com.titanaxis.exception.PersistenciaException; // ADICIONADO
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
@@ -89,6 +90,10 @@ public class LoginFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Nome de utilizador ou senha inválidos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
                 logger.warning("Falha de login para o usuário: " + username);
             }
+            // ADICIONADO: Bloco catch para a nova exceção de persistência
+        } catch (PersistenciaException ex) {
+            logger.log(Level.SEVERE, "Erro de base de dados durante o login do usuário: " + username, ex);
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao conectar à base de dados. Por favor, tente novamente.", "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Erro inesperado durante o login do usuário: " + username, ex);
             JOptionPane.showMessageDialog(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", "Erro", JOptionPane.ERROR_MESSAGE);

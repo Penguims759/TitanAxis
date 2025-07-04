@@ -1,6 +1,7 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
 
@@ -22,7 +23,7 @@ public class RelatorioPanel extends JPanel {
     private final RelatorioService relatorioService;
     private static final Logger logger = AppLogger.getLogger();
 
-    private JButton inventarioCsvButton, inventarioPdfButton, vendasCsvButton, vendasPdfButton;
+    private final JButton inventarioCsvButton, inventarioPdfButton, vendasCsvButton, vendasPdfButton;
 
     public RelatorioPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
@@ -39,54 +40,39 @@ public class RelatorioPanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.weighty = 0.2;
-        centerPanel.add(Box.createVerticalStrut(0), gbc);
-        gbc.weighty = 0;
 
         JPanel inventarioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         inventarioPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Inventário"));
-
         inventarioCsvButton = new JButton("Gerar CSV");
         inventarioCsvButton.addActionListener(e -> gerarRelatorioInventarioCsv());
         inventarioPanel.add(inventarioCsvButton);
-
         inventarioPdfButton = new JButton("Gerar PDF");
         inventarioPdfButton.addActionListener(e -> gerarRelatorioInventarioPdf());
         inventarioPanel.add(inventarioPdfButton);
-
         centerPanel.add(inventarioPanel, gbc);
 
         JPanel vendasPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         vendasPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Vendas"));
-
         vendasCsvButton = new JButton("Gerar CSV");
         vendasCsvButton.addActionListener(e -> gerarRelatorioVendasCsv());
         vendasPanel.add(vendasCsvButton);
-
         vendasPdfButton = new JButton("Gerar PDF");
         vendasPdfButton.addActionListener(e -> gerarRelatorioVendasPdf());
         vendasPanel.add(vendasPdfButton);
-
         centerPanel.add(vendasPanel, gbc);
-
-        gbc.weighty = 0.8;
-        centerPanel.add(Box.createVerticalStrut(0), gbc);
 
         add(centerPanel, BorderLayout.CENTER);
     }
 
     private void gerarRelatorioInventarioCsv() {
         JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", "Arquivo CSV (*.csv)");
-        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
         setBotoesAtivados(false);
 
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
             protected String doInBackground() throws Exception {
-                logger.info("Iniciando geração do relatório de inventário (CSV)...");
                 return relatorioService.gerarRelatorioInventario();
             }
 
@@ -99,7 +85,7 @@ public class RelatorioPanel extends JPanel {
                         JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    handleException("Erro inesperado ao gerar/salvar o relatório de inventário (CSV).", ex);
+                    handleException("Erro ao gerar/salvar o relatório de inventário (CSV).", ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -110,16 +96,13 @@ public class RelatorioPanel extends JPanel {
 
     private void gerarRelatorioVendasCsv() {
         JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "csv", "Arquivo CSV (*.csv)");
-        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
         setBotoesAtivados(false);
 
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
             protected String doInBackground() throws Exception {
-                logger.info("Iniciando geração do relatório de vendas (CSV)...");
                 return relatorioService.gerarRelatorioVendas();
             }
 
@@ -132,7 +115,7 @@ public class RelatorioPanel extends JPanel {
                         JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    handleException("Erro inesperado ao gerar/salvar o relatório de vendas (CSV).", ex);
+                    handleException("Erro ao gerar/salvar o relatório de vendas (CSV).", ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -143,16 +126,13 @@ public class RelatorioPanel extends JPanel {
 
     private void gerarRelatorioInventarioPdf() {
         JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "pdf", "Arquivo PDF (*.pdf)");
-        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
         setBotoesAtivados(false);
 
         SwingWorker<ByteArrayOutputStream, Void> worker = new SwingWorker<>() {
             @Override
             protected ByteArrayOutputStream doInBackground() throws Exception {
-                logger.info("Iniciando geração do relatório de inventário (PDF)...");
                 return relatorioService.gerarRelatorioInventarioPdf();
             }
 
@@ -165,7 +145,7 @@ public class RelatorioPanel extends JPanel {
                         JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    handleException("Erro inesperado ao gerar/salvar o relatório de inventário (PDF).", ex);
+                    handleException("Erro ao gerar/salvar o relatório de inventário (PDF).", ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -176,16 +156,13 @@ public class RelatorioPanel extends JPanel {
 
     private void gerarRelatorioVendasPdf() {
         JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "pdf", "Arquivo PDF (*.pdf)");
-        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
         setBotoesAtivados(false);
 
         SwingWorker<ByteArrayOutputStream, Void> worker = new SwingWorker<>() {
             @Override
             protected ByteArrayOutputStream doInBackground() throws Exception {
-                logger.info("Iniciando geração do relatório de vendas (PDF)...");
                 return relatorioService.gerarRelatorioVendasPdf();
             }
 
@@ -198,7 +175,7 @@ public class RelatorioPanel extends JPanel {
                         JOptionPane.showMessageDialog(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    handleException("Erro inesperado ao gerar/salvar o relatório de vendas (PDF).", ex);
+                    handleException("Erro ao gerar/salvar o relatório de vendas (PDF).", ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -212,31 +189,34 @@ public class RelatorioPanel extends JPanel {
         inventarioPdfButton.setEnabled(ativado);
         vendasCsvButton.setEnabled(ativado);
         vendasPdfButton.setEnabled(ativado);
-
         setCursor(ativado ? Cursor.getDefaultCursor() : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 
-    private JFileChooser createFileChooser(String nomeBase, String extension, String description) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Salvar Relatório");
-        String dataAtual = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        fileChooser.setSelectedFile(new File(nomeBase + "_" + dataAtual + "." + extension));
-        fileChooser.setFileFilter(new FileNameExtensionFilter(description, extension));
-        return fileChooser;
+    private void handleException(String message, Exception ex) {
+        Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+        logger.log(Level.SEVERE, message, cause);
+        String errorMessage = "Ocorreu um erro inesperado.";
+        if (cause instanceof PersistenciaException) {
+            errorMessage = "Erro de Base de Dados: " + cause.getMessage();
+        } else if (cause instanceof IOException) {
+            errorMessage = "Erro de Ficheiro: Falha ao salvar o relatório.";
+        }
+        JOptionPane.showMessageDialog(this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
-    private File getSelectedFileWithExtension(JFileChooser fileChooser, String extension) {
-        File file = fileChooser.getSelectedFile();
-        if (!file.getName().toLowerCase().endsWith(extension)) {
-            file = new File(file.getParentFile(), file.getName() + extension);
+    private JFileChooser createFileChooser(String nomeBase, String ext, String desc) {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Salvar Relatório");
+        fc.setSelectedFile(new File(nomeBase + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "." + ext));
+        fc.setFileFilter(new FileNameExtensionFilter(desc, ext));
+        return fc;
+    }
+
+    private File getSelectedFileWithExtension(JFileChooser fc, String ext) {
+        File file = fc.getSelectedFile();
+        if (!file.getName().toLowerCase().endsWith(ext)) {
+            file = new File(file.getParentFile(), file.getName() + ext);
         }
         return file;
-    }
-
-    private void handleException(String message, Exception ex) {
-        SwingUtilities.invokeLater(() -> {
-            logger.log(Level.SEVERE, message, ex);
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro inesperado. Verifique os logs.", "Erro", JOptionPane.ERROR_MESSAGE);
-        });
     }
 }

@@ -1,5 +1,7 @@
 package com.titanaxis.presenter;
 
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
@@ -23,8 +25,12 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
     }
 
     private void carregarDadosIniciais() {
-        List<Cliente> clientes = clienteService.listarTodos();
-        view.setClientesNaTabela(clientes);
+        try {
+            List<Cliente> clientes = clienteService.listarTodos();
+            view.setClientesNaTabela(clientes);
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar clientes. Verifique os logs.", true);
+        }
     }
 
     @Override
@@ -34,10 +40,8 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             view.mostrarMensagem("Erro de Validação", "O nome do cliente é obrigatório.", true);
             return;
         }
-
         boolean isUpdate = !view.getId().isEmpty();
         int id = isUpdate ? Integer.parseInt(view.getId()) : 0;
-
         Cliente cliente = new Cliente(id, nome, view.getContato().trim(), view.getEndereco().trim());
         Usuario ator = authService.getUsuarioLogado().orElse(null);
 
@@ -46,8 +50,10 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             view.mostrarMensagem("Sucesso", "Cliente " + (isUpdate ? "atualizado" : "adicionado") + " com sucesso!", false);
             aoLimpar();
             carregarDadosIniciais();
-        } catch (Exception e) {
-            view.mostrarMensagem("Erro", "Erro ao salvar cliente: " + e.getMessage(), true);
+        } catch (UtilizadorNaoAutenticadoException e) {
+            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar o cliente. Verifique os logs.", true);
         }
     }
 
@@ -57,11 +63,9 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             view.mostrarMensagem("Aviso", "Selecione um cliente para eliminar.", true);
             return;
         }
-
         if (!view.mostrarConfirmacao("Confirmar Eliminação", "Tem certeza que deseja eliminar este cliente?")) {
             return;
         }
-
         int id = Integer.parseInt(view.getId());
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
@@ -69,8 +73,10 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             view.mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
             aoLimpar();
             carregarDadosIniciais();
-        } catch (Exception e) {
-            view.mostrarMensagem("Erro", "Erro ao eliminar cliente: " + e.getMessage(), true);
+        } catch (UtilizadorNaoAutenticadoException e) {
+            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar o cliente. Verifique os logs.", true);
         }
     }
 
@@ -85,11 +91,15 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
 
     @Override
     public void aoBuscar() {
-        String termo = view.getTermoBusca();
-        if (termo != null && !termo.trim().isEmpty()) {
-            view.setClientesNaTabela(clienteService.buscarPorNome(termo));
-        } else {
-            carregarDadosIniciais();
+        try {
+            String termo = view.getTermoBusca();
+            if (termo != null && !termo.trim().isEmpty()) {
+                view.setClientesNaTabela(clienteService.buscarPorNome(termo));
+            } else {
+                carregarDadosIniciais();
+            }
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar clientes. Verifique os logs.", true);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.titanaxis.presenter;
 
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.service.MovimentoService;
 import com.titanaxis.view.interfaces.MovimentoView;
@@ -32,8 +33,14 @@ public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
                     List<MovimentoEstoque> movimentos = get();
                     view.setMovimentosNaTabela(movimentos);
                 } catch (Exception e) {
-                    view.mostrarErro("Erro de Base de Dados", "Erro ao carregar o histórico de movimentos.");
-                    e.printStackTrace();
+                    // Trata a PersistenciaException que pode vir do SwingWorker
+                    Throwable cause = e.getCause() != null ? e.getCause() : e;
+                    if (cause instanceof PersistenciaException) {
+                        view.mostrarErro("Erro de Base de Dados", "Erro ao carregar o histórico de movimentos.");
+                    } else {
+                        view.mostrarErro("Erro Inesperado", "Ocorreu um erro inesperado.");
+                    }
+                    cause.printStackTrace();
                 } finally {
                     view.setCursorEspera(false);
                 }

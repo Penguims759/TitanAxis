@@ -1,9 +1,12 @@
 package com.titanaxis.view.dialogs;
 
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.ProdutoService;
+import com.titanaxis.util.AppLogger;
 
 import javax.swing.*;
 import javax.swing.text.MaskFormatter;
@@ -12,15 +15,14 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class LoteDialog extends JDialog {
     private final ProdutoService produtoService;
     private final Lote lote;
     private final Usuario ator;
     private final Produto produtoPai;
-
-    private Lote loteSalvo; // Armazena o resultado da operação
-
+    private Lote loteSalvo;
     private JTextField numeroLoteField, quantidadeField;
     private JFormattedTextField dataValidadeField;
 
@@ -33,18 +35,12 @@ public class LoteDialog extends JDialog {
 
         setTitle(l == null || l.getId() == 0 ? "Novo Lote para " + produtoPai.getNome() : "Editar Lote");
         setLayout(new BorderLayout());
-
         initComponents();
         populateFields();
-
         pack();
         setLocationRelativeTo(owner);
     }
 
-    /**
-     * Permite que o chamador (Presenter) obtenha o Lote que foi salvo.
-     * @return Um Optional contendo o lote salvo, ou vazio se a operação falhou ou foi cancelada.
-     */
     public Optional<Lote> getLoteSalvo() {
         return Optional.ofNullable(loteSalvo);
     }
@@ -55,7 +51,6 @@ public class LoteDialog extends JDialog {
 
         numeroLoteField = new JTextField(20);
         quantidadeField = new JTextField();
-
         try {
             MaskFormatter dateFormatter = new MaskFormatter("##/##/####");
             dateFormatter.setPlaceholderCharacter('_');
@@ -70,7 +65,6 @@ public class LoteDialog extends JDialog {
         formPanel.add(quantidadeField);
         formPanel.add(new JLabel("Data de Validade (dd/mm/aaaa):"));
         formPanel.add(dataValidadeField);
-
         add(formPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -105,14 +99,12 @@ public class LoteDialog extends JDialog {
                 lote.setDataValidade(null);
             }
 
-            if(lote.getNumeroLote().isEmpty() || lote.getQuantidade() <= 0) {
+            if (lote.getNumeroLote().isEmpty() || lote.getQuantidade() <= 0) {
                 JOptionPane.showMessageDialog(this, "Número do lote e quantidade positiva são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             lote.setProduto(this.produtoPai);
-
-            // Salva o resultado e fecha o diálogo
             this.loteSalvo = produtoService.salvarLote(lote, ator);
             dispose();
 
@@ -120,10 +112,14 @@ public class LoteDialog extends JDialog {
             JOptionPane.showMessageDialog(this, "A quantidade deve ser um número válido.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (java.time.format.DateTimeParseException e) {
             JOptionPane.showMessageDialog(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+        } catch (UtilizadorNaoAutenticadoException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+        } catch (PersistenciaException e) {
+            JOptionPane.showMessageDialog(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
+            AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o lote.", e);
             JOptionPane.showMessageDialog(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
-            this.loteSalvo = null; // Garante que não há resultado em caso de erro
-            e.printStackTrace();
+            this.loteSalvo = null;
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.titanaxis.service;
 
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.ClienteRepository;
@@ -17,33 +19,40 @@ public class ClienteService {
         this.transactionService = transactionService;
     }
 
-    public List<Cliente> listarTodos() {
+    // ALTERADO: Adicionada a declaração "throws"
+    public List<Cliente> listarTodos() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.findAll(em)
         );
     }
 
-    public Optional<Cliente> buscarPorId(int id) {
+    // ALTERADO: Adicionada a declaração "throws"
+    public Optional<Cliente> buscarPorId(int id) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.findById(id, em)
         );
     }
 
-    public List<Cliente> buscarPorNome(String nome) {
+    // ALTERADO: Adicionada a declaração "throws"
+    public List<Cliente> buscarPorNome(String nome) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.findByNomeContaining(nome, em)
         );
     }
 
-    public Cliente salvar(Cliente cliente, Usuario usuarioLogado) throws Exception {
-        if (usuarioLogado == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
+    public Cliente salvar(Cliente cliente, Usuario usuarioLogado) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (usuarioLogado == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+        }
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.save(cliente, usuarioLogado, em)
         );
     }
 
-    public void deletar(int id, Usuario usuarioLogado) throws Exception {
-        if (usuarioLogado == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
+    public void deletar(int id, Usuario usuarioLogado) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (usuarioLogado == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+        }
         transactionService.executeInTransaction(em ->
                 clienteRepository.deleteById(id, usuarioLogado, em)
         );

@@ -1,5 +1,7 @@
 package com.titanaxis.service;
 
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
@@ -19,7 +21,7 @@ public class ProdutoService {
         this.transactionService = transactionService;
     }
 
-    public List<Produto> listarProdutos(boolean incluirInativos) {
+    public List<Produto> listarProdutos(boolean incluirInativos) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em -> {
             if (incluirInativos) {
                 return produtoRepository.findAllIncludingInactive(em);
@@ -28,7 +30,7 @@ public class ProdutoService {
         });
     }
 
-    public List<Produto> listarProdutosAtivosParaVenda() {
+    public List<Produto> listarProdutosAtivosParaVenda() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAll(em).stream()
                         .filter(p -> p.getQuantidadeTotal() > 0)
@@ -36,7 +38,7 @@ public class ProdutoService {
         );
     }
 
-    public List<Lote> buscarLotesDisponiveis(int produtoId) {
+    public List<Lote> buscarLotesDisponiveis(int produtoId) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findLotesByProdutoId(produtoId, em).stream()
                         .filter(l -> l.getQuantidade() > 0)
@@ -44,41 +46,49 @@ public class ProdutoService {
         );
     }
 
-    public Optional<Produto> buscarProdutoPorId(int id) {
+    public Optional<Produto> buscarProdutoPorId(int id) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findById(id, em)
         );
     }
 
-    public Optional<Lote> buscarLotePorId(int loteId) {
+    public Optional<Lote> buscarLotePorId(int loteId) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findLoteById(loteId, em)
         );
     }
 
-    public Produto salvarProduto(Produto produto, Usuario ator) throws Exception {
-        if (ator == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
+    public Produto salvarProduto(Produto produto, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (ator == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+        }
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.save(produto, ator, em)
         );
     }
 
-    public Lote salvarLote(Lote lote, Usuario ator) throws Exception {
-        if (ator == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
+    public Lote salvarLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (ator == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+        }
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.saveLote(lote, ator, em)
         );
     }
 
-    public void removerLote(int loteId, Usuario ator) throws Exception {
-        if (ator == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
+    public void removerLote(int loteId, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (ator == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+        }
         transactionService.executeInTransaction(em ->
                 produtoRepository.deleteLoteById(loteId, ator, em)
         );
     }
 
-    public void alterarStatusProduto(int produtoId, boolean novoStatus, Usuario ator) throws Exception {
-        if (ator == null) throw new Exception("Nenhum utilizador autenticado para realizar esta operação.");
+    public void alterarStatusProduto(int produtoId, boolean novoStatus, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (ator == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+        }
         transactionService.executeInTransaction(em ->
                 produtoRepository.updateStatusAtivo(produtoId, novoStatus, ator, em)
         );

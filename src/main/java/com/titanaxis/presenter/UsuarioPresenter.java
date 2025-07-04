@@ -1,12 +1,15 @@
 package com.titanaxis.presenter;
 
+import com.titanaxis.exception.NomeDuplicadoException;
+import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.PasswordUtil;
 import com.titanaxis.view.interfaces.UsuarioView;
+
 import java.util.List;
-import java.util.Optional;
 
 public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
 
@@ -21,7 +24,11 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
     }
 
     private void carregarDadosIniciais() {
-        view.setUsuariosNaTabela(authService.listarUsuarios());
+        try {
+            view.setUsuariosNaTabela(authService.listarUsuarios());
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar utilizadores. Verifique os logs.", true);
+        }
     }
 
     @Override
@@ -32,35 +39,34 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         boolean isUpdate = !view.getId().isEmpty();
 
         if (username.isEmpty() || nivel == null || (!isUpdate && password.isEmpty())) {
-            view.mostrarMensagem("Erro", "Nome, senha (para novos utilizadores) e nível de acesso são obrigatórios.", true);
+            view.mostrarMensagem("Erro de Validação", "Nome, senha (para novos) e nível de acesso são obrigatórios.", true);
             return;
         }
 
-        int id = isUpdate ? Integer.parseInt(view.getId()) : 0;
-        Usuario ator = authService.getUsuarioLogado().orElse(null);
+        try {
+            Usuario ator = authService.getUsuarioLogado().orElse(null);
+            if (isUpdate) {
+                int id = Integer.parseInt(view.getId());
+                // A busca pelo utilizador original agora também pode lançar uma exceção
+                Usuario userOriginal = authService.listarUsuarios().stream().filter(u -> u.getId() == id).findFirst()
+                        .orElseThrow(() -> new PersistenciaException("Utilizador a ser atualizado não encontrado.", null));
 
-        if (isUpdate) {
-            Optional<Usuario> userOpt = authService.listarUsuarios().stream().filter(u -> u.getId() == id).findFirst();
-            if (userOpt.isEmpty()) {
-                view.mostrarMensagem("Erro", "Utilizador não encontrado.", true);
-                return;
-            }
-            String senhaHash = password.isEmpty() ? userOpt.get().getSenhaHash() : PasswordUtil.hashPassword(password);
-            Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivel);
-            if (authService.atualizarUsuario(usuarioAtualizado, ator)) {
+                String senhaHash = password.isEmpty() ? userOriginal.getSenhaHash() : PasswordUtil.hashPassword(password);
+                Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivel);
+
+                authService.atualizarUsuario(usuarioAtualizado, ator);
                 view.mostrarMensagem("Sucesso", "Utilizador atualizado!", false);
             } else {
-                view.mostrarMensagem("Erro", "Erro ao atualizar utilizador.", true);
-            }
-        } else {
-            if (authService.cadastrarUsuario(username, password, nivel, ator)) {
+                authService.cadastrarUsuario(username, password, nivel, ator);
                 view.mostrarMensagem("Sucesso", "Utilizador adicionado!", false);
-            } else {
-                view.mostrarMensagem("Erro", "Erro ao adicionar. O nome de utilizador pode já existir.", true);
             }
+            aoLimpar();
+            carregarDadosIniciais();
+        } catch (NomeDuplicadoException e) {
+            view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
+        } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
+            view.mostrarMensagem("Erro", "Erro ao salvar utilizador: " + e.getMessage(), true);
         }
-        aoLimpar();
-        carregarDadosIniciais();
     }
 
     @Override
@@ -76,11 +82,15 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         }
         if (!view.mostrarConfirmacao("Confirmar", "Tem certeza?")) return;
 
-        Usuario ator = authService.getUsuarioLogado().orElse(null);
-        authService.deletarUsuario(idToDelete, ator);
-        view.mostrarMensagem("Sucesso", "Utilizador eliminado!", false);
-        aoLimpar();
-        carregarDadosIniciais();
+        try {
+            Usuario ator = authService.getUsuarioLogado().orElse(null);
+            authService.deletarUsuario(idToDelete, ator);
+            view.mostrarMensagem("Sucesso", "Utilizador eliminado!", false);
+            aoLimpar();
+            carregarDadosIniciais();
+        } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
+            view.mostrarMensagem("Erro", "Erro ao eliminar utilizador: " + e.getMessage(), true);
+        }
     }
 
     @Override
@@ -94,11 +104,15 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
 
     @Override
     public void aoBuscar() {
-        String termo = view.getTermoBusca();
-        if (termo != null && !termo.trim().isEmpty()) {
-            view.setUsuariosNaTabela(authService.buscarUsuariosPorNomeContendo(termo));
-        } else {
-            carregarDadosIniciais();
+        try {
+            String termo = view.getTermoBusca();
+            if (termo != null && !termo.trim().isEmpty()) {
+                view.setUsuariosNaTabela(authService.buscarUsuariosPorNomeContendo(termo));
+            } else {
+                carregarDadosIniciais();
+            }
+        } catch (PersistenciaException e) {
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar utilizadores. Verifique os logs.", true);
         }
     }
 
@@ -114,7 +128,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             view.setId(String.valueOf(usuario.getId()));
             view.setUsername(usuario.getNomeUsuario());
             view.setNivelAcesso(usuario.getNivelAcesso());
-            view.setPassword(""); // Limpa o campo de senha por segurança
+            view.setPassword("");
         }
     }
 }
