@@ -1,15 +1,14 @@
 package com.titanaxis.util;
 
+import com.titanaxis.model.Categoria;
 import com.titanaxis.model.NivelAcesso;
+import com.titanaxis.model.Usuario;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.flywaydb.core.Flyway;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,12 +38,7 @@ public class DatabaseConnection {
         }
     }
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
-
     public static void initializeDatabase() {
-        // A linha .baselineOnMigrate(true) foi removida para uma configuração mais limpa.
         Flyway flyway = Flyway.configure()
                 .dataSource(URL, USER, PASSWORD)
                 .locations("classpath:db/migration")
@@ -62,48 +56,40 @@ public class DatabaseConnection {
     }
 
     private static void ensureInitialDataExists() {
-        try (Connection conn = getConnection()) {
-            if (!userExists(conn, "admin")) {
+        EntityManager em = null;
+        try {
+            em = JpaUtil.getEntityManager();
+            em.getTransaction().begin();
+
+            // Verificar se o utilizador 'admin' existe usando JPA
+            TypedQuery<Long> userQuery = em.createQuery("SELECT COUNT(u) FROM Usuario u WHERE u.nomeUsuario = :nome", Long.class);
+            userQuery.setParameter("nome", "admin");
+            if (userQuery.getSingleResult() == 0) {
                 String adminPassword = "admin";
                 String hashedAdminPassword = PasswordUtil.hashPassword(adminPassword);
-                String insertSql = "INSERT INTO usuarios (nome_usuario, senha_hash, nivel_acesso) VALUES (?, ?, ?)";
-                try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
-                    ps.setString(1, "admin");
-                    ps.setString(2, hashedAdminPassword);
-                    ps.setString(3, NivelAcesso.ADMIN.getNome());
-                    ps.executeUpdate();
-                    logger.info("Utilizador 'admin' padrão criado com sucesso.");
-                }
+                Usuario adminUser = new Usuario("admin", hashedAdminPassword, NivelAcesso.ADMIN);
+                em.persist(adminUser);
+                logger.info("Utilizador 'admin' padrão criado com sucesso.");
             }
-            if (!categoryExists(conn, "Geral")) {
-                String insertCategorySql = "INSERT INTO categorias (nome) VALUES (?)";
-                try (PreparedStatement ps = conn.prepareStatement(insertCategorySql)) {
-                    ps.setString(1, "Geral");
-                    ps.executeUpdate();
-                    logger.info("Categoria 'Geral' padrão criada com sucesso.");
-                }
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao verificar ou inserir dados iniciais.", e);
-        }
-    }
 
-    private static boolean userExists(Connection conn, String username) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM usuarios WHERE nome_usuario = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+            // Verificar se a categoria 'Geral' existe usando JPA
+            TypedQuery<Long> categoryQuery = em.createQuery("SELECT COUNT(c) FROM Categoria c WHERE c.nome = :nome", Long.class);
+            categoryQuery.setParameter("nome", "Geral");
+            if (categoryQuery.getSingleResult() == 0) {
+                Categoria defaultCategory = new Categoria("Geral");
+                em.persist(defaultCategory);
+                logger.info("Categoria 'Geral' padrão criada com sucesso.");
             }
-        }
-    }
 
-    private static boolean categoryExists(Connection conn, String categoryName) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM categorias WHERE nome = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, categoryName);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em != null && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            logger.log(Level.SEVERE, "Erro ao verificar ou inserir dados iniciais com JPA.", e);
+        } finally {
+            if (em != null) {
+                em.close();
             }
         }
     }
