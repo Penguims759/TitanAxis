@@ -1,5 +1,7 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/service/RelatorioService.java
 package com.titanaxis.service;
 
+import com.google.inject.Inject;
 import com.lowagie.text.DocumentException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
@@ -27,6 +29,7 @@ public class RelatorioService {
     private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    @Inject
     public RelatorioService(ProdutoRepository produtoRepository, VendaRepository vendaRepository, AuditoriaRepository auditoriaRepository, TransactionService transactionService) {
         this.produtoRepository = produtoRepository;
         this.vendaRepository = vendaRepository;

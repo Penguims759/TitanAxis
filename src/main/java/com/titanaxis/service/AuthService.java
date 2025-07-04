@@ -1,5 +1,7 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/service/AuthService.java
 package com.titanaxis.service;
 
+import com.google.inject.Inject;
 import com.titanaxis.exception.NomeDuplicadoException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
@@ -18,6 +20,7 @@ public class AuthService {
     private final TransactionService transactionService;
     private Usuario usuarioLogado;
 
+    @Inject
     public AuthService(UsuarioRepository usuarioRepository, AuditoriaRepository auditoriaRepository, TransactionService transactionService) {
         this.usuarioRepository = usuarioRepository;
         this.auditoriaRepository = auditoriaRepository;

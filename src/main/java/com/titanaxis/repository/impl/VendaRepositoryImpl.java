@@ -1,5 +1,7 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
+import com.google.inject.Inject;
 import com.titanaxis.model.*;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.VendaRepository;
@@ -18,6 +20,7 @@ public class VendaRepositoryImpl implements VendaRepository {
     private static final Logger logger = AppLogger.getLogger();
     private final AuditoriaRepository auditoriaRepository;
 
+    @Inject
     public VendaRepositoryImpl(AuditoriaRepository auditoriaRepository) {
         this.auditoriaRepository = auditoriaRepository;
     }

@@ -1,5 +1,7 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/service/AlertaService.java
 package com.titanaxis.service;
 
+import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
@@ -21,6 +23,7 @@ public class AlertaService {
     private static final Logger logger = AppLogger.getLogger();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    @Inject
     public AlertaService(ProdutoRepository produtoRepository, TransactionService transactionService) {
         this.produtoRepository = produtoRepository;
         this.transactionService = transactionService;

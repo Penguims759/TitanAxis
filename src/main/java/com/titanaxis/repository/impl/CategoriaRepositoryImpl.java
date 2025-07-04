@@ -1,5 +1,7 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/repository/impl/CategoriaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
+import com.google.inject.Inject;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
@@ -13,6 +15,7 @@ import java.util.Optional;
 public class CategoriaRepositoryImpl implements CategoriaRepository {
     private final AuditoriaRepository auditoriaRepository;
 
+    @Inject
     public CategoriaRepositoryImpl(AuditoriaRepository auditoriaRepository) {
         this.auditoriaRepository = auditoriaRepository;
     }

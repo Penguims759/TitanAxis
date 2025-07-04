@@ -1,5 +1,7 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/service/CategoriaService.java
 package com.titanaxis.service;
 
+import com.google.inject.Inject;
 import com.titanaxis.exception.NomeDuplicadoException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
@@ -13,6 +15,7 @@ public class CategoriaService {
     private final CategoriaRepository categoriaRepository;
     private final TransactionService transactionService;
 
+    @Inject
     public CategoriaService(CategoriaRepository categoriaRepository, TransactionService transactionService) {
         this.categoriaRepository = categoriaRepository;
         this.transactionService = transactionService;
