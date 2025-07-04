@@ -16,9 +16,7 @@ public interface Repository<T, ID> {
 
     void deleteById(ID id, Usuario usuarioLogado, EntityManager em);
 
-    // ALTERADO: Agora recebe um EntityManager
     Optional<T> findById(ID id, EntityManager em);
 
-    // ALTERADO: Agora recebe um EntityManager
     List<T> findAll(EntityManager em);
 }

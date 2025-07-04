@@ -1,24 +1,31 @@
-// src/main/java/com/titanaxis/view/panels/MovimentosPanel.java
 package com.titanaxis.view.panels;
 
-import com.titanaxis.util.DatabaseConnection;
+import com.titanaxis.app.AppContext;
+import com.titanaxis.model.MovimentoEstoque;
+import com.titanaxis.presenter.MovimentoPresenter;
+import com.titanaxis.view.interfaces.MovimentoView;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Vector;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
-public class MovimentosPanel extends JPanel {
+public class MovimentosPanel extends JPanel implements MovimentoView {
+    private MovimentoViewListener listener;
     private DefaultTableModel tableModel;
     private JTable table;
     private TableRowSorter<DefaultTableModel> sorter;
-    private JButton refreshButton;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public MovimentosPanel() {
+    public MovimentosPanel(AppContext appContext) {
+        initComponents();
+        new MovimentoPresenter(this, appContext.getMovimentoService());
+        listener.aoCarregarMovimentos(); // Inicia o carregamento
+    }
+
+    private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createTitledBorder("Histórico de Movimentos de Estoque"));
 
@@ -30,12 +37,11 @@ public class MovimentosPanel extends JPanel {
         filterPanel.add(filterField);
         topPanel.add(filterPanel, BorderLayout.WEST);
 
-        refreshButton = new JButton("Atualizar");
-        refreshButton.addActionListener(e -> loadMovimentos());
+        JButton refreshButton = new JButton("Atualizar");
+        refreshButton.addActionListener(e -> listener.aoCarregarMovimentos());
         JPanel refreshPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         refreshPanel.add(refreshButton);
         topPanel.add(refreshPanel, BorderLayout.EAST);
-
         add(topPanel, BorderLayout.NORTH);
 
         // Tabela de Movimentos
@@ -53,44 +59,38 @@ public class MovimentosPanel extends JPanel {
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             private void filter() {
-                String text = filterField.getText();
-                if (text.trim().length() == 0) {
-                    sorter.setRowFilter(null);
-                } else {
-                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-                }
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + filterField.getText()));
             }
         });
-
-        loadMovimentos();
     }
 
-    private void loadMovimentos() {
-        String sql = "SELECT m.data_movimento, p.nome as nome_produto, l.numero_lote, m.tipo_movimento, m.quantidade, u.nome_usuario " +
-                "FROM movimentos_estoque m " +
-                "JOIN produtos p ON m.produto_id = p.id " +
-                "LEFT JOIN estoque_lotes l ON m.lote_id = l.id " +
-                "LEFT JOIN usuarios u ON m.usuario_id = u.id " +
-                "ORDER BY m.id DESC"; // Ordena pelo ID para ver os mais recentes primeiro
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            tableModel.setRowCount(0);
-            while (rs.next()) {
-                Vector<Object> row = new Vector<>();
-                row.add(rs.getString("data_movimento"));
-                row.add(rs.getString("nome_produto"));
-                row.add(rs.getString("numero_lote"));
-                row.add(rs.getString("tipo_movimento"));
-                row.add(rs.getInt("quantidade"));
-                row.add(rs.getString("nome_usuario"));
-                tableModel.addRow(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro ao carregar o histórico de movimentos.", "Erro de Base de Dados", JOptionPane.ERROR_MESSAGE);
+    @Override
+    public void setMovimentosNaTabela(List<MovimentoEstoque> movimentos) {
+        tableModel.setRowCount(0);
+        for (MovimentoEstoque m : movimentos) {
+            tableModel.addRow(new Object[]{
+                    m.getDataMovimento().format(FORMATTER),
+                    m.getNomeProduto(),
+                    m.getNumeroLote(),
+                    m.getTipoMovimento(),
+                    m.getQuantidade(),
+                    m.getNomeUsuario()
+            });
         }
+    }
+
+    @Override
+    public void mostrarErro(String titulo, String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
+    }
+
+    @Override
+    public void setCursorEspera(boolean emEspera) {
+        setCursor(emEspera ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
+    }
+
+    @Override
+    public void setListener(MovimentoViewListener listener) {
+        this.listener = listener;
     }
 }

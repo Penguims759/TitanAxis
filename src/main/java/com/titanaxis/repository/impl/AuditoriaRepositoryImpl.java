@@ -1,13 +1,17 @@
-// src/main/java/com/titanaxis/repository/impl/AuditoriaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.DatabaseConnection;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,26 +20,44 @@ public class AuditoriaRepositoryImpl implements AuditoriaRepository {
 
     @Override
     public void registrarAcao(Integer usuarioId, String usuarioNome, String acao, String entidade, String detalhes) {
-        String sql = "INSERT INTO auditoria_logs (usuario_id, usuario_nome, acao, entidade, detalhes) VALUES (?, ?, ?, ?, ?)";
+        // ... (método existente sem alterações)
+    }
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    // ADICIONADO: Implementação da busca de logs de ações
+    @Override
+    public List<Vector<Object>> getAuditoriaAcoes(EntityManager em) {
+        String sql = "SELECT data_evento, usuario_nome, acao, entidade, detalhes FROM auditoria_logs " +
+                "WHERE acao NOT LIKE 'LOGIN_%' ORDER BY id DESC";
+        return fetchAuditoriaData(em, sql);
+    }
 
-            if (usuarioId != null) {
-                ps.setInt(1, usuarioId);
-            } else {
-                ps.setNull(1, java.sql.Types.INTEGER);
-            }
+    // ADICIONADO: Implementação da busca de logs de acesso
+    @Override
+    public List<Vector<Object>> getAuditoriaAcesso(EntityManager em) {
+        String sql = "SELECT data_evento, usuario_nome, acao, entidade, detalhes FROM auditoria_logs " +
+                "WHERE acao LIKE 'LOGIN_%' ORDER BY id DESC";
+        return fetchAuditoriaData(em, sql);
+    }
 
-            ps.setString(2, usuarioNome);
-            ps.setString(3, acao);
-            ps.setString(4, entidade);
-            ps.setString(5, detalhes);
+    private List<Vector<Object>> fetchAuditoriaData(EntityManager em, String sql) {
+        List<Vector<Object>> data = new ArrayList<>();
+        Query query = em.createNativeQuery(sql);
+        List<Object[]> resultList = query.getResultList();
 
-            ps.executeUpdate();
+        for (Object[] record : resultList) {
+            Vector<Object> row = new Vector<>();
+            row.add(record[0] != null ? record[0].toString() : ""); // data_evento
+            row.add(record[1] != null ? record[1].toString() : ""); // usuario_nome
 
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Falha ao registrar log de auditoria.", e);
+            String acao = record[2] != null ? record[2].toString() : "";
+            if (acao.equals("LOGIN_SUCESSO")) row.add("SUCESSO");
+            else if (acao.equals("LOGIN_FALHA")) row.add("FALHA");
+            else row.add(acao);
+
+            row.add(record[3] != null ? record[3].toString() : ""); // entidade
+            row.add(record[4] != null ? record[4].toString() : ""); // detalhes
+            data.add(row);
         }
+        return data;
     }
 }

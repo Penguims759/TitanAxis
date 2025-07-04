@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +38,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Simula o comportamento do serviço de transação para os testes
+        // Simula o comportamento do serviço de transação
         doAnswer(invocation -> {
             Function<EntityManager, Object> action = invocation.getArgument(0);
             return action.apply(mock(EntityManager.class));
@@ -53,7 +52,8 @@ class AuthServiceTest {
         String password = "senha_correta";
         String hashedPassword = PasswordUtil.hashPassword(password);
         Usuario usuarioDoBanco = new Usuario(1, username, hashedPassword, NivelAcesso.PADRAO);
-        when(usuarioRepository.findByNomeUsuario(username)).thenReturn(Optional.of(usuarioDoBanco));
+        // Simula a busca DENTRO da transação
+        when(usuarioRepository.findByNomeUsuario(eq(username), any(EntityManager.class))).thenReturn(Optional.of(usuarioDoBanco));
 
         Optional<Usuario> resultado = authService.login(username, password);
 
@@ -69,7 +69,7 @@ class AuthServiceTest {
         String passwordIncorreta = "senha_errada";
         String hashedPassword = PasswordUtil.hashPassword(passwordCorreta);
         Usuario usuarioDoBanco = new Usuario(1, username, hashedPassword, NivelAcesso.PADRAO);
-        when(usuarioRepository.findByNomeUsuario(username)).thenReturn(Optional.of(usuarioDoBanco));
+        when(usuarioRepository.findByNomeUsuario(eq(username), any(EntityManager.class))).thenReturn(Optional.of(usuarioDoBanco));
 
         Optional<Usuario> resultado = authService.login(username, passwordIncorreta);
 
@@ -80,7 +80,8 @@ class AuthServiceTest {
     @Test
     void cadastrarUsuario_deveChamarRepositorioDentroDeUmaTransacao() {
         Usuario ator = new Usuario(1, "admin", "hash", NivelAcesso.ADMIN);
-        when(usuarioRepository.findByNomeUsuario(anyString())).thenReturn(Optional.empty());
+        // Garante que a verificação de existência retorna vazio
+        when(usuarioRepository.findByNomeUsuario(anyString(), any(EntityManager.class))).thenReturn(Optional.empty());
 
         authService.cadastrarUsuario("novo_user", "senha123", NivelAcesso.PADRAO, ator);
 

@@ -51,7 +51,8 @@ public class DashboardFrame extends JFrame {
             produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(appContext));
             produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(appContext));
             produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel(appContext));
-            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", new MovimentosPanel());
+            // ALTERADO: Agora usa o novo MovimentosPanel que segue o padrão MVP
+            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", new MovimentosPanel(appContext));
             mainTabbedPane.addTab("Produtos & Estoque", produtosEstoqueTabbedPane);
         }
 

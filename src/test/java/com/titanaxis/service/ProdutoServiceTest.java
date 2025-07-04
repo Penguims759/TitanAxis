@@ -44,8 +44,7 @@ class ProdutoServiceTest {
         Categoria categoria = new Categoria(1, "Geral");
         produto = new Produto("Teste", "Desc", 10.0, categoria);
 
-        // Configuração do mock do TransactionService para executar a ação que lhe é passada
-        // Isto simula o comportamento real do serviço de transações.
+        // Configuração do mock do TransactionService
         doAnswer(invocation -> {
             Function<EntityManager, Object> action = invocation.getArgument(0);
             return action.apply(mock(EntityManager.class));
@@ -61,9 +60,8 @@ class ProdutoServiceTest {
     @Test
     void salvarProduto_deveChamarRepositorioDentroDeUmaTransacao() throws Exception {
         produtoService.salvarProduto(produto, ator);
-        // Verifica se o método correto do serviço de transação foi chamado
+
         verify(transactionService).executeInTransactionWithResult(any());
-        // Verifica se, dentro dessa transação, o repositório foi chamado
         verify(produtoRepository).save(eq(produto), eq(ator), any(EntityManager.class));
     }
 
@@ -71,13 +69,14 @@ class ProdutoServiceTest {
     void salvarProduto_deveLancarExcecao_quandoAtorForNulo() {
         Exception exception = assertThrows(Exception.class, () -> produtoService.salvarProduto(produto, null));
         assertEquals("Nenhum utilizador autenticado para realizar esta operação.", exception.getMessage());
+
         verify(transactionService, never()).executeInTransactionWithResult(any());
     }
 
     @Test
     void alterarStatusProduto_deveChamarRepositorioDentroDeUmaTransacao() throws Exception {
         produtoService.alterarStatusProduto(123, false, ator);
-        // Verifica se o método correto (void) do serviço de transação foi chamado
+
         verify(transactionService).executeInTransaction(any(Consumer.class));
         verify(produtoRepository).updateStatusAtivo(eq(123), eq(false), eq(ator), any(EntityManager.class));
     }
