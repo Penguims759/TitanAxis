@@ -31,6 +31,9 @@ public class ClientePanel extends JPanel implements ClienteView {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
+        table.setFocusable(false); // NOVO: Remove o foco visual da tabela
+        table.setSelectionBackground(table.getBackground()); // NOVO: Torna o fundo da seleção invisível
+        table.setSelectionForeground(table.getForeground()); // NOVO: Mantém a cor do texto da seleção
 
         idField = new JTextField();
         idField.setEditable(false);
@@ -140,6 +143,7 @@ public class ClientePanel extends JPanel implements ClienteView {
     public void setClientesNaTabela(List<Cliente> clientes) {
         tableModel.setRowCount(0);
         clientes.forEach(c -> tableModel.addRow(new Object[]{c.getId(), c.getNome(), c.getContato(), c.getEndereco()}));
+        table.clearSelection(); // NOVO: Limpa a seleção da tabela
     }
 
     @Override
@@ -160,6 +164,7 @@ public class ClientePanel extends JPanel implements ClienteView {
     public void refreshData() {
         if (listener != null) {
             listener.aoCarregarDadosIniciais(); // Chama o método da interface do listener
+            table.clearSelection(); // NOVO: Limpa a seleção da tabela
         }
     }
 

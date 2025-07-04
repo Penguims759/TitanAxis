@@ -32,6 +32,7 @@ public class AlertaPanel extends JPanel {
         alertaTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         alertaTextArea.setLineWrap(true);
         alertaTextArea.setWrapStyleWord(true);
+        alertaTextArea.setFocusable(false); // NOVO: Remove o foco visual do JTextArea
         add(new JScrollPane(alertaTextArea), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("Atualizar Alertas");

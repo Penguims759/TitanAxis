@@ -27,6 +27,9 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
+        table.setFocusable(false); // NOVO: Remove o foco visual da tabela
+        table.setSelectionBackground(table.getBackground()); // NOVO: Torna o fundo da seleção invisível
+        table.setSelectionForeground(table.getForeground()); // NOVO: Mantém a cor do texto da seleção
         sorter = new TableRowSorter<>(tableModel);
 
         initComponents(); // Chama o método para construir o layout com os componentes já inicializados
@@ -82,6 +85,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
                     m.getNomeUsuario()
             });
         }
+        table.clearSelection(); // NOVO: Limpa a seleção da tabela
     }
 
     @Override
@@ -98,6 +102,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     public void refreshData() {
         if (listener != null) {
             listener.aoCarregarMovimentos();
+            table.clearSelection(); // NOVO: Limpa a seleção da tabela ao recarregar
         }
     }
 

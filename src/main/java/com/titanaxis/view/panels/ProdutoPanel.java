@@ -46,10 +46,18 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         produtoTable = new JTable(produtoTableModel);
+        produtoTable.setFocusable(false); // NOVO: Remove o foco visual da tabela
+        produtoTable.setSelectionBackground(produtoTable.getBackground()); // NOVO: Torna o fundo da seleção invisível
+        produtoTable.setSelectionForeground(produtoTable.getForeground()); // NOVO: Mantém a cor do texto da seleção
+
         loteTableModel = new DefaultTableModel(new String[]{"ID Lote", "Nº Lote", "Quantidade", "Data de Validade"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         loteTable = new JTable(loteTableModel);
+        loteTable.setFocusable(false); // NOVO: Remove o foco visual da tabela
+        loteTable.setSelectionBackground(loteTable.getBackground()); // NOVO: Torna o fundo da seleção invisível
+        loteTable.setSelectionForeground(loteTable.getForeground()); // NOVO: Mantém a cor do texto da seleção
+
 
         // Inicialização dos botões para serem final
         editProdutoButton = new JButton("Editar Produto");
@@ -88,6 +96,8 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     public void refreshData() {
         if (listener != null) {
             listener.aoCarregarProdutos();
+            limparSelecaoDaTabelaDeProdutos(); // NOVO: Limpa a seleção da tabela de produtos
+            limparPainelDeDetalhes(); // NOVO: Limpa os detalhes e seleção de lotes
         }
     }
 
@@ -118,8 +128,13 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
                     c.setForeground(Color.GRAY);
                     c.setFont(new Font(c.getFont().getName(), Font.ITALIC, c.getFont().getSize()));
                 } else {
-                    c.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-                    c.setFont(new Font(c.getFont().getName(), Font.PLAIN, c.getFont().getSize()));
+                    // Cuidado para não redefinir cores de seleção que foram tornadas "invisíveis"
+                    // As cores de seleção são definidas no construtor, não aqui.
+                    // Apenas defina a fonte normal se não estiver selecionado e não for inativo.
+                    if (!isSelected) { // Se não estiver selecionado
+                        c.setForeground(table.getForeground());
+                        c.setFont(new Font(c.getFont().getName(), Font.PLAIN, c.getFont().getSize()));
+                    }
                 }
                 return c;
             }
@@ -192,15 +207,9 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
             });
         }
 
-        if (selectedId != -1) {
-            for (int i = 0; i < produtoTableModel.getRowCount(); i++) {
-                if ((int) produtoTableModel.getValueAt(i, 0) == selectedId) {
-                    int viewRow = produtoTable.convertRowIndexToView(i);
-                    produtoTable.setRowSelectionInterval(viewRow, viewRow);
-                    break;
-                }
-            }
-        }
+        // Não re-selecionar após refresh, a menos que seja explicitamente via clique do usuário.
+        // O refreshData já limpa a seleção.
+        // if (selectedId != -1) { /* remova esta lógica se não quiser re-selecionar */ }
     }
 
     @Override
@@ -212,6 +221,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
                     lote.getDataValidade() != null ? lote.getDataValidade().format(DATE_FORMATTER) : "N/A"
             });
         }
+        loteTable.clearSelection(); // NOVO: Limpa a seleção da tabela
     }
 
     @Override
@@ -233,6 +243,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         loteTableModel.setRowCount(0);
         setBotoesDeAcaoEnabled(false);
         toggleStatusButton.setText("Inativar/Reativar");
+        loteTable.clearSelection(); // NOVO: Limpa seleção de lote ao limpar detalhes
     }
 
     @Override

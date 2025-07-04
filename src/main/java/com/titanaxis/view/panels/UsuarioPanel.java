@@ -10,6 +10,7 @@ import com.titanaxis.view.interfaces.UsuarioView;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
+        table.setFocusable(false); // NOVO: Remove o foco visual da tabela
+        table.setSelectionBackground(table.getBackground()); // NOVO: Torna o fundo da seleção invisível
+        table.setSelectionForeground(table.getForeground()); // NOVO: Mantém a cor do texto da seleção
 
         initComponents(); // Chama o método para construir o layout com os componentes já inicializados
         new UsuarioPresenter(this, appContext.getAuthService());
@@ -142,6 +146,7 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     public void setUsuariosNaTabela(List<Usuario> usuarios) {
         tableModel.setRowCount(0);
         usuarios.forEach(u -> tableModel.addRow(new Object[]{u.getId(), u.getNomeUsuario(), u.getNivelAcesso()}));
+        table.clearSelection(); // NOVO: Limpa a seleção da tabela
     }
 
     @Override
@@ -171,6 +176,7 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     public void refreshData() {
         if (listener != null) {
             listener.aoCarregarDadosIniciais(); // Chama o método da interface do listener
+            table.clearSelection(); // NOVO: Limpa a seleção da tabela
         }
     }
 
