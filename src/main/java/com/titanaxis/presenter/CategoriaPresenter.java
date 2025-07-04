@@ -13,9 +13,9 @@ import java.util.List;
 
 public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
 
-    private final CategoriaView view;
-    private final CategoriaService categoriaService;
-    private final AuthService authService;
+    private final CategoriaView view; // Adicionado final
+    private final CategoriaService categoriaService; // Adicionado final
+    private final AuthService authService; // Adicionado final
 
     public CategoriaPresenter(CategoriaView view, CategoriaService categoriaService, AuthService authService) {
         this.view = view;
@@ -30,7 +30,8 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             List<Categoria> categorias = categoriaService.listarTodasCategorias();
             view.setCategoriasNaTabela(categorias);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar categorias. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar categorias: " + e.getMessage(), true);
         }
     }
 
@@ -57,7 +58,8 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar a categoria. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar a categoria: " + e.getMessage(), true);
         }
     }
 
@@ -80,7 +82,8 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar a categoria. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar a categoria: " + e.getMessage(), true);
         }
     }
 
@@ -101,7 +104,8 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
                 carregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar categorias. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar categorias: " + e.getMessage(), true);
         }
     }
 

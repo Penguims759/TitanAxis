@@ -12,9 +12,9 @@ import java.util.List;
 
 public class ClientePresenter implements ClienteView.ClienteViewListener {
 
-    private final ClienteView view;
-    private final ClienteService clienteService;
-    private final AuthService authService;
+    private final ClienteView view; // Adicionado final
+    private final ClienteService clienteService; // Adicionado final
+    private final AuthService authService; // Adicionado final
 
     public ClientePresenter(ClienteView view, ClienteService clienteService, AuthService authService) {
         this.view = view;
@@ -29,7 +29,8 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             List<Cliente> clientes = clienteService.listarTodos();
             view.setClientesNaTabela(clientes);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar clientes. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar clientes: " + e.getMessage(), true);
         }
     }
 
@@ -53,7 +54,8 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar o cliente. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar o cliente: " + e.getMessage(), true);
         }
     }
 
@@ -76,7 +78,8 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar o cliente. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar o cliente: " + e.getMessage(), true);
         }
     }
 
@@ -99,7 +102,8 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
                 carregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar clientes. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar clientes: " + e.getMessage(), true);
         }
     }
 

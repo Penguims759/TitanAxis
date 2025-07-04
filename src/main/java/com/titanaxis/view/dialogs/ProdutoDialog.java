@@ -17,13 +17,15 @@ import java.util.Locale;
 import java.util.logging.Level;
 
 public class ProdutoDialog extends JDialog {
-    private final ProdutoService produtoService;
-    private final CategoriaService categoriaService;
-    private final Produto produto;
-    private final Usuario ator;
+    private final ProdutoService produtoService; // Adicionado final
+    private final CategoriaService categoriaService; // Adicionado final
+    private final Produto produto; // Adicionado final
+    private final Usuario ator; // Adicionado final
     private boolean saved = false;
-    private JTextField nomeField, descricaoField, precoField;
-    private JComboBox<Categoria> categoriaComboBox;
+    private final JTextField nomeField; // Adicionado final
+    private final JTextField descricaoField; // Adicionado final
+    private final JTextField precoField; // Adicionado final
+    private final JComboBox<Categoria> categoriaComboBox; // Adicionado final
 
     public ProdutoDialog(Frame owner, ProdutoService ps, CategoriaService cs, Produto p, Usuario ator) {
         super(owner, "Detalhes do Produto", true);
@@ -34,6 +36,13 @@ public class ProdutoDialog extends JDialog {
 
         setTitle(p == null || p.getId() == 0 ? "Novo Produto" : "Editar Produto");
         setLayout(new BorderLayout());
+
+        // Campos inicializados antes de initComponents()
+        nomeField = new JTextField(20);
+        descricaoField = new JTextField();
+        precoField = new JTextField();
+        categoriaComboBox = new JComboBox<>();
+
         initComponents();
         populateFields();
         pack();
@@ -48,13 +57,11 @@ public class ProdutoDialog extends JDialog {
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        nomeField = new JTextField(20);
-        descricaoField = new JTextField();
-        precoField = new JTextField();
-        categoriaComboBox = new JComboBox<>();
+        // Campos já inicializados no construtor
         try {
             populateCategoryComboBox();
         } catch (PersistenciaException e) {
+            // ALTERADO: Mensagem mais informativa
             UIMessageUtil.showErrorMessage(this, "Erro ao carregar categorias: " + e.getMessage(), "Erro de Base de Dados");
         }
 
@@ -115,6 +122,7 @@ public class ProdutoDialog extends JDialog {
         } catch (UtilizadorNaoAutenticadoException e) {
             UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
         } catch (PersistenciaException e) {
+            // ALTERADO: Mensagem mais informativa
             UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o produto.", e);

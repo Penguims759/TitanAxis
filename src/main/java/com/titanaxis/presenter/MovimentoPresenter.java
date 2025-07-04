@@ -9,8 +9,8 @@ import javax.swing.*;
 import java.util.List;
 
 public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
-    private final MovimentoView view;
-    private final MovimentoService movimentoService;
+    private final MovimentoView view; // Adicionado final
+    private final MovimentoService movimentoService; // Adicionado final
 
     public MovimentoPresenter(MovimentoView view, MovimentoService movimentoService) {
         this.view = view;
@@ -36,11 +36,12 @@ public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
                     // Trata a PersistenciaException que pode vir do SwingWorker
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
                     if (cause instanceof PersistenciaException) {
-                        view.mostrarErro("Erro de Base de Dados", "Erro ao carregar o histórico de movimentos.");
+                        // ALTERADO: Mensagem mais informativa
+                        view.mostrarErro("Erro de Base de Dados", "Erro ao carregar o histórico de movimentos: " + cause.getMessage());
                     } else {
-                        view.mostrarErro("Erro Inesperado", "Ocorreu um erro inesperado.");
+                        view.mostrarErro("Erro Inesperado", "Ocorreu um erro inesperado: " + cause.getMessage()); // ALTERADO: Mensagem mais informativa
                     }
-                    cause.printStackTrace();
+                    cause.printStackTrace(); // Manter para depuração completa nos logs
                 } finally {
                     view.setCursorEspera(false);
                 }

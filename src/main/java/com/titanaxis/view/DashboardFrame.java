@@ -17,8 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DashboardFrame extends JFrame {
-    private final AppContext appContext;
-    private final AuthService authService;
+    private final AppContext appContext; // Adicionado final
+    private final AuthService authService; // Adicionado final
     private static final Logger logger = AppLogger.getLogger();
 
     public DashboardFrame(AppContext appContext) {
@@ -43,13 +43,13 @@ public class DashboardFrame extends JFrame {
     }
 
     private void setupNestedTabs() {
-        JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        final JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT); // Adicionado final
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
         mainTabbedPane.addTab("Vendas", new VendaPanel(appContext));
 
         if (authService.isGerente()) {
-            JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane();
+            final JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane(); // Adicionado final
             produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", new ProdutoPanel(appContext));
             produtosEstoqueTabbedPane.addTab("Categorias", new CategoriaPanel(appContext));
             produtosEstoqueTabbedPane.addTab("Alertas de Estoque", new AlertaPanel(appContext));
@@ -67,7 +67,7 @@ public class DashboardFrame extends JFrame {
         }
 
         if (authService.isAdmin()) {
-            JTabbedPane adminTabbedPane = new JTabbedPane();
+            final JTabbedPane adminTabbedPane = new JTabbedPane(); // Adicionado final
             adminTabbedPane.addTab("Gestão de Usuários", new UsuarioPanel(appContext));
             adminTabbedPane.addTab("Logs de Auditoria", new AuditoriaPanel(appContext));
             mainTabbedPane.addTab("Administração", adminTabbedPane);
@@ -77,14 +77,14 @@ public class DashboardFrame extends JFrame {
     }
 
     private void setupMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menuArquivo = new JMenu("Arquivo");
-        JMenu menuTema = new JMenu("Alterar Tema");
-        ButtonGroup themeGroup = new ButtonGroup();
+        final JMenuBar menuBar = new JMenuBar(); // Adicionado final
+        final JMenu menuArquivo = new JMenu("Arquivo"); // Adicionado final
+        final JMenu menuTema = new JMenu("Alterar Tema"); // Adicionado final
+        final ButtonGroup themeGroup = new ButtonGroup(); // Adicionado final
 
-        JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem("Tema Claro");
+        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem("Tema Claro"); // Adicionado final
         lightThemeItem.addActionListener(e -> setTheme("light"));
-        JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem("Tema Escuro");
+        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem("Tema Escuro"); // Adicionado final
         darkThemeItem.setSelected(true);
         darkThemeItem.addActionListener(e -> setTheme("dark"));
 
@@ -93,10 +93,10 @@ public class DashboardFrame extends JFrame {
         menuTema.add(lightThemeItem);
         menuTema.add(darkThemeItem);
 
-        JMenuItem logoutMenuItem = new JMenuItem("Logout");
+        final JMenuItem logoutMenuItem = new JMenuItem("Logout"); // Adicionado final
         logoutMenuItem.addActionListener(e -> fazerLogout());
 
-        JMenuItem sairMenuItem = new JMenuItem("Sair");
+        final JMenuItem sairMenuItem = new JMenuItem("Sair"); // Adicionado final
         sairMenuItem.addActionListener(e -> confirmarSaida());
 
         menuArquivo.add(menuTema);

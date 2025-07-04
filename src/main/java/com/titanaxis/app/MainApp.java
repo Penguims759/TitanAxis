@@ -3,13 +3,18 @@ package com.titanaxis.app;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.titanaxis.util.AppLogger; // Importado
 import com.titanaxis.util.DatabaseConnection;
 import com.titanaxis.util.JpaUtil;
 import com.titanaxis.view.LoginFrame;
 
 import javax.swing.*;
+import java.util.logging.Level; // Importado
+import java.util.logging.Logger; // Importado
 
 public class MainApp {
+    private static final Logger logger = AppLogger.getLogger(); // Adicionado
+
     public static void main(String[] args) {
         // A inicialização da base de dados permanece como o primeiro passo.
         DatabaseConnection.initializeDatabase();
@@ -17,8 +22,9 @@ public class MainApp {
         SwingUtilities.invokeLater(() -> {
             try {
                 FlatDarkLaf.setup();
+                logger.info("Look and Feel FlatLaf inicializado com sucesso."); // ALTERADO: Usando AppLogger
             } catch (Exception ex) {
-                System.err.println("Falha ao inicializar o Look and Feel FlatLaf");
+                logger.log(Level.SEVERE, "Falha ao inicializar o Look and Feel FlatLaf", ex); // ALTERADO: Usando AppLogger
             }
 
             // ALTERAÇÃO: Usar o Guice para criar e configurar a aplicação.

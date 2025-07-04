@@ -58,8 +58,9 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public List<Venda> findAll(EntityManager em) {
+        // ALTERADO: Adicionado FETCH JOIN para carregar 'itens' e evitar N+1 problemas quando necessário.
         TypedQuery<Venda> query = em.createQuery(
-                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario ORDER BY v.dataVenda DESC", Venda.class);
+                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario LEFT JOIN FETCH v.itens ORDER BY v.dataVenda DESC", Venda.class);
         return query.getResultList();
     }
 

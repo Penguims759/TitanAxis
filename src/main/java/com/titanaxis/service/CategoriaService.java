@@ -21,33 +21,36 @@ public class CategoriaService {
         this.transactionService = transactionService;
     }
 
-    // ALTERADO: Adicionada a declaração "throws"
     public List<Categoria> listarTodasCategorias() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 categoriaRepository.findAllWithProductCount(em)
         );
     }
 
-    // ALTERADO: Adicionada a declaração "throws"
     public List<Categoria> buscarCategoriasPorNome(String termo) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 categoriaRepository.findByNomeContainingWithProductCount(termo, em)
         );
     }
 
+    // ALTERADO: Corrigida a forma de lançar NomeDuplicadoException dentro da transação.
+    // Lança RuntimeException na lambda e a captura para relançar NomeDuplicadoException.
     public void salvar(Categoria categoria, Usuario usuarioLogado) throws UtilizadorNaoAutenticadoException, NomeDuplicadoException, PersistenciaException {
         if (usuarioLogado == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        try {
+        try { // Bloco try-catch adicionado para capturar RuntimeException da lambda
             transactionService.executeInTransaction(em -> {
                 Optional<Categoria> catExistenteOpt = categoriaRepository.findByNome(categoria.getNome(), em);
                 if (catExistenteOpt.isPresent() && catExistenteOpt.get().getId() != categoria.getId()) {
+                    // Lança RuntimeException que será capturada no bloco try/catch externo.
                     throw new RuntimeException("Já existe uma categoria com este nome.");
                 }
                 categoriaRepository.save(categoria, usuarioLogado, em);
             });
         } catch (RuntimeException e) {
+            // Captura a RuntimeException e a encapsula em NomeDuplicadoException,
+            // que é a exceção checada esperada pelo chamador.
             throw new NomeDuplicadoException(e.getMessage());
         }
     }

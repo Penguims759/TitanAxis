@@ -16,14 +16,29 @@ import java.util.List;
 public class UsuarioPanel extends JPanel implements UsuarioView {
 
     private UsuarioViewListener listener;
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private JTextField idField, usernameField, searchField;
-    private JPasswordField passwordField;
-    private JComboBox<NivelAcesso> nivelAcessoComboBox;
+    private final DefaultTableModel tableModel; // Adicionado final
+    private final JTable table; // Adicionado final
+    private final JTextField idField; // Adicionado final
+    private final JTextField usernameField; // Adicionado final
+    private final JTextField searchField; // Adicionado final
+    private final JPasswordField passwordField; // Adicionado final
+    private final JComboBox<NivelAcesso> nivelAcessoComboBox; // Adicionado final
 
     public UsuarioPanel(AppContext appContext) {
-        initComponents();
+        // ALTERADO: Inicialização de campos 'final' movida para o construtor.
+        idField = new JTextField();
+        idField.setEditable(false);
+        usernameField = new JTextField();
+        passwordField = new JPasswordField();
+        nivelAcessoComboBox = new JComboBox<>(NivelAcesso.values());
+        searchField = new JTextField(25);
+
+        tableModel = new DefaultTableModel(new String[]{"ID", "Nome de Utilizador", "Nível de Acesso"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        table = new JTable(tableModel);
+
+        initComponents(); // Chama o método para construir o layout com os componentes já inicializados
         new UsuarioPresenter(this, appContext.getAuthService());
     }
 
@@ -36,13 +51,10 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
         add(northPanel, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
-        searchField = new JTextField(25);
+        // searchField já inicializado no construtor
         centerPanel.add(createSearchPanel(searchField), BorderLayout.NORTH);
 
-        tableModel = new DefaultTableModel(new String[]{"ID", "Nome de Utilizador", "Nível de Acesso"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        table = new JTable(tableModel);
+        // tableModel e table já inicializados no construtor
         centerPanel.add(new JScrollPane(table), BorderLayout.CENTER);
 
         add(centerPanel, BorderLayout.CENTER);
@@ -61,11 +73,7 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Detalhes do Utilizador"));
-        idField = new JTextField();
-        idField.setEditable(false);
-        usernameField = new JTextField();
-        passwordField = new JPasswordField();
-        nivelAcessoComboBox = new JComboBox<>(NivelAcesso.values());
+        // idField, usernameField, passwordField, nivelAcessoComboBox já inicializados no construtor
         panel.add(new JLabel("ID:"));
         panel.add(idField);
         panel.add(new JLabel("Nome de Utilizador:"));
@@ -96,6 +104,7 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
         JButton searchButton = new JButton("Buscar");
         JButton clearSearchButton = new JButton("Limpar Busca");
         searchPanel.add(new JLabel("Buscar por Nome:"));
+        // searchField já inicializado no construtor
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);

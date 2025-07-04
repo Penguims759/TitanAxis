@@ -15,10 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LoginFrame extends JFrame {
-    private final AppContext appContext;
-    private final AuthService authService;
-    private final JTextField usernameField;
-    private final JPasswordField passwordField;
+    private final AppContext appContext; // Adicionado final
+    private final AuthService authService; // Adicionado final
+    private final JTextField usernameField; // Adicionado final
+    private final JPasswordField passwordField; // Adicionado final
     private static final Logger logger = AppLogger.getLogger();
 
     public LoginFrame(AppContext appContext) {
@@ -46,7 +46,7 @@ public class LoginFrame extends JFrame {
 
         JLabel userLabel = new JLabel("Nome de Utilizador:");
         usernameField = new JTextField(20);
-
+        // Adicionado final aos campos para que sejam inicializados no construtor
         JLabel passLabel = new JLabel("Senha:");
         passwordField = new JPasswordField(20);
 
@@ -93,9 +93,11 @@ public class LoginFrame extends JFrame {
                 logger.warning("Falha de login para o usuário: " + username);
             }
         } catch (PersistenciaException ex) {
+            // Captura e trata exceções relacionadas à persistência de dados.
             logger.log(Level.SEVERE, "Erro de base de dados durante o login do usuário: " + username, ex);
             UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao conectar à base de dados. Por favor, tente novamente.", "Erro de Conexão");
         } catch (Exception ex) {
+            // Captura quaisquer outras exceções inesperadas para evitar que a aplicação trave.
             logger.log(Level.SEVERE, "Erro inesperado durante o login do usuário: " + username, ex);
             UIMessageUtil.showErrorMessage(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", "Erro");
         }

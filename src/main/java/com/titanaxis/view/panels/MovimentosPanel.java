@@ -16,13 +16,20 @@ import java.util.List;
 
 public class MovimentosPanel extends JPanel implements MovimentoView {
     private MovimentoViewListener listener;
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private TableRowSorter<DefaultTableModel> sorter;
+    private final DefaultTableModel tableModel; // Adicionado final
+    private final JTable table; // Adicionado final
+    private final TableRowSorter<DefaultTableModel> sorter; // Adicionado final
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public MovimentosPanel(AppContext appContext) {
-        initComponents();
+        // ALTERADO: Inicialização de campos 'final' movida para o construtor.
+        tableModel = new DefaultTableModel(new String[]{"Data", "Produto", "Lote", "Tipo", "Quantidade", "Utilizador"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        table = new JTable(tableModel);
+        sorter = new TableRowSorter<>(tableModel);
+
+        initComponents(); // Chama o método para construir o layout com os componentes já inicializados
         new MovimentoPresenter(this, appContext.getMovimentoService());
         listener.aoCarregarMovimentos(); // Inicia o carregamento
     }
@@ -47,11 +54,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         add(topPanel, BorderLayout.NORTH);
 
         // Tabela de Movimentos
-        tableModel = new DefaultTableModel(new String[]{"Data", "Produto", "Lote", "Tipo", "Quantidade", "Utilizador"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        table = new JTable(tableModel);
-        sorter = new TableRowSorter<>(tableModel);
+        // tableModel, table e sorter já inicializados no construtor
         table.setRowSorter(sorter);
         add(new JScrollPane(table), BorderLayout.CENTER);
 

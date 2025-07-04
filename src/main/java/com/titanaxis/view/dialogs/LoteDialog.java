@@ -20,13 +20,14 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 public class LoteDialog extends JDialog {
-    private final ProdutoService produtoService;
-    private final Lote lote;
-    private final Usuario ator;
-    private final Produto produtoPai;
+    private final ProdutoService produtoService; // Adicionado final
+    private final Lote lote; // Adicionado final
+    private final Usuario ator; // Adicionado final
+    private final Produto produtoPai; // Adicionado final
     private Lote loteSalvo;
-    private JTextField numeroLoteField, quantidadeField;
-    private JFormattedTextField dataValidadeField;
+    private final JTextField numeroLoteField; // Adicionado final
+    private final JTextField quantidadeField; // Adicionado final
+    private final JFormattedTextField dataValidadeField; // Adicionado final
 
     public LoteDialog(Frame owner, ProdutoService ps, Produto produtoPai, Lote l, Usuario ator) {
         super(owner, "Detalhes do Lote", true);
@@ -37,6 +38,23 @@ public class LoteDialog extends JDialog {
 
         setTitle(l == null || l.getId() == 0 ? "Novo Lote para " + produtoPai.getNome() : "Editar Lote");
         setLayout(new BorderLayout());
+
+        // Campos inicializados antes de initComponents()
+        numeroLoteField = new JTextField(20);
+        quantidadeField = new JTextField();
+
+        // ALTERADO: Inicialização definitiva de dataValidadeField
+        JFormattedTextField tempValidadeField; // Variável temporária
+        try {
+            MaskFormatter dateFormatter = new MaskFormatter("##/##/####");
+            dateFormatter.setPlaceholderCharacter('_');
+            tempValidadeField = new JFormattedTextField(dateFormatter);
+        } catch (ParseException e) {
+            tempValidadeField = new JFormattedTextField(); // Garante que seja sempre inicializada
+            AppLogger.getLogger().log(Level.SEVERE, "Erro ao criar MaskFormatter para data de validade.", e); // Log do erro
+        }
+        this.dataValidadeField = tempValidadeField; // Atribuição final única
+
         initComponents();
         populateFields();
         pack();
@@ -51,16 +69,7 @@ public class LoteDialog extends JDialog {
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        numeroLoteField = new JTextField(20);
-        quantidadeField = new JTextField();
-        try {
-            MaskFormatter dateFormatter = new MaskFormatter("##/##/####");
-            dateFormatter.setPlaceholderCharacter('_');
-            dataValidadeField = new JFormattedTextField(dateFormatter);
-        } catch (ParseException e) {
-            dataValidadeField = new JFormattedTextField();
-        }
-
+        // Campos já inicializados no construtor
         formPanel.add(new JLabel("Número do Lote:"));
         formPanel.add(numeroLoteField);
         formPanel.add(new JLabel("Quantidade:"));
@@ -117,6 +126,7 @@ public class LoteDialog extends JDialog {
         } catch (UtilizadorNaoAutenticadoException e) {
             UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
         } catch (PersistenciaException e) {
+            // ALTERADO: Mensagem mais informativa
             UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o lote.", e);

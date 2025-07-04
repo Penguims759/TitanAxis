@@ -1,3 +1,4 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-3ba50f4eda4e3ead1b6e411789a4b7fad11b0564/src/main/java/com/titanaxis/model/Venda.java
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
@@ -26,7 +27,8 @@ public class Venda {
     @Column(name = "valor_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double valorTotal;
 
-    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    // ALTERADO: Changed from EAGER to LAZY loading for performance optimization.
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<VendaItem> itens = new ArrayList<>();
 
     // ... (resto da classe sem alterações) ...

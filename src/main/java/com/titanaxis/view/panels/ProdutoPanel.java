@@ -21,18 +21,46 @@ import java.util.List;
 public class ProdutoPanel extends JPanel implements ProdutoView {
 
     private ProdutoViewListener listener;
-    private final AppContext appContext;
+    private final AppContext appContext; // Adicionado final
 
-    private DefaultTableModel produtoTableModel, loteTableModel;
-    private JTable produtoTable, loteTable;
-    private JButton editProdutoButton, addLoteButton, editLoteButton, deleteLoteButton, toggleStatusButton;
-    private JToggleButton showInactiveButton;
-    private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DefaultTableModel produtoTableModel; // Adicionado final
+    private final DefaultTableModel loteTableModel; // Adicionado final
+    private final JTable produtoTable; // Adicionado final
+    private final JTable loteTable; // Adicionado final
+    private final JButton editProdutoButton; // Adicionado final
+    private final JButton addLoteButton; // Adicionado final
+    private final JButton editLoteButton; // Adicionado final
+    private final JButton deleteLoteButton; // Adicionado final
+    private final JButton toggleStatusButton; // Adicionado final
+    private final JToggleButton showInactiveButton; // Adicionado final
+    private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Adicionado final
 
     public ProdutoPanel(AppContext appContext) {
         this.appContext = appContext;
-        initComponents();
-        // O Presenter é inicializado aqui, como antes.
+        // Inicialização de componentes deve ser feita antes de passar `this` para o Presenter,
+        // pois o Presenter pode chamar métodos da View imediatamente.
+        // Movido `initComponents()` para o início do construtor.
+        // As variáveis finais agora podem ser inicializadas aqui.
+
+        produtoTableModel = new DefaultTableModel(new String[]{"ID", "Nome", "Categoria", "Qtd. Total", "Estado"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        produtoTable = new JTable(produtoTableModel);
+        loteTableModel = new DefaultTableModel(new String[]{"ID Lote", "Nº Lote", "Quantidade", "Data de Validade"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        loteTable = new JTable(loteTableModel);
+
+        // Inicialização dos botões para serem final
+        editProdutoButton = new JButton("Editar Produto");
+        addLoteButton = new JButton("Adicionar Lote");
+        editLoteButton = new JButton("Editar Lote");
+        deleteLoteButton = new JButton("Remover Lote");
+        toggleStatusButton = new JButton("Inativar/Reativar");
+        showInactiveButton = new JToggleButton("Mostrar Inativos");
+
+        initComponents(); // Agora chama o método para construir o layout com os componentes já inicializados
+
         new ProdutoPresenter(this, appContext.getProdutoService(), appContext.getAuthService());
     }
 
@@ -69,10 +97,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Produtos Cadastrados"));
 
-        produtoTableModel = new DefaultTableModel(new String[]{"ID", "Nome", "Categoria", "Qtd. Total", "Estado"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        produtoTable = new JTable(produtoTableModel);
+        // produtoTableModel e produtoTable já inicializados no construtor
         produtoTable.setRowSorter(new TableRowSorter<>(produtoTableModel));
         produtoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -110,11 +135,9 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton novoProdutoButton = new JButton("Novo Produto");
         novoProdutoButton.addActionListener(e -> listener.aoClicarNovoProduto());
-        editProdutoButton = new JButton("Editar Produto");
+        // editProdutoButton, toggleStatusButton, showInactiveButton já inicializados
         editProdutoButton.addActionListener(e -> listener.aoClicarEditarProduto());
-        toggleStatusButton = new JButton("Inativar/Reativar");
         toggleStatusButton.addActionListener(e -> listener.aoAlternarStatusDoProduto());
-        showInactiveButton = new JToggleButton("Mostrar Inativos");
         showInactiveButton.addActionListener(e -> listener.aoCarregarProdutos());
 
         buttonPanel.add(novoProdutoButton);
@@ -130,18 +153,13 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     private JPanel createDetalhesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Estoque e Lotes do Produto"));
-        loteTableModel = new DefaultTableModel(new String[]{"ID Lote", "Nº Lote", "Quantidade", "Data de Validade"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        loteTable = new JTable(loteTableModel);
+        // loteTableModel e loteTable já inicializados no construtor
         panel.add(new JScrollPane(loteTable), BorderLayout.CENTER);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        addLoteButton = new JButton("Adicionar Lote");
+        // addLoteButton, editLoteButton, deleteLoteButton já inicializados
         addLoteButton.addActionListener(e -> listener.aoClicarAdicionarLote());
-        editLoteButton = new JButton("Editar Lote");
         editLoteButton.addActionListener(e -> listener.aoClicarEditarLote());
-        deleteLoteButton = new JButton("Remover Lote");
         deleteLoteButton.addActionListener(e -> listener.aoClicarRemoverLote());
 
         buttonsPanel.add(addLoteButton);

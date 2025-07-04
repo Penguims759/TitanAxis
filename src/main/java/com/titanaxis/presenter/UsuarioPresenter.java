@@ -13,8 +13,8 @@ import java.util.List;
 
 public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
 
-    private final UsuarioView view;
-    private final AuthService authService;
+    private final UsuarioView view; // Adicionado final
+    private final AuthService authService; // Adicionado final
 
     public UsuarioPresenter(UsuarioView view, AuthService authService) {
         this.view = view;
@@ -27,7 +27,8 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         try {
             view.setUsuariosNaTabela(authService.listarUsuarios());
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar utilizadores. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar utilizadores: " + e.getMessage(), true);
         }
     }
 
@@ -65,6 +66,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         } catch (NomeDuplicadoException e) {
             view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
+            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro", "Erro ao salvar utilizador: " + e.getMessage(), true);
         }
     }
@@ -89,6 +91,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             aoLimpar();
             carregarDadosIniciais();
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
+            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro", "Erro ao eliminar utilizador: " + e.getMessage(), true);
         }
     }
@@ -112,7 +115,8 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
                 carregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar utilizadores. Verifique os logs.", true);
+            // ALTERADO: Mensagem mais informativa
+            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar utilizadores: " + e.getMessage(), true);
         }
     }
 

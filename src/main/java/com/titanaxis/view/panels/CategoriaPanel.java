@@ -15,12 +15,25 @@ import java.util.List;
 public class CategoriaPanel extends JPanel implements CategoriaView {
 
     private CategoriaViewListener listener;
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private JTextField idField, nomeField, searchField;
+    private final DefaultTableModel tableModel; // Adicionado final
+    private final JTable table; // Adicionado final
+    private final JTextField idField; // Adicionado final
+    private final JTextField nomeField; // Adicionado final
+    private final JTextField searchField; // Adicionado final
 
     public CategoriaPanel(AppContext appContext) {
-        initComponents();
+        // ALTERADO: Inicialização de campos 'final' movida para o construtor.
+        idField = new JTextField();
+        idField.setEditable(false);
+        nomeField = new JTextField();
+        searchField = new JTextField(25);
+
+        tableModel = new DefaultTableModel(new String[]{"ID", "Nome da Categoria", "Nº de Produtos"}, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        table = new JTable(tableModel);
+
+        initComponents(); // Chama o método para construir o layout com os componentes já inicializados
         new CategoriaPresenter(this, appContext.getCategoriaService(), appContext.getAuthService());
     }
 
@@ -33,13 +46,10 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
         add(northPanel, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
-        searchField = new JTextField(25);
+        // searchField já inicializado no construtor
         centerPanel.add(createSearchPanel(searchField), BorderLayout.NORTH);
 
-        tableModel = new DefaultTableModel(new String[]{"ID", "Nome da Categoria", "Nº de Produtos"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        table = new JTable(tableModel);
+        // tableModel e table já inicializados no construtor
         centerPanel.add(new JScrollPane(table), BorderLayout.CENTER);
 
         add(centerPanel, BorderLayout.CENTER);
@@ -58,9 +68,7 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Detalhes da Categoria"));
-        idField = new JTextField();
-        idField.setEditable(false);
-        nomeField = new JTextField();
+        // idField e nomeField já inicializados no construtor
         panel.add(new JLabel("ID:"));
         panel.add(idField);
         panel.add(new JLabel("Nome:"));
@@ -90,6 +98,7 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
         JButton clearSearchButton = new JButton("Limpar Busca");
 
         searchPanel.add(new JLabel("Buscar por Nome:"));
+        // searchField já inicializado no construtor
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);
