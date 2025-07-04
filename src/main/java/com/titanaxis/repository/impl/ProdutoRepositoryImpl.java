@@ -22,7 +22,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Produto produtoSalvo = em.merge(produto);
         if (ator != null) {
             String acao = produto.getId() != 0 ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", "Produto " + produtoSalvo.getNome() + " salvo.");
+            // CORREÇÃO: Passar o EntityManager 'em'
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", "Produto " + produtoSalvo.getNome() + " salvo.", em);
         }
         return produtoSalvo;
     }
@@ -32,7 +33,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Lote loteSalvo = em.merge(lote);
         if (ator != null) {
             String acao = lote.getId() != 0 ? "ATUALIZAÇÃO DE LOTE" : "ENTRADA DE LOTE";
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", "Lote " + loteSalvo.getNumeroLote() + " salvo.");
+            // CORREÇÃO: Passar o EntityManager 'em'
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", "Lote " + loteSalvo.getNumeroLote() + " salvo.", em);
         }
         return loteSalvo;
     }
@@ -44,7 +46,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
             produto.setAtivo(ativo);
             if (ator != null) {
                 String acao = ativo ? "REATIVAÇÃO" : "INATIVAÇÃO";
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", "Status do produto " + produto.getNome() + " alterado.");
+                // CORREÇÃO: Passar o EntityManager 'em'
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", "Status do produto " + produto.getNome() + " alterado.", em);
             }
         });
     }
@@ -54,7 +57,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Produto> produtoOpt = findById(id, em);
         produtoOpt.ifPresent(produto -> {
             if (ator != null) {
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", "Produto " + produto.getNome() + " eliminado.");
+                // CORREÇÃO: Passar o EntityManager 'em'
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", "Produto " + produto.getNome() + " eliminado.", em);
             }
             em.remove(produto);
         });
@@ -65,12 +69,14 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Lote> loteOpt = findLoteById(loteId, em);
         loteOpt.ifPresent(lote -> {
             if (ator != null) {
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", "Lote " + lote.getNumeroLote() + " removido.");
+                // CORREÇÃO: Passar o EntityManager 'em'
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", "Lote " + lote.getNumeroLote() + " removido.", em);
             }
             em.remove(lote);
         });
     }
 
+    // --- MÉTODOS DE CONSULTA (sem alterações) ---
     @Override
     public List<Produto> findAll(EntityManager em) {
         return findProductsByStatus(em, true);

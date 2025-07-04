@@ -24,7 +24,6 @@ public class AuthService {
         this.transactionService = transactionService;
     }
 
-    // ALTERADO: Adicionada a declaração "throws PersistenciaException"
     public Optional<Usuario> login(String nomeUsuario, String senha) throws PersistenciaException {
         Optional<Usuario> usuarioOpt = transactionService.executeInTransactionWithResult(em ->
                 usuarioRepository.findByNomeUsuario(nomeUsuario, em)
@@ -32,17 +31,24 @@ public class AuthService {
 
         if (usuarioOpt.isPresent() && PasswordUtil.checkPassword(senha, usuarioOpt.get().getSenhaHash())) {
             this.usuarioLogado = usuarioOpt.get();
-            auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", "Login bem-sucedido.");
+            // CORREÇÃO: A auditoria de login/logout é uma operação isolada,
+            // então criamos uma transação para ela usando o TransactionService.
+            transactionService.executeInTransaction(em ->
+                    auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", "Login bem-sucedido.", em)
+            );
             return Optional.of(usuarioLogado);
         }
 
         String detalhes = usuarioOpt.isPresent() ? "Tentativa de login com senha incorreta." : "Tentativa de login com utilizador inexistente.";
         Integer idTentativa = usuarioOpt.map(Usuario::getId).orElse(null);
-        auditoriaRepository.registrarAcao(idTentativa, nomeUsuario, "LOGIN_FALHA", "Autenticação", detalhes);
+        transactionService.executeInTransaction(em ->
+                auditoriaRepository.registrarAcao(idTentativa, nomeUsuario, "LOGIN_FALHA", "Autenticação", detalhes, em)
+        );
         this.usuarioLogado = null;
         return Optional.empty();
     }
-
+    // ... (restante da classe `AuthService` permanece igual)
+    // --- COLE O RESTO DOS MÉTODOS DA CLASSE AQUI ---
     public void cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) throws NomeDuplicadoException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");

@@ -41,7 +41,8 @@ public class VendaRepositoryImpl implements VendaRepository {
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
             String detalhes = String.format("Venda #%d finalizada para o cliente '%s'. Valor total: %s.",
                     vendaSalva.getId(), nomeCliente, currencyFormat.format(vendaSalva.getValorTotal()));
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "FINALIZAÇÃO DE VENDA", "Venda", detalhes);
+            // CORREÇÃO: Passar o EntityManager 'em'
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "FINALIZAÇÃO DE VENDA", "Venda", detalhes, em);
         }
 
         return vendaSalva;

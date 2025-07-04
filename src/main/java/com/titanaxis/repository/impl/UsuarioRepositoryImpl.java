@@ -22,7 +22,8 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         Usuario usuarioSalvo = em.merge(usuario);
         if (ator != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", "Usuário " + usuarioSalvo.getNomeUsuario() + " salvo.");
+            // CORREÇÃO: Passar o EntityManager 'em'
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", "Usuário " + usuarioSalvo.getNomeUsuario() + " salvo.", em);
         }
         return usuarioSalvo;
     }
@@ -32,7 +33,8 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         Optional<Usuario> usuarioOpt = findById(id, em);
         usuarioOpt.ifPresent(usuario -> {
             if (ator != null) {
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Usuário", "Usuário " + usuario.getNomeUsuario() + " eliminado.");
+                // CORREÇÃO: Passar o EntityManager 'em'
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Usuário", "Usuário " + usuario.getNomeUsuario() + " eliminado.", em);
             }
             em.remove(usuario);
         });

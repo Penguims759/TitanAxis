@@ -26,7 +26,8 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Categoria '%s' (ID: %d) foi %s.",
                     categoriaSalva.getNome(), categoriaSalva.getId(), isUpdate ? "atualizada" : "criada");
-            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Categoria", detalhes);
+            // CORREÇÃO: Passar o EntityManager 'em'
+            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Categoria", detalhes, em);
         }
         return categoriaSalva;
     }
@@ -37,7 +38,8 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
         categoriaOpt.ifPresent(categoria -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Categoria '%s' (ID: %d) foi eliminada.", categoria.getNome(), id);
-                auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", detalhes);
+                // CORREÇÃO: Passar o EntityManager 'em'
+                auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", detalhes, em);
             }
             em.remove(categoria);
         });
