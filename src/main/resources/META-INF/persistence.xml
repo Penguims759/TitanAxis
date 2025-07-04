@@ -21,7 +21,10 @@
             <property name="jakarta.persistence.jdbc.user" value="titan_user"/>
             <property name="jakarta.persistence.jdbc.password" value="titanpass"/>
 
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
+            <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
+            <property name="hibernate.hikari.minimumIdle" value="5"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="20"/>
+            <property name="hibernate.hikari.idleTimeout" value="30000"/> <property name="hibernate.hikari.connectionTimeout" value="30000"/> <property name="hibernate.hikari.maxLifetime" value="1800000"/> <property name="hibernate.hikari.poolName" value="TitanAxisHikariCP"/>
 
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
