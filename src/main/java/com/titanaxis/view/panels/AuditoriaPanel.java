@@ -1,9 +1,11 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/AuditoriaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.UIMessageUtil; // Importado
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -193,7 +195,7 @@ public class AuditoriaPanel extends JPanel {
             File arquivo = getSelectedFileWithExtension(fileChooser, ".csv");
             try (PrintWriter out = new PrintWriter(arquivo, StandardCharsets.UTF_8)) {
                 out.print(conteudo);
-                JOptionPane.showMessageDialog(this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                UIMessageUtil.showInfoMessage(this, "Relatório salvo com sucesso!", "Sucesso");
             } catch (IOException e) {
                 handleException("Erro ao salvar o ficheiro.", e);
             }
@@ -206,7 +208,7 @@ public class AuditoriaPanel extends JPanel {
             File arquivo = getSelectedFileWithExtension(fileChooser, ".pdf");
             try (FileOutputStream fos = new FileOutputStream(arquivo)) {
                 baos.writeTo(fos);
-                JOptionPane.showMessageDialog(this, "Relatório salvo com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                UIMessageUtil.showInfoMessage(this, "Relatório salvo com sucesso!", "Sucesso");
             } catch (IOException e) {
                 handleException("Erro ao salvar o ficheiro.", e);
             }
@@ -222,7 +224,7 @@ public class AuditoriaPanel extends JPanel {
         } else if (cause instanceof IOException) {
             errorMessage = "Erro de Ficheiro: Falha ao salvar o relatório.";
         }
-        JOptionPane.showMessageDialog(this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro", JOptionPane.ERROR_MESSAGE);
+        UIMessageUtil.showErrorMessage(this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro");
     }
 
     private JFileChooser createFileChooser(String nomeBase, String ext, String desc) {

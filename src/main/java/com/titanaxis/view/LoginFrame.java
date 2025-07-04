@@ -1,10 +1,12 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/LoginFrame.java
 package com.titanaxis.view;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.exception.PersistenciaException; // ADICIONADO
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.UIMessageUtil; // Importado
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,7 +73,7 @@ public class LoginFrame extends JFrame {
         String password = new String(passwordField.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nome de utilizador e senha não podem ser vazios.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Nome de utilizador e senha não podem ser vazios.", "Erro de Login");
             return;
         }
 
@@ -81,22 +83,21 @@ public class LoginFrame extends JFrame {
             if (usuarioOpt.isPresent()) {
                 Usuario usuario = usuarioOpt.get();
                 logger.info("Usuário " + usuario.getNomeUsuario() + " logou com sucesso.");
-                JOptionPane.showMessageDialog(this, "Login bem-sucedido! Bem-vindo(a), " + usuario.getNomeUsuario() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                UIMessageUtil.showInfoMessage(this, "Login bem-sucedido! Bem-vindo(a), " + usuario.getNomeUsuario() + "!", "Sucesso");
 
                 DashboardFrame dashboard = new DashboardFrame(appContext);
                 dashboard.setVisible(true);
                 this.dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Nome de utilizador ou senha inválidos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                UIMessageUtil.showErrorMessage(this, "Nome de utilizador ou senha inválidos.", "Erro de Login");
                 logger.warning("Falha de login para o usuário: " + username);
             }
-            // ADICIONADO: Bloco catch para a nova exceção de persistência
         } catch (PersistenciaException ex) {
             logger.log(Level.SEVERE, "Erro de base de dados durante o login do usuário: " + username, ex);
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao conectar à base de dados. Por favor, tente novamente.", "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao conectar à base de dados. Por favor, tente novamente.", "Erro de Conexão");
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Erro inesperado durante o login do usuário: " + username, ex);
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", "Erro", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", "Erro");
         }
     }
 }

@@ -1,9 +1,11 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/AlertaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.UIMessageUtil; // Importado
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,7 +73,7 @@ public class AlertaPanel extends JPanel {
                     if (cause instanceof PersistenciaException) {
                         errorMessage = "Erro de Base de Dados: " + cause.getMessage();
                     }
-                    alertaTextArea.setText(errorMessage + "\nConsulte os logs para mais detalhes.");
+                    UIMessageUtil.showErrorMessage(AlertaPanel.this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro");
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }

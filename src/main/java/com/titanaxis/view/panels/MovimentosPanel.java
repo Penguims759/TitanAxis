@@ -1,8 +1,10 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/MovimentosPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.presenter.MovimentoPresenter;
+import com.titanaxis.util.UIMessageUtil; // Importado
 import com.titanaxis.view.interfaces.MovimentoView;
 
 import javax.swing.*;
@@ -81,7 +83,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
 
     @Override
     public void mostrarErro(String titulo, String mensagem) {
-        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
+        UIMessageUtil.showErrorMessage(this, mensagem, titulo);
     }
 
     @Override

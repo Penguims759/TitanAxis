@@ -1,3 +1,4 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/VendaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -7,6 +8,7 @@ import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ClienteService;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.service.VendaService;
+import com.titanaxis.util.UIMessageUtil; // Importado
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -64,7 +66,7 @@ public class VendaPanel extends JPanel {
 
             atualizarLotesDisponiveis();
         } catch (PersistenciaException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar dados iniciais: " + e.getMessage(), "Erro de Base de Dados", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Erro ao carregar dados iniciais: " + e.getMessage(), "Erro de Base de Dados");
         }
     }
 
@@ -75,7 +77,7 @@ public class VendaPanel extends JPanel {
             try {
                 produtoService.buscarLotesDisponiveis(produtoSelecionado.getId()).forEach(loteComboBox::addItem);
             } catch (PersistenciaException e) {
-                JOptionPane.showMessageDialog(this, "Erro ao carregar lotes: " + e.getMessage(), "Erro de Base de Dados", JOptionPane.ERROR_MESSAGE);
+                UIMessageUtil.showErrorMessage(this, "Erro ao carregar lotes: " + e.getMessage(), "Erro de Base de Dados");
             }
         }
     }
@@ -83,12 +85,12 @@ public class VendaPanel extends JPanel {
     private void adicionarAoCarrinho() {
         Lote loteSelecionado = (Lote) loteComboBox.getSelectedItem();
         if (loteSelecionado == null) {
-            JOptionPane.showMessageDialog(this, "Selecione um produto e um lote válido.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            UIMessageUtil.showWarningMessage(this, "Selecione um produto e um lote válido.", "Aviso");
             return;
         }
         int quantidade = (Integer) quantidadeSpinner.getValue();
         if (quantidade > loteSelecionado.getQuantidade()) {
-            JOptionPane.showMessageDialog(this, "Quantidade solicitada excede o estoque do lote (" + loteSelecionado.getQuantidade() + ").", "Erro de Estoque", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Quantidade solicitada excede o estoque do lote (" + loteSelecionado.getQuantidade() + ").", "Erro de Estoque");
             return;
         }
         VendaItem novoItem = new VendaItem(loteSelecionado, quantidade);
@@ -123,7 +125,7 @@ public class VendaPanel extends JPanel {
 
     private void finalizarVenda() {
         if (carrinho.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "O carrinho está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            UIMessageUtil.showWarningMessage(this, "O carrinho está vazio.", "Aviso");
             return;
         }
         Cliente clienteSelecionado = (Cliente) clienteComboBox.getSelectedItem();
@@ -134,10 +136,10 @@ public class VendaPanel extends JPanel {
 
         try {
             vendaService.finalizarVenda(novaVenda, ator);
-            JOptionPane.showMessageDialog(this, "Venda finalizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            UIMessageUtil.showInfoMessage(this, "Venda finalizada com sucesso!", "Sucesso");
             limparVenda();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao finalizar a venda:\n" + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao finalizar a venda:\n" + e.getMessage(), "Erro");
         }
     }
 

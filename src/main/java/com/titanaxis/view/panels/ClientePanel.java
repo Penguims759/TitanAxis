@@ -1,9 +1,10 @@
-// FICHEIRO: src/main/java/com/titanaxis/view/panels/ClientePanel.java
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/ClientePanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.presenter.ClientePresenter;
+import com.titanaxis.util.UIMessageUtil; // Importado
 import com.titanaxis.view.interfaces.ClienteView;
 
 import javax.swing.*;
@@ -131,12 +132,16 @@ public class ClientePanel extends JPanel implements ClienteView {
 
     @Override
     public void mostrarMensagem(String titulo, String mensagem, boolean isErro) {
-        JOptionPane.showMessageDialog(this, mensagem, titulo, isErro ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+        if (isErro) {
+            UIMessageUtil.showErrorMessage(this, mensagem, titulo);
+        } else {
+            UIMessageUtil.showInfoMessage(this, mensagem, titulo);
+        }
     }
 
     @Override
     public boolean mostrarConfirmacao(String titulo, String mensagem) {
-        return JOptionPane.showConfirmDialog(this, mensagem, titulo, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        return UIMessageUtil.showConfirmDialog(this, mensagem, titulo);
     }
 
     @Override

@@ -1,3 +1,4 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/dialogs/LoteDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.exception.PersistenciaException;
@@ -7,6 +8,7 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.UIMessageUtil; // Importado
 
 import javax.swing.*;
 import javax.swing.text.MaskFormatter;
@@ -100,7 +102,7 @@ public class LoteDialog extends JDialog {
             }
 
             if (lote.getNumeroLote().isEmpty() || lote.getQuantidade() <= 0) {
-                JOptionPane.showMessageDialog(this, "Número do lote e quantidade positiva são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
+                UIMessageUtil.showErrorMessage(this, "Número do lote e quantidade positiva são obrigatórios.", "Erro");
                 return;
             }
 
@@ -109,16 +111,16 @@ public class LoteDialog extends JDialog {
             dispose();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "A quantidade deve ser um número válido.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "A quantidade deve ser um número válido.", "Erro de Formato");
         } catch (java.time.format.DateTimeParseException e) {
-            JOptionPane.showMessageDialog(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato");
         } catch (UtilizadorNaoAutenticadoException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
         } catch (PersistenciaException e) {
-            JOptionPane.showMessageDialog(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o lote.", e);
-            JOptionPane.showMessageDialog(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro Inesperado");
             this.loteSalvo = null;
         }
     }

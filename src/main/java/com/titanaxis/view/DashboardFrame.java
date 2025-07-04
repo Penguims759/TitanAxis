@@ -1,3 +1,4 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -5,6 +6,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.titanaxis.app.AppContext;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.UIMessageUtil; // Importado
 import com.titanaxis.view.panels.*;
 
 import javax.swing.*;
@@ -106,12 +108,7 @@ public class DashboardFrame extends JFrame {
     }
 
     private void fazerLogout() {
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Tem certeza que deseja sair da sua conta?",
-                "Logout",
-                JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        if (UIMessageUtil.showConfirmDialog(this, "Tem certeza que deseja sair da sua conta?", "Logout")) {
             authService.logout();
             new LoginFrame(appContext).setVisible(true);
             this.dispose();
@@ -119,12 +116,7 @@ public class DashboardFrame extends JFrame {
     }
 
     private void confirmarSaida() {
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Tem certeza que deseja fechar a aplicação?",
-                "Sair do Sistema",
-                JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        if (UIMessageUtil.showConfirmDialog(this, "Tem certeza que deseja fechar a aplicação?", "Sair do Sistema")) {
             authService.logout();
             logger.info("Aplicação encerrada pelo usuário.");
             System.exit(0);
@@ -142,10 +134,7 @@ public class DashboardFrame extends JFrame {
             logger.info("Tema alterado para: " + themeName);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
-            JOptionPane.showMessageDialog(this,
-                    "Ocorreu um erro ao alterar o tema.",
-                    "Erro de Tema",
-                    JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao alterar o tema.", "Erro de Tema");
         }
     }
 }

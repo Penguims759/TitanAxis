@@ -1,3 +1,4 @@
+// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/dialogs/ProdutoDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.exception.PersistenciaException;
@@ -8,6 +9,7 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.service.CategoriaService;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.UIMessageUtil; // Importado
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,7 +55,7 @@ public class ProdutoDialog extends JDialog {
         try {
             populateCategoryComboBox();
         } catch (PersistenciaException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage(), "Erro de Base de Dados", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Erro ao carregar categorias: " + e.getMessage(), "Erro de Base de Dados");
         }
 
         formPanel.add(new JLabel("Nome:"));
@@ -93,7 +95,7 @@ public class ProdutoDialog extends JDialog {
 
     private void save() {
         if (nomeField.getText().trim().isEmpty() || categoriaComboBox.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Nome e Categoria são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Nome e Categoria são obrigatórios.", "Erro");
             return;
         }
         try {
@@ -109,14 +111,14 @@ public class ProdutoDialog extends JDialog {
             saved = true;
             dispose();
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Preço inválido. Use ponto como separador decimal.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Preço inválido. Use ponto como separador decimal.", "Erro de Formato");
         } catch (UtilizadorNaoAutenticadoException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
         } catch (PersistenciaException e) {
-            JOptionPane.showMessageDialog(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o produto.", e);
-            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
+            UIMessageUtil.showErrorMessage(this, "Erro ao salvar produto: " + e.getMessage(), "Erro Inesperado");
         }
     }
 }
