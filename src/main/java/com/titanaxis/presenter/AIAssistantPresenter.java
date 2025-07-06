@@ -21,12 +21,15 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
     @Override
     public void onSendMessage(String message) {
         view.setSendButtonEnabled(false);
-        view.appendUserMessage(message);
+        view.appendMessage(message, true); // Adiciona a mensagem do usuário à UI
         view.clearUserInput();
+        view.showThinkingIndicator(true); // Mostra o indicador "A pensar..."
 
         SwingWorker<AssistantResponse, Void> worker = new SwingWorker<>() {
             @Override
             protected AssistantResponse doInBackground() throws Exception {
+                // Simula um pequeno atraso para o indicador ser visível
+                Thread.sleep(500);
                 return service.processQuery(message);
             }
 
@@ -34,13 +37,14 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             protected void done() {
                 try {
                     AssistantResponse response = get();
-                    view.appendAssistantResponse(response.getTextResponse());
+                    view.appendMessage(response.getTextResponse(), false); // Adiciona a resposta do assistente
                     if (response.hasAction()) {
                         view.requestAction(response.getAction(), response.getActionParams());
                     }
                 } catch (Exception e) {
-                    view.appendAssistantResponse("Ocorreu um erro: " + e.getMessage());
+                    view.appendMessage("Ocorreu um erro: " + e.getMessage(), false);
                 } finally {
+                    view.showThinkingIndicator(false); // Esconde o indicador
                     view.setSendButtonEnabled(true);
                 }
             }

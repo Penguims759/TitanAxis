@@ -6,10 +6,13 @@ import java.util.Map;
 
 public interface AIAssistantView {
     String getUserInput();
-    void appendUserMessage(String message);
-    void appendAssistantResponse(String response);
     void clearUserInput();
     void setSendButtonEnabled(boolean enabled);
+
+    // Métodos para a nova UI
+    void showThinkingIndicator(boolean show);
+    void appendMessage(String message, boolean isUser);
+
     void requestAction(Action action, Map<String, Object> params);
 
     interface AIAssistantViewListener {

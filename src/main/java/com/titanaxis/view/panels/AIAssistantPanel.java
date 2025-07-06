@@ -2,6 +2,7 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
+import com.titanaxis.model.ChatMessage;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.presenter.AIAssistantPresenter;
 import com.titanaxis.service.VoiceRecognitionService;
@@ -10,17 +11,21 @@ import com.titanaxis.view.interfaces.AIAssistantView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Map;
 
 public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
     private AIAssistantView.AIAssistantViewListener listener;
-    private final JTextArea chatArea;
     private final JTextField inputField;
     private final JButton sendButton;
     private final JButton voiceButton;
     private final VoiceRecognitionService voiceService;
+    private final JLabel thinkingLabel;
 
+    private final JList<ChatMessage> chatList;
+    private final DefaultListModel<ChatMessage> chatModel;
 
     public AIAssistantPanel(AppContext appContext) {
         setLayout(new BorderLayout(10, 10));
@@ -28,34 +33,65 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
         voiceService = new VoiceRecognitionService();
 
-        chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        chatArea.setLineWrap(true);
-        chatArea.setWrapStyleWord(true);
-        chatArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        add(new JScrollPane(chatArea), BorderLayout.CENTER);
+        // --- Lista de Chat com Renderizador Customizado ---
+        chatModel = new DefaultListModel<>();
+        chatList = new JList<>(chatModel);
+        chatList.setCellRenderer(new ChatBubbleRenderer());
+        chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        chatList.setFixedCellHeight(-1);
 
-        JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
+        JScrollPane scrollPane = new JScrollPane(chatList);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        add(scrollPane, BorderLayout.CENTER);
+
+        // --- Painel de Entrada ---
+        JPanel southPanel = new JPanel(new BorderLayout(5,5));
+
         inputField = new JTextField();
-        sendButton = new JButton("Enviar");
-        voiceButton = new JButton("🎤");
-
-        inputPanel.add(inputField, BorderLayout.CENTER);
-
-        JPanel buttonGroup = new JPanel(new GridLayout(1, 2));
-        buttonGroup.add(sendButton);
-        buttonGroup.add(voiceButton);
-        inputPanel.add(buttonGroup, BorderLayout.EAST);
-
-        add(inputPanel, BorderLayout.SOUTH);
-
         inputField.addActionListener(e -> sendMessage());
-        sendButton.addActionListener(e -> sendMessage());
-        voiceButton.addActionListener(e -> toggleVoiceListening());
+        southPanel.add(inputField, BorderLayout.CENTER);
 
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        sendButton = new JButton("Enviar");
+        sendButton.addActionListener(e -> sendMessage());
+        voiceButton = new JButton("🎤");
+        voiceButton.addActionListener(e -> toggleVoiceListening());
+        buttonPanel.add(sendButton);
+        buttonPanel.add(voiceButton);
+        southPanel.add(buttonPanel, BorderLayout.EAST);
+
+        thinkingLabel = new JLabel("A pensar...", SwingConstants.CENTER);
+        thinkingLabel.setFont(thinkingLabel.getFont().deriveFont(Font.ITALIC));
+        thinkingLabel.setVisible(false);
+
+        JPanel inputContainer = new JPanel(new BorderLayout());
+        inputContainer.add(southPanel, BorderLayout.CENTER);
+        inputContainer.add(thinkingLabel, BorderLayout.NORTH);
+
+        add(inputContainer, BorderLayout.SOUTH);
+
+        // Listener para redesenhar a lista quando o painel muda de tamanho
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                chatList.repaint();
+            }
+        });
 
         new AIAssistantPresenter(this, appContext.getAIAssistantService());
-        appendAssistantResponse("Olá! Sou o assistente TitanAxis. Como posso ajudar?");
+        appendMessage("Olá! Sou o assistente TitanAxis. Como posso ajudar?", false);
+    }
+
+    @Override
+    public void appendMessage(String text, boolean isUser) {
+        SwingUtilities.invokeLater(() -> {
+            chatModel.addElement(new ChatMessage(text, isUser));
+            int lastIndex = chatModel.getSize() - 1;
+            if (lastIndex >= 0) {
+                chatList.ensureIndexIsVisible(lastIndex);
+            }
+        });
     }
 
     private void sendMessage() {
@@ -83,25 +119,20 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     }
 
     @Override
-    public void appendUserMessage(String message) {
-        chatArea.append("Você: " + message + "\n");
-    }
-
-    @Override
-    public void appendAssistantResponse(String response) {
-        chatArea.append("Assistente: " + response + "\n\n");
-        chatArea.setCaretPosition(chatArea.getDocument().getLength());
-    }
-
-    @Override
     public void clearUserInput() {
         inputField.setText("");
+    }
+
+    @Override
+    public void showThinkingIndicator(boolean show) {
+        thinkingLabel.setVisible(show);
     }
 
     @Override
     public void setSendButtonEnabled(boolean enabled) {
         sendButton.setEnabled(enabled);
         inputField.setEnabled(enabled);
+        voiceButton.setEnabled(enabled);
     }
 
     @Override
@@ -110,7 +141,6 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         while (parent != null && !(parent instanceof DashboardFrame)) {
             parent = parent.getParent();
         }
-
         if (parent instanceof DashboardFrame) {
             ((DashboardFrame) parent).executeAction(action, params);
         }
@@ -122,6 +152,6 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     }
 
     public void refreshData() {
-        // Nada a fazer aqui por enquanto, mas o método existe para consistência.
+        // Nada a fazer aqui por enquanto
     }
 }

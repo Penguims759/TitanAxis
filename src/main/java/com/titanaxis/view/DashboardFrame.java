@@ -15,7 +15,6 @@ import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.panels.*;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -149,7 +148,6 @@ public class DashboardFrame extends JFrame {
         return e -> {
             if (mainTabbedPane.getSelectedComponent() == panel) {
                 try {
-                    // Usa reflexão para chamar o método refreshData se ele existir
                     panel.getClass().getMethod("refreshData").invoke(panel);
                 } catch (Exception ex) {
                     // O método não existe ou falhou, não faz nada.
@@ -195,7 +193,8 @@ public class DashboardFrame extends JFrame {
             String insights = appContext.getAnalyticsService().getProactiveInsightsSummary();
             if (insights != null && !insights.isEmpty()) {
                 mainTabbedPane.setSelectedComponent(aiAssistantPanel);
-                aiAssistantPanel.appendAssistantResponse("Olá! Tenho alguns insights para você hoje:\n" + insights);
+                // **CORREÇÃO APLICADA AQUI**
+                aiAssistantPanel.appendMessage("Olá! Tenho alguns insights para você hoje:\n" + insights, false);
             }
         }
     }
