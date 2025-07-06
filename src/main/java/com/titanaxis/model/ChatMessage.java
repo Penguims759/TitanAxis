@@ -2,19 +2,30 @@
 package com.titanaxis.model;
 
 public class ChatMessage {
-    private final String text;
-    private final boolean isUser;
+    public enum MessageType {
+        USER,
+        BOT,
+        THINKING // NOVO TIPO
+    }
 
-    public ChatMessage(String text, boolean isUser) {
+    private final String text;
+    private final MessageType type;
+
+    public ChatMessage(String text, MessageType type) {
         this.text = text;
-        this.isUser = isUser;
+        this.type = type;
     }
 
     public String getText() {
         return text;
     }
 
+    public MessageType getType() {
+        return type;
+    }
+
+    // MÉTODOS DE CONVENIÊNCIA
     public boolean isUser() {
-        return isUser;
+        return type == MessageType.USER;
     }
 }

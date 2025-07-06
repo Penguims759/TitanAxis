@@ -1,6 +1,7 @@
 // src/main/java/com/titanaxis/presenter/AIAssistantPresenter.java
 package com.titanaxis.presenter;
 
+import com.titanaxis.model.ChatMessage;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AIAssistantService;
 import com.titanaxis.view.interfaces.AIAssistantView;
@@ -21,9 +22,9 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
     @Override
     public void onSendMessage(String message) {
         view.setSendButtonEnabled(false);
-        view.appendMessage(message, true); // Adiciona a mensagem do usuário à UI
+        view.appendMessage(message, true);
         view.clearUserInput();
-        view.showThinkingIndicator(true); // Mostra o indicador "A pensar..."
+        view.showThinkingIndicator(true); // Mostra o balão "A pensar..."
 
         SwingWorker<AssistantResponse, Void> worker = new SwingWorker<>() {
             @Override
@@ -37,14 +38,18 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             protected void done() {
                 try {
                     AssistantResponse response = get();
-                    view.appendMessage(response.getTextResponse(), false); // Adiciona a resposta do assistente
+                    // Primeiro, remove o balão "A pensar..."
+                    view.removeLastMessage();
+                    // Depois, adiciona a resposta final do bot
+                    view.appendMessage(response.getTextResponse(), false);
+
                     if (response.hasAction()) {
                         view.requestAction(response.getAction(), response.getActionParams());
                     }
                 } catch (Exception e) {
+                    view.removeLastMessage(); // Remove o balão "A pensar..." mesmo se der erro
                     view.appendMessage("Ocorreu um erro: " + e.getMessage(), false);
                 } finally {
-                    view.showThinkingIndicator(false); // Esconde o indicador
                     view.setSendButtonEnabled(true);
                 }
             }

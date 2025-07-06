@@ -12,6 +12,7 @@ public interface AIAssistantView {
     // Métodos para a nova UI
     void showThinkingIndicator(boolean show);
     void appendMessage(String message, boolean isUser);
+    void removeLastMessage(); // NOVO: Para remover a mensagem de "a pensar"
 
     void requestAction(Action action, Map<String, Object> params);
 
