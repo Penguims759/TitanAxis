@@ -3,9 +3,12 @@ package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
+import com.google.inject.multibindings.Multibinder;
 import com.titanaxis.repository.*;
 import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
+import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.service.ai.flows.*;
 
 public class AppModule extends AbstractModule {
 
@@ -30,8 +33,22 @@ public class AppModule extends AbstractModule {
         bind(RelatorioService.class).in(Singleton.class);
         bind(AlertaService.class).in(Singleton.class);
         bind(MovimentoService.class).in(Singleton.class);
-        bind(AIAssistantService.class).in(Singleton.class);
         bind(AnalyticsService.class).in(Singleton.class);
+
+        // --- Lógica do Assistente IA ---
+        bind(AIAssistantService.class).in(Singleton.class);
+
+        Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
+        flowBinder.addBinding().to(CreateUserFlow.class);
+        flowBinder.addBinding().to(CreateProductFlow.class);
+        flowBinder.addBinding().to(CreateCategoryFlow.class);
+        flowBinder.addBinding().to(ManageStockFlow.class);
+        flowBinder.addBinding().to(CreateClientFlow.class);
+        flowBinder.addBinding().to(UpdateProductFlow.class);
+        flowBinder.addBinding().to(QueryStockFlow.class);
+        flowBinder.addBinding().to(QueryClientFlow.class);
+        flowBinder.addBinding().to(QueryProductLotsFlow.class);
+        flowBinder.addBinding().to(QueryMovementHistoryFlow.class); // NOVO REGISTO
 
         // --- Contexto da Aplicação ---
         bind(AppContext.class).in(Singleton.class);

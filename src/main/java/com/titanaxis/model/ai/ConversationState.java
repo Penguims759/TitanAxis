@@ -1,16 +1,21 @@
 // src/main/java/com/titanaxis/model/ai/ConversationState.java
 package com.titanaxis.model.ai;
 
+import com.titanaxis.service.ai.ConversationFlow; // NOVO
 import java.util.HashMap;
 import java.util.Map;
 
 public class ConversationState {
 
-    private Action currentAction;
+    private ConversationFlow currentFlowHandler; // ALTERADO
     private final Map<String, Object> collectedData = new HashMap<>();
 
-    public void startConversation(Action action) {
-        this.currentAction = action;
+    /**
+     * Inicia uma nova conversa, definindo qual manipulador de fluxo está ativo.
+     * @param handler O manipulador de fluxo para esta conversa.
+     */
+    public void startConversation(ConversationFlow handler) { // ALTERADO
+        this.currentFlowHandler = handler;
         this.collectedData.clear();
     }
 
@@ -22,16 +27,27 @@ public class ConversationState {
         return collectedData;
     }
 
-    public Action getCurrentAction() {
-        return currentAction;
+    /**
+     * Obtém o manipulador de fluxo atualmente ativo.
+     * @return O ConversationFlow ativo.
+     */
+    public ConversationFlow getCurrentFlowHandler() { // ALTERADO
+        return currentFlowHandler;
     }
 
+    /**
+     * Limpa o estado da conversa, terminando o fluxo atual.
+     */
     public void reset() {
-        this.currentAction = null;
+        this.currentFlowHandler = null;
         this.collectedData.clear();
     }
 
+    /**
+     * Verifica se há uma conversa em andamento.
+     * @return true se um fluxo de conversa estiver ativo, false caso contrário.
+     */
     public boolean isAwaitingInfo() {
-        return currentAction != null;
+        return currentFlowHandler != null;
     }
 }

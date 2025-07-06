@@ -1,4 +1,4 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/service/ProdutoService.java
+// src/main/java/com/titanaxis/service/ProdutoService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -78,6 +78,25 @@ public class ProdutoService {
                 produtoRepository.saveLote(lote, ator, em)
         );
     }
+
+    /**
+     * NOVO: Adiciona uma quantidade de estoque a um lote específico.
+     */
+    public Lote adicionarEstoqueLote(String nomeProduto, String numeroLote, int quantidadeAdicionar, Usuario ator) throws PersistenciaException, IllegalArgumentException {
+        return transactionService.executeInTransactionWithResult(em -> {
+            Produto produto = produtoRepository.findByNome(nomeProduto, em)
+                    .orElseThrow(() -> new IllegalArgumentException("Produto '" + nomeProduto + "' não encontrado."));
+
+            Lote lote = produto.getLotes().stream()
+                    .filter(l -> l.getNumeroLote().equalsIgnoreCase(numeroLote))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Lote '" + numeroLote + "' não encontrado para o produto '" + nomeProduto + "'."));
+
+            lote.setQuantidade(lote.getQuantidade() + quantidadeAdicionar);
+            return produtoRepository.saveLote(lote, ator, em);
+        });
+    }
+
 
     public void removerLote(int loteId, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {

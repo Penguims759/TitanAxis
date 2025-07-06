@@ -6,16 +6,42 @@ import java.util.regex.Pattern;
 
 public final class StringUtil {
 
-    private StringUtil() {} // Impede a instanciação
+    private StringUtil() {}
 
     private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
     /**
-     * Normaliza uma string, removendo acentos, cedilha e convertendo para minúsculas.
-     * Exemplo: "Relatório de Vendas" -> "relatorio de vendas"
-     * @param input A string a ser normalizada.
-     * @return A string normalizada.
+     * Extrai a palavra que vem a seguir a uma palavra-chave, com tolerância a erros.
+     * Ex: extractFuzzyValueAfter("... com sneha 123...", "senha") -> "123"
+     * @param text O texto completo a ser analisado.
+     * @param targetKeyword A palavra-chave a ser procurada.
+     * @return A palavra seguinte, ou null se não for encontrada.
      */
+    public static String extractFuzzyValueAfter(String text, String targetKeyword) {
+        String[] words = normalize(text).split("\\s+");
+        for (int i = 0; i < words.length; i++) {
+            if (levenshteinDistance(words[i], targetKeyword) <= 1) {
+                if (i + 1 < words.length) {
+                    return words[i + 1];
+                }
+            }
+        }
+        return null;
+    }
+
+    // ... (restante dos métodos isNumeric, normalize, levenshteinDistance sem alteração) ...
+    public static boolean isNumeric(String str) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public static String normalize(String input) {
         if (input == null) {
             return "";
@@ -25,14 +51,6 @@ public final class StringUtil {
         return withoutAccents.toLowerCase();
     }
 
-    /**
-     * Calcula a Distância de Levenshtein entre duas strings.
-     * A distância representa o número de edições (inserções, deleções, substituições)
-     * necessárias para transformar uma string na outra.
-     * @param s1 A primeira string.
-     * @param s2 A segunda string.
-     * @return A distância de Levenshtein.
-     */
     public static int levenshteinDistance(String s1, String s2) {
         s1 = normalize(s1);
         s2 = normalize(s2);
