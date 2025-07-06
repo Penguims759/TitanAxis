@@ -8,58 +8,122 @@ import com.titanaxis.presenter.AIAssistantPresenter;
 import com.titanaxis.service.VoiceRecognitionService;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
-import com.titanaxis.view.panels.components.ChatBubble;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.Map;
 
 public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
     private AIAssistantView.AIAssistantViewListener listener;
-    private final JTextField inputField;
-    private final JButton sendButton;
-    private final JButton voiceButton;
-    private final VoiceRecognitionService voiceService;
+    private JTextField inputField;
+    private JButton sendButton;
+    private JButton voiceButton;
+    private VoiceRecognitionService voiceService;
 
-    private final JList<ChatMessage> chatList;
-    private final DefaultListModel<ChatMessage> chatModel;
-    private final Timer thinkingTimer;
+    private JList<ChatMessage> chatList;
+    private DefaultListModel<ChatMessage> chatModel;
+    private Timer thinkingTimer;
 
     public AIAssistantPanel(AppContext appContext) {
-        setLayout(new BorderLayout(5, 5));
-        // ALTERADO: Título do painel modificado
-        setBorder(BorderFactory.createTitledBorder("Assistente Interativo"));
+        setLayout(new BorderLayout()); // Layout principal do painel
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // --- Cria o JSplitPane para dividir a tela ---
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setResizeWeight(0.3); // Define a proporção inicial da divisão
+        splitPane.setDividerLocation(350); // Posição inicial do divisor
+        splitPane.setBorder(null); // Remove a borda do JSplitPane
+
+        // --- Define os painéis da esquerda e da direita ---
+        splitPane.setLeftComponent(createHelpPanel());
+        splitPane.setRightComponent(createChatPanel(appContext));
+
+        add(splitPane, BorderLayout.CENTER);
+    }
+
+    /**
+     * Cria o painel da esquerda com o guia de ajuda do assistente.
+     */
+    private JComponent createHelpPanel() {
+        JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.setBorder(BorderFactory.createTitledBorder("Habilidades do Assistente"));
+
+        JEditorPane helpTextPane = new JEditorPane();
+        helpTextPane.setContentType("text/html;charset=UTF-8");
+        helpTextPane.setEditable(false);
+        helpTextPane.setOpaque(false); // Fundo transparente
+        helpTextPane.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // ALTERADO: Adicionada dica de cancelamento no final do guia.
+        String helpHtml = "<html><body style='font-family: Arial; font-size: 11pt;'>"
+                + "<b>Experimente estes comandos:</b>"
+                + "<p><b>\"crie um novo cliente chamado</b> <i>Nome do Cliente</i> <b>com o contato</b> <i>email@exemplo.com</i><b>\"</b><br>"
+                + "Cria um novo cliente diretamente.</p>"
+
+                + "<p><b>\"gere o relatório de vendas em pdf\"</b><br>"
+                + "Inicia a geração de um relatório de vendas.</p>"
+
+                + "<p><b>\"como adicionar um lote\"</b><br>"
+                + "Mostra um guia visual de como adicionar um lote a um produto.</p>"
+
+                + "<p><b>\"qual o produto mais vendido\"</b><br>"
+                + "Analisa os dados e informa o produto com mais vendas.</p>"
+
+                + "<p><b>\"mude o tema para claro\"</b> ou <b>\"...para escuro\"</b><br>"
+                + "Altera o tema visual da aplicação.</p>"
+
+                + "<p><b>\"quais produtos têm baixo estoque\"</b><br>"
+                + "Lista os produtos com 10 ou menos unidades.</p>"
+
+                + "<p><b>\"quais lotes estão para vencer\"</b><br>"
+                + "Mostra os lotes que vencem nos próximos 30 dias.</p>"
+
+                + "<br><b>Conversa Guiada:</b>"
+                + "<p>Comece com <b>\"cadastrar um novo produto\"</b> e o assistente irá pedir as informações passo a passo.</p>"
+
+                + "<hr><p><b>Dica:</b> A qualquer momento durante uma conversa, digite <b>cancelar</b> ou <b>sair</b> para interromper a ação atual.</p>"
+                + "</body></html>";
+
+        helpTextPane.setText(helpHtml);
+
+        JScrollPane scrollPane = new JScrollPane(helpTextPane);
+        scrollPane.setBorder(null); // Remove a borda do scrollpane
+        helpPanel.add(scrollPane, BorderLayout.CENTER);
+
+        return helpPanel;
+    }
+
+    /**
+     * Cria o painel da direita com a interface de chat.
+     */
+    private JComponent createChatPanel(AppContext appContext) {
+        JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
+        chatPanel.setBorder(BorderFactory.createTitledBorder("Assistente Interativo"));
 
         voiceService = new VoiceRecognitionService();
 
-        // --- Lista de Chat com Renderizador Customizado ---
         chatModel = new DefaultListModel<>();
         chatList = new JList<>(chatModel);
-        chatList.setCellRenderer(new ChatBubbleRenderer()); // Usa o renderer original, sem ícones
+        chatList.setCellRenderer(new ChatBubbleRenderer());
         chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        chatList.setBackground(UIManager.getColor("Panel.background")); // Fundo consistente
-
-        // Remove a seleção visual para uma aparência de chat mais limpa
-        chatList.setSelectionBackground(new Color(0,0,0,0));
+        chatList.setBackground(UIManager.getColor("Panel.background"));
+        chatList.setSelectionBackground(new Color(0, 0, 0, 0));
         chatList.setSelectionForeground(chatList.getForeground());
-
 
         JScrollPane scrollPane = new JScrollPane(chatList);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5)); // Margens finas nas laterais
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        chatPanel.add(scrollPane, BorderLayout.CENTER);
 
-        add(scrollPane, BorderLayout.CENTER);
-
-        // --- Painel de Entrada ---
-        JPanel southPanel = new JPanel(new BorderLayout(5,5));
-        southPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Pequena margem à volta da caixa de texto
-
+        JPanel southPanel = new JPanel(new BorderLayout(5, 5));
+        southPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         inputField = new JTextField();
         inputField.addActionListener(e -> sendMessage());
         southPanel.add(inputField, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 0)); // Espaçamento entre botões
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
         sendButton = new JButton("Enviar");
         sendButton.addActionListener(e -> sendMessage());
         voiceButton = new JButton("Voz");
@@ -67,18 +131,17 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         buttonPanel.add(sendButton);
         buttonPanel.add(voiceButton);
         southPanel.add(buttonPanel, BorderLayout.EAST);
+        chatPanel.add(southPanel, BorderLayout.SOUTH);
 
-        add(southPanel, BorderLayout.SOUTH);
-
-        // Timer para animar a mensagem de "thinking"
-        thinkingTimer = new Timer(500, e -> {
-            chatList.repaint(); // Força o renderer a redesenhar para animar os "..."
-        });
+        thinkingTimer = new Timer(500, e -> chatList.repaint());
 
         new AIAssistantPresenter(this, appContext.getAIAssistantService());
-        // ALTERADO: Mensagem de boas-vindas modificada
         appendMessage("Olá! Sou o Assistente. Como posso ajudar?", false);
+
+        return chatPanel;
     }
+
+    // ... (O restante do código de AIAssistantPanel permanece o mesmo) ...
 
     @Override
     public void appendMessage(String text, boolean isUser) {
@@ -122,20 +185,14 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     @Override
     public void showThinkingIndicator(boolean show) {
         SwingUtilities.invokeLater(() -> {
-            // Remove qualquer indicador de "a pensar" anterior para evitar múltiplos
             if (!chatModel.isEmpty() && chatModel.lastElement().getType() == ChatMessage.MessageType.THINKING) {
                 chatModel.removeElementAt(chatModel.getSize() - 1);
             }
-
             if (show) {
                 chatModel.addElement(new ChatMessage("A pensar...", ChatMessage.MessageType.THINKING));
-                if (!thinkingTimer.isRunning()) {
-                    thinkingTimer.start();
-                }
+                if (!thinkingTimer.isRunning()) thinkingTimer.start();
             } else {
-                if (thinkingTimer.isRunning()) {
-                    thinkingTimer.stop();
-                }
+                if (thinkingTimer.isRunning()) thinkingTimer.stop();
             }
             scrollToBottom();
         });
