@@ -1,4 +1,4 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
+// src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -44,7 +44,6 @@ public class VendaRepositoryImpl implements VendaRepository {
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
             String detalhes = String.format("Venda #%d finalizada para o cliente '%s'. Valor total: %s.",
                     vendaSalva.getId(), nomeCliente, currencyFormat.format(vendaSalva.getValorTotal()));
-            // CORREÇÃO: Passar o EntityManager 'em'
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "FINALIZAÇÃO DE VENDA", "Venda", detalhes, em);
         }
 
@@ -58,9 +57,15 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public List<Venda> findAll(EntityManager em) {
-        // ALTERADO: Adicionado FETCH JOIN para carregar 'itens' e evitar N+1 problemas quando necessário.
         TypedQuery<Venda> query = em.createQuery(
                 "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario LEFT JOIN FETCH v.itens ORDER BY v.dataVenda DESC", Venda.class);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<VendaItem> findAllItems(EntityManager em) {
+        TypedQuery<VendaItem> query = em.createQuery(
+                "SELECT i FROM VendaItem i JOIN FETCH i.produto", VendaItem.class);
         return query.getResultList();
     }
 

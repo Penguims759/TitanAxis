@@ -1,32 +1,56 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/DashboardFrame.java
+// src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.titanaxis.app.AppContext;
+import com.titanaxis.model.Cliente;
+import com.titanaxis.model.Usuario;
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.service.AuthService;
+import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.UIGuide;
+import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.panels.*;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent; // Importado
-import javax.swing.event.ChangeListener; // Importado
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DashboardFrame extends JFrame {
-    private final AppContext appContext; // Adicionado final
-    private final AuthService authService; // Adicionado final
+    private final AppContext appContext;
+    private final AuthService authService;
+    private final UIPersonalizationService personalizationService;
     private static final Logger logger = AppLogger.getLogger();
+
+    // Referências aos componentes da UI para manipulação pelo assistente
+    private JTabbedPane mainTabbedPane;
+    private JTabbedPane produtosEstoqueTabbedPane;
+    private ProdutoPanel produtoPanel;
+    private ClientePanel clientePanel;
+    private CategoriaPanel categoriaPanel;
+    private AlertaPanel alertaPanel;
+    private MovimentosPanel movimentosPanel;
+    private RelatorioPanel relatorioPanel;
+    private UsuarioPanel usuarioPanel;
+    private AuditoriaPanel auditoriaPanel;
+    private AIAssistantPanel aiAssistantPanel;
+
 
     public DashboardFrame(AppContext appContext) {
         super("Dashboard - TitanAxis");
         this.appContext = appContext;
         this.authService = appContext.getAuthService();
+        this.personalizationService = new UIPersonalizationService(
+                authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("default")
+        );
 
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -42,137 +66,108 @@ public class DashboardFrame extends JFrame {
 
         setupMenuBar();
         setupNestedTabs();
+
+        // Inicia as ações pós-carregamento da UI
+        SwingUtilities.invokeLater(() -> {
+            setTheme(personalizationService.getPreference("theme", "dark"));
+            showProactiveInsights();
+        });
     }
 
     private void setupNestedTabs() {
-        final JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT); // Adicionado final
+        mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        final VendaPanel vendaPanel = new VendaPanel(appContext); // Instância do VendaPanel
+        // --- ABA DO ASSISTENTE ---
+        if (authService.isGerente()) {
+            aiAssistantPanel = new AIAssistantPanel(appContext);
+            mainTabbedPane.addTab("🤖 Assistente", aiAssistantPanel);
+            mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
+        }
+
+        // --- ABA DE VENDAS ---
+        final VendaPanel vendaPanel = new VendaPanel(appContext);
         mainTabbedPane.addTab("Vendas", vendaPanel);
 
+        // --- ABAS DE GESTÃO (GERENTE) ---
         if (authService.isGerente()) {
-            final JTabbedPane produtosEstoqueTabbedPane = new JTabbedPane(); // Adicionado final
-            final ProdutoPanel produtoPanel = new ProdutoPanel(appContext); // Instância do ProdutoPanel
-            final CategoriaPanel categoriaPanel = new CategoriaPanel(appContext); // Instância da CategoriaPanel
-            final AlertaPanel alertaPanel = new AlertaPanel(appContext); // Instância da AlertaPanel
-            final MovimentosPanel movimentosPanel = new MovimentosPanel(appContext); // Instância da MovimentosPanel
+            // Sub-abas de Produtos & Estoque
+            produtosEstoqueTabbedPane = new JTabbedPane();
+            produtoPanel = new ProdutoPanel(appContext);
+            categoriaPanel = new CategoriaPanel(appContext);
+            alertaPanel = new AlertaPanel(appContext);
+            movimentosPanel = new MovimentosPanel(appContext);
 
-            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel); // Adicionado instância
-            produtosEstoqueTabbedPane.addTab("Categorias", categoriaPanel); // Adicionado instância
-            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", alertaPanel); // Adicionado instância
-            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", movimentosPanel); // Adicionado instância
+            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel);
+            produtosEstoqueTabbedPane.addTab("Categorias", categoriaPanel);
+            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", alertaPanel);
+            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", movimentosPanel);
             mainTabbedPane.addTab("Produtos & Estoque", produtosEstoqueTabbedPane);
 
-            // ALTERADO: Adiciona ChangeListener para recarregar dados dos sub-painéis ao selecionar *suas* abas
-            produtosEstoqueTabbedPane.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    if (produtosEstoqueTabbedPane.getSelectedComponent() == produtoPanel) {
-                        produtoPanel.refreshData();
-                    } else if (produtosEstoqueTabbedPane.getSelectedComponent() == categoriaPanel) { // NOVO: Refresh para CategoriaPanel
-                        categoriaPanel.refreshData();
-                    } else if (produtosEstoqueTabbedPane.getSelectedComponent() == alertaPanel) { // NOVO: Refresh para AlertaPanel
-                        alertaPanel.refreshData();
-                    } else if (produtosEstoqueTabbedPane.getSelectedComponent() == movimentosPanel) { // NOVO: Refresh para MovimentosPanel
-                        movimentosPanel.refreshData();
-                    }
-                }
+            // Listener para as sub-abas
+            produtosEstoqueTabbedPane.addChangeListener(e -> {
+                Component selected = produtosEstoqueTabbedPane.getSelectedComponent();
+                if (selected instanceof ProdutoPanel) ((ProdutoPanel) selected).refreshData();
+                else if (selected instanceof CategoriaPanel) ((CategoriaPanel) selected).refreshData();
+                else if (selected instanceof AlertaPanel) ((AlertaPanel) selected).refreshData();
+                else if (selected instanceof MovimentosPanel) ((MovimentosPanel) selected).refreshData();
             });
 
-            // NOVO: Adiciona ChangeListener para o mainTabbedPane para recarregar todos os dados
-            // quando a aba "Produtos & Estoque" (pai) é selecionada
-            mainTabbedPane.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    if (mainTabbedPane.getSelectedComponent() == produtosEstoqueTabbedPane) {
-                        logger.info("Aba 'Produtos & Estoque' selecionada. Recarregando dados dos subpainéis.");
-                        produtoPanel.refreshData();
-                        categoriaPanel.refreshData();
-                        alertaPanel.refreshData();
-                        movimentosPanel.refreshData();
-                    }
-                }
-            });
-        }
-
-        if (authService.isGerente()) {
-            final ClientePanel clientePanel = new ClientePanel(appContext); // Instância do ClientePanel
+            // Aba de Clientes
+            clientePanel = new ClientePanel(appContext);
             mainTabbedPane.addTab("Clientes", clientePanel);
-            // NOVO: ChangeListener para aba de Clientes
-            mainTabbedPane.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    if (mainTabbedPane.getSelectedComponent() == clientePanel) {
-                        logger.info("Aba 'Clientes' selecionada. Recarregando dados.");
-                        clientePanel.refreshData();
-                    }
-                }
-            });
-        }
+            mainTabbedPane.addChangeListener(createRefreshListener(clientePanel));
 
-        if (authService.isGerente()) {
-            final RelatorioPanel relatorioPanel = new RelatorioPanel(appContext); // Instância do RelatorioPanel
+            // Aba de Relatórios
+            relatorioPanel = new RelatorioPanel(appContext);
             mainTabbedPane.addTab("Relatórios", relatorioPanel);
-            // NOVO: ChangeListener para aba de Relatórios
-            mainTabbedPane.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    if (mainTabbedPane.getSelectedComponent() == relatorioPanel) {
-                        logger.info("Aba 'Relatórios' selecionada. Recarregando dados.");
-                        relatorioPanel.refreshData();
-                    }
-                }
-            });
+            mainTabbedPane.addChangeListener(createRefreshListener(relatorioPanel));
         }
 
+        // --- ABAS DE ADMINISTRAÇÃO (ADMIN) ---
         if (authService.isAdmin()) {
-            final JTabbedPane adminTabbedPane = new JTabbedPane(); // Adicionado final
-            // NOVO: Instâncias dos painéis de administração para poder referenciá-los no ChangeListener
-            final UsuarioPanel usuarioPanel = new UsuarioPanel(appContext);
-            final AuditoriaPanel auditoriaPanel = new AuditoriaPanel(appContext);
+            JTabbedPane adminTabbedPane = new JTabbedPane();
+            usuarioPanel = new UsuarioPanel(appContext);
+            auditoriaPanel = new AuditoriaPanel(appContext);
 
             adminTabbedPane.addTab("Gestão de Usuários", usuarioPanel);
             adminTabbedPane.addTab("Logs de Auditoria", auditoriaPanel);
             mainTabbedPane.addTab("Administração", adminTabbedPane);
 
-            // NOVO: ChangeListener para abas de Administração
-            adminTabbedPane.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    if (adminTabbedPane.getSelectedComponent() == usuarioPanel) {
-                        usuarioPanel.refreshData();
-                    } else if (adminTabbedPane.getSelectedComponent() == auditoriaPanel) {
-                        auditoriaPanel.refreshData();
-                    }
-                }
-            });
-
-            // NOVO: ChangeListener para aba principal "Administração"
-            mainTabbedPane.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    if (mainTabbedPane.getSelectedComponent() == adminTabbedPane) {
-                        logger.info("Aba 'Administração' selecionada. Recarregando dados dos subpainéis.");
-                        usuarioPanel.refreshData();
-                        auditoriaPanel.refreshData();
-                    }
-                }
+            // Listener para as sub-abas de admin
+            adminTabbedPane.addChangeListener(e -> {
+                Component selected = adminTabbedPane.getSelectedComponent();
+                if (selected instanceof UsuarioPanel) ((UsuarioPanel) selected).refreshData();
+                else if (selected instanceof AuditoriaPanel) ((AuditoriaPanel) selected).refreshData();
             });
         }
 
         add(mainTabbedPane);
     }
 
-    private void setupMenuBar() {
-        final JMenuBar menuBar = new JMenuBar(); // Adicionado final
-        final JMenu menuArquivo = new JMenu("Arquivo"); // Adicionado final
-        final JMenu menuTema = new JMenu("Alterar Tema"); // Adicionado final
-        final ButtonGroup themeGroup = new ButtonGroup(); // Adicionado final
+    private ChangeListener createRefreshListener(Component panel) {
+        return e -> {
+            if (mainTabbedPane.getSelectedComponent() == panel) {
+                try {
+                    // Usa reflexão para chamar o método refreshData se ele existir
+                    panel.getClass().getMethod("refreshData").invoke(panel);
+                } catch (Exception ex) {
+                    // O método não existe ou falhou, não faz nada.
+                }
+            }
+        };
+    }
 
-        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem("Tema Claro"); // Adicionado final
+    private void setupMenuBar() {
+        final JMenuBar menuBar = new JMenuBar();
+        final JMenu menuArquivo = new JMenu("Arquivo");
+        final JMenu menuTema = new JMenu("Alterar Tema");
+        final ButtonGroup themeGroup = new ButtonGroup();
+
+        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem("Tema Claro");
         lightThemeItem.addActionListener(e -> setTheme("light"));
-        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem("Tema Escuro"); // Adicionado final
+
+        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem("Tema Escuro");
         darkThemeItem.setSelected(true);
         darkThemeItem.addActionListener(e -> setTheme("dark"));
 
@@ -181,10 +176,10 @@ public class DashboardFrame extends JFrame {
         menuTema.add(lightThemeItem);
         menuTema.add(darkThemeItem);
 
-        final JMenuItem logoutMenuItem = new JMenuItem("Logout"); // Adicionado final
+        final JMenuItem logoutMenuItem = new JMenuItem("Logout");
         logoutMenuItem.addActionListener(e -> fazerLogout());
 
-        final JMenuItem sairMenuItem = new JMenuItem("Sair"); // Adicionado final
+        final JMenuItem sairMenuItem = new JMenuItem("Sair");
         sairMenuItem.addActionListener(e -> confirmarSaida());
 
         menuArquivo.add(menuTema);
@@ -193,6 +188,64 @@ public class DashboardFrame extends JFrame {
         menuArquivo.add(sairMenuItem);
         menuBar.add(menuArquivo);
         setJMenuBar(menuBar);
+    }
+
+    private void showProactiveInsights() {
+        if (aiAssistantPanel != null) {
+            String insights = appContext.getAnalyticsService().getProactiveInsightsSummary();
+            if (insights != null && !insights.isEmpty()) {
+                mainTabbedPane.setSelectedComponent(aiAssistantPanel);
+                aiAssistantPanel.appendAssistantResponse("Olá! Tenho alguns insights para você hoje:\n" + insights);
+            }
+        }
+    }
+
+    public void executeAction(Action action, Map<String, Object> params) {
+        try {
+            switch (action) {
+                case GUIDE_NAVIGATE_TO_ADD_LOTE:
+                    mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
+                    produtosEstoqueTabbedPane.setSelectedComponent(produtoPanel);
+                    produtoPanel.selectFirstProduct();
+                    UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
+                    break;
+
+                case DIRECT_CREATE_CLIENT:
+                    String nome = (String) params.get("nome");
+                    String contato = (String) params.get("contato");
+                    Cliente novoCliente = new Cliente(nome, contato, "");
+                    appContext.getClienteService().salvar(novoCliente, authService.getUsuarioLogado().orElse(null));
+                    UIMessageUtil.showInfoMessage(this, "Cliente '" + nome + "' foi criado com sucesso!", "Ação Concluída");
+                    if (clientePanel != null) clientePanel.refreshData();
+                    break;
+
+                case DIRECT_GENERATE_SALES_REPORT_PDF:
+                    UIMessageUtil.showInfoMessage(this, "Relatório de Vendas em PDF gerado (Simulação).\nNuma implementação real, abriríamos um diálogo para salvar o ficheiro.", "Ação Concluída");
+                    break;
+
+                case UI_CHANGE_THEME:
+                    setTheme((String) params.get("theme"));
+                    break;
+            }
+        } catch (Exception e) {
+            UIMessageUtil.showErrorMessage(this, "Erro ao executar a ação: " + e.getMessage(), "Erro na Ação");
+        }
+    }
+
+    private void setTheme(String themeName) {
+        try {
+            if ("light".equals(themeName)) {
+                UIManager.setLookAndFeel(new FlatLightLaf());
+            } else {
+                UIManager.setLookAndFeel(new FlatDarkLaf());
+            }
+            SwingUtilities.updateComponentTreeUI(this);
+            personalizationService.savePreference("theme", themeName);
+            logger.info("Tema alterado para: " + themeName);
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao alterar o tema.", "Erro de Tema");
+        }
     }
 
     private void fazerLogout() {
@@ -208,21 +261,6 @@ public class DashboardFrame extends JFrame {
             authService.logout();
             logger.info("Aplicação encerrada pelo usuário.");
             System.exit(0);
-        }
-    }
-
-    private void setTheme(String themeName) {
-        try {
-            if ("light".equals(themeName)) {
-                UIManager.setLookAndFeel(new FlatLightLaf());
-            } else {
-                UIManager.setLookAndFeel(new FlatDarkLaf());
-            }
-            SwingUtilities.updateComponentTreeUI(this);
-            logger.info("Tema alterado para: " + themeName);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
-            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao alterar o tema.", "Erro de Tema");
         }
     }
 }

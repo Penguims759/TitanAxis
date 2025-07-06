@@ -1,14 +1,11 @@
+// src/main/java/com/titanaxis/app/AppContext.java
 package com.titanaxis.app;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.titanaxis.service.*;
 
-/**
- * O AppContext agora atua como um 'Facade' ou um ponto de acesso central
- * aos serviços da aplicação, com as suas dependências a serem injetadas pelo Guice.
- */
-@Singleton // Garante que o Guice só criará uma instância desta classe.
+@Singleton
 public class AppContext {
 
     private final AuthService authService;
@@ -19,14 +16,15 @@ public class AppContext {
     private final RelatorioService relatorioService;
     private final AlertaService alertaService;
     private final MovimentoService movimentoService;
+    private final AIAssistantService aiAssistantService;
+    private final AnalyticsService analyticsService;
 
-    // A anotação @Inject diz ao Guice para usar este construtor e
-    // fornecer automaticamente as instâncias dos serviços necessários.
     @Inject
     public AppContext(AuthService authService, CategoriaService categoriaService,
                       ClienteService clienteService, ProdutoService produtoService,
                       VendaService vendaService, RelatorioService relatorioService,
-                      AlertaService alertaService, MovimentoService movimentoService) {
+                      AlertaService alertaService, MovimentoService movimentoService,
+                      AIAssistantService aiAssistantService, AnalyticsService analyticsService) {
         this.authService = authService;
         this.categoriaService = categoriaService;
         this.clienteService = clienteService;
@@ -35,9 +33,10 @@ public class AppContext {
         this.relatorioService = relatorioService;
         this.alertaService = alertaService;
         this.movimentoService = movimentoService;
+        this.aiAssistantService = aiAssistantService;
+        this.analyticsService = analyticsService;
     }
 
-    // Os Getters permanecem exatamente os mesmos.
     public AuthService getAuthService() { return authService; }
     public CategoriaService getCategoriaService() { return categoriaService; }
     public ClienteService getClienteService() { return clienteService; }
@@ -46,4 +45,6 @@ public class AppContext {
     public RelatorioService getRelatorioService() { return relatorioService; }
     public AlertaService getAlertaService() { return alertaService; }
     public MovimentoService getMovimentoService() { return movimentoService; }
+    public AIAssistantService getAIAssistantService() { return aiAssistantService; }
+    public AnalyticsService getAnalyticsService() { return analyticsService; }
 }

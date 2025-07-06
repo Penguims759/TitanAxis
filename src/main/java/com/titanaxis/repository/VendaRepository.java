@@ -1,13 +1,18 @@
+// src/main/java/com/titanaxis/repository/VendaRepository.java
 package com.titanaxis.repository;
 
 import com.titanaxis.model.Venda;
-// O import do EntityManager e Usuario já não são necessários aqui,
-// pois são herdados da interface Repository.
+import com.titanaxis.model.VendaItem;
+import jakarta.persistence.EntityManager;
+import java.util.List;
 
 public interface VendaRepository extends Repository<Venda, Integer> {
-    // A interface pode ficar vazia por agora,
-    // pois todos os métodos necessários (save, deleteById, findById, findAll)
-    // já estão definidos na interface genérica Repository.
-    // No futuro, se precisar de um método específico para Vendas (ex: findByCliente),
-    // ele seria adicionado aqui.
+    /**
+     * Busca todos os itens de venda de todas as vendas registadas.
+     * Este método é útil para análises de dados, como encontrar os produtos mais vendidos.
+     *
+     * @param em O EntityManager da transação atual.
+     * @return Uma lista de todos os VendaItem.
+     */
+    List<VendaItem> findAllItems(EntityManager em);
 }
