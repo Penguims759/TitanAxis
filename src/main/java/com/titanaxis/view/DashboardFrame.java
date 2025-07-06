@@ -80,7 +80,8 @@ public class DashboardFrame extends JFrame {
         // --- ABA DO ASSISTENTE ---
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
-            mainTabbedPane.addTab("🤖 Assistente", aiAssistantPanel);
+            // ALTERADO: Texto da aba modificado para remover o emoticon
+            mainTabbedPane.addTab("Assistente IA", aiAssistantPanel);
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
         }
 
@@ -193,7 +194,6 @@ public class DashboardFrame extends JFrame {
             String insights = appContext.getAnalyticsService().getProactiveInsightsSummary();
             if (insights != null && !insights.isEmpty()) {
                 mainTabbedPane.setSelectedComponent(aiAssistantPanel);
-                // **CORREÇÃO APLICADA AQUI**
                 aiAssistantPanel.appendMessage("Olá! Tenho alguns insights para você hoje:\n" + insights, false);
             }
         }

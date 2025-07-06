@@ -8,6 +8,7 @@ import com.titanaxis.presenter.AIAssistantPresenter;
 import com.titanaxis.service.VoiceRecognitionService;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
+import com.titanaxis.view.panels.components.ChatBubble;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,14 +28,15 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
     public AIAssistantPanel(AppContext appContext) {
         setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createTitledBorder("Assistente Interativo TitanAxis"));
+        // ALTERADO: Título do painel modificado
+        setBorder(BorderFactory.createTitledBorder("Assistente Interativo"));
 
         voiceService = new VoiceRecognitionService();
 
         // --- Lista de Chat com Renderizador Customizado ---
         chatModel = new DefaultListModel<>();
         chatList = new JList<>(chatModel);
-        chatList.setCellRenderer(new ChatBubbleRenderer());
+        chatList.setCellRenderer(new ChatBubbleRenderer()); // Usa o renderer original, sem ícones
         chatList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         chatList.setBackground(UIManager.getColor("Panel.background")); // Fundo consistente
 
@@ -60,7 +62,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 0)); // Espaçamento entre botões
         sendButton = new JButton("Enviar");
         sendButton.addActionListener(e -> sendMessage());
-        voiceButton = new JButton("🎤");
+        voiceButton = new JButton("Voz");
         voiceButton.addActionListener(e -> toggleVoiceListening());
         buttonPanel.add(sendButton);
         buttonPanel.add(voiceButton);
@@ -74,7 +76,8 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         });
 
         new AIAssistantPresenter(this, appContext.getAIAssistantService());
-        appendMessage("Olá! Sou o assistente TitanAxis. Como posso ajudar?", false);
+        // ALTERADO: Mensagem de boas-vindas modificada
+        appendMessage("Olá! Sou o Assistente. Como posso ajudar?", false);
     }
 
     @Override
@@ -138,11 +141,6 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         });
     }
 
-    /**
-     * NOVO: Implementação do método que estava em falta.
-     * Remove a última mensagem da lista do chat. Usado para remover
-     * o indicador "A pensar..." antes de mostrar a resposta final.
-     */
     @Override
     public void removeLastMessage() {
         SwingUtilities.invokeLater(() -> {
