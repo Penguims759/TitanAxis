@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/VoiceRecognitionService.java
 package com.titanaxis.service;
 
 import edu.cmu.sphinx.api.Configuration;
@@ -14,6 +13,7 @@ public class VoiceRecognitionService {
     private LiveSpeechRecognizer recognizer;
     private volatile boolean listening = false;
     private final Object lock = new Object();
+    private boolean available = true; // NOVO: Flag para controlar a disponibilidade
 
     public VoiceRecognitionService() {
         try {
@@ -24,16 +24,23 @@ public class VoiceRecognitionService {
             configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
             configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
+            // O erro acontece aqui
             recognizer = new LiveSpeechRecognizer(configuration);
 
-        } catch (IOException e) {
-            System.err.println("Erro crítico ao carregar os modelos internos da Sphinx-4.");
-            throw new RuntimeException(e);
+        } catch (IOException | IllegalStateException e) { // ALTERADO: Captura a exceção
+            System.err.println("AVISO: Serviço de reconhecimento de voz não disponível. Causa: " + e.getMessage());
+            available = false; // NOVO: Marca o serviço como indisponível
+            recognizer = null; // NOVO: Garante que o recognizer é nulo
         }
     }
 
+    // NOVO MÉTODO
+    public boolean isAvailable() {
+        return available;
+    }
+
     public void startListening(Consumer<String> onResult) {
-        if (listening) return;
+        if (!available || listening) return; // ALTERADO: Verifica a disponibilidade
 
         synchronized (lock) {
             if (listening) return;
@@ -41,7 +48,7 @@ public class VoiceRecognitionService {
         }
 
         new Thread(() -> {
-            System.out.println("Microphone open. Start speaking (in English for this test).");
+            System.out.println("Microphone open. Start speaking.");
             recognizer.startRecognition(true);
 
             SpeechResult result;
@@ -59,6 +66,7 @@ public class VoiceRecognitionService {
     }
 
     public void stopListening() {
+        if (!available) return; // ALTERADO: Verifica a disponibilidade
         synchronized (lock) {
             if (!listening) return;
             listening = false;

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/panels/AIAssistantPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -27,25 +26,20 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     private Timer thinkingTimer;
 
     public AIAssistantPanel(AppContext appContext) {
-        setLayout(new BorderLayout()); // Layout principal do painel
+        setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // --- Cria o JSplitPane para dividir a tela ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.3); // Define a proporção inicial da divisão
-        splitPane.setDividerLocation(350); // Posição inicial do divisor
-        splitPane.setBorder(null); // Remove a borda do JSplitPane
+        splitPane.setResizeWeight(0.3);
+        splitPane.setDividerLocation(350);
+        splitPane.setBorder(null);
 
-        // --- Define os painéis da esquerda e da direita ---
         splitPane.setLeftComponent(createHelpPanel());
         splitPane.setRightComponent(createChatPanel(appContext));
 
         add(splitPane, BorderLayout.CENTER);
     }
 
-    /**
-     * Cria o painel da esquerda com o guia de ajuda do assistente.
-     */
     private JComponent createHelpPanel() {
         JPanel helpPanel = new JPanel(new BorderLayout());
         helpPanel.setBorder(BorderFactory.createTitledBorder("Habilidades do Assistente"));
@@ -53,10 +47,9 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         JEditorPane helpTextPane = new JEditorPane();
         helpTextPane.setContentType("text/html;charset=UTF-8");
         helpTextPane.setEditable(false);
-        helpTextPane.setOpaque(false); // Fundo transparente
+        helpTextPane.setOpaque(false);
         helpTextPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // ALTERADO: Adicionadas novas dicas de interação com clientes
         String helpHtml = "<html><body style='font-family: Arial; font-size: 11pt;'>"
                 + "<b>Experimente estes comandos:</b>"
 
@@ -102,15 +95,13 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         helpTextPane.setText(helpHtml);
 
         JScrollPane scrollPane = new JScrollPane(helpTextPane);
-        scrollPane.setBorder(null); // Remove a borda do scrollpane
+        scrollPane.setBorder(null);
         helpPanel.add(scrollPane, BorderLayout.CENTER);
 
         return helpPanel;
     }
 
-    /**
-     * Cria o painel da direita com a interface de chat.
-     */
+
     private JComponent createChatPanel(AppContext appContext) {
         JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
         chatPanel.setBorder(BorderFactory.createTitledBorder("Assistente Interativo"));
@@ -141,6 +132,13 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         sendButton.addActionListener(e -> sendMessage());
         voiceButton = new JButton("Voz");
         voiceButton.addActionListener(e -> toggleVoiceListening());
+
+        // ALTERADO: Desativa o botão de voz se o serviço não estiver disponível
+        if (!voiceService.isAvailable()) {
+            voiceButton.setEnabled(false);
+            voiceButton.setToolTipText("Serviço de voz indisponível no seu sistema.");
+        }
+
         buttonPanel.add(sendButton);
         buttonPanel.add(voiceButton);
         southPanel.add(buttonPanel, BorderLayout.EAST);
@@ -153,8 +151,6 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
         return chatPanel;
     }
-
-    // ... (O restante do código de AIAssistantPanel permanece o mesmo) ...
 
     @Override
     public void appendMessage(String text, boolean isUser) {
@@ -224,7 +220,11 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     public void setSendButtonEnabled(boolean enabled) {
         sendButton.setEnabled(enabled);
         inputField.setEnabled(enabled);
-        voiceButton.setEnabled(enabled);
+
+        // ALTERADO: Só ativa o botão de voz se o serviço estiver disponível
+        if (voiceService.isAvailable()) {
+            voiceButton.setEnabled(enabled);
+        }
     }
 
     @Override
