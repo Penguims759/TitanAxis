@@ -15,4 +15,7 @@ public interface VendaRepository extends Repository<Venda, Integer> {
      * @return Uma lista de todos os VendaItem.
      */
     List<VendaItem> findAllItems(EntityManager em);
+
+    // NOVO
+    List<Venda> findVendasByClienteId(int clienteId, EntityManager em);
 }

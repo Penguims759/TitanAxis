@@ -1,4 +1,4 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
+// src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -7,6 +7,7 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException; // NOVO
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
@@ -63,5 +64,17 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c WHERE LOWER(c.nome) LIKE LOWER(:nome)", Cliente.class);
         query.setParameter("nome", "%" + nome + "%");
         return query.getResultList();
+    }
+
+    // NOVO MÉTODO
+    @Override
+    public Optional<Cliente> findByNome(String nome, EntityManager em) {
+        TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c WHERE c.nome = :nome", Cliente.class);
+        query.setParameter("nome", nome);
+        try {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }

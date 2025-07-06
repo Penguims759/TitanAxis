@@ -1,17 +1,16 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/VendaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.exception.CarrinhoVazioException; // Importado
+import com.titanaxis.exception.CarrinhoVazioException;
 import com.titanaxis.exception.PersistenciaException;
-import com.titanaxis.exception.UtilizadorNaoAutenticadoException; // Importado
+import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.*;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ClienteService;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.service.VendaService;
-import com.titanaxis.util.UIMessageUtil; // Importado
-import com.titanaxis.util.AppLogger; // Importado
+import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.util.AppLogger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -20,8 +19,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level; // Importado
-import java.util.logging.Logger; // Importado
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class VendaPanel extends JPanel {
 
@@ -30,16 +29,16 @@ public class VendaPanel extends JPanel {
     private final ClienteService clienteService;
     private final ProdutoService produtoService;
 
-    private final DefaultTableModel carrinhoTableModel; // Adicionado final
-    private final JComboBox<Cliente> clienteComboBox; // Adicionado final
-    private final JComboBox<Produto> produtoComboBox; // Adicionado final
-    private final JComboBox<Lote> loteComboBox; // Adicionado final
-    private final JSpinner quantidadeSpinner; // Adicionado final
-    private final JLabel totalLabel; // Adicionado final
+    private final DefaultTableModel carrinhoTableModel;
+    private final JComboBox<Cliente> clienteComboBox;
+    private final JComboBox<Produto> produtoComboBox;
+    private final JComboBox<Lote> loteComboBox;
+    private final JSpinner quantidadeSpinner;
+    private final JLabel totalLabel;
 
-    private final List<VendaItem> carrinho = new ArrayList<>(); // Adicionado final
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR")); // Adicionado final
-    private static final Logger logger = AppLogger.getLogger(); // Adicionado para logging
+    private final List<VendaItem> carrinho = new ArrayList<>();
+    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+    private static final Logger logger = AppLogger.getLogger();
 
     public VendaPanel(AppContext appContext) {
         this.authService = appContext.getAuthService();
@@ -47,7 +46,6 @@ public class VendaPanel extends JPanel {
         this.clienteService = appContext.getClienteService();
         this.produtoService = appContext.getProdutoService();
 
-        // Inicialização de componentes final no construtor
         carrinhoTableModel = new DefaultTableModel(new String[]{"Produto", "Lote", "Qtd", "Preço Unit.", "Subtotal"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -61,25 +59,52 @@ public class VendaPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(createTopPanel(), BorderLayout.NORTH);
-        JTable carrinhoTable = new JTable(carrinhoTableModel); // Uso do tableModel inicializado
+        JTable carrinhoTable = new JTable(carrinhoTableModel);
         add(new JScrollPane(carrinhoTable), BorderLayout.CENTER);
         add(createBottomPanel(), BorderLayout.SOUTH);
 
         carregarDadosIniciais();
     }
 
+    /**
+     * NOVO MÉTODO PÚBLICO - A adição deste método corrige o erro.
+     * Permite que um cliente seja selecionado programaticamente na ComboBox.
+     *
+     * @param clienteParaSelecionar O cliente que deve ser selecionado.
+     */
+    public void selecionarCliente(Cliente clienteParaSelecionar) {
+        for (int i = 0; i < clienteComboBox.getItemCount(); i++) {
+            Cliente clienteNaLista = clienteComboBox.getItemAt(i);
+            if (clienteNaLista != null && clienteNaLista.getId() == clienteParaSelecionar.getId()) {
+                clienteComboBox.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
     private void carregarDadosIniciais() {
         try {
+            Cliente clienteSelecionadoAntes = (Cliente) clienteComboBox.getSelectedItem();
             clienteComboBox.removeAllItems();
             clienteComboBox.addItem(null);
-            clienteService.listarTodos().forEach(clienteComboBox::addItem);
+            List<Cliente> clientes = clienteService.listarTodos();
+            clientes.forEach(clienteComboBox::addItem);
+
+            if (clienteSelecionadoAntes != null) {
+                for (Cliente cliente : clientes) {
+                    if (cliente.getId() == clienteSelecionadoAntes.getId()) {
+                        clienteComboBox.setSelectedItem(cliente);
+                        break;
+                    }
+                }
+            }
 
             produtoComboBox.removeAllItems();
             produtoService.listarProdutosAtivosParaVenda().forEach(produtoComboBox::addItem);
 
             atualizarLotesDisponiveis();
         } catch (PersistenciaException e) {
-            logger.log(Level.SEVERE, "Erro ao carregar dados iniciais de venda.", e); // Log do erro
+            logger.log(Level.SEVERE, "Erro ao carregar dados iniciais de venda.", e);
             UIMessageUtil.showErrorMessage(this, "Erro ao carregar dados iniciais: " + e.getMessage(), "Erro de Base de Dados");
         }
     }
@@ -91,34 +116,34 @@ public class VendaPanel extends JPanel {
             try {
                 produtoService.buscarLotesDisponiveis(produtoSelecionado.getId()).forEach(loteComboBox::addItem);
             } catch (PersistenciaException e) {
-                logger.log(Level.SEVERE, "Erro ao carregar lotes para o produto " + produtoSelecionado.getNome(), e); // Log do erro
+                logger.log(Level.SEVERE, "Erro ao carregar lotes para o produto " + produtoSelecionado.getNome(), e);
                 UIMessageUtil.showErrorMessage(this, "Erro ao carregar lotes: " + e.getMessage(), "Erro de Base de Dados");
             }
         }
     }
 
     private void adicionarAoCarrinho() {
-        logger.info("Tentando adicionar item ao carrinho."); // NOVO LOG
+        logger.info("Tentando adicionar item ao carrinho.");
         Lote loteSelecionado = (Lote) loteComboBox.getSelectedItem();
         int quantidade = (Integer) quantidadeSpinner.getValue();
 
-        logger.info("Lote selecionado: " + (loteSelecionado != null ? loteSelecionado.getNumeroLote() : "null") + ", Quantidade: " + quantidade); // NOVO LOG
+        logger.info("Lote selecionado: " + (loteSelecionado != null ? loteSelecionado.getNumeroLote() : "null") + ", Quantidade: " + quantidade);
 
         if (loteSelecionado == null) {
             UIMessageUtil.showWarningMessage(this, "Selecione um produto e um lote válido.", "Aviso");
-            logger.warning("Falha ao adicionar item ao carrinho: Nenhum lote selecionado."); // NOVO LOG
+            logger.warning("Falha ao adicionar item ao carrinho: Nenhum lote selecionado.");
             return;
         }
 
-        if (quantidade <= 0) { // Adicionada validação explícita para quantidade positiva
+        if (quantidade <= 0) {
             UIMessageUtil.showErrorMessage(this, "A quantidade deve ser maior que zero.", "Erro de Quantidade");
-            logger.warning("Falha ao adicionar item ao carrinho: Quantidade é zero ou menor."); // NOVO LOG
+            logger.warning("Falha ao adicionar item ao carrinho: Quantidade é zero ou menor.");
             return;
         }
 
         if (quantidade > loteSelecionado.getQuantidade()) {
             UIMessageUtil.showErrorMessage(this, "Quantidade solicitada excede o estoque do lote (" + loteSelecionado.getQuantidade() + ").", "Erro de Estoque");
-            logger.warning("Falha ao adicionar item ao carrinho: Estoque insuficiente para o lote " + loteSelecionado.getNumeroLote() + ". Solicitado: " + quantidade + ", Disponível: " + loteSelecionado.getQuantidade()); // NOVO LOG
+            logger.warning("Falha ao adicionar item ao carrinho: Estoque insuficiente.");
             return;
         }
 
@@ -126,7 +151,7 @@ public class VendaPanel extends JPanel {
         carrinho.add(novoItem);
         atualizarCarrinho();
         UIMessageUtil.showInfoMessage(this, "Item adicionado ao carrinho: " + loteSelecionado.getProduto().getNome() + " x" + quantidade, "Sucesso");
-        logger.info("Item adicionado com sucesso ao carrinho: " + loteSelecionado.getProduto().getNome() + " (Lote: " + loteSelecionado.getNumeroLote() + ") x" + quantidade); // NOVO LOG
+        logger.info("Item adicionado com sucesso ao carrinho.");
     }
 
     private void atualizarCarrinho() {
@@ -144,20 +169,17 @@ public class VendaPanel extends JPanel {
             total += subtotal;
         }
         totalLabel.setText("Total: " + currencyFormat.format(total));
-        quantidadeSpinner.setValue(1); // Resetar quantidade para 1 após adicionar
+        quantidadeSpinner.setValue(1);
     }
 
     private void limparVenda() {
         carrinho.clear();
         atualizarCarrinho();
         if (clienteComboBox.getItemCount() > 0) clienteComboBox.setSelectedIndex(0);
-        carregarDadosIniciais(); // Recarrega produtos/lotes para refletir mudanças de estoque
+        carregarDadosIniciais();
     }
 
     private void finalizarVenda() {
-        // As validações iniciais de carrinho vazio ou utilizador não autenticado devem ser feitas aqui ou no Service.
-        // O Service já faz a validação de usuário logado e carrinho vazio (agora com CarrinhoVazioException).
-
         Cliente clienteSelecionado = (Cliente) clienteComboBox.getSelectedItem();
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         double valorTotal = carrinho.stream().mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario()).sum();
@@ -168,23 +190,21 @@ public class VendaPanel extends JPanel {
             vendaService.finalizarVenda(novaVenda, ator);
             UIMessageUtil.showInfoMessage(this, "Venda finalizada com sucesso!", "Sucesso");
             limparVenda();
-        } catch (CarrinhoVazioException e) { // ALTERADO: Captura exceção específica
-            logger.log(Level.WARNING, "Tentativa de finalizar venda com carrinho vazio.", e); // Log do aviso
+        } catch (CarrinhoVazioException e) {
+            logger.log(Level.WARNING, "Tentativa de finalizar venda com carrinho vazio.", e);
             UIMessageUtil.showWarningMessage(this, e.getMessage(), "Aviso");
-        } catch (UtilizadorNaoAutenticadoException e) { // ALTERADO: Captura exceção específica
-            logger.log(Level.WARNING, "Tentativa de finalizar venda sem utilizador autenticado.", e); // Log do aviso
+        } catch (UtilizadorNaoAutenticadoException e) {
+            logger.log(Level.WARNING, "Tentativa de finalizar venda sem utilizador autenticado.", e);
             UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
-        } catch (PersistenciaException e) { // ALTERADO: Captura exceção geral de persistência
-            // PersistenciaException agora encapsula erros como "Estoque insuficiente"
-            logger.log(Level.SEVERE, "Erro de base de dados ao finalizar a venda. Causa: " + e.getMessage(), e); // Log completo
+        } catch (PersistenciaException e) {
+            logger.log(Level.SEVERE, "Erro de base de dados ao finalizar a venda. Causa: " + e.getMessage(), e);
             UIMessageUtil.showErrorMessage(this, "Ocorreu um erro de base de dados ao finalizar a venda:\n" + e.getMessage(), "Erro de Persistência");
-        } catch (Exception e) { // Catch-all para qualquer outra exceção inesperada
-            logger.log(Level.SEVERE, "Erro inesperado ao finalizar a venda.", e); // Log completo
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro inesperado ao finalizar a venda.", e);
             UIMessageUtil.showErrorMessage(this, "Ocorreu um erro inesperado ao finalizar a venda. Consulte os logs para mais detalhes.", "Erro");
         }
     }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
     public void refreshData() {
         carregarDadosIniciais();
     }
@@ -196,7 +216,6 @@ public class VendaPanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // ComboBoxes e Spinner já inicializados no construtor
         JButton addButton = new JButton("Adicionar ao Carrinho");
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0;
         selectionPanel.add(new JLabel("Cliente:"), gbc);
@@ -226,7 +245,6 @@ public class VendaPanel extends JPanel {
 
     private JPanel createBottomPanel() {
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        // totalLabel já inicializado no construtor
         totalLabel.setFont(new Font("Arial", Font.BOLD, 18));
         bottomPanel.add(totalLabel, BorderLayout.WEST);
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

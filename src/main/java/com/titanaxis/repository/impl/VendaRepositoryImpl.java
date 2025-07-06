@@ -73,4 +73,13 @@ public class VendaRepositoryImpl implements VendaRepository {
     public Optional<Venda> findById(Integer id, EntityManager em) {
         return Optional.ofNullable(em.find(Venda.class, id));
     }
+
+    // NOVO MÉTODO
+    @Override
+    public List<Venda> findVendasByClienteId(int clienteId, EntityManager em) {
+        TypedQuery<Venda> query = em.createQuery(
+                "SELECT v FROM Venda v LEFT JOIN FETCH v.itens WHERE v.cliente.id = :clienteId ORDER BY v.dataVenda DESC", Venda.class);
+        query.setParameter("clienteId", clienteId);
+        return query.getResultList();
+    }
 }

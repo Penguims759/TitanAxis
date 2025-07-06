@@ -3,11 +3,15 @@ package com.titanaxis.service;
 
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
 import com.titanaxis.repository.VendaRepository;
 
+import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,6 +19,9 @@ public class AnalyticsService {
 
     private final VendaRepository vendaRepository;
     private final TransactionService transactionService;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+
 
     @Inject
     public AnalyticsService(VendaRepository vendaRepository, TransactionService transactionService) {
@@ -62,5 +69,59 @@ public class AnalyticsService {
         } catch (PersistenciaException e) {
             return "Não consegui carregar os insights diários devido a um erro no banco de dados.";
         }
+    }
+
+    // NOVO MÉTODO
+    public String getTopBuyingClients(int limit) throws PersistenciaException {
+        List<Venda> vendas = transactionService.executeInTransactionWithResult(vendaRepository::findAll);
+        if (vendas.isEmpty()) {
+            return "Nenhuma venda registrada para analisar os clientes.";
+        }
+
+        Map<String, Double> clientSpending = vendas.stream()
+                .filter(v -> v.getCliente() != null)
+                .collect(Collectors.groupingBy(
+                        v -> v.getCliente().getNome(),
+                        Collectors.summingDouble(Venda::getValorTotal)
+                ));
+
+        if (clientSpending.isEmpty()) {
+            return "Nenhum cliente associado às vendas foi encontrado.";
+        }
+
+        String topClients = clientSpending.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(limit)
+                .map(entry -> String.format("- %s (%s)", entry.getKey(), CURRENCY_FORMAT.format(entry.getValue())))
+                .collect(Collectors.joining("\n"));
+
+        return "Os " + limit + " clientes que mais compraram foram:\n" + topClients;
+    }
+
+    // NOVO MÉTODO
+    public String getClientPurchaseHistory(int clienteId) throws PersistenciaException {
+        List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.findVendasByClienteId(clienteId, em)
+        );
+
+        if (vendas.isEmpty()) {
+            return "Este cliente ainda não realizou nenhuma compra.";
+        }
+
+        StringBuilder history = new StringBuilder("Histórico de compras:\n");
+        for (Venda venda : vendas) {
+            history.append(String.format("  Venda #%d (%s) - Total: %s\n",
+                    venda.getId(),
+                    venda.getDataVenda().format(DATE_FORMATTER),
+                    CURRENCY_FORMAT.format(venda.getValorTotal())
+            ));
+            for (VendaItem item : venda.getItens()) {
+                history.append(String.format("    - %dx %s\n",
+                        item.getQuantidade(),
+                        item.getProduto().getNome()
+                ));
+            }
+        }
+        return history.toString();
     }
 }

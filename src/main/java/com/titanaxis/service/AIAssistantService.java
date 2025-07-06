@@ -3,11 +3,13 @@ package com.titanaxis.service;
 
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.model.ai.ConversationState;
+import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.util.StringUtil;
 
 import java.time.format.DateTimeFormatter;
@@ -15,12 +17,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AIAssistantService {
 
     private final AlertaService alertaService;
     private final AnalyticsService analyticsService;
+    private final ClienteRepository clienteRepository; // NOVO
+    private final TransactionService transactionService; // NOVO
     private final ConversationState conversationState = new ConversationState();
 
     private enum Intent {
@@ -33,6 +38,9 @@ public class AIAssistantService {
         QUERY_EXPIRING_LOTES("quais", "liste", "lotes", "vencer", "vencimento"),
         QUERY_TOP_SELLING("produto", "mais", "vendido", "top", "vendas"),
         GREETING("ola", "oi", "bom", "dia", "tarde", "noite"),
+        QUERY_CLIENT_HISTORY("historico", "compras", "comprou", "cliente"), // NOVO
+        QUERY_TOP_CLIENTS("melhores", "clientes", "compraram", "ranking"), // NOVO
+        START_SALE("inicie", "comece", "nova", "venda", "para", "cliente"), // NOVO
         UNKNOWN;
 
         final String[] keywords;
@@ -42,9 +50,11 @@ public class AIAssistantService {
     }
 
     @Inject
-    public AIAssistantService(AlertaService alertaService, AnalyticsService analyticsService) {
+    public AIAssistantService(AlertaService alertaService, AnalyticsService analyticsService, ClienteRepository clienteRepository, TransactionService transactionService) {
         this.alertaService = alertaService;
         this.analyticsService = analyticsService;
+        this.clienteRepository = clienteRepository; // NOVO
+        this.transactionService = transactionService; // NOVO
     }
 
     public AssistantResponse processQuery(String query) {
@@ -67,6 +77,9 @@ public class AIAssistantService {
                     String topProduct = analyticsService.getTopSellingProduct();
                     return new AssistantResponse("Com base nos dados, o produto mais vendido é: " + topProduct);
                 case GREETING: return getProactiveGreeting();
+                case QUERY_CLIENT_HISTORY: return handleClientHistoryQuery(query); // NOVO
+                case QUERY_TOP_CLIENTS: return handleTopClientsQuery(); // NOVO
+                case START_SALE: return handleStartSale(query); // NOVO
                 default: // UNKNOWN
                     return new AssistantResponse("Desculpe, não entendi o que você quis dizer. Consulte o guia ao lado para ver algumas ideias.");
             }
@@ -74,6 +87,50 @@ public class AIAssistantService {
             return new AssistantResponse("Ocorreu um erro inesperado ao processar sua solicitação: " + e.getMessage());
         }
     }
+
+    // NOVO MÉTODO
+    private AssistantResponse handleStartSale(String query) throws PersistenciaException {
+        String clientName = extractValueAfter(query, "cliente");
+        if (clientName == null || clientName.isEmpty()) {
+            return new AssistantResponse("Para qual cliente você gostaria de iniciar a venda?");
+        }
+
+        Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(em -> clienteRepository.findByNome(clientName, em));
+
+        if (clienteOpt.isPresent()) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("cliente", clienteOpt.get());
+            return new AssistantResponse("Ok, iniciando uma nova venda para o cliente " + clientName + ".", Action.START_SALE_FOR_CLIENT, params);
+        } else {
+            return new AssistantResponse("Não consegui encontrar um cliente com o nome '" + clientName + "'. Verifique o nome e tente novamente.");
+        }
+    }
+
+    // NOVO MÉTODO
+    private AssistantResponse handleTopClientsQuery() throws PersistenciaException {
+        String topClients = analyticsService.getTopBuyingClients(3); // Busca o top 3
+        return new AssistantResponse(topClients);
+    }
+
+    // NOVO MÉTODO
+    private AssistantResponse handleClientHistoryQuery(String query) throws PersistenciaException {
+        String clientName = extractValueAfter(query, "cliente");
+        if (clientName == null || clientName.isEmpty()) {
+            return new AssistantResponse("De qual cliente você gostaria de ver o histórico?");
+        }
+
+        Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(em -> clienteRepository.findByNome(clientName, em));
+
+        if (clienteOpt.isPresent()) {
+            String history = analyticsService.getClientPurchaseHistory(clienteOpt.get().getId());
+            Map<String, Object> params = new HashMap<>();
+            params.put("text", history);
+            return new AssistantResponse("Aqui está o histórico para " + clientName + ":", Action.DISPLAY_COMPLEX_RESPONSE, params);
+        } else {
+            return new AssistantResponse("Não consegui encontrar o cliente '" + clientName + "'.");
+        }
+    }
+
 
     /**
      * Determina a intenção do utilizador com base na contagem de correspondências de palavras-chave.
@@ -237,6 +294,8 @@ public class AIAssistantService {
 
     private AssistantResponse startCreateClientConversation(String query) {
         String nome = extractValueAfter(query, "chamado");
+        if(nome == null) nome = extractValueAfter(query, "cliente"); // Tenta com "cliente" também
+
         String contato = extractValueAfter(query, "contato");
 
         if (nome != null && !nome.isEmpty() && contato != null && !contato.isEmpty()) {
@@ -256,10 +315,13 @@ public class AIAssistantService {
     }
 
     private String extractValueAfter(String text, String keyword) {
+        text = StringUtil.normalize(text);
         if (text.contains(keyword)) {
-            String[] parts = StringUtil.normalize(text).split(keyword);
+            // Pega o que vem depois da keyword
+            String[] parts = text.split(keyword, 2);
             if (parts.length > 1) {
-                String potentialValue = parts[1].split(" com ")[0].trim();
+                // Remove preposições comuns que podem vir a seguir
+                String potentialValue = parts[1].split(" com | e | para ")[0].trim();
                 return potentialValue;
             }
         }

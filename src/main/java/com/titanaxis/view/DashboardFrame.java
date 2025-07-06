@@ -41,6 +41,7 @@ public class DashboardFrame extends JFrame {
     private UsuarioPanel usuarioPanel;
     private AuditoriaPanel auditoriaPanel;
     private AIAssistantPanel aiAssistantPanel;
+    private VendaPanel vendaPanel; // NOVO
 
 
     public DashboardFrame(AppContext appContext) {
@@ -86,8 +87,10 @@ public class DashboardFrame extends JFrame {
         }
 
         // --- ABA DE VENDAS ---
-        final VendaPanel vendaPanel = new VendaPanel(appContext);
+        vendaPanel = new VendaPanel(appContext); // ALTERADO: Atribuído à variável de instância
         mainTabbedPane.addTab("Vendas", vendaPanel);
+        mainTabbedPane.addChangeListener(createRefreshListener(vendaPanel)); // NOVO
+
 
         // --- ABAS DE GESTÃO (GERENTE) ---
         if (authService.isGerente()) {
@@ -149,9 +152,10 @@ public class DashboardFrame extends JFrame {
         return e -> {
             if (mainTabbedPane.getSelectedComponent() == panel) {
                 try {
+                    // Usa reflection para chamar o método 'refreshData', se ele existir.
                     panel.getClass().getMethod("refreshData").invoke(panel);
                 } catch (Exception ex) {
-                    // O método não existe ou falhou, não faz nada.
+                    // O método não existe ou falhou, não faz nada. Silencioso.
                 }
             }
         };
@@ -224,6 +228,19 @@ public class DashboardFrame extends JFrame {
 
                 case UI_CHANGE_THEME:
                     setTheme((String) params.get("theme"));
+                    break;
+
+                // NOVOS CASES
+                case START_SALE_FOR_CLIENT:
+                    mainTabbedPane.setSelectedComponent(vendaPanel);
+                    vendaPanel.refreshData(); // Garante que a lista de clientes está atualizada
+                    Cliente cliente = (Cliente) params.get("cliente");
+                    vendaPanel.selecionarCliente(cliente);
+                    break;
+
+                case DISPLAY_COMPLEX_RESPONSE:
+                    String text = (String) params.get("text");
+                    aiAssistantPanel.appendMessage(text, false);
                     break;
             }
         } catch (Exception e) {

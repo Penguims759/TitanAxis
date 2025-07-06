@@ -56,10 +56,23 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         helpTextPane.setOpaque(false); // Fundo transparente
         helpTextPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // ALTERADO: Adicionada dica de cancelamento no final do guia.
+        // ALTERADO: Adicionadas novas dicas de interação com clientes
         String helpHtml = "<html><body style='font-family: Arial; font-size: 11pt;'>"
                 + "<b>Experimente estes comandos:</b>"
-                + "<p><b>\"crie um novo cliente chamado</b> <i>Nome do Cliente</i> <b>com o contato</b> <i>email@exemplo.com</i><b>\"</b><br>"
+
+                + "<p><b>\"inicie uma venda para o cliente</b> <i>Nome do Cliente</i><b>\"</b><br>"
+                + "Abre o painel de vendas e seleciona o cliente."
+                + "</p>"
+
+                + "<p><b>\"qual o histórico de compras do cliente</b> <i>Nome do Cliente</i><b>\"</b><br>"
+                + "Exibe um resumo das compras do cliente."
+                + "</p>"
+
+                + "<p><b>\"quais os melhores clientes\"</b><br>"
+                + "Mostra um ranking dos clientes que mais compraram."
+                + "</p>"
+
+                + "<p><b>\"crie um novo cliente chamado</b> <i>Nome</i> <b>com o contato</b> <i>email@exemplo.com</i><b>\"</b><br>"
                 + "Cria um novo cliente diretamente.</p>"
 
                 + "<p><b>\"gere o relatório de vendas em pdf\"</b><br>"
