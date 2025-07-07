@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/CreateProductFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -7,10 +6,8 @@ import com.titanaxis.model.Categoria;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.CategoriaRepository;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
-import com.titanaxis.service.ai.ConversationFlow;
-
 import java.util.Map;
 import java.util.Optional;
 

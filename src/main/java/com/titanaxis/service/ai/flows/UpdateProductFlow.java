@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/UpdateProductFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -6,7 +5,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.util.StringUtil;
@@ -32,8 +31,6 @@ public class UpdateProductFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        // Se recebemos uma entrada do utilizador, ela é a resposta à nossa última pergunta.
-        // Vamos processá-la e guardá-la no mapa 'data'.
         if (!userInput.isEmpty()) {
             if (!data.containsKey("productName")) {
                 try {
@@ -67,7 +64,6 @@ public class UpdateProductFlow implements ConversationFlow {
             }
         }
 
-        // Depois de processar a entrada, verificamos qual é o próximo dado que falta e fazemos a pergunta.
         if (!data.containsKey("productName")) {
             return new AssistantResponse("Qual produto você deseja alterar?");
         }
@@ -83,7 +79,6 @@ public class UpdateProductFlow implements ConversationFlow {
             return new AssistantResponse("Deseja 'ativar' ou 'inativar' o produto?");
         }
 
-        // Se todos os dados foram recolhidos, montamos e retornamos a mensagem de confirmação.
         data.put("flow", "CONFIRM_PRODUCT_UPDATE");
         String confirmationMessage;
         if ("price".equals(updateType)) {

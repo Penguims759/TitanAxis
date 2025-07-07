@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/QueryStockFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -6,7 +5,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.util.StringUtil;
@@ -32,18 +31,16 @@ public class QueryStockFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        // Tenta extrair o nome do produto da pergunta inicial
         String productName = StringUtil.extractFuzzyValueAfter(userInput, "produto");
         if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "de"); // Tenta "stock de [produto]"
+            productName = StringUtil.extractFuzzyValueAfter(userInput, "de");
         }
 
-        // Se ainda não tiver um nome de produto, pergunta ao utilizador
         if (productName == null) {
             if (userInput.isEmpty() || userInput.equalsIgnoreCase("qual o stock do produto")) {
                 return new AssistantResponse("Qual produto você gostaria de consultar o stock?");
             }
-            productName = userInput; // Assume que a resposta do utilizador é o nome do produto
+            productName = userInput;
         }
 
         try {
@@ -52,7 +49,7 @@ public class QueryStockFlow implements ConversationFlow {
                     em -> produtoRepository.findByNome(finalProductName, em)
             );
 
-            data.put("isFinal", true); // Esta conversa é curta, termina sempre aqui
+            data.put("isFinal", true);
 
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/app/AppModule.java
 package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
@@ -7,7 +6,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.titanaxis.repository.*;
 import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
-import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.service.ai.ConversationFlow; // <-- CORREÇÃO
 import com.titanaxis.service.ai.flows.*;
 
 public class AppModule extends AbstractModule {
@@ -48,7 +47,7 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(QueryStockFlow.class);
         flowBinder.addBinding().to(QueryClientFlow.class);
         flowBinder.addBinding().to(QueryProductLotsFlow.class);
-        flowBinder.addBinding().to(QueryMovementHistoryFlow.class); // NOVO REGISTO
+        flowBinder.addBinding().to(QueryMovementHistoryFlow.class);
 
         // --- Contexto da Aplicação ---
         bind(AppContext.class).in(Singleton.class);

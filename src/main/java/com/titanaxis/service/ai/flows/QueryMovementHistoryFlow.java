@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/QueryMovementHistoryFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -6,7 +5,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.MovimentoRepository;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.util.StringUtil;
@@ -37,7 +36,7 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
     public AssistantResponse process(String userInput, Map<String, Object> data) {
         String productName = StringUtil.extractFuzzyValueAfter(userInput, "produto");
         if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "de"); // Ex: histórico de Cadeira
+            productName = StringUtil.extractFuzzyValueAfter(userInput, "de");
         }
 
         if (productName == null) {
@@ -60,7 +59,7 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
             data.put("isFinal", true);
 
             if (movimentosProduto.isEmpty()) {
-                return new AssistantResponse("Não encontrei nenhum histórico de movimentos para o produto '" + finalProductName + "'. Verifique se o produto existe e se teve movimentações.");
+                return new AssistantResponse("Não encontrei nenhum histórico de movimentos para o produto '" + finalProductName + "'.");
             }
 
             String historicoFormatado = movimentosProduto.stream()

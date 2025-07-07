@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/QueryClientFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -6,7 +5,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ClienteRepository;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.util.StringUtil;
@@ -32,14 +31,13 @@ public class QueryClientFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        // Tenta extrair o nome do cliente da pergunta inicial
         String clientName = StringUtil.extractFuzzyValueAfter(userInput, "cliente");
 
         if (clientName == null) {
             if (userInput.isEmpty() || isInitialCommand(userInput)) {
                 return new AssistantResponse("Qual cliente você gostaria de consultar?");
             }
-            clientName = userInput; // Assume que a resposta do utilizador é o nome do cliente
+            clientName = userInput;
         }
 
         try {
@@ -48,7 +46,7 @@ public class QueryClientFlow implements ConversationFlow {
                     em -> clienteRepository.findByNome(finalClientName, em)
             );
 
-            data.put("isFinal", true); // Esta conversa termina sempre aqui
+            data.put("isFinal", true);
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();

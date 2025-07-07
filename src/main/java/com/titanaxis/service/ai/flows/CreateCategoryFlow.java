@@ -1,10 +1,8 @@
-// src/main/java/com/titanaxis/service/ai/flows/CreateCategoryFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
-import com.titanaxis.service.AIAssistantService.Intent;
-import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.service.Intent;
 import java.util.Map;
 
 public class CreateCategoryFlow implements ConversationFlow {

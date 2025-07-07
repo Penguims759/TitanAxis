@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/CreateUserFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -6,8 +5,9 @@ import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AuthService;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+
 import java.util.Map;
 
 public class CreateUserFlow implements ConversationFlow {
@@ -37,7 +37,6 @@ public class CreateUserFlow implements ConversationFlow {
 
         State currentState = (State) data.getOrDefault("state", State.START);
 
-        // Apenas processa a entrada se não for a primeira interação
         if (currentState != State.START && !userInput.isEmpty()) {
             switch (currentState) {
                 case AWAITING_USERNAME:

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -268,7 +267,6 @@ public class DashboardFrame extends JFrame {
                     if (produtoPanel != null) produtoPanel.refreshData();
                     break;
 
-                // CORREÇÃO APLICADA AQUI
                 case GUIDE_NAVIGATE_TO_ADD_LOTE:
                     mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
                     produtosEstoqueTabbedPane.setSelectedComponent(produtoPanel);
@@ -302,8 +300,12 @@ public class DashboardFrame extends JFrame {
                     break;
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao executar ação do assistente: " + action, e);
-            UIMessageUtil.showErrorMessage(this, "Erro ao executar a ação: " + e.getMessage(), "Erro na Ação");
+            logger.log(Level.SEVERE, "Erro detalhado ao executar a ação '" + action + "': ", e);
+            String errorMessage = e.getMessage();
+            if (e.getCause() != null) {
+                errorMessage += "\nCausa Raiz: " + e.getCause().getMessage();
+            }
+            UIMessageUtil.showErrorMessage(this, "Erro ao executar a ação: " + errorMessage, "Erro na Ação do Assistente");
         }
     }
 

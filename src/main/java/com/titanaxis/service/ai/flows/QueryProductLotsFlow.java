@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/QueryProductLotsFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -7,7 +6,7 @@ import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.service.AIAssistantService.Intent;
+import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.util.StringUtil;
@@ -39,7 +38,7 @@ public class QueryProductLotsFlow implements ConversationFlow {
     public AssistantResponse process(String userInput, Map<String, Object> data) {
         String productName = StringUtil.extractFuzzyValueAfter(userInput, "produto");
         if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "da"); // Ex: lotes da Cadeira
+            productName = StringUtil.extractFuzzyValueAfter(userInput, "da");
         }
 
         if (productName == null) {
