@@ -1,19 +1,16 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/repository/impl/MovimentoRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.repository.MovimentoRepository;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class MovimentoRepositoryImpl implements MovimentoRepository {
 
     @Inject
-    public MovimentoRepositoryImpl() {
-        // No-arg constructor for Guice.
-        // This repository does not have direct dependencies injected through its constructor.
-    }
+    public MovimentoRepositoryImpl() {}
 
     @Override
     public List<MovimentoEstoque> findAll(EntityManager em) {
@@ -23,5 +20,19 @@ public class MovimentoRepositoryImpl implements MovimentoRepository {
                 "LEFT JOIN FETCH m.usuario u " +
                 "ORDER BY m.id DESC";
         return em.createQuery(jpql, MovimentoEstoque.class).getResultList();
+    }
+
+    @Override
+    public List<MovimentoEstoque> findBetweenDates(LocalDateTime inicio, LocalDateTime fim, EntityManager em) {
+        String jpql = "SELECT m FROM MovimentoEstoque m " +
+                "LEFT JOIN FETCH m.produto p " +
+                "LEFT JOIN FETCH m.lote l " +
+                "LEFT JOIN FETCH m.usuario u " +
+                "WHERE m.dataMovimento BETWEEN :inicio AND :fim " +
+                "ORDER BY m.id DESC";
+        return em.createQuery(jpql, MovimentoEstoque.class)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
     }
 }

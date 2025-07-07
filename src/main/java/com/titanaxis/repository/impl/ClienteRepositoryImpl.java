@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -7,8 +6,10 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException; // NOVO
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,6 @@ public class ClienteRepositoryImpl implements ClienteRepository {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Cliente '%s' (ID: %d) foi %s.",
                     clienteSalvo.getNome(), clienteSalvo.getId(), isUpdate ? "atualizado" : "criado");
-            // CORREÇÃO: Passar o EntityManager para o método de auditoria.
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Cliente", detalhes, em);
         }
         return clienteSalvo;
@@ -42,7 +42,6 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         clienteOpt.ifPresent(cliente -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", cliente.getNome(), id);
-                // CORREÇÃO: Passar o EntityManager para o método de auditoria.
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Cliente", detalhes, em);
             }
             em.remove(cliente);
@@ -66,7 +65,6 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         return query.getResultList();
     }
 
-    // NOVO MÉTODO
     @Override
     public Optional<Cliente> findByNome(String nome, EntityManager em) {
         TypedQuery<Cliente> query = em.createQuery("SELECT c FROM Cliente c WHERE c.nome = :nome", Cliente.class);
@@ -76,5 +74,15 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public long countNewClientesBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
+        Query query = em.createNativeQuery(
+                "SELECT COUNT(DISTINCT detalhes) FROM auditoria_logs WHERE acao = 'CRIAÇÃO' AND entidade = 'Cliente' AND data_evento BETWEEN ? AND ?");
+        query.setParameter(1, start);
+        query.setParameter(2, end);
+        Object result = query.getSingleResult();
+        return (result instanceof Number) ? ((Number) result).longValue() : 0L;
     }
 }

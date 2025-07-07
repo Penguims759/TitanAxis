@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/UIPersonalizationService.java
 package com.titanaxis.service;
 
 import java.io.File;
@@ -15,7 +14,8 @@ public class UIPersonalizationService {
 
     public UIPersonalizationService(String username) {
         this.username = username;
-        this.configFile = new File("prefs_" + username + ".properties");
+        String safeUsername = username.replaceAll("[^a-zA-Z0-9.-]", "_");
+        this.configFile = new File("prefs_" + safeUsername + ".properties");
         loadPreferences();
     }
 

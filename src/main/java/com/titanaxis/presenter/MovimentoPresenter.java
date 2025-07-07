@@ -6,11 +6,12 @@ import com.titanaxis.service.MovimentoService;
 import com.titanaxis.view.interfaces.MovimentoView;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.List;
 
 public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
-    private final MovimentoView view; // Adicionado final
-    private final MovimentoService movimentoService; // Adicionado final
+    private final MovimentoView view;
+    private final MovimentoService movimentoService;
 
     public MovimentoPresenter(MovimentoView view, MovimentoService movimentoService) {
         this.view = view;
@@ -20,10 +21,22 @@ public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
 
     @Override
     public void aoCarregarMovimentos() {
+        carregarMovimentos(null, null);
+    }
+
+    @Override
+    public void aoFiltrarPorData() {
+        carregarMovimentos(view.getDataInicio(), view.getDataFim());
+    }
+
+    private void carregarMovimentos(LocalDate inicio, LocalDate fim) {
         view.setCursorEspera(true);
         SwingWorker<List<MovimentoEstoque>, Void> worker = new SwingWorker<>() {
             @Override
             protected List<MovimentoEstoque> doInBackground() throws Exception {
+                if (inicio != null && fim != null) {
+                    return movimentoService.listarMovimentosPorPeriodo(inicio, fim);
+                }
                 return movimentoService.listarTodosMovimentos();
             }
 
@@ -33,15 +46,9 @@ public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
                     List<MovimentoEstoque> movimentos = get();
                     view.setMovimentosNaTabela(movimentos);
                 } catch (Exception e) {
-                    // Trata a PersistenciaException que pode vir do SwingWorker
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
-                    if (cause instanceof PersistenciaException) {
-                        // ALTERADO: Mensagem mais informativa
-                        view.mostrarErro("Erro de Base de Dados", "Erro ao carregar o histórico de movimentos: " + cause.getMessage());
-                    } else {
-                        view.mostrarErro("Erro Inesperado", "Ocorreu um erro inesperado: " + cause.getMessage()); // ALTERADO: Mensagem mais informativa
-                    }
-                    cause.printStackTrace(); // Manter para depuração completa nos logs
+                    String msg = (cause instanceof PersistenciaException) ? "Erro de Base de Dados: " + cause.getMessage() : "Ocorreu um erro inesperado.";
+                    view.mostrarErro("Erro ao Carregar Movimentos", msg);
                 } finally {
                     view.setCursorEspera(false);
                 }

@@ -1,13 +1,17 @@
-// src/main/java/com/titanaxis/service/AnalyticsService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
+import com.titanaxis.repository.AuditoriaRepository;
+import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.repository.VendaRepository;
 
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -18,22 +22,53 @@ import java.util.stream.Collectors;
 public class AnalyticsService {
 
     private final VendaRepository vendaRepository;
+    private final ClienteRepository clienteRepository;
+    private final AuditoriaRepository auditoriaRepository;
     private final TransactionService transactionService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-
+    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "PT"));
 
     @Inject
-    public AnalyticsService(VendaRepository vendaRepository, TransactionService transactionService) {
+    public AnalyticsService(VendaRepository vendaRepository, ClienteRepository clienteRepository, AuditoriaRepository auditoriaRepository, TransactionService transactionService) {
         this.vendaRepository = vendaRepository;
+        this.clienteRepository = clienteRepository;
+        this.auditoriaRepository = auditoriaRepository;
         this.transactionService = transactionService;
     }
 
-    /**
-     * Analisa as vendas recentes para encontrar o produto mais vendido.
-     * @return O nome do produto mais vendido ou uma mensagem se não houver vendas.
-     * @throws PersistenciaException se ocorrer um erro na base de dados.
-     */
+    public List<Object[]> getRecentActivity(int limit) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em ->
+                auditoriaRepository.findRecentActivity(limit, em));
+    }
+
+    public double getVendasHoje() throws PersistenciaException {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.findVendasBetweenDates(startOfDay, endOfDay, em));
+        return vendas.stream().mapToDouble(Venda::getValorTotal).sum();
+    }
+
+    public long getNovosClientesMes() throws PersistenciaException {
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(LocalTime.MAX);
+        return transactionService.executeInTransactionWithResult(em ->
+                clienteRepository.countNewClientesBetweenDates(startOfMonth, endOfMonth, em));
+    }
+
+    public Map<LocalDate, Double> getVendasUltimos7Dias() throws PersistenciaException {
+        LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
+        LocalDateTime start = LocalDate.now().minusDays(6).atStartOfDay();
+        List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.findVendasBetweenDates(start, end, em));
+
+        return vendas.stream()
+                .collect(Collectors.groupingBy(
+                        venda -> venda.getDataVenda().toLocalDate(),
+                        Collectors.summingDouble(Venda::getValorTotal)
+                ));
+    }
+
     public String getTopSellingProduct() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em -> {
             List<VendaItem> recentItems = vendaRepository.findAllItems(em);
@@ -42,23 +77,18 @@ public class AnalyticsService {
                 return "Nenhuma venda registrada ainda.";
             }
 
-            Map<String, Integer> productSales = recentItems.stream()
+            return recentItems.stream()
                     .collect(Collectors.groupingBy(
                             item -> item.getProduto().getNome(),
                             Collectors.summingInt(VendaItem::getQuantidade)
-                    ));
-
-            return productSales.entrySet().stream()
+                    ))
+                    .entrySet().stream()
                     .max(Comparator.comparingInt(Map.Entry::getValue))
                     .map(Map.Entry::getKey)
                     .orElse("Não foi possível determinar o produto mais vendido.");
         });
     }
 
-    /**
-     * Gera um resumo proativo com os insights mais importantes para o usuário ao fazer login.
-     * @return Uma string com o resumo ou uma string vazia se não houver nada importante.
-     */
     public String getProactiveInsightsSummary() {
         try {
             String topProduct = getTopSellingProduct();
@@ -71,7 +101,6 @@ public class AnalyticsService {
         }
     }
 
-    // NOVO MÉTODO
     public String getTopBuyingClients(int limit) throws PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(vendaRepository::findAll);
         if (vendas.isEmpty()) {
@@ -98,7 +127,6 @@ public class AnalyticsService {
         return "Os " + limit + " clientes que mais compraram foram:\n" + topClients;
     }
 
-    // NOVO MÉTODO
     public String getClientPurchaseHistory(int clienteId) throws PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findVendasByClienteId(clienteId, em)

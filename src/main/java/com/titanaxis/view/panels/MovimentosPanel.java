@@ -1,67 +1,63 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/MovimentosPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.presenter.MovimentoPresenter;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.interfaces.MovimentoView;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MovimentosPanel extends JPanel implements MovimentoView {
     private MovimentoViewListener listener;
-    private final DefaultTableModel tableModel; // Adicionado final
-    private final JTable table; // Adicionado final
-    private final TableRowSorter<DefaultTableModel> sorter; // Adicionado final
+    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final TableRowSorter<DefaultTableModel> sorter;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    // NOVOS COMPONENTES PARA FILTRO DE DATA
+    private JSpinner dataInicioSpinner;
+    private JSpinner dataFimSpinner;
+
     public MovimentosPanel(AppContext appContext) {
-        // ALTERADO: Inicialização de campos 'final' movida para o construtor.
         tableModel = new DefaultTableModel(new String[]{"Data", "Produto", "Lote", "Tipo", "Quantidade", "Utilizador"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
-        table.setFocusable(false); // NOVO: Remove o foco visual da tabela
-        table.setSelectionBackground(table.getBackground()); // NOVO: Torna o fundo da seleção invisível
-        table.setSelectionForeground(table.getForeground()); // NOVO: Mantém a cor do texto da seleção
         sorter = new TableRowSorter<>(tableModel);
 
-        initComponents(); // Chama o método para construir o layout com os componentes já inicializados
+        initComponents();
         new MovimentoPresenter(this, appContext.getMovimentoService());
-        listener.aoCarregarMovimentos(); // Inicia o carregamento
+        listener.aoCarregarMovimentos();
     }
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createTitledBorder("Histórico de Movimentos de Estoque"));
 
-        // Painel de Filtro e Refresh
-        JPanel topPanel = new JPanel(new BorderLayout());
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filterPanel.add(new JLabel("Filtrar:"));
-        JTextField filterField = new JTextField(30);
-        filterPanel.add(filterField);
-        topPanel.add(filterPanel, BorderLayout.WEST);
+        add(createTopPanel(), BorderLayout.NORTH);
 
-        JButton refreshButton = new JButton("Atualizar");
-        refreshButton.addActionListener(e -> refreshData()); // ALTERADO: Chama refreshData()
-        JPanel refreshPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        refreshPanel.add(refreshButton);
-        topPanel.add(refreshPanel, BorderLayout.EAST);
-        add(topPanel, BorderLayout.NORTH);
-
-        // Tabela de Movimentos
-        // tableModel, table e sorter já inicializados no construtor
         table.setRowSorter(sorter);
         add(new JScrollPane(table), BorderLayout.CENTER);
+    }
 
-        // Ação de filtro
+    private JPanel createTopPanel() {
+        JPanel topPanel = new JPanel(new BorderLayout());
+
+        // PAINEL DE FILTRO DE TEXTO
+        JPanel textFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        textFilterPanel.add(new JLabel("Filtrar por texto:"));
+        JTextField filterField = new JTextField(30);
+        textFilterPanel.add(filterField);
         filterField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
@@ -70,6 +66,37 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
                 sorter.setRowFilter(RowFilter.regexFilter("(?i)" + filterField.getText()));
             }
         });
+
+        // PAINEL DE FILTRO DE DATA
+        JPanel dateFilterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        SpinnerDateModel inicioModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
+        dataInicioSpinner = new JSpinner(inicioModel);
+        dataInicioSpinner.setEditor(new JSpinner.DateEditor(dataInicioSpinner, "dd/MM/yyyy"));
+
+        SpinnerDateModel fimModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
+        dataFimSpinner = new JSpinner(fimModel);
+        dataFimSpinner.setEditor(new JSpinner.DateEditor(dataFimSpinner, "dd/MM/yyyy"));
+
+        JButton filterDateButton = new JButton("Filtrar por Data");
+        filterDateButton.addActionListener(e -> listener.aoFiltrarPorData());
+
+        JButton clearFilterButton = new JButton("Limpar Filtros");
+        clearFilterButton.addActionListener(e -> {
+            filterField.setText("");
+            listener.aoCarregarMovimentos();
+        });
+
+        dateFilterPanel.add(new JLabel("De:"));
+        dateFilterPanel.add(dataInicioSpinner);
+        dateFilterPanel.add(new JLabel("Até:"));
+        dateFilterPanel.add(dataFimSpinner);
+        dateFilterPanel.add(filterDateButton);
+        dateFilterPanel.add(clearFilterButton);
+
+        topPanel.add(textFilterPanel, BorderLayout.WEST);
+        topPanel.add(dateFilterPanel, BorderLayout.EAST);
+
+        return topPanel;
     }
 
     @Override
@@ -85,7 +112,6 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
                     m.getNomeUsuario()
             });
         }
-        table.clearSelection(); // NOVO: Limpa a seleção da tabela
     }
 
     @Override
@@ -98,11 +124,21 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         setCursor(emEspera ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
     }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
+    @Override
+    public LocalDate getDataInicio() {
+        Date date = (Date) dataInicioSpinner.getValue();
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    @Override
+    public LocalDate getDataFim() {
+        Date date = (Date) dataFimSpinner.getValue();
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
     public void refreshData() {
         if (listener != null) {
             listener.aoCarregarMovimentos();
-            table.clearSelection(); // NOVO: Limpa a seleção da tabela ao recarregar
         }
     }
 

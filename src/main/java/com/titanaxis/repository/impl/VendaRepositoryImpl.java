@@ -10,6 +10,7 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -73,12 +74,20 @@ public class VendaRepositoryImpl implements VendaRepository {
         return Optional.ofNullable(em.find(Venda.class, id));
     }
 
-    // CORRIGIDO: Adicionado LEFT JOIN FETCH para carregar o produto junto com o item da venda.
     @Override
     public List<Venda> findVendasByClienteId(int clienteId, EntityManager em) {
         TypedQuery<Venda> query = em.createQuery(
                 "SELECT v FROM Venda v LEFT JOIN FETCH v.itens i LEFT JOIN FETCH i.produto p WHERE v.cliente.id = :clienteId ORDER BY v.dataVenda DESC", Venda.class);
         query.setParameter("clienteId", clienteId);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Venda> findVendasBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
+        TypedQuery<Venda> query = em.createQuery(
+                "SELECT v FROM Venda v WHERE v.dataVenda BETWEEN :start AND :end", Venda.class);
+        query.setParameter("start", start);
+        query.setParameter("end", end);
         return query.getResultList();
     }
 }

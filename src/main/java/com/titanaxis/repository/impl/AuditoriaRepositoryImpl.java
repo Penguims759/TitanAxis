@@ -1,4 +1,3 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/repository/impl/AuditoriaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.titanaxis.repository.AuditoriaRepository;
@@ -19,9 +18,6 @@ public class AuditoriaRepositoryImpl implements AuditoriaRepository {
 
     @Override
     public void registrarAcao(Integer usuarioId, String usuarioNome, String acao, String entidade, String detalhes, EntityManager em) {
-        // CORREÇÃO: Removemos a gestão de transações e o uso de JpaUtil.getEntityManager().
-        // Este método agora usa o EntityManager fornecido, garantindo que a auditoria
-        // faça parte da mesma transação da operação principal.
         try {
             Query query = em.createNativeQuery("INSERT INTO auditoria_logs (data_evento, usuario_id, usuario_nome, acao, entidade, detalhes) VALUES (?, ?, ?, ?, ?, ?)");
             query.setParameter(1, Timestamp.valueOf(LocalDateTime.now()));
@@ -32,9 +28,15 @@ public class AuditoriaRepositoryImpl implements AuditoriaRepository {
             query.setParameter(6, detalhes);
             query.executeUpdate();
         } catch (Exception e) {
-            // A exceção será propagada para a camada de serviço, que fará o rollback de toda a transação (operação + auditoria).
             throw new PersistenceException("Falha ao registrar ação de auditoria para o utilizador: " + usuarioNome, e);
         }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Object[]> findRecentActivity(int limit, EntityManager em) {
+        String sql = "SELECT data_evento, usuario_nome, entidade, detalhes FROM auditoria_logs ORDER BY id DESC";
+        return em.createNativeQuery(sql).setMaxResults(limit).getResultList();
     }
 
     @Override

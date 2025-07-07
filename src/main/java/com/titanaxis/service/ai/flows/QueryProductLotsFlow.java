@@ -37,16 +37,18 @@ public class QueryProductLotsFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        String productName = StringUtil.extractFuzzyValueAfter(userInput, "produto");
+        String productName = StringUtil.extractFuzzyValueAfter(userInput, "de");
         if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "da");
+            productName = StringUtil.extractFuzzyValueAfter(userInput, "lotes");
         }
 
-        if (productName == null) {
-            if (userInput.isEmpty() || isInitialCommand(userInput)) {
+        if (productName == null || productName.trim().isEmpty()) {
+            if (data.containsKey("askedForProduct")) {
+                productName = userInput;
+            } else {
+                data.put("askedForProduct", true);
                 return new AssistantResponse("De qual produto você gostaria de ver os lotes?", Action.AWAITING_INFO, null);
             }
-            productName = userInput;
         }
 
         try {
@@ -80,10 +82,5 @@ public class QueryProductLotsFlow implements ConversationFlow {
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados.");
         }
-    }
-
-    private boolean isInitialCommand(String userInput) {
-        String normalized = StringUtil.normalize(userInput);
-        return normalized.contains("lotes") && normalized.contains("produto");
     }
 }

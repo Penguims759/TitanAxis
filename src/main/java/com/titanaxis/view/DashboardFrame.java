@@ -14,6 +14,7 @@ import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
 import com.titanaxis.view.panels.*;
 
 import javax.swing.*;
@@ -34,6 +35,7 @@ public class DashboardFrame extends JFrame {
     private JTabbedPane mainTabbedPane;
     private JTabbedPane produtosEstoqueTabbedPane;
     private JTabbedPane adminTabbedPane;
+    private HomePanel homePanel;
     private ProdutoPanel produtoPanel;
     private ClientePanel clientePanel;
     private CategoriaPanel categoriaPanel;
@@ -44,7 +46,6 @@ public class DashboardFrame extends JFrame {
     private AuditoriaPanel auditoriaPanel;
     private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
-
 
     public DashboardFrame(AppContext appContext) {
         super("Dashboard - TitanAxis");
@@ -78,8 +79,13 @@ public class DashboardFrame extends JFrame {
     private void setupMenuBar() {
         final JMenuBar menuBar = new JMenuBar();
         final JMenu menuArquivo = new JMenu("Arquivo");
+        final JMenu menuView = new JMenu("Visualização");
         final JMenu menuTema = new JMenu("Alterar Tema");
         final ButtonGroup themeGroup = new ButtonGroup();
+
+        final JMenuItem customizeDashboardItem = new JMenuItem("Personalizar Dashboard");
+        customizeDashboardItem.addActionListener(e -> openCustomizationDialog());
+        menuView.add(customizeDashboardItem);
 
         final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem("Tema Claro");
         lightThemeItem.addActionListener(e -> setTheme("light"));
@@ -95,7 +101,6 @@ public class DashboardFrame extends JFrame {
 
         final JMenuItem logoutMenuItem = new JMenuItem("Logout");
         logoutMenuItem.addActionListener(e -> fazerLogout());
-
         final JMenuItem sairMenuItem = new JMenuItem("Sair");
         sairMenuItem.addActionListener(e -> confirmarSaida());
 
@@ -103,13 +108,44 @@ public class DashboardFrame extends JFrame {
         menuArquivo.addSeparator();
         menuArquivo.add(logoutMenuItem);
         menuArquivo.add(sairMenuItem);
+
         menuBar.add(menuArquivo);
+        menuBar.add(menuView);
         setJMenuBar(menuBar);
+    }
+
+    private void openCustomizationDialog() {
+        DashboardCustomizationDialog dialog = new DashboardCustomizationDialog(this, personalizationService, this::rebuildAndShowHomePanel);
+        dialog.setVisible(true);
+    }
+
+    private void rebuildAndShowHomePanel() {
+        int homeTabIndex = -1;
+        for (int i = 0; i < mainTabbedPane.getTabCount(); i++) {
+            if (mainTabbedPane.getTitleAt(i).equals("Início")) {
+                homeTabIndex = i;
+                break;
+            }
+        }
+
+        if (homeTabIndex != -1) {
+            homePanel = new HomePanel(appContext);
+            mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
+
+            mainTabbedPane.revalidate();
+            mainTabbedPane.repaint();
+
+            logger.info("Painel de início reconstruído com sucesso.");
+        }
     }
 
     private void setupNestedTabs() {
         mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        homePanel = new HomePanel(appContext);
+        mainTabbedPane.addTab("Início", homePanel);
+        mainTabbedPane.addChangeListener(createRefreshListener(homePanel));
 
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
@@ -120,7 +156,6 @@ public class DashboardFrame extends JFrame {
         vendaPanel = new VendaPanel(appContext);
         mainTabbedPane.addTab("Vendas", vendaPanel);
         mainTabbedPane.addChangeListener(createRefreshListener(vendaPanel));
-
 
         if (authService.isGerente()) {
             produtosEstoqueTabbedPane = new JTabbedPane();
@@ -173,6 +208,7 @@ public class DashboardFrame extends JFrame {
 
     public void navigateTo(String destination) {
         Map<String, Component> mainDestinations = Map.of(
+                "Início", homePanel,
                 "Vendas", vendaPanel,
                 "Clientes", clientePanel,
                 "Produtos & Estoque", produtosEstoqueTabbedPane,
@@ -181,106 +217,54 @@ public class DashboardFrame extends JFrame {
                 "Assistente IA", aiAssistantPanel
         );
 
-        Map<String, Component> productSubDestinations = Map.of(
-                "Categorias", categoriaPanel,
-                "Alertas de Estoque", alertaPanel,
-                "Histórico de Movimentos", movimentosPanel
-        );
-
-        Map<String, Component> adminSubDestinations = Map.of(
-                "Gestão de Usuários", usuarioPanel,
-                "Logs de Auditoria", auditoriaPanel
-        );
-
         if (mainDestinations.containsKey(destination)) {
             mainTabbedPane.setSelectedComponent(mainDestinations.get(destination));
-        } else if (productSubDestinations.containsKey(destination)) {
-            mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
-            produtosEstoqueTabbedPane.setSelectedComponent(productSubDestinations.get(destination));
-        } else if (adminSubDestinations.containsKey(destination)) {
-            mainTabbedPane.setSelectedComponent(adminTabbedPane);
-            adminTabbedPane.setSelectedComponent(adminSubDestinations.get(destination));
+        } else {
+            navigateToProductSubTab(destination);
+        }
+    }
+
+    public void navigateToProductSubTab(String subTabName) {
+        if (produtosEstoqueTabbedPane != null) {
+            for (int i = 0; i < produtosEstoqueTabbedPane.getTabCount(); i++) {
+                if (produtosEstoqueTabbedPane.getTitleAt(i).equals(subTabName)) {
+                    produtosEstoqueTabbedPane.setSelectedIndex(i);
+                    break;
+                }
+            }
         }
     }
 
     public void executeAction(Action action, Map<String, Object> params) {
         try {
             Usuario ator = authService.getUsuarioLogado().orElse(null);
-
             switch (action) {
                 case UI_NAVIGATE:
                     String destination = (String) params.get("destination");
                     navigateTo(destination);
                     break;
-
+                case GUIDE_NAVIGATE_TO_ADD_LOTE:
+                    navigateTo("Produtos & Estoque");
+                    if (produtoPanel != null) {
+                        produtoPanel.selectFirstProduct();
+                        UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
+                    }
+                    break;
+                case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
+                    navigateTo("Produtos & Estoque");
+                    if (produtoPanel != null) {
+                        UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
+                    }
+                    break;
                 case DIRECT_CREATE_PRODUCT:
                     String nomeProduto = (String) params.get("nome");
                     Double preco = (Double) params.get("preco");
                     Categoria categoria = (Categoria) params.get("categoria");
                     Produto novoProduto = new Produto(nomeProduto, "", preco, categoria);
-
                     appContext.getProdutoService().salvarProduto(novoProduto, ator);
                     UIMessageUtil.showInfoMessage(this, "Produto '" + nomeProduto + "' criado com sucesso!", "Ação Concluída");
                     if (produtoPanel != null) produtoPanel.refreshData();
                     break;
-
-                case DIRECT_CREATE_CATEGORY:
-                    String nomeCategoria = (String) params.get("nome");
-                    appContext.getCategoriaService().salvar(new Categoria(nomeCategoria), ator);
-                    UIMessageUtil.showInfoMessage(this, "Categoria '" + nomeCategoria + "' criada com sucesso!", "Ação Concluída");
-                    if (categoriaPanel != null) categoriaPanel.refreshData();
-                    break;
-
-                case DIRECT_CREATE_USER:
-                    String username = (String) params.get("username");
-                    String password = (String) params.get("password");
-                    NivelAcesso level = (NivelAcesso) params.get("level");
-                    appContext.getAuthService().cadastrarUsuario(username, password, level, ator);
-                    UIMessageUtil.showInfoMessage(this, "Utilizador '" + username + "' criado com sucesso!", "Ação Concluída");
-                    if (usuarioPanel != null) usuarioPanel.refreshData();
-                    break;
-
-                case DIRECT_ADD_STOCK:
-                    String productNameStock = (String) params.get("productName");
-                    String lotNumber = (String) params.get("lotNumber");
-                    int quantity = (Integer) params.get("quantity");
-                    appContext.getProdutoService().adicionarEstoqueLote(productNameStock, lotNumber, quantity, ator);
-                    UIMessageUtil.showInfoMessage(this, "Estoque do lote " + lotNumber + " atualizado com sucesso!", "Ação Concluída");
-                    if (produtoPanel != null) produtoPanel.refreshData();
-                    break;
-
-                case DIRECT_UPDATE_PRODUCT:
-                    String productNameUpdate = (String) params.get("productName");
-                    Produto produto = appContext.getProdutoService().listarProdutos(true).stream()
-                            .filter(p -> p.getNome().equalsIgnoreCase(productNameUpdate)).findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado para atualização."));
-
-                    if (params.containsKey("newPrice")) {
-                        produto.setPreco((Double) params.get("newPrice"));
-                        appContext.getProdutoService().salvarProduto(produto, ator);
-                        UIMessageUtil.showInfoMessage(this, "Preço do produto " + productNameUpdate + " atualizado!", "Ação Concluída");
-                    }
-                    if (params.containsKey("active")) {
-                        appContext.getProdutoService().alterarStatusProduto(produto.getId(), (Boolean) params.get("active"), ator);
-                        UIMessageUtil.showInfoMessage(this, "Status do produto " + productNameUpdate + " atualizado!", "Ação Concluída");
-                    }
-                    if (produtoPanel != null) produtoPanel.refreshData();
-                    break;
-
-                case GUIDE_NAVIGATE_TO_ADD_LOTE:
-                    mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
-                    produtosEstoqueTabbedPane.setSelectedComponent(produtoPanel);
-                    produtoPanel.selectFirstProduct();
-                    UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
-                    break;
-
-                // CORRIGIDO: Lógica para a nova ação
-                case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
-                    mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
-                    produtosEstoqueTabbedPane.setSelectedComponent(produtoPanel);
-                    UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
-                    break;
-
                 case DIRECT_CREATE_CLIENT:
                     String nome = (String) params.get("nome");
                     String contato = (String) params.get("contato");
@@ -289,23 +273,16 @@ public class DashboardFrame extends JFrame {
                     UIMessageUtil.showInfoMessage(this, "Cliente '" + nome + "' foi criado com sucesso!", "Ação Concluída");
                     if (clientePanel != null) clientePanel.refreshData();
                     break;
-
                 case UI_CHANGE_THEME:
                     setTheme((String) params.get("theme"));
                     break;
-
                 case START_SALE_FOR_CLIENT:
-                    mainTabbedPane.setSelectedComponent(vendaPanel);
+                    navigateTo("Vendas");
                     vendaPanel.refreshData();
                     Cliente cliente = (Cliente) params.get("cliente");
                     if (cliente != null) {
                         vendaPanel.selecionarCliente(cliente);
                     }
-                    break;
-
-                case DISPLAY_COMPLEX_RESPONSE:
-                    String text = (String) params.get("text");
-                    aiAssistantPanel.appendMessage(text, false);
                     break;
             }
         } catch (Exception e) {
@@ -322,7 +299,9 @@ public class DashboardFrame extends JFrame {
         return e -> {
             if (mainTabbedPane.getSelectedComponent() == panel) {
                 try {
-                    panel.getClass().getMethod("refreshData").invoke(panel);
+                    if (panel.isDisplayable()) {
+                        panel.getClass().getMethod("refreshData").invoke(panel);
+                    }
                 } catch (Exception ex) {
                     // O método não existe ou falhou, não faz nada. Silencioso.
                 }

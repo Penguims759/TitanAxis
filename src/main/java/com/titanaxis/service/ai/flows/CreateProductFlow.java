@@ -10,6 +10,7 @@ import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.util.StringUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,21 +49,22 @@ public class CreateProductFlow extends AbstractConversationFlow {
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         try {
             String nome = (String) conversationData.get("nome");
-            // CORRIGIDO: Converte e armazena o preço como Double no mapa de dados
             double preco = Double.parseDouble(((String) conversationData.get("preco")).replace(",", "."));
-            conversationData.put("preco", preco);
-
             String nomeCategoria = (String) conversationData.get("categoria");
+
             Categoria categoria = transactionService.executeInTransactionWithResult(em ->
                     categoriaRepository.findByNome(nomeCategoria, em)
             ).orElseThrow(() -> new IllegalStateException("A categoria validada não foi encontrada."));
-            // CORRIGIDO: Armazena o objeto Categoria completo no mapa de dados
-            conversationData.put("categoria", categoria);
+
+            Map<String, Object> actionParams = new HashMap<>();
+            actionParams.put("nome", nome);
+            actionParams.put("preco", preco);
+            actionParams.put("categoria", categoria);
 
             return new AssistantResponse(
                     "Ok, a criar o produto '" + nome + "'...",
                     Action.DIRECT_CREATE_PRODUCT,
-                    conversationData
+                    actionParams
             );
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro na base de dados ao finalizar a criação do produto.");
