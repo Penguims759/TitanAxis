@@ -5,9 +5,8 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.model.ai.ConversationState;
-import com.titanaxis.service.ai.ConversationFlow; // <-- CORREÇÃO
+import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.util.StringUtil;
-import com.titanaxis.service.Intent;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -71,15 +70,19 @@ public class AIAssistantService {
             return new AssistantResponse("Algo correu mal, vamos recomeçar.");
         }
 
-        if (intent == Intent.CONFIRM) userInput = "sim";
+        if (intent == Intent.CONFIRM) {
+            userInput = "sim";
+        }
 
         AssistantResponse response = handler.process(userInput, conversationState.getCollectedData());
 
-        if (conversationState.getCollectedData().containsKey("isFinal")) {
+        if (response.getAction() != Action.AWAITING_INFO) {
             conversationState.reset();
         }
+
         return response;
     }
+
 
     private Intent getIntent(String query) {
         String normalizedQuery = StringUtil.normalize(query);

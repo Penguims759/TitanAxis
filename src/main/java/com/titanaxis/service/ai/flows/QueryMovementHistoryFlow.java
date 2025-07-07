@@ -1,8 +1,9 @@
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.exception.PersistenciaException; // <-- A IMPORTAÇÃO NECESSÁRIA
 import com.titanaxis.model.MovimentoEstoque;
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.MovimentoRepository;
 import com.titanaxis.service.Intent;
@@ -41,7 +42,7 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
 
         if (productName == null) {
             if (userInput.isEmpty() || isInitialCommand(userInput)) {
-                return new AssistantResponse("De qual produto você gostaria de ver o histórico de movimentos?");
+                return new AssistantResponse("De qual produto você gostaria de ver o histórico de movimentos?", Action.AWAITING_INFO, null);
             }
             productName = userInput;
         }
@@ -56,7 +57,6 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
                     .filter(mov -> finalProductName.equalsIgnoreCase(StringUtil.normalize(mov.getNomeProduto())))
                     .collect(Collectors.toList());
 
-            data.put("isFinal", true);
 
             if (movimentosProduto.isEmpty()) {
                 return new AssistantResponse("Não encontrei nenhum histórico de movimentos para o produto '" + finalProductName + "'.");
@@ -76,7 +76,6 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
             return new AssistantResponse("Este é o histórico de movimentos para '" + finalProductName + "':\n" + historicoFormatado);
 
         } catch (PersistenciaException e) {
-            data.put("isFinal", true);
             return new AssistantResponse("Ocorreu um erro ao consultar o histórico. Tente novamente.");
         }
     }

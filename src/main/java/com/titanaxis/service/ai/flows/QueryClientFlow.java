@@ -3,6 +3,7 @@ package com.titanaxis.service.ai.flows;
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Cliente;
+import com.titanaxis.model.ai.Action; // <-- IMPORTAÇÃO ADICIONADA
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
@@ -35,7 +36,8 @@ public class QueryClientFlow implements ConversationFlow {
 
         if (clientName == null) {
             if (userInput.isEmpty() || isInitialCommand(userInput)) {
-                return new AssistantResponse("Qual cliente você gostaria de consultar?");
+                // Agora isto funciona corretamente
+                return new AssistantResponse("Qual cliente você gostaria de consultar?", Action.AWAITING_INFO, null);
             }
             clientName = userInput;
         }
@@ -45,8 +47,6 @@ public class QueryClientFlow implements ConversationFlow {
             Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(
                     em -> clienteRepository.findByNome(finalClientName, em)
             );
-
-            data.put("isFinal", true);
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
@@ -63,7 +63,6 @@ public class QueryClientFlow implements ConversationFlow {
             }
 
         } catch (PersistenciaException e) {
-            data.put("isFinal", true);
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados. Tente novamente.");
         }
     }

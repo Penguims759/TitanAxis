@@ -1,11 +1,10 @@
-// src/main/java/com/titanaxis/model/ChatMessage.java
 package com.titanaxis.model;
 
 public class ChatMessage {
     public enum MessageType {
         USER,
         BOT,
-        THINKING // NOVO TIPO
+        THINKING
     }
 
     private final String text;
@@ -24,7 +23,6 @@ public class ChatMessage {
         return type;
     }
 
-    // MÉTODOS DE CONVENIÊNCIA
     public boolean isUser() {
         return type == MessageType.USER;
     }

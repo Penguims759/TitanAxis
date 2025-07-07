@@ -5,11 +5,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
 import java.util.Map;
 
-public class CreateCategoryFlow implements ConversationFlow {
-
-    private enum State {
-        START, AWAITING_NAME
-    }
+public class CreateCategoryFlow extends AbstractConversationFlow {
 
     @Override
     public boolean canHandle(Intent intent) {
@@ -17,19 +13,16 @@ public class CreateCategoryFlow implements ConversationFlow {
     }
 
     @Override
-    public AssistantResponse process(String userInput, Map<String, Object> data) {
-        State currentState = (State) data.getOrDefault("state", State.START);
+    protected void defineSteps() {
+        steps.put("nome", new Step("Claro, vamos criar uma nova categoria. Qual é o nome?"));
+    }
 
-        if (currentState != State.START && !userInput.isEmpty()) {
-            data.put("nome", userInput);
-        }
-
-        if (!data.containsKey("nome")) {
-            data.put("state", State.AWAITING_NAME);
-            return new AssistantResponse("Claro, vamos criar uma nova categoria. Qual é o nome?");
-        }
-
-        data.put("isFinal", true);
-        return new AssistantResponse("Ok, a criar a categoria '" + data.get("nome") + "'...", Action.DIRECT_CREATE_CATEGORY, data);
+    @Override
+    protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
+        return new AssistantResponse(
+                "Ok, a criar a categoria '" + conversationData.get("nome") + "'...",
+                Action.DIRECT_CREATE_CATEGORY,
+                conversationData
+        );
     }
 }

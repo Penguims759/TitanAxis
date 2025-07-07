@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/ai/Action.java
 package com.titanaxis.model.ai;
 
 public enum Action {
@@ -17,9 +16,9 @@ public enum Action {
 
     // Ações de Navegação e UI
     UI_CHANGE_THEME,
-    UI_NAVIGATE, // NOVO
+    UI_NAVIGATE,
 
-    // Ações que requerem mais dados do usuário
+    // Ação especial para indicar que o assistente aguarda uma resposta do utilizador
     AWAITING_INFO,
 
     // Ação para exibir texto complexo no chat

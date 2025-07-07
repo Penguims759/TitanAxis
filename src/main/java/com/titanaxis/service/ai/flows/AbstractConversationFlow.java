@@ -1,10 +1,9 @@
-// src/main/java/com/titanaxis/service/ai/flows/AbstractConversationFlow.java
 package com.titanaxis.service.ai.flows;
 
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.ai.ConversationFlow;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -38,7 +37,6 @@ public abstract class AbstractConversationFlow implements ConversationFlow {
             this.dynamicQuestion = dynamicQuestion;
         }
 
-        // NOVO CONSTRUTOR DE CONVENIÊNCIA
         public Step(Function<Map<String, Object>, String> dynamicQuestion) {
             this(dynamicQuestion, input -> !input.isEmpty(), "A entrada não pode ser vazia.");
         }
@@ -46,38 +44,37 @@ public abstract class AbstractConversationFlow implements ConversationFlow {
 
     protected abstract void defineSteps();
 
+    protected abstract AssistantResponse completeFlow(Map<String, Object> conversationData);
+
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        defineSteps();
+        if (steps.isEmpty()) {
+            defineSteps();
+        }
 
-        String lastAskedStep = (String) conversationData.get("lastStep");
-        if (lastAskedStep != null && !userInput.isEmpty() && steps.containsKey(lastAskedStep)) {
-            Step step = steps.get(lastAskedStep);
-            if (step.validator.test(userInput)) {
-                conversationData.put(lastAskedStep, userInput);
-            } else {
-                return new AssistantResponse(step.validationErrorMessage);
+        String lastAskedStepKey = (String) conversationData.get("lastStepKey");
+
+        if (lastAskedStepKey != null && !userInput.isEmpty()) {
+            Step lastStep = steps.get(lastAskedStepKey);
+            if (lastStep != null && !lastStep.validator.test(userInput)) {
+                return new AssistantResponse(lastStep.validationErrorMessage);
             }
+            conversationData.put(lastAskedStepKey, userInput);
         }
 
         for (Map.Entry<String, Step> entry : steps.entrySet()) {
             String currentStepKey = entry.getKey();
             if (!conversationData.containsKey(currentStepKey)) {
-                conversationData.put("lastStep", currentStepKey);
+                conversationData.put("lastStepKey", currentStepKey);
                 Step currentStep = entry.getValue();
+                String question = (currentStep.dynamicQuestion != null)
+                        ? currentStep.dynamicQuestion.apply(conversationData)
+                        : currentStep.question;
 
-                String question;
-                if (currentStep.dynamicQuestion != null) {
-                    question = currentStep.dynamicQuestion.apply(conversationData);
-                } else {
-                    question = currentStep.question;
-                }
-                return new AssistantResponse(question);
+                return new AssistantResponse(question, Action.AWAITING_INFO, null);
             }
         }
 
         return completeFlow(conversationData);
     }
-
-    protected abstract AssistantResponse completeFlow(Map<String, Object> conversationData);
 }

@@ -133,7 +133,6 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         voiceButton = new JButton("Voz");
         voiceButton.addActionListener(e -> toggleVoiceListening());
 
-        // ALTERADO: Desativa o botão de voz se o serviço não estiver disponível
         if (!voiceService.isAvailable()) {
             voiceButton.setEnabled(false);
             voiceButton.setToolTipText("Serviço de voz indisponível no seu sistema.");
@@ -221,7 +220,6 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         sendButton.setEnabled(enabled);
         inputField.setEnabled(enabled);
 
-        // ALTERADO: Só ativa o botão de voz se o serviço estiver disponível
         if (voiceService.isAvailable()) {
             voiceButton.setEnabled(enabled);
         }

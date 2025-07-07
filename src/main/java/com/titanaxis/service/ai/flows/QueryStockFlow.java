@@ -3,6 +3,7 @@ package com.titanaxis.service.ai.flows;
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
@@ -38,7 +39,7 @@ public class QueryStockFlow implements ConversationFlow {
 
         if (productName == null) {
             if (userInput.isEmpty() || userInput.equalsIgnoreCase("qual o stock do produto")) {
-                return new AssistantResponse("Qual produto você gostaria de consultar o stock?");
+                return new AssistantResponse("Qual produto você gostaria de consultar o stock?", Action.AWAITING_INFO, null);
             }
             productName = userInput;
         }
@@ -49,8 +50,6 @@ public class QueryStockFlow implements ConversationFlow {
                     em -> produtoRepository.findByNome(finalProductName, em)
             );
 
-            data.put("isFinal", true);
-
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();
                 int totalStock = produto.getQuantidadeTotal();
@@ -60,7 +59,6 @@ public class QueryStockFlow implements ConversationFlow {
             }
 
         } catch (PersistenciaException e) {
-            data.put("isFinal", true);
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados. Tente novamente.");
         }
     }

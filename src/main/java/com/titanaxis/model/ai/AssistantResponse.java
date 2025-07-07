@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/ai/AssistantResponse.java
 package com.titanaxis.model.ai;
 
 import java.util.Map;

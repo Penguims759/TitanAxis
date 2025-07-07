@@ -5,11 +5,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
 import java.util.Map;
 
-public class CreateClientFlow implements ConversationFlow {
-
-    private enum State {
-        START, AWAITING_NAME, AWAITING_CONTACT
-    }
+public class CreateClientFlow extends AbstractConversationFlow {
 
     @Override
     public boolean canHandle(Intent intent) {
@@ -17,27 +13,17 @@ public class CreateClientFlow implements ConversationFlow {
     }
 
     @Override
-    public AssistantResponse process(String userInput, Map<String, Object> data) {
-        State currentState = (State) data.getOrDefault("state", State.START);
+    protected void defineSteps() {
+        steps.put("nome", new Step("Vamos criar um novo cliente. Qual é o nome dele?"));
+        steps.put("contato", new Step(data -> "Ok, o nome é '" + data.get("nome") + "'. Qual o contato (email/telefone)?"));
+    }
 
-        if (currentState != State.START && !userInput.isEmpty()) {
-            if (!data.containsKey("nome")) {
-                data.put("nome", userInput);
-            } else {
-                data.put("contato", userInput);
-            }
-        }
-
-        if (!data.containsKey("nome")) {
-            data.put("state", State.AWAITING_NAME);
-            return new AssistantResponse("Vamos criar um novo cliente. Qual é o nome dele?");
-        }
-        if (!data.containsKey("contato")) {
-            data.put("state", State.AWAITING_CONTACT);
-            return new AssistantResponse("Ok, o nome é '" + data.get("nome") + "'. Qual o contato (email/telefone)?");
-        }
-
-        data.put("isFinal", true);
-        return new AssistantResponse("Entendido! A criar o cliente '" + data.get("nome") + "'.", Action.DIRECT_CREATE_CLIENT, data);
+    @Override
+    protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
+        return new AssistantResponse(
+                "Entendido! A criar o cliente '" + conversationData.get("nome") + "'.",
+                Action.DIRECT_CREATE_CLIENT,
+                conversationData
+        );
     }
 }

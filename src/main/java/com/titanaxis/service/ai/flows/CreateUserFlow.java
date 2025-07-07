@@ -6,17 +6,13 @@ import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.Intent;
-import com.titanaxis.service.ai.ConversationFlow;
 
+import java.util.Arrays;
 import java.util.Map;
 
-public class CreateUserFlow implements ConversationFlow {
+public class CreateUserFlow extends AbstractConversationFlow {
 
     private final AuthService authService;
-
-    private enum State {
-        START, AWAITING_USERNAME, AWAITING_PASSWORD, AWAITING_LEVEL
-    }
 
     @Inject
     public CreateUserFlow(AuthService authService) {
@@ -29,46 +25,39 @@ public class CreateUserFlow implements ConversationFlow {
     }
 
     @Override
-    public AssistantResponse process(String userInput, Map<String, Object> data) {
+    public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
         if (!authService.isAdmin()) {
-            data.put("isFinal", true);
             return new AssistantResponse("Desculpe, apenas administradores podem criar novos utilizadores.");
         }
+        return super.process(userInput, conversationData);
+    }
 
-        State currentState = (State) data.getOrDefault("state", State.START);
+    @Override
+    protected void defineSteps() {
+        steps.put("username", new Step("Certo. Qual o nome do novo utilizador?"));
+        steps.put("password", new Step(data -> "Qual será a senha para '" + data.get("username") + "'?"));
+        steps.put("level", new Step(
+                "E qual o nível de acesso? (padrao, gerente, ou admin)",
+                this::isNivelAcessoValido,
+                "Nível inválido. Use 'padrao', 'gerente' ou 'admin'."
+        ));
+    }
 
-        if (currentState != State.START && !userInput.isEmpty()) {
-            switch (currentState) {
-                case AWAITING_USERNAME:
-                    data.put("username", userInput);
-                    break;
-                case AWAITING_PASSWORD:
-                    data.put("password", userInput);
-                    break;
-                case AWAITING_LEVEL:
-                    try {
-                        data.put("level", NivelAcesso.valueOf(userInput.trim().toUpperCase()));
-                    } catch (IllegalArgumentException e) {
-                        return new AssistantResponse("Nível inválido. Use 'padrao', 'gerente' ou 'admin'.");
-                    }
-                    break;
-            }
-        }
+    @Override
+    protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
+        // Converte o nível de acesso de String para o Enum antes de enviar
+        NivelAcesso nivel = NivelAcesso.valueOf(((String) conversationData.get("level")).trim().toUpperCase());
+        conversationData.put("level", nivel);
 
-        if (!data.containsKey("username")) {
-            data.put("state", State.AWAITING_USERNAME);
-            return new AssistantResponse("Certo. Qual o nome do novo utilizador?");
-        }
-        if (!data.containsKey("password")) {
-            data.put("state", State.AWAITING_PASSWORD);
-            return new AssistantResponse("Qual será a senha para '" + data.get("username") + "'?");
-        }
-        if (!data.containsKey("level")) {
-            data.put("state", State.AWAITING_LEVEL);
-            return new AssistantResponse("E qual o nível de acesso? (padrao, gerente, ou admin)");
-        }
+        return new AssistantResponse(
+                "A criar o utilizador '" + conversationData.get("username") + "'...",
+                Action.DIRECT_CREATE_USER,
+                conversationData
+        );
+    }
 
-        data.put("isFinal", true);
-        return new AssistantResponse("A criar o utilizador '" + data.get("username") + "'...", Action.DIRECT_CREATE_USER, data);
+    private boolean isNivelAcessoValido(String input) {
+        return Arrays.stream(NivelAcesso.values())
+                .anyMatch(nivel -> nivel.name().equalsIgnoreCase(input.trim()));
     }
 }

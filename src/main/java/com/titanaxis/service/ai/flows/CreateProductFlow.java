@@ -8,17 +8,15 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.CategoriaRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
+import com.titanaxis.util.StringUtil;
+
 import java.util.Map;
 import java.util.Optional;
 
-public class CreateProductFlow implements ConversationFlow {
+public class CreateProductFlow extends AbstractConversationFlow {
 
     private final TransactionService transactionService;
     private final CategoriaRepository categoriaRepository;
-
-    private enum State {
-        START, AWAITING_NAME, AWAITING_PRICE, AWAITING_CATEGORY
-    }
 
     @Inject
     public CreateProductFlow(TransactionService transactionService, CategoriaRepository categoriaRepository) {
@@ -32,50 +30,53 @@ public class CreateProductFlow implements ConversationFlow {
     }
 
     @Override
-    public AssistantResponse process(String userInput, Map<String, Object> data) {
-        State currentState = (State) data.getOrDefault("state", State.START);
+    protected void defineSteps() {
+        steps.put("nome", new Step("Ok, vamos criar um produto. Qual o nome dele?"));
+        steps.put("preco", new Step(
+                data -> "Qual o preço de venda para '" + data.get("nome") + "'?",
+                StringUtil::isNumeric,
+                "Preço inválido. Por favor, digite um número (ex: 99.90)."
+        ));
+        steps.put("categoria", new Step(
+                "A qual categoria este produto pertence?",
+                this::isCategoriaValida,
+                "Categoria não encontrada. Verifique o nome ou crie a categoria primeiro."
+        ));
+    }
 
-        if (currentState != State.START && !userInput.isEmpty()) {
-            switch (currentState) {
-                case AWAITING_NAME:
-                    data.put("nome", userInput);
-                    break;
-                case AWAITING_PRICE:
-                    try {
-                        data.put("preco", Double.parseDouble(userInput.replace(",", ".")));
-                    } catch (NumberFormatException e) {
-                        return new AssistantResponse("Preço inválido. Por favor, digite um número (ex: 99.90).");
-                    }
-                    break;
-                case AWAITING_CATEGORY:
-                    try {
-                        Optional<Categoria> catOpt = transactionService.executeInTransactionWithResult(em -> categoriaRepository.findByNome(userInput, em));
-                        if (catOpt.isPresent()) {
-                            data.put("categoria", catOpt.get());
-                        } else {
-                            return new AssistantResponse("Categoria '" + userInput + "' não encontrada. Verifique o nome ou crie a categoria primeiro.");
-                        }
-                    } catch (PersistenciaException e) {
-                        return new AssistantResponse("Ocorreu um erro ao buscar as categorias. Tente novamente.");
-                    }
-                    break;
-            }
-        }
+    @Override
+    protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
+        // Converte os dados recolhidos para os tipos corretos antes de criar a resposta
+        try {
+            String nome = (String) conversationData.get("nome");
+            double preco = Double.parseDouble(((String) conversationData.get("preco")).replace(",", "."));
+            String nomeCategoria = (String) conversationData.get("categoria");
 
-        if (!data.containsKey("nome")) {
-            data.put("state", State.AWAITING_NAME);
-            return new AssistantResponse("Ok, vamos criar um produto. Qual o nome dele?");
-        }
-        if (!data.containsKey("preco")) {
-            data.put("state", State.AWAITING_PRICE);
-            return new AssistantResponse("Qual o preço de venda para '" + data.get("nome") + "'?");
-        }
-        if (!data.containsKey("categoria")) {
-            data.put("state", State.AWAITING_CATEGORY);
-            return new AssistantResponse("A qual categoria este produto pertence?");
-        }
+            // Busca a entidade Categoria completa para passar na ação
+            Categoria categoria = transactionService.executeInTransactionWithResult(em ->
+                    categoriaRepository.findByNome(nomeCategoria, em)
+            ).orElseThrow(() -> new IllegalStateException("A categoria validada não foi encontrada."));
 
-        data.put("isFinal", true);
-        return new AssistantResponse("Ok, a criar o produto '" + data.get("nome") + "'...", Action.DIRECT_CREATE_PRODUCT, data);
+            conversationData.put("preco", preco); // Atualiza o preço como double
+            conversationData.put("categoria", categoria); // Substitui o nome pela entidade
+
+            return new AssistantResponse(
+                    "Ok, a criar o produto '" + nome + "'...",
+                    Action.DIRECT_CREATE_PRODUCT,
+                    conversationData
+            );
+        } catch (PersistenciaException e) {
+            return new AssistantResponse("Ocorreu um erro na base de dados ao finalizar a criação do produto.");
+        }
+    }
+
+    private boolean isCategoriaValida(String nomeCategoria) {
+        try {
+            return transactionService.executeInTransactionWithResult(em ->
+                    categoriaRepository.findByNome(nomeCategoria, em)
+            ).isPresent();
+        } catch (PersistenciaException e) {
+            return false;
+        }
     }
 }

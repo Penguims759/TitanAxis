@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
@@ -43,7 +44,7 @@ public class QueryProductLotsFlow implements ConversationFlow {
 
         if (productName == null) {
             if (userInput.isEmpty() || isInitialCommand(userInput)) {
-                return new AssistantResponse("De qual produto você gostaria de ver os lotes?");
+                return new AssistantResponse("De qual produto você gostaria de ver os lotes?", Action.AWAITING_INFO, null);
             }
             productName = userInput;
         }
@@ -53,8 +54,6 @@ public class QueryProductLotsFlow implements ConversationFlow {
             Optional<Produto> produtoOpt = transactionService.executeInTransactionWithResult(
                     em -> produtoRepository.findByNome(finalProductName, em)
             );
-
-            data.put("isFinal", true);
 
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();
@@ -79,7 +78,6 @@ public class QueryProductLotsFlow implements ConversationFlow {
             }
 
         } catch (PersistenciaException e) {
-            data.put("isFinal", true);
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados.");
         }
     }

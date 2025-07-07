@@ -36,16 +36,14 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             protected void done() {
                 try {
                     AssistantResponse response = get();
-                    // Primeiro, remove o balão "A pensar..." ou qualquer outro indicador
                     view.showThinkingIndicator(false);
-                    // Depois, adiciona a resposta final do bot
                     view.appendMessage(response.getTextResponse(), false);
 
                     if (response.hasAction()) {
                         view.requestAction(response.getAction(), response.getActionParams());
                     }
                 } catch (Exception e) {
-                    view.showThinkingIndicator(false); // Remove o indicador mesmo se der erro
+                    view.showThinkingIndicator(false);
                     view.appendMessage("Ocorreu um erro: " + e.getMessage(), false);
                 } finally {
                     view.setSendButtonEnabled(true);

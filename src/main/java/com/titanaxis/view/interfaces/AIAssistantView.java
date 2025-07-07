@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/interfaces/AIAssistantView.java
 package com.titanaxis.view.interfaces;
 
 import com.titanaxis.model.ai.Action;
@@ -9,10 +8,9 @@ public interface AIAssistantView {
     void clearUserInput();
     void setSendButtonEnabled(boolean enabled);
 
-    // Métodos para a nova UI
     void showThinkingIndicator(boolean show);
     void appendMessage(String message, boolean isUser);
-    void removeLastMessage(); // NOVO: Para remover a mensagem de "a pensar"
+    void removeLastMessage();
 
     void requestAction(Action action, Map<String, Object> params);
 
