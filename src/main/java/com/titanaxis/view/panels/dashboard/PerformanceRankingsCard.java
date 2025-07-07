@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/view/panels/dashboard/PerformanceRankingsCard.java
 package com.titanaxis.view.panels.dashboard;
 
 import javax.swing.*;
@@ -10,7 +11,8 @@ public class PerformanceRankingsCard extends JPanel {
 
     private final DefaultListModel<String> topProductsModel;
     private final DefaultListModel<String> topClientsModel;
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "PT"));
+    // CORREÇÃO: Alterado o Locale de Portugal para Brasil
+    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public PerformanceRankingsCard() {
         setLayout(new GridLayout(1, 2, 15, 0));

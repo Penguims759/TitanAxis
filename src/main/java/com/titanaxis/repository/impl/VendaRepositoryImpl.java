@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -84,8 +85,9 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public List<Venda> findVendasBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
+        // CORREÇÃO: Adicionado "LEFT JOIN FETCH v.cliente" para carregar os dados do cliente na mesma consulta.
         TypedQuery<Venda> query = em.createQuery(
-                "SELECT v FROM Venda v WHERE v.dataVenda BETWEEN :start AND :end", Venda.class);
+                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente WHERE v.dataVenda BETWEEN :start AND :end", Venda.class);
         query.setParameter("start", start);
         query.setParameter("end", end);
         return query.getResultList();

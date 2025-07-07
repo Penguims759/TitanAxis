@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/service/AnalyticsService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -16,11 +17,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AnalyticsService {
 
@@ -30,7 +34,7 @@ public class AnalyticsService {
     private final ProdutoRepository produtoRepository;
     private final TransactionService transactionService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "PT"));
+    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     @Inject
     public AnalyticsService(VendaRepository vendaRepository, ClienteRepository clienteRepository, AuditoriaRepository auditoriaRepository, ProdutoRepository produtoRepository, TransactionService transactionService) {
@@ -94,17 +98,48 @@ public class AnalyticsService {
                 auditoriaRepository.findRecentActivity(limit, em));
     }
 
-    public Map<LocalDate, Double> getVendasUltimos7Dias() throws PersistenciaException {
-        LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
-        LocalDateTime start = LocalDate.now().minusDays(6).atStartOfDay();
-        List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
-                vendaRepository.findVendasBetweenDates(start, end, em));
+    public Map<?, Double> getVendasAgrupadas(String period) throws PersistenciaException {
+        LocalDate today = LocalDate.now();
+        LocalDate start;
+        ChronoUnit groupByUnit;
 
-        return vendas.stream()
-                .collect(Collectors.groupingBy(
-                        venda -> venda.getDataVenda().toLocalDate(),
-                        Collectors.summingDouble(Venda::getValorTotal)
-                ));
+        switch (period) {
+            case "1M":
+                start = today.withDayOfMonth(1);
+                groupByUnit = ChronoUnit.DAYS;
+                break;
+            case "3M":
+                start = today.minusMonths(3).withDayOfMonth(1);
+                groupByUnit = ChronoUnit.MONTHS;
+                break;
+            case "1A":
+                start = today.withDayOfYear(1);
+                groupByUnit = ChronoUnit.MONTHS;
+                break;
+            default: // "7D"
+                start = today.minusDays(6);
+                groupByUnit = ChronoUnit.DAYS;
+                break;
+        }
+
+        List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.findVendasBetweenDates(start.atStartOfDay(), today.atTime(LocalTime.MAX), em));
+
+        if (groupByUnit == ChronoUnit.DAYS) {
+            Map<LocalDate, Double> dailyData = Stream.iterate(start, date -> date.plusDays(1))
+                    .limit(ChronoUnit.DAYS.between(start, today) + 1)
+                    .collect(Collectors.toMap(date -> date, date -> 0.0, (v1, v2) -> v1, LinkedHashMap::new));
+
+            vendas.forEach(venda -> dailyData.merge(venda.getDataVenda().toLocalDate(), venda.getValorTotal(), Double::sum));
+            return dailyData;
+        } else { // Agrupar por mês
+            Map<YearMonth, Double> monthlyData = Stream.iterate(YearMonth.from(start), ym -> ym.plusMonths(1))
+                    .limit(ChronoUnit.MONTHS.between(YearMonth.from(start), YearMonth.from(today)) + 1)
+                    .collect(Collectors.toMap(ym -> ym, ym -> 0.0, (v1, v2) -> v1, LinkedHashMap::new));
+
+            vendas.forEach(venda -> monthlyData.merge(YearMonth.from(venda.getDataVenda()), venda.getValorTotal(), Double::sum));
+            return monthlyData;
+        }
     }
 
     public String getTopSellingProduct() throws PersistenciaException {
