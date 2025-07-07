@@ -10,23 +10,28 @@ public class DashboardCustomizationDialog extends JDialog {
 
     private final UIPersonalizationService personalizationService;
     private final Map<String, JCheckBox> checkBoxes = new HashMap<>();
-    private final Runnable onSaveCallback; // Objeto que será chamado ao salvar
+    private final Runnable onSaveCallback;
 
     public DashboardCustomizationDialog(Frame owner, UIPersonalizationService personalizationService, Runnable onSaveCallback) {
         super(owner, "Personalizar Dashboard", true);
         this.personalizationService = personalizationService;
-        this.onSaveCallback = onSaveCallback; // Armazena a ação a ser executada
+        this.onSaveCallback = onSaveCallback;
 
         setLayout(new BorderLayout(10, 10));
-        setSize(350, 400);
+        setSize(400, 450);
         setLocationRelativeTo(owner);
 
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
-        checkPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        checkPanel.setBorder(BorderFactory.createTitledBorder("Selecione os Componentes para Exibir"));
+        checkPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
+        // NOVOS CARTÕES ADICIONADOS
         addCheckBox(checkPanel, "kpi_cards", "Mostrar Cartões de Indicadores (KPIs)");
+        addCheckBox(checkPanel, "financial_summary", "Mostrar Resumo Financeiro");
+        addCheckBox(checkPanel, "inventory_snapshot", "Mostrar Fotografia do Inventário");
         addCheckBox(checkPanel, "sales_chart", "Mostrar Gráfico de Vendas");
+        addCheckBox(checkPanel, "performance_rankings", "Mostrar Rankings de Desempenho");
         addCheckBox(checkPanel, "recent_activity", "Mostrar Atividade Recente");
         addCheckBox(checkPanel, "quick_actions", "Mostrar Botões de Ação Rápida");
 
@@ -47,6 +52,8 @@ public class DashboardCustomizationDialog extends JDialog {
 
     private void addCheckBox(JPanel panel, String key, String text) {
         JCheckBox checkBox = new JCheckBox(text);
+        checkBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        checkBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         checkBoxes.put(key, checkBox);
         panel.add(checkBox);
     }
@@ -63,7 +70,6 @@ public class DashboardCustomizationDialog extends JDialog {
             personalizationService.savePreference("dashboard.card." + entry.getKey(), String.valueOf(entry.getValue().isSelected()));
         }
 
-        // CORREÇÃO: Executa a ação de callback para notificar o DashboardFrame
         if (onSaveCallback != null) {
             onSaveCallback.run();
         }

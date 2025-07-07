@@ -90,4 +90,13 @@ public class VendaRepositoryImpl implements VendaRepository {
         query.setParameter("end", end);
         return query.getResultList();
     }
+
+    @Override
+    public List<VendaItem> findVendaItensBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
+        TypedQuery<VendaItem> query = em.createQuery(
+                "SELECT i FROM VendaItem i JOIN FETCH i.venda v JOIN FETCH i.produto p WHERE v.dataVenda BETWEEN :start AND :end", VendaItem.class);
+        query.setParameter("start", start);
+        query.setParameter("end", end);
+        return query.getResultList();
+    }
 }
