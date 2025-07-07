@@ -20,10 +20,14 @@ public class CreateClientFlow extends AbstractConversationFlow {
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
+        // CORRIGIDO: Certifica-se que o mapa contém os dados corretos antes de passar para a ação
+        String nome = (String) conversationData.get("nome");
+        String contato = (String) conversationData.get("contato");
+
         return new AssistantResponse(
-                "Entendido! A criar o cliente '" + conversationData.get("nome") + "'.",
+                "Entendido! A criar o cliente '" + nome + "'.",
                 Action.DIRECT_CREATE_CLIENT,
-                conversationData
+                Map.of("nome", nome, "contato", contato) // Passa um mapa imutável e limpo
         );
     }
 }

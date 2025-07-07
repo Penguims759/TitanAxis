@@ -46,19 +46,18 @@ public class CreateProductFlow extends AbstractConversationFlow {
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
-        // Converte os dados recolhidos para os tipos corretos antes de criar a resposta
         try {
             String nome = (String) conversationData.get("nome");
+            // CORRIGIDO: Converte e armazena o preço como Double no mapa de dados
             double preco = Double.parseDouble(((String) conversationData.get("preco")).replace(",", "."));
-            String nomeCategoria = (String) conversationData.get("categoria");
+            conversationData.put("preco", preco);
 
-            // Busca a entidade Categoria completa para passar na ação
+            String nomeCategoria = (String) conversationData.get("categoria");
             Categoria categoria = transactionService.executeInTransactionWithResult(em ->
                     categoriaRepository.findByNome(nomeCategoria, em)
             ).orElseThrow(() -> new IllegalStateException("A categoria validada não foi encontrada."));
-
-            conversationData.put("preco", preco); // Atualiza o preço como double
-            conversationData.put("categoria", categoria); // Substitui o nome pela entidade
+            // CORRIGIDO: Armazena o objeto Categoria completo no mapa de dados
+            conversationData.put("categoria", categoria);
 
             return new AssistantResponse(
                     "Ok, a criar o produto '" + nome + "'...",

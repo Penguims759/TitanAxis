@@ -274,6 +274,13 @@ public class DashboardFrame extends JFrame {
                     UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
                     break;
 
+                // CORRIGIDO: Lógica para a nova ação
+                case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
+                    mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
+                    produtosEstoqueTabbedPane.setSelectedComponent(produtoPanel);
+                    UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
+                    break;
+
                 case DIRECT_CREATE_CLIENT:
                     String nome = (String) params.get("nome");
                     String contato = (String) params.get("contato");
@@ -291,7 +298,9 @@ public class DashboardFrame extends JFrame {
                     mainTabbedPane.setSelectedComponent(vendaPanel);
                     vendaPanel.refreshData();
                     Cliente cliente = (Cliente) params.get("cliente");
-                    vendaPanel.selecionarCliente(cliente);
+                    if (cliente != null) {
+                        vendaPanel.selecionarCliente(cliente);
+                    }
                     break;
 
                 case DISPLAY_COMPLEX_RESPONSE:

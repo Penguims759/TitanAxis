@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/panels/ProdutoPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -11,7 +10,6 @@ import com.titanaxis.view.dialogs.ProdutoDialog;
 import com.titanaxis.view.interfaces.ProdutoView;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
@@ -33,6 +31,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     private final JButton deleteLoteButton;
     private final JButton toggleStatusButton;
     private final JToggleButton showInactiveButton;
+    private final JButton novoProdutoButton;
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ProdutoPanel(AppContext appContext) {
@@ -54,6 +53,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         deleteLoteButton = new JButton("Remover Lote");
         toggleStatusButton = new JButton("Inativar/Reativar");
         showInactiveButton = new JToggleButton("Mostrar Inativos");
+        novoProdutoButton = new JButton("Novo Produto");
 
         initComponents();
 
@@ -89,9 +89,8 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
         JPanel southPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton novoProdutoButton = new JButton("Novo Produto");
-        novoProdutoButton.addActionListener(e -> listener.aoClicarNovoProduto());
 
+        novoProdutoButton.addActionListener(e -> listener.aoClicarNovoProduto());
         editProdutoButton.addActionListener(e -> listener.aoClicarEditarProduto());
         toggleStatusButton.addActionListener(e -> listener.aoAlternarStatusDoProduto());
         showInactiveButton.addActionListener(e -> listener.aoCarregarProdutos());
@@ -203,6 +202,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
                 appContext.getAuthService().getUsuarioLogado().orElse(null));
     }
 
+    // CORREÇÃO: Método em falta adicionado aqui.
     @Override
     public LoteDialog mostrarDialogoDeLote(Produto produtoPai, Lote lote) {
         return new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this),
@@ -220,6 +220,10 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     public JButton getAddLoteButton() {
         return addLoteButton;
+    }
+
+    public JButton getNovoProdutoButton() {
+        return novoProdutoButton;
     }
 
     public void selectFirstProduct() {

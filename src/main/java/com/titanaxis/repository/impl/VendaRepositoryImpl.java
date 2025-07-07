@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -58,7 +57,7 @@ public class VendaRepositoryImpl implements VendaRepository {
     @Override
     public List<Venda> findAll(EntityManager em) {
         TypedQuery<Venda> query = em.createQuery(
-                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario LEFT JOIN FETCH v.itens ORDER BY v.dataVenda DESC", Venda.class);
+                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario LEFT JOIN FETCH v.itens i LEFT JOIN FETCH i.produto ORDER BY v.dataVenda DESC", Venda.class);
         return query.getResultList();
     }
 
@@ -74,11 +73,11 @@ public class VendaRepositoryImpl implements VendaRepository {
         return Optional.ofNullable(em.find(Venda.class, id));
     }
 
-    // NOVO MÉTODO
+    // CORRIGIDO: Adicionado LEFT JOIN FETCH para carregar o produto junto com o item da venda.
     @Override
     public List<Venda> findVendasByClienteId(int clienteId, EntityManager em) {
         TypedQuery<Venda> query = em.createQuery(
-                "SELECT v FROM Venda v LEFT JOIN FETCH v.itens WHERE v.cliente.id = :clienteId ORDER BY v.dataVenda DESC", Venda.class);
+                "SELECT v FROM Venda v LEFT JOIN FETCH v.itens i LEFT JOIN FETCH i.produto p WHERE v.cliente.id = :clienteId ORDER BY v.dataVenda DESC", Venda.class);
         query.setParameter("clienteId", clienteId);
         return query.getResultList();
     }

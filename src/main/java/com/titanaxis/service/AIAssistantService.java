@@ -1,7 +1,6 @@
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.model.ai.ConversationState;
@@ -18,63 +17,38 @@ public class AIAssistantService {
 
     private final Set<ConversationFlow> conversationFlows;
     private final ConversationState conversationState = new ConversationState();
-    private final AnalyticsService analyticsService;
 
     @Inject
-    public AIAssistantService(Set<ConversationFlow> conversationFlows, AnalyticsService analyticsService) {
+    public AIAssistantService(Set<ConversationFlow> conversationFlows) {
         this.conversationFlows = conversationFlows;
-        this.analyticsService = analyticsService;
     }
 
     public AssistantResponse processQuery(String query) {
-        Intent intent = getIntent(query);
-
-        if (intent == Intent.DENY) {
-            boolean wasInConversation = conversationState.isAwaitingInfo();
-            conversationState.reset();
-            return new AssistantResponse(wasInConversation ? "Ok, ação cancelada." : "Entendido.");
-        }
-
         if (conversationState.isAwaitingInfo()) {
-            return handleConversation(query, intent);
+            return handleOngoingConversation(query);
         }
-
-        Optional<ConversationFlow> handler = findHandlerFor(intent);
-        if (handler.isPresent()) {
-            conversationState.startConversation(handler.get());
-            return handleConversation(query, intent);
-        }
-
-        try {
-            switch (intent) {
-                case GREETING:
-                    return new AssistantResponse("Olá! Em que posso ajudar?");
-                case CHANGE_THEME:
-                    return handleChangeTheme(query);
-                case QUERY_TOP_CLIENTS:
-                    return new AssistantResponse(analyticsService.getTopBuyingClients(3));
-                case NAVIGATE_TO:
-                    return handleNavigation(query);
-                default:
-                    return new AssistantResponse("Desculpe, não consegui entender o seu pedido. Pode tentar reformular?");
-            }
-        } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao aceder à base de dados para responder à sua pergunta.");
-        }
+        return handleNewCommand(query);
     }
 
-    private AssistantResponse handleConversation(String userInput, Intent intent) {
+    private AssistantResponse handleOngoingConversation(String userInput) {
         ConversationFlow handler = conversationState.getCurrentFlowHandler();
         if (handler == null) {
             conversationState.reset();
             return new AssistantResponse("Algo correu mal, vamos recomeçar.");
         }
 
-        if (intent == Intent.CONFIRM) {
-            userInput = "sim";
+        String normalizedInput = StringUtil.normalize(userInput);
+        if (Intent.DENY.getKeywords().stream().anyMatch(normalizedInput::contains)) {
+            conversationState.reset();
+            return new AssistantResponse("Ok, ação cancelada.");
         }
 
-        AssistantResponse response = handler.process(userInput, conversationState.getCollectedData());
+        String processedInput = userInput;
+        if (Intent.CONFIRM.getKeywords().stream().anyMatch(normalizedInput::contains)) {
+            processedInput = "sim";
+        }
+
+        AssistantResponse response = handler.process(processedInput, conversationState.getCollectedData());
 
         if (response.getAction() != Action.AWAITING_INFO) {
             conversationState.reset();
@@ -83,6 +57,33 @@ public class AIAssistantService {
         return response;
     }
 
+    private AssistantResponse handleNewCommand(String query) {
+        Intent intent = getIntent(query);
+
+        switch (intent) {
+            case DENY:
+                return new AssistantResponse("Entendido.");
+            case GREETING:
+                return new AssistantResponse("Olá! Em que posso ajudar?");
+            case CHANGE_THEME:
+                return handleChangeTheme(query);
+            case NAVIGATE_TO:
+                return handleNavigation(query);
+            case GUIDE_ADD_LOTE:
+                return new AssistantResponse("Claro, vou mostrar-lhe como adicionar um lote.", Action.GUIDE_NAVIGATE_TO_ADD_LOTE, null);
+            // CORRIGIDO: Agora usa a nova intenção e ação
+            case GUIDE_ADD_PRODUCT:
+                return new AssistantResponse("Com certeza. Vou mostrar-lhe como adicionar um novo produto.", Action.GUIDE_NAVIGATE_TO_ADD_PRODUCT, null);
+        }
+
+        Optional<ConversationFlow> handler = findHandlerFor(intent);
+        if (handler.isPresent()) {
+            conversationState.startConversation(handler.get());
+            return handleOngoingConversation(query);
+        }
+
+        return new AssistantResponse("Desculpe, não consegui entender o seu pedido. Pode tentar reformular?");
+    }
 
     private Intent getIntent(String query) {
         String normalizedQuery = StringUtil.normalize(query);

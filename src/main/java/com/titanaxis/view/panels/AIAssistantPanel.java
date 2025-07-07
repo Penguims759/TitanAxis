@@ -11,6 +11,8 @@ import com.titanaxis.view.interfaces.AIAssistantView;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
 import java.util.Map;
 
 public class AIAssistantPanel extends JPanel implements AIAssistantView {
@@ -19,6 +21,8 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     private JTextField inputField;
     private JButton sendButton;
     private JButton voiceButton;
+    // NOVO: Botão para copiar a conversa
+    private JButton copyButton;
     private VoiceRecognitionService voiceService;
 
     private JList<ChatMessage> chatList;
@@ -127,11 +131,16 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         inputField.addActionListener(e -> sendMessage());
         southPanel.add(inputField, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
+        // ALTERADO: Grid agora tem 3 colunas para o novo botão
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 5, 0));
         sendButton = new JButton("Enviar");
         sendButton.addActionListener(e -> sendMessage());
         voiceButton = new JButton("Voz");
         voiceButton.addActionListener(e -> toggleVoiceListening());
+
+        // NOVO: Criação e ação do botão de copiar
+        copyButton = new JButton("Copiar");
+        copyButton.addActionListener(this::copyConversationToClipboard);
 
         if (!voiceService.isAvailable()) {
             voiceButton.setEnabled(false);
@@ -140,6 +149,8 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
         buttonPanel.add(sendButton);
         buttonPanel.add(voiceButton);
+        // NOVO: Adiciona o botão ao painel
+        buttonPanel.add(copyButton);
         southPanel.add(buttonPanel, BorderLayout.EAST);
         chatPanel.add(southPanel, BorderLayout.SOUTH);
 
@@ -165,6 +176,25 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         if (listener != null && !text.isEmpty()) {
             listener.onSendMessage(text);
         }
+    }
+
+    // NOVO MÉTODO: Lógica para copiar a conversa
+    private void copyConversationToClipboard(ActionEvent e) {
+        StringBuilder conversationText = new StringBuilder();
+        for (int i = 0; i < chatModel.getSize(); i++) {
+            ChatMessage message = chatModel.getElementAt(i);
+            if (message.getType() != ChatMessage.MessageType.THINKING) {
+                String prefix = message.isUser() ? "Utilizador: " : "Assistente: ";
+                conversationText.append(prefix)
+                        .append(message.getText().replace("<br>", "\n"))
+                        .append("\n\n");
+            }
+        }
+
+        StringSelection stringSelection = new StringSelection(conversationText.toString());
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
+
+        JOptionPane.showMessageDialog(this, "A conversa foi copiada para a área de transferência.", "Copiado", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void toggleVoiceListening() {
@@ -219,6 +249,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
     public void setSendButtonEnabled(boolean enabled) {
         sendButton.setEnabled(enabled);
         inputField.setEnabled(enabled);
+        copyButton.setEnabled(enabled); // Altera o estado do botão copiar também
 
         if (voiceService.isAvailable()) {
             voiceButton.setEnabled(enabled);

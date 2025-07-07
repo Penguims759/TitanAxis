@@ -67,12 +67,16 @@ public class VendaPanel extends JPanel {
     }
 
     /**
-     * NOVO MÉTODO PÚBLICO - A adição deste método corrige o erro.
+     * CORRIGIDO: Adicionado um null-check para evitar NullPointerException.
      * Permite que um cliente seja selecionado programaticamente na ComboBox.
      *
      * @param clienteParaSelecionar O cliente que deve ser selecionado.
      */
     public void selecionarCliente(Cliente clienteParaSelecionar) {
+        if (clienteParaSelecionar == null) {
+            logger.warning("Tentativa de selecionar um cliente nulo no painel de Vendas.");
+            return;
+        }
         for (int i = 0; i < clienteComboBox.getItemCount(); i++) {
             Cliente clienteNaLista = clienteComboBox.getItemAt(i);
             if (clienteNaLista != null && clienteNaLista.getId() == clienteParaSelecionar.getId()) {
@@ -80,6 +84,7 @@ public class VendaPanel extends JPanel {
                 return;
             }
         }
+        logger.warning("Cliente com ID " + clienteParaSelecionar.getId() + " não encontrado na ComboBox de vendas.");
     }
 
     private void carregarDadosIniciais() {

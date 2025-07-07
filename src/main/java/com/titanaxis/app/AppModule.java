@@ -6,7 +6,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.titanaxis.repository.*;
 import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
-import com.titanaxis.service.ai.ConversationFlow; // <-- CORREÇÃO
+import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.flows.*;
 
 public class AppModule extends AbstractModule {
@@ -38,6 +38,11 @@ public class AppModule extends AbstractModule {
         bind(AIAssistantService.class).in(Singleton.class);
 
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
+
+        // NOVO FLUXO
+        flowBinder.addBinding().to(StartSaleFlow.class);
+
+        // Fluxos existentes
         flowBinder.addBinding().to(CreateUserFlow.class);
         flowBinder.addBinding().to(CreateProductFlow.class);
         flowBinder.addBinding().to(CreateCategoryFlow.class);
@@ -48,6 +53,12 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(QueryClientFlow.class);
         flowBinder.addBinding().to(QueryProductLotsFlow.class);
         flowBinder.addBinding().to(QueryMovementHistoryFlow.class);
+        flowBinder.addBinding().to(GenerateReportFlow.class);
+        flowBinder.addBinding().to(QueryTopProductFlow.class);
+        flowBinder.addBinding().to(QueryClientHistoryFlow.class);
+        flowBinder.addBinding().to(QueryLowStockFlow.class);
+        flowBinder.addBinding().to(QueryTopClientsFlow.class);
+        flowBinder.addBinding().to(QueryExpiringLotsFlow.class);
 
         // --- Contexto da Aplicação ---
         bind(AppContext.class).in(Singleton.class);

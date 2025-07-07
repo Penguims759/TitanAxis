@@ -5,23 +5,40 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public enum Intent {
-    UPDATE_PRODUCT(List.of("alterar produto", "mudar produto", "alterar preco", "alterar status", "inativar produto", "ativar produto"), List.of("produto")),
-    MANAGE_STOCK(List.of("adicionar stock", "adicionar unidades", "adicionar ao lote", "gerir stock", "gerir estoque"), List.of("stock", "estoque", "unidade", "lote")),
-    CREATE_PRODUCT(List.of("criar produto", "novo produto", "cadastrar produto"), List.of("produto")),
-    CREATE_USER(List.of("criar utilizador", "novo utilizador", "adicionar utilizador", "criar usuario", "novo usuario", "adicionar usuario"), List.of("utilizador", "usuario")),
-    CREATE_CATEGORY(List.of("criar categoria", "nova categoria", "adicionar categoria"), List.of("categoria")),
-    CREATE_CLIENT(List.of("criar cliente", "novo cliente", "adicionar cliente"), List.of("cliente")),
-    QUERY_STOCK(List.of("qual o stock", "qual o estoque", "stock de", "estoque de", "ver stock", "ver estoque"), List.of("stock", "estoque")),
-    QUERY_CLIENT_DETAILS(List.of("detalhes do cliente", "mostre o cliente", "ver cliente", "informacoes do cliente"), List.of("cliente")),
-    QUERY_PRODUCT_LOTS(List.of("quais os lotes", "lotes do produto", "ver lotes", "mostrar lotes"), List.of("lote")),
-    QUERY_MOVEMENT_HISTORY(List.of("historico de movimentos", "ver historico", "mostre o historico"), List.of("historico", "movimento")),
-    QUERY_TOP_CLIENTS(List.of("melhores clientes", "top clientes", "ranking de clientes", "cliente que mais compra"), List.of("cliente")),
-    NAVIGATE_TO(List.of("ir para", "leve-me para", "abrir tela", "abrir ecra", "navegar para", "ver vendas", "ver clientes", "ver produtos", "ver relatorios"), List.of("ir", "navegar", "abrir", "ver")),
-    GUIDE_ADD_LOTE(List.of("como adicionar lote", "ajuda lote", "como faco para adicionar lote"), List.of("como", "ajuda")),
+    // --- INTENÇÕES DE CRIAÇÃO (Fluxos de Conversa) ---
+    CREATE_PRODUCT(List.of("criar produto", "novo produto", "cadastrar produto"), List.of()),
+    CREATE_USER(List.of("criar utilizador", "novo utilizador", "adicionar utilizador"), List.of()),
+    CREATE_CATEGORY(List.of("criar categoria", "nova categoria", "adicionar categoria"), List.of()),
+    CREATE_CLIENT(List.of("criar cliente", "novo cliente", "adicionar cliente"), List.of()),
+    START_SALE(List.of("inicie uma venda", "começar venda", "abrir venda", "nova venda para"), List.of("venda")),
+
+    // --- INTENÇÕES DE ATUALIZAÇÃO E GESTÃO (Fluxos de Conversa) ---
+    UPDATE_PRODUCT(List.of("alterar produto", "mudar produto", "atualizar produto", "alterar preco", "alterar status"), List.of()),
+    MANAGE_STOCK(List.of("adicionar stock", "adicionar unidades", "adicionar ao lote", "gerir stock", "gerir estoque"), List.of("stock", "estoque", "lote")),
+
+    // --- INTENÇÕES DE CONSULTA (Simples e Fluxos) ---
+    QUERY_STOCK(List.of("qual o stock", "qual o estoque", "ver stock", "ver estoque"), List.of("stock", "estoque")),
+    QUERY_CLIENT_DETAILS(List.of("detalhes do cliente", "ver cliente", "informacoes do cliente"), List.of("cliente")),
+    QUERY_PRODUCT_LOTS(List.of("lotes de um produto", "lotes do produto", "ver lotes de"), List.of("lote")),
+    QUERY_MOVEMENT_HISTORY(List.of("historico de movimentos", "ver historico"), List.of()),
+    QUERY_TOP_CLIENTS(List.of("quais os melhores clientes", "top clientes", "ranking de clientes"), List.of("cliente")),
+    QUERY_TOP_PRODUCT(List.of("produto mais vendido", "qual o mais vendido"), List.of("vendido")),
+    QUERY_CLIENT_HISTORY(List.of("historico de compras do cliente", "compras do cliente"), List.of("historico")),
+    QUERY_LOW_STOCK(List.of("baixo estoque", "baixo stock", "pouco estoque", "pouco stock"), List.of()),
+    QUERY_EXPIRING_LOTS(List.of("quais lotes estao para vencer", "lotes a vencer"), List.of("vencer", "validade")),
+
+    // --- INTENÇÕES DE AÇÃO DIRETA E UI ---
+    GENERATE_REPORT(List.of("gere relatorio", "gerar relatorio", "relatorio de vendas", "relatorio de inventario"), List.of("relatorio")),
+    GUIDE_ADD_LOTE(List.of("como adicionar um lote", "ajuda para adicionar lote"), List.of("como", "ajuda", "guia", "lote")),
+    // NOVA INTENÇÃO
+    GUIDE_ADD_PRODUCT(List.of("como adicionar um produto", "como criar um produto", "ajuda para criar produto"), List.of("como", "ajuda", "guia", "produto")),
+    NAVIGATE_TO(List.of("ir para", "leve-me para", "abrir tela", "abrir ecra", "navegar para"), List.of("ir", "navegar")),
     CHANGE_THEME(List.of("mudar tema", "alterar tema", "tema claro", "tema escuro"), List.of("tema")),
+
+    // --- INTENÇÕES GERAIS ---
     GREETING(List.of("ola", "oi", "bom dia", "boa tarde", "boa noite", "boas"), List.of()),
     CONFIRM(List.of("sim", "confirmo", "confirma", "pode", "ok", "isso", "exato"), List.of()),
-    DENY(List.of("não", "nao", "cancela", "cancelar", "sair", "para", "encerrar", "deixa"), List.of()),
+    DENY(List.of("não", "nao", "cancela", "cancelar", "sair", "encerrar", "deixa"), List.of()),
     UNKNOWN(List.of(), List.of());
 
     private final List<String> phrases;
