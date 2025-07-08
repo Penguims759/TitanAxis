@@ -1,8 +1,9 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/view/panels/dashboard/SalesChartPanel.java
 package com.titanaxis.view.panels.dashboard;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -22,10 +23,12 @@ public class SalesChartPanel extends JPanel {
     private final JLabel titleLabel;
 
     private static final int PADDING = 20;
-    private static final int LEFT_PADDING = 50; // Espaço para rótulos do eixo Y
-    private static final int BOTTOM_PADDING = 30; // Espaço para rótulos do eixo X
+    private static final int LEFT_PADDING = 50;
+    private static final int BOTTOM_PADDING = 30;
     private static final Color CHART_COLOR = new Color(70, 130, 180);
+    private static final Color CHART_HOVER_COLOR = new Color(100, 160, 210);
     private static final NumberFormat COMPACT_CURRENCY_FORMAT = NumberFormat.getCompactNumberInstance(new Locale("pt", "BR"), NumberFormat.Style.SHORT);
+    private int hoveredBarIndex = -1;
 
     public SalesChartPanel(Consumer<String> onPeriodChange) {
         this.onPeriodChange = onPeriodChange;
@@ -40,6 +43,65 @@ public class SalesChartPanel extends JPanel {
         topPanel.add(createPeriodSelectionPanel(), BorderLayout.EAST);
 
         add(topPanel, BorderLayout.NORTH);
+
+        // ADICIONADO: Listeners para interatividade
+        addChartMouseListeners();
+    }
+
+    private void addChartMouseListeners() {
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int barIndex = getBarIndexAt(e.getX());
+                if (barIndex != -1) {
+                    Object periodKey = new ArrayList<>(salesData.keySet()).get(barIndex);
+                    showSalesDetailsForPeriod(periodKey);
+                }
+            }
+        });
+
+        this.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int barIndex = getBarIndexAt(e.getX());
+                if (barIndex != hoveredBarIndex) {
+                    hoveredBarIndex = barIndex;
+                    repaint(); // Redesenha para mostrar o efeito hover
+                }
+            }
+        });
+    }
+
+    private int getBarIndexAt(int mouseX) {
+        if (salesData == null || salesData.isEmpty()) {
+            return -1;
+        }
+        int barCount = salesData.size();
+        int chartWidth = getWidth() - PADDING - LEFT_PADDING;
+        int barWidth = chartWidth / barCount;
+
+        int relativeX = mouseX - LEFT_PADDING;
+        if (relativeX < 0) return -1;
+
+        int index = relativeX / barWidth;
+        return (index < barCount) ? index : -1;
+    }
+
+    private void showSalesDetailsForPeriod(Object periodKey) {
+        // NOTA: Uma implementação completa aqui faria uma nova chamada de serviço
+        // para buscar as vendas detalhadas do período e as exibiria num JDialog.
+        // Para este exemplo, mostramos uma mensagem simples.
+        String periodString = "";
+        if (periodKey instanceof LocalDate) {
+            periodString = ((LocalDate) periodKey).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } else if (periodKey instanceof YearMonth) {
+            periodString = ((YearMonth) periodKey).format(DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("pt", "BR")));
+        }
+
+        JOptionPane.showMessageDialog(this,
+                "A mostrar detalhes de vendas para: " + periodString,
+                "Detalhes de Vendas",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JPanel createPeriodSelectionPanel() {
@@ -73,7 +135,6 @@ public class SalesChartPanel extends JPanel {
     public void setData(Map<?, Double> salesData, String period) {
         this.salesData = salesData;
         updateTitle(period);
-        // Garante que o painel é redesenhado com os novos dados
         revalidate();
         repaint();
     }
@@ -120,12 +181,10 @@ public class SalesChartPanel extends JPanel {
 
     private void drawYAxis(Graphics2D g2, double maxValue) {
         int numberYDivisions = 5;
-        // CORREÇÃO: A área útil de desenho é calculada a partir das dimensões do painel e dos espaçamentos
         int chartHeight = getHeight() - PADDING - BOTTOM_PADDING;
 
         for (int i = 0; i <= numberYDivisions; i++) {
             int y = getHeight() - BOTTOM_PADDING - (i * chartHeight) / numberYDivisions;
-
             g2.setStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{3.0f}, 0.0f));
             g2.setColor(Color.LIGHT_GRAY);
             g2.drawLine(LEFT_PADDING, y, getWidth() - PADDING, y);
@@ -156,7 +215,7 @@ public class SalesChartPanel extends JPanel {
             int x = LEFT_PADDING + i * barWidth;
             int y = getHeight() - BOTTOM_PADDING - barHeightValue;
 
-            g2.setColor(CHART_COLOR);
+            g2.setColor(i == hoveredBarIndex ? CHART_HOVER_COLOR : CHART_COLOR);
             g2.fillRect(x + barGap, y, barWidth - (2 * barGap), barHeightValue);
 
             g2.setColor(UIManager.getColor("Label.foreground"));

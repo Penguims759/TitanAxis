@@ -1,10 +1,13 @@
 package com.titanaxis.presenter;
 
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AIAssistantService;
 import com.titanaxis.view.interfaces.AIAssistantView;
 
 import javax.swing.SwingWorker;
+import javax.swing.Timer; // ADICIONADO: Importação corrigida
+import java.util.Map;
 
 public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewListener {
 
@@ -27,7 +30,6 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
         SwingWorker<AssistantResponse, Void> worker = new SwingWorker<>() {
             @Override
             protected AssistantResponse doInBackground() throws Exception {
-                // Simula um pequeno atraso para o indicador ser visível
                 Thread.sleep(500);
                 return service.processQuery(message);
             }
@@ -41,16 +43,43 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
 
                     if (response.hasAction()) {
                         view.requestAction(response.getAction(), response.getActionParams());
+                        handleProactiveSuggestion(response);
                     }
                 } catch (Exception e) {
                     view.showThinkingIndicator(false);
                     view.appendMessage("Ocorreu um erro: " + e.getMessage(), false);
                 } finally {
                     view.setSendButtonEnabled(true);
-                    view.requestInputFieldFocus(); // ALTERADO
+                    view.requestInputFieldFocus();
                 }
             }
         };
         worker.execute();
+    }
+
+    private void handleProactiveSuggestion(AssistantResponse response) {
+        Action completedAction = response.getAction();
+        Map<String, Object> params = response.getActionParams();
+
+        if (completedAction == Action.DIRECT_CREATE_PRODUCT && params != null) {
+            String nomeProduto = (String) params.get("nome");
+            if (nomeProduto != null) {
+                Timer timer = new Timer(1500, e -> {
+                    view.appendMessage("Produto '" + nomeProduto + "' criado. Gostaria de adicionar o primeiro lote de estoque agora?", false);
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        }
+        else if (completedAction == Action.DIRECT_CREATE_CLIENT && params != null) {
+            String nomeCliente = (String) params.get("nome");
+            if (nomeCliente != null) {
+                Timer timer = new Timer(1500, e -> {
+                    view.appendMessage("Cliente '" + nomeCliente + "' criado. Quer iniciar uma nova venda para ele?", false);
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        }
     }
 }

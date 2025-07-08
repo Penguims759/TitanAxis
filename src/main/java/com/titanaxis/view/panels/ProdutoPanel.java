@@ -13,6 +13,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -55,15 +57,12 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         showInactiveButton = new JToggleButton("Mostrar Inativos");
         novoProdutoButton = new JButton("Novo Produto");
 
-        // ADICIONADO: Tooltips
         addTooltips();
-
         initComponents();
 
         new ProdutoPresenter(this, appContext.getProdutoService(), appContext.getAuthService());
     }
 
-    // NOVO MÉTODO: Adiciona as dicas de ferramentas
     private void addTooltips() {
         novoProdutoButton.setToolTipText("Criar um novo produto no sistema.");
         editProdutoButton.setToolTipText("Editar os detalhes do produto selecionado.");
@@ -81,12 +80,47 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         add(splitPane, BorderLayout.CENTER);
     }
 
+    // NOVO MÉTODO: Cria o menu de contexto para a tabela de produtos
+    private JPopupMenu createProdutoContextMenu() {
+        JPopupMenu contextMenu = new JPopupMenu();
+
+        JMenuItem editarItem = new JMenuItem("Editar Produto");
+        editarItem.addActionListener(e -> listener.aoClicarEditarProduto());
+
+        JMenuItem statusItem = new JMenuItem("Inativar/Reativar");
+        statusItem.addActionListener(e -> listener.aoAlternarStatusDoProduto());
+
+        JMenuItem loteItem = new JMenuItem("Adicionar Lote");
+        loteItem.addActionListener(e -> listener.aoClicarAdicionarLote());
+
+        contextMenu.add(editarItem);
+        contextMenu.add(statusItem);
+        contextMenu.addSeparator();
+        contextMenu.add(loteItem);
+
+        return contextMenu;
+    }
+
     private JPanel createProdutoListPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Produtos Cadastrados"));
 
         produtoTable.setRowSorter(new TableRowSorter<>(produtoTableModel));
         produtoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // ADICIONADO: Lógica do menu de contexto
+        produtoTable.setComponentPopupMenu(createProdutoContextMenu());
+        produtoTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Point point = e.getPoint();
+                int row = produtoTable.rowAtPoint(point);
+                if (row != -1) {
+                    produtoTable.setRowSelectionInterval(row, row);
+                }
+            }
+        });
+
 
         produtoTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
