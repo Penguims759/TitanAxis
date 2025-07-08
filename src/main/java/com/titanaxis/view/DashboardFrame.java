@@ -44,7 +44,7 @@ public class DashboardFrame extends JFrame {
     private AuditoriaPanel auditoriaPanel;
     private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
-
+    private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
         super("Dashboard - TitanAxis");
@@ -54,7 +54,7 @@ public class DashboardFrame extends JFrame {
                 authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("default")
         );
 
-        setSize(1280, 850);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
@@ -68,6 +68,12 @@ public class DashboardFrame extends JFrame {
 
         setupMenuBar();
         setupNestedTabs();
+
+        mainTabbedPane.addChangeListener(e -> {
+            if (aiAssistantTabIndex != -1 && mainTabbedPane.getSelectedIndex() == aiAssistantTabIndex) {
+                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, UIManager.getColor("Button.foreground"));
+            }
+        });
 
         SwingUtilities.invokeLater(() -> {
             setTheme(personalizationService.getPreference("theme", "dark"));
@@ -152,6 +158,7 @@ public class DashboardFrame extends JFrame {
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
             mainTabbedPane.addTab("Assistente IA", aiAssistantPanel);
+            aiAssistantTabIndex = mainTabbedPane.getTabCount() - 1;
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
         }
 
@@ -164,7 +171,6 @@ public class DashboardFrame extends JFrame {
             produtoPanel = new ProdutoPanel(appContext);
             categoriaPanel = new CategoriaPanel(appContext);
             alertaPanel = new AlertaPanel(appContext);
-            // ALTERADO: Passa o 'this' (o Frame) para ser o 'owner' dos diálogos
             movimentosPanel = new MovimentosPanel(this, appContext);
 
             produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel);
@@ -306,7 +312,7 @@ public class DashboardFrame extends JFrame {
                         panel.getClass().getMethod("refreshData").invoke(panel);
                     }
                 } catch (Exception ex) {
-                    // Silencioso, pois nem todos os painéis têm refreshData.
+                    // Silencioso
                 }
             }
         };
@@ -316,8 +322,10 @@ public class DashboardFrame extends JFrame {
         if (aiAssistantPanel != null) {
             String insights = appContext.getAnalyticsService().getProactiveInsightsSummary();
             if (insights != null && !insights.isEmpty()) {
-                mainTabbedPane.setSelectedComponent(aiAssistantPanel);
+                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, Color.CYAN);
                 aiAssistantPanel.appendMessage("Olá! Tenho alguns insights para você hoje:\n" + insights, false);
+            } else {
+                aiAssistantPanel.appendMessage("Olá! Sou o Assistente. Como posso ajudar?", false);
             }
         }
     }
