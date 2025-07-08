@@ -3,7 +3,7 @@ package com.titanaxis.model.ai;
 public enum Action {
     // Ações de Guia Visual
     GUIDE_NAVIGATE_TO_ADD_LOTE,
-    GUIDE_NAVIGATE_TO_ADD_PRODUCT, // NOVA AÇÃO
+    GUIDE_NAVIGATE_TO_ADD_PRODUCT,
 
     // Ações de Execução Direta
     DIRECT_CREATE_PRODUCT,
@@ -12,6 +12,7 @@ public enum Action {
     DIRECT_CREATE_USER,
     DIRECT_UPDATE_PRODUCT,
     DIRECT_ADD_STOCK,
+    DIRECT_ADJUST_STOCK, // NOVA AÇÃO
     DIRECT_GENERATE_SALES_REPORT_PDF,
     START_SALE_FOR_CLIENT,
 

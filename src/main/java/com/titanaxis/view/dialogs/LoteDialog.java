@@ -1,6 +1,7 @@
 // File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/dialogs/LoteDialog.java
 package com.titanaxis.view.dialogs;
 
+import com.titanaxis.exception.LoteDuplicadoException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Lote;
@@ -8,7 +9,7 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
 import javax.swing.text.MaskFormatter;
@@ -20,14 +21,14 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 public class LoteDialog extends JDialog {
-    private final ProdutoService produtoService; // Adicionado final
-    private final Lote lote; // Adicionado final
-    private final Usuario ator; // Adicionado final
-    private final Produto produtoPai; // Adicionado final
+    private final ProdutoService produtoService;
+    private final Lote lote;
+    private final Usuario ator;
+    private final Produto produtoPai;
     private Lote loteSalvo;
-    private final JTextField numeroLoteField; // Adicionado final
-    private final JTextField quantidadeField; // Adicionado final
-    private final JFormattedTextField dataValidadeField; // Adicionado final
+    private final JTextField numeroLoteField;
+    private final JTextField quantidadeField;
+    private final JFormattedTextField dataValidadeField;
 
     public LoteDialog(Frame owner, ProdutoService ps, Produto produtoPai, Lote l, Usuario ator) {
         super(owner, "Detalhes do Lote", true);
@@ -39,21 +40,19 @@ public class LoteDialog extends JDialog {
         setTitle(l == null || l.getId() == 0 ? "Novo Lote para " + produtoPai.getNome() : "Editar Lote");
         setLayout(new BorderLayout());
 
-        // Campos inicializados antes de initComponents()
         numeroLoteField = new JTextField(20);
         quantidadeField = new JTextField();
 
-        // ALTERADO: Inicialização definitiva de dataValidadeField
-        JFormattedTextField tempValidadeField; // Variável temporária
+        JFormattedTextField tempValidadeField;
         try {
             MaskFormatter dateFormatter = new MaskFormatter("##/##/####");
             dateFormatter.setPlaceholderCharacter('_');
             tempValidadeField = new JFormattedTextField(dateFormatter);
         } catch (ParseException e) {
-            tempValidadeField = new JFormattedTextField(); // Garante que seja sempre inicializada
-            AppLogger.getLogger().log(Level.SEVERE, "Erro ao criar MaskFormatter para data de validade.", e); // Log do erro
+            tempValidadeField = new JFormattedTextField();
+            AppLogger.getLogger().log(Level.SEVERE, "Erro ao criar MaskFormatter para data de validade.", e);
         }
-        this.dataValidadeField = tempValidadeField; // Atribuição final única
+        this.dataValidadeField = tempValidadeField;
 
         initComponents();
         populateFields();
@@ -69,7 +68,6 @@ public class LoteDialog extends JDialog {
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Campos já inicializados no construtor
         formPanel.add(new JLabel("Número do Lote:"));
         formPanel.add(numeroLoteField);
         formPanel.add(new JLabel("Quantidade:"));
@@ -116,7 +114,13 @@ public class LoteDialog extends JDialog {
             }
 
             lote.setProduto(this.produtoPai);
-            this.loteSalvo = produtoService.salvarLote(lote, ator);
+
+            if(lote.getId() == 0){
+                this.loteSalvo = produtoService.registrarEntradaLote(lote, ator);
+            } else {
+                this.loteSalvo = produtoService.salvarLote(lote, ator);
+            }
+
             dispose();
 
         } catch (NumberFormatException e) {
@@ -125,8 +129,9 @@ public class LoteDialog extends JDialog {
             UIMessageUtil.showErrorMessage(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato");
         } catch (UtilizadorNaoAutenticadoException e) {
             UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
+        } catch (LoteDuplicadoException e) {
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Duplicação");
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o lote.", e);

@@ -157,7 +157,6 @@ public class DashboardFrame extends JFrame {
 
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
-            // ALTERADO AQUI
             mainTabbedPane.addTab("Assistente", aiAssistantPanel);
             aiAssistantTabIndex = mainTabbedPane.getTabCount() - 1;
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
@@ -224,7 +223,6 @@ public class DashboardFrame extends JFrame {
                 "Produtos & Estoque", produtosEstoqueTabbedPane,
                 "Relatórios", relatorioPanel,
                 "Administração", adminTabbedPane,
-                // ALTERADO AQUI
                 "Assistente", aiAssistantPanel
         );
 
@@ -283,6 +281,15 @@ public class DashboardFrame extends JFrame {
                     appContext.getClienteService().salvar(novoCliente, ator);
                     UIMessageUtil.showInfoMessage(this, "Cliente '" + nome + "' foi criado com sucesso!", "Ação Concluída");
                     if (clientePanel != null) clientePanel.refreshData();
+                    break;
+                case DIRECT_ADJUST_STOCK:
+                    String prodName = (String) params.get("productName");
+                    String lotNumber = (String) params.get("lotNumber");
+                    int newQuantity = Integer.parseInt((String) params.get("quantity"));
+                    appContext.getProdutoService().ajustarEstoqueLote(prodName, lotNumber, newQuantity, ator);
+                    UIMessageUtil.showInfoMessage(this, "Estoque do lote " + lotNumber + " ajustado com sucesso!", "Ação Concluída");
+                    if (produtoPanel != null) produtoPanel.refreshData();
+                    if (movimentosPanel != null) movimentosPanel.refreshData();
                     break;
                 case UI_CHANGE_THEME:
                     setTheme((String) params.get("theme"));

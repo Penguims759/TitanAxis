@@ -10,7 +10,6 @@ import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.flows.*;
 
-// ALTERADO: A importação foi corrigida de javax.inject para jakarta.inject
 import jakarta.inject.Inject;
 
 public class AppModule extends AbstractModule {
@@ -31,7 +30,7 @@ public class AppModule extends AbstractModule {
         bind(AuthService.class).in(Singleton.class);
         bind(CategoriaService.class).in(Singleton.class);
         bind(ClienteService.class).in(Singleton.class);
-        // A configuração do ProdutoService foi movida para o método @Provides
+        bind(ProdutoService.class).in(Singleton.class);
         bind(VendaService.class).in(Singleton.class);
         bind(RelatorioService.class).in(Singleton.class);
         bind(AlertaService.class).in(Singleton.class);
@@ -48,6 +47,7 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(CreateProductFlow.class);
         flowBinder.addBinding().to(CreateCategoryFlow.class);
         flowBinder.addBinding().to(ManageStockFlow.class);
+        flowBinder.addBinding().to(AdjustStockFlow.class); // NOVO FLUXO
         flowBinder.addBinding().to(CreateClientFlow.class);
         flowBinder.addBinding().to(UpdateProductFlow.class);
         flowBinder.addBinding().to(QueryStockFlow.class);
@@ -63,12 +63,5 @@ public class AppModule extends AbstractModule {
 
         // --- Contexto da Aplicação ---
         bind(AppContext.class).in(Singleton.class);
-    }
-
-    @Provides
-    @Singleton
-    @Inject
-    public ProdutoService provideProdutoService(ProdutoRepository produtoRepository, TransactionService transactionService, CategoriaRepository categoriaRepository) {
-        return new ProdutoService(produtoRepository, transactionService, categoriaRepository);
     }
 }

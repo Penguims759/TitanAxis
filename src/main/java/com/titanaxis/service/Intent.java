@@ -17,6 +17,7 @@ public enum Intent {
     // INTENÇÕES DE ATUALIZAÇÃO E GESTÃO
     UPDATE_PRODUCT(List.of("alterar produto", "mudar produto", "atualizar produto", "alterar preco", "alterar status"), List.of()),
     MANAGE_STOCK(List.of("adicionar stock", "adicionar unidades", "adicionar ao lote", "gerir stock", "gerir estoque"), List.of("stock", "estoque", "lote")),
+    ADJUST_STOCK(List.of("ajustar stock", "ajustar estoque", "corrigir stock", "corrigir estoque"), List.of("ajustar", "corrigir")), // NOVA INTENÇÃO
 
     // INTENÇÕES DE CONSULTA
     QUERY_STOCK(List.of("qual o stock", "qual o estoque", "ver stock", "ver estoque"), List.of("stock", "estoque")),

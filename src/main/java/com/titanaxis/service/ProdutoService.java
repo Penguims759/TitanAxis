@@ -1,6 +1,7 @@
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
+import com.titanaxis.exception.LoteDuplicadoException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Categoria;
@@ -33,7 +34,6 @@ public class ProdutoService {
         this.categoriaRepository = categoriaRepository;
     }
 
-    // MÉTODO CORRIGIDO: Adicionado try-catch para a IOException
     public String importarProdutosDeCsv(File ficheiro, Usuario ator) throws IOException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Apenas utilizadores autenticados podem importar produtos.");
@@ -74,7 +74,6 @@ public class ProdutoService {
                         }
                     }
                 } catch (IOException e) {
-                    // Embrulha a IOException numa RuntimeException para ser apanhada pelo TransactionService
                     throw new RuntimeException("Erro ao ler o ficheiro CSV dentro da transação.", e);
                 }
             });
@@ -129,29 +128,79 @@ public class ProdutoService {
         );
     }
 
-    public Lote salvarLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
+    public Lote salvarLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException, LoteDuplicadoException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
         }
+        try {
+            return transactionService.executeInTransactionWithResult(em -> {
+                // Validação de Lote Duplicado
+                if (lote.getId() == 0) { // Apenas para novos lotes
+                    boolean loteExiste = lote.getProduto().getLotes().stream()
+                            .anyMatch(l -> l.getNumeroLote().equalsIgnoreCase(lote.getNumeroLote()));
+                    if (loteExiste) {
+                        throw new RuntimeException("O lote '" + lote.getNumeroLote() + "' já existe para este produto.");
+                    }
+                }
+                return produtoRepository.saveLote(lote, ator, em);
+            });
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("já existe para este produto")) {
+                throw new LoteDuplicadoException(e.getMessage());
+            }
+            throw e;
+        }
+    }
 
-        return transactionService.executeInTransactionWithResult(em -> {
-            Lote loteSalvo = produtoRepository.saveLote(lote, ator, em);
-
+    public Lote registrarEntradaLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException, LoteDuplicadoException {
+        Lote loteSalvo = salvarLote(lote, ator);
+        transactionService.executeInTransaction(em -> {
             MovimentoEstoque movimento = new MovimentoEstoque();
             movimento.setProduto(loteSalvo.getProduto());
             movimento.setLote(loteSalvo);
             movimento.setQuantidade(loteSalvo.getQuantidade());
             movimento.setDataMovimento(LocalDateTime.now());
             movimento.setUsuario(ator);
-
-            boolean isUpdate = lote.getId() != 0;
-            movimento.setTipoMovimento(isUpdate ? "AJUSTE" : "ENTRADA");
-
+            movimento.setTipoMovimento("ENTRADA");
             em.persist(movimento);
+        });
+        return loteSalvo;
+    }
 
-            return loteSalvo;
+    public Lote ajustarEstoqueLote(String nomeProduto, String numeroLote, int novaQuantidade, Usuario ator) throws PersistenciaException, IllegalArgumentException {
+        if (novaQuantidade < 0) {
+            throw new IllegalArgumentException("A quantidade não pode ser negativa.");
+        }
+        return transactionService.executeInTransactionWithResult(em -> {
+            Produto produto = produtoRepository.findByNome(nomeProduto, em)
+                    .orElseThrow(() -> new IllegalArgumentException("Produto '" + nomeProduto + "' não encontrado."));
+
+            Lote lote = produto.getLotes().stream()
+                    .filter(l -> l.getNumeroLote().equalsIgnoreCase(numeroLote))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Lote '" + numeroLote + "' não encontrado para o produto '" + nomeProduto + "'."));
+
+            int quantidadeAnterior = lote.getQuantidade();
+            int diferenca = novaQuantidade - quantidadeAnterior;
+
+            if (diferenca != 0) {
+                lote.setQuantidade(novaQuantidade);
+                Lote loteSalvo = produtoRepository.saveLote(lote, ator, em);
+
+                MovimentoEstoque movimento = new MovimentoEstoque();
+                movimento.setProduto(lote.getProduto());
+                movimento.setLote(lote);
+                movimento.setQuantidade(Math.abs(diferenca));
+                movimento.setDataMovimento(LocalDateTime.now());
+                movimento.setUsuario(ator);
+                movimento.setTipoMovimento("AJUSTE");
+                em.persist(movimento);
+                return loteSalvo;
+            }
+            return lote;
         });
     }
+
 
     public Lote adicionarEstoqueLote(String nomeProduto, String numeroLote, int quantidadeAdicionar, Usuario ator) throws PersistenciaException, IllegalArgumentException {
         return transactionService.executeInTransactionWithResult(em -> {
@@ -164,7 +213,17 @@ public class ProdutoService {
                     .orElseThrow(() -> new IllegalArgumentException("Lote '" + numeroLote + "' não encontrado para o produto '" + nomeProduto + "'."));
 
             lote.setQuantidade(lote.getQuantidade() + quantidadeAdicionar);
-            return produtoRepository.saveLote(lote, ator, em);
+            Lote loteSalvo = produtoRepository.saveLote(lote, ator, em);
+
+            MovimentoEstoque movimento = new MovimentoEstoque();
+            movimento.setProduto(lote.getProduto());
+            movimento.setLote(lote);
+            movimento.setQuantidade(quantidadeAdicionar);
+            movimento.setDataMovimento(LocalDateTime.now());
+            movimento.setUsuario(ator);
+            movimento.setTipoMovimento("ENTRADA");
+            em.persist(movimento);
+            return loteSalvo;
         });
     }
 
