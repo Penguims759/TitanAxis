@@ -31,9 +31,6 @@ public class ClientePanel extends JPanel implements ClienteView {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
-        table.setFocusable(false); // NOVO: Remove o foco visual da tabela
-        table.setSelectionBackground(table.getBackground()); // NOVO: Torna o fundo da seleção invisível
-        table.setSelectionForeground(table.getForeground()); // NOVO: Mantém a cor do texto da seleção
 
         idField = new JTextField();
         idField.setEditable(false);
@@ -144,6 +141,33 @@ public class ClientePanel extends JPanel implements ClienteView {
         tableModel.setRowCount(0);
         clientes.forEach(c -> tableModel.addRow(new Object[]{c.getId(), c.getNome(), c.getContato(), c.getEndereco()}));
         table.clearSelection(); // NOVO: Limpa a seleção da tabela
+    }
+
+    @Override
+    public void adicionarClienteNaTabela(Cliente cliente) {
+        tableModel.addRow(new Object[]{cliente.getId(), cliente.getNome(), cliente.getContato(), cliente.getEndereco()});
+    }
+
+    @Override
+    public void atualizarClienteNaTabela(Cliente cliente) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            if (tableModel.getValueAt(i, 0).equals(cliente.getId())) {
+                tableModel.setValueAt(cliente.getNome(), i, 1);
+                tableModel.setValueAt(cliente.getContato(), i, 2);
+                tableModel.setValueAt(cliente.getEndereco(), i, 3);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void removerClienteDaTabela(int clienteId) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            if (tableModel.getValueAt(i, 0).equals(clienteId)) {
+                tableModel.removeRow(i);
+                return;
+            }
+        }
     }
 
     @Override

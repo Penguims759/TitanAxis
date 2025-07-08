@@ -32,9 +32,6 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
-        table.setFocusable(false); // NOVO: Remove o foco visual da tabela
-        table.setSelectionBackground(table.getBackground()); // NOVO: Torna o fundo da seleção invisível
-        table.setSelectionForeground(table.getForeground()); // NOVO: Mantém a cor do texto da seleção
 
         initComponents(); // Chama o método para construir o layout com os componentes já inicializados
         new CategoriaPresenter(this, appContext.getCategoriaService(), appContext.getAuthService());

@@ -47,6 +47,7 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
                     view.appendMessage("Ocorreu um erro: " + e.getMessage(), false);
                 } finally {
                     view.setSendButtonEnabled(true);
+                    view.requestInputFieldFocus(); // ALTERADO
                 }
             }
         };

@@ -13,6 +13,7 @@ public interface AIAssistantView {
     void removeLastMessage();
 
     void requestAction(Action action, Map<String, Object> params);
+    void requestInputFieldFocus(); // ADICIONADO
 
     interface AIAssistantViewListener {
         void onSendMessage(String message);

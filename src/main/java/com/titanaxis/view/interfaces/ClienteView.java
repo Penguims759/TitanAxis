@@ -17,6 +17,11 @@ public interface ClienteView {
     // Método para o Presenter preencher a tabela
     void setClientesNaTabela(List<Cliente> clientes);
 
+    // MÉTODOS ADICIONADOS
+    void adicionarClienteNaTabela(Cliente cliente);
+    void atualizarClienteNaTabela(Cliente cliente);
+    void removerClienteDaTabela(int clienteId);
+
     // Métodos para o Presenter mostrar mensagens
     void mostrarMensagem(String titulo, String mensagem, boolean isErro);
     boolean mostrarConfirmacao(String titulo, String mensagem);

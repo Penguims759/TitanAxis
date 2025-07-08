@@ -42,19 +42,11 @@ public class AuditoriaPanel extends JPanel {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         acoesTable = new JTable(acoesTableModel);
-        acoesTable.setFocusable(false); // NOVO: Remove o foco visual da tabela
-        acoesTable.setSelectionBackground(acoesTable.getBackground()); // NOVO: Torna o fundo da seleção invisível
-        acoesTable.setSelectionForeground(acoesTable.getForeground()); // NOVO: Mantém a cor do texto da seleção
-
 
         acessoTableModel = new DefaultTableModel(new String[]{"Data/Hora", "Utilizador", "Resultado", "Entidade", "Detalhes"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         acessoTable = new JTable(acessoTableModel);
-        acessoTable.setFocusable(false); // NOVO: Remove o foco visual da tabela
-        acessoTable.setSelectionBackground(acessoTable.getBackground()); // NOVO: Torna o fundo da seleção invisível
-        acessoTable.setSelectionForeground(acessoTable.getForeground()); // NOVO: Mantém a cor do texto da seleção
-
 
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Logs de Ações", createLogPanel(true));

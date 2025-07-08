@@ -24,9 +24,9 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     private final TableRowSorter<DefaultTableModel> sorter;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    // NOVOS COMPONENTES PARA FILTRO DE DATA
     private JSpinner dataInicioSpinner;
     private JSpinner dataFimSpinner;
+    private final Timer dateFilterTimer;
 
     public MovimentosPanel(AppContext appContext) {
         tableModel = new DefaultTableModel(new String[]{"Data", "Produto", "Lote", "Tipo", "Quantidade", "Utilizador"}, 0) {
@@ -37,6 +37,10 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
 
         initComponents();
         new MovimentoPresenter(this, appContext.getMovimentoService());
+
+        dateFilterTimer = new Timer(500, e -> listener.aoFiltrarPorData());
+        dateFilterTimer.setRepeats(false);
+
         listener.aoCarregarMovimentos();
     }
 
@@ -72,17 +76,18 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         SpinnerDateModel inicioModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
         dataInicioSpinner = new JSpinner(inicioModel);
         dataInicioSpinner.setEditor(new JSpinner.DateEditor(dataInicioSpinner, "dd/MM/yyyy"));
+        dataInicioSpinner.addChangeListener(e -> dateFilterTimer.restart());
 
         SpinnerDateModel fimModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
         dataFimSpinner = new JSpinner(fimModel);
         dataFimSpinner.setEditor(new JSpinner.DateEditor(dataFimSpinner, "dd/MM/yyyy"));
-
-        JButton filterDateButton = new JButton("Filtrar por Data");
-        filterDateButton.addActionListener(e -> listener.aoFiltrarPorData());
+        dataFimSpinner.addChangeListener(e -> dateFilterTimer.restart());
 
         JButton clearFilterButton = new JButton("Limpar Filtros");
         clearFilterButton.addActionListener(e -> {
             filterField.setText("");
+            dataInicioSpinner.setValue(new Date());
+            dataFimSpinner.setValue(new Date());
             listener.aoCarregarMovimentos();
         });
 
@@ -90,7 +95,6 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         dateFilterPanel.add(dataInicioSpinner);
         dateFilterPanel.add(new JLabel("Até:"));
         dateFilterPanel.add(dataFimSpinner);
-        dateFilterPanel.add(filterDateButton);
         dateFilterPanel.add(clearFilterButton);
 
         topPanel.add(textFilterPanel, BorderLayout.WEST);

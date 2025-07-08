@@ -264,6 +264,11 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         }
     }
 
+    @Override
+    public void requestInputFieldFocus() {
+        SwingUtilities.invokeLater(() -> inputField.requestFocusInWindow());
+    }
+
     private void scrollToBottom() {
         int lastIndex = chatModel.getSize() - 1;
         if (lastIndex >= 0) {

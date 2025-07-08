@@ -43,20 +43,25 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             view.mostrarMensagem("Erro de Validação", "O nome do cliente é obrigatório.", true);
             return;
         }
+
         boolean isUpdate = !view.getId().isEmpty();
         int id = isUpdate ? Integer.parseInt(view.getId()) : 0;
         Cliente cliente = new Cliente(id, nome, view.getContato().trim(), view.getEndereco().trim());
         Usuario ator = authService.getUsuarioLogado().orElse(null);
 
         try {
-            clienteService.salvar(cliente, ator);
-            view.mostrarMensagem("Sucesso", "Cliente " + (isUpdate ? "atualizado" : "adicionado") + " com sucesso!", false);
+            Cliente clienteSalvo = clienteService.salvar(cliente, ator); // O serviço agora retorna o cliente salvo
+            if (isUpdate) {
+                view.atualizarClienteNaTabela(clienteSalvo);
+                view.mostrarMensagem("Sucesso", "Cliente atualizado com sucesso!", false);
+            } else {
+                view.adicionarClienteNaTabela(clienteSalvo);
+                view.mostrarMensagem("Sucesso", "Cliente adicionado com sucesso!", false);
+            }
             aoLimpar();
-            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar o cliente: " + e.getMessage(), true);
         }
     }
@@ -74,13 +79,12 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
             clienteService.deletar(id, ator);
+            view.removerClienteDaTabela(id); // Nova chamada para a view
             view.mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
             aoLimpar();
-            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar o cliente: " + e.getMessage(), true);
         }
     }
