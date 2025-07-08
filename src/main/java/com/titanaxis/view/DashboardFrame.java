@@ -16,6 +16,8 @@ import com.titanaxis.view.panels.*;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class DashboardFrame extends JFrame {
     private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
 
+
     public DashboardFrame(AppContext appContext) {
         super("Dashboard - TitanAxis");
         this.appContext = appContext;
@@ -51,7 +54,7 @@ public class DashboardFrame extends JFrame {
                 authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("default")
         );
 
-        setSize(1200, 800);
+        setSize(1280, 850);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
@@ -96,8 +99,11 @@ public class DashboardFrame extends JFrame {
         menuTema.add(darkThemeItem);
 
         final JMenuItem logoutMenuItem = new JMenuItem("Logout");
+        logoutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         logoutMenuItem.addActionListener(e -> fazerLogout());
+
         final JMenuItem sairMenuItem = new JMenuItem("Sair");
+        sairMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         sairMenuItem.addActionListener(e -> confirmarSaida());
 
         menuArquivo.add(menuTema);
@@ -158,7 +164,8 @@ public class DashboardFrame extends JFrame {
             produtoPanel = new ProdutoPanel(appContext);
             categoriaPanel = new CategoriaPanel(appContext);
             alertaPanel = new AlertaPanel(appContext);
-            movimentosPanel = new MovimentosPanel(appContext);
+            // ALTERADO: Passa o 'this' (o Frame) para ser o 'owner' dos diálogos
+            movimentosPanel = new MovimentosPanel(this, appContext);
 
             produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel);
             produtosEstoqueTabbedPane.addTab("Categorias", categoriaPanel);
@@ -299,7 +306,7 @@ public class DashboardFrame extends JFrame {
                         panel.getClass().getMethod("refreshData").invoke(panel);
                     }
                 } catch (Exception ex) {
-                    // O método não existe ou falhou, não faz nada. Silencioso.
+                    // Silencioso, pois nem todos os painéis têm refreshData.
                 }
             }
         };

@@ -11,6 +11,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class ClientePanel extends JPanel implements ClienteView {
@@ -23,7 +24,7 @@ public class ClientePanel extends JPanel implements ClienteView {
     private final JTextField contatoField;
     private final JTextField enderecoField;
     private final JTextField searchField;
-    private JButton saveButton; // ALTERADO: Removido 'final' para ser acessível nos métodos
+    private JButton saveButton;
 
     public ClientePanel(AppContext appContext) {
         searchField = new JTextField(25);
@@ -40,7 +41,7 @@ public class ClientePanel extends JPanel implements ClienteView {
         enderecoField = new JTextField();
 
         initComponents();
-        addFormValidation(); // ADICIONADO: Chama o método de validação
+        addFormValidation();
         new ClientePresenter(this, appContext.getClienteService(), appContext.getAuthService());
     }
 
@@ -85,9 +86,14 @@ public class ClientePanel extends JPanel implements ClienteView {
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        saveButton = new JButton("Salvar"); // ALTERADO: Atribuição ao campo da classe
+        saveButton = new JButton("Salvar");
+        saveButton.setMnemonic(KeyEvent.VK_S); // Atalho Alt+S
+
         JButton deleteButton = new JButton("Eliminar");
+        deleteButton.setMnemonic(KeyEvent.VK_E); // Atalho Alt+E
+
         JButton clearButton = new JButton("Limpar Campos");
+        clearButton.setMnemonic(KeyEvent.VK_L); // Atalho Alt+L
 
         saveButton.addActionListener(e -> listener.aoSalvar());
         deleteButton.addActionListener(e -> listener.aoApagar());
@@ -102,6 +108,8 @@ public class ClientePanel extends JPanel implements ClienteView {
     private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton searchButton = new JButton("Buscar");
+        searchButton.setMnemonic(KeyEvent.VK_B); // Atalho Alt+B
+
         JButton clearSearchButton = new JButton("Limpar Busca");
 
         searchPanel.add(new JLabel("Buscar por Nome:"));
@@ -115,7 +123,6 @@ public class ClientePanel extends JPanel implements ClienteView {
         return searchPanel;
     }
 
-    // NOVO MÉTODO: Adiciona validação em tempo real ao formulário
     private void addFormValidation() {
         DocumentListener validationListener = new DocumentListener() {
             public void changedUpdate(DocumentEvent e) { validateForm(); }
@@ -124,16 +131,14 @@ public class ClientePanel extends JPanel implements ClienteView {
         };
 
         nomeField.getDocument().addDocumentListener(validationListener);
-        validateForm(); // Define o estado inicial do botão
+        validateForm();
     }
 
-    // NOVO MÉTODO: Lógica de validação
     private void validateForm() {
         boolean isNomeValid = !nomeField.getText().trim().isEmpty();
         saveButton.setEnabled(isNomeValid);
     }
 
-    // --- Implementação dos métodos da interface ClienteView ---
     @Override public String getId() { return idField.getText(); }
     @Override public String getNome() { return nomeField.getText(); }
     @Override public String getContato() { return contatoField.getText(); }

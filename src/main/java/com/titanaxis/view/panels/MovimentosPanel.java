@@ -1,15 +1,20 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.presenter.MovimentoPresenter;
 import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.view.dialogs.VendaDetalhesDialog;
 import com.titanaxis.view.interfaces.MovimentoView;
+import com.titanaxis.view.renderer.MovimentoTableCellRenderer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -27,9 +32,14 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     private JSpinner dataInicioSpinner;
     private JSpinner dataFimSpinner;
     private final Timer dateFilterTimer;
+    private final AppContext appContext;
+    private final Frame owner;
 
-    public MovimentosPanel(AppContext appContext) {
-        tableModel = new DefaultTableModel(new String[]{"Data", "Produto", "Lote", "Tipo", "Quantidade", "Utilizador"}, 0) {
+    public MovimentosPanel(Frame owner, AppContext appContext) {
+        this.appContext = appContext;
+        this.owner = owner;
+
+        tableModel = new DefaultTableModel(new String[]{"Data", "Produto", "Lote", "Tipo", "Quantidade", "Utilizador", "Venda ID"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
@@ -46,18 +56,61 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createTitledBorder("Histórico de Movimentos de Estoque"));
+        setBorder(BorderFactory.createTitledBorder("Histórico de Movimentos e Vendas"));
 
         add(createTopPanel(), BorderLayout.NORTH);
 
         table.setRowSorter(sorter);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+
+        table.getColumnModel().getColumn(6).setMinWidth(0);
+        table.getColumnModel().getColumn(6).setMaxWidth(0);
+        table.getColumnModel().getColumn(6).setWidth(0);
+
+        table.setDefaultRenderer(Object.class, new MovimentoTableCellRenderer());
+
+        table.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent mouseEvent) {
+                if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                    int modelRow = table.convertRowIndexToModel(table.getSelectedRow());
+                    if ("VENDA".equals(tableModel.getValueAt(modelRow, 3))) {
+                        Integer vendaId = (Integer) tableModel.getValueAt(modelRow, 6);
+                        if (vendaId != null) {
+                            abrirDetalhesVenda(vendaId);
+                        }
+                    }
+                }
+            }
+        });
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane, BorderLayout.CENTER);
+
+        JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        southPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+        southPanel.add(new JLabel("Dica: Dê um duplo clique numa linha de 'VENDA' para ver os detalhes completos e exportar."));
+        add(southPanel, BorderLayout.SOUTH);
     }
 
+    private void abrirDetalhesVenda(int vendaId) {
+        try {
+            appContext.getVendaService().buscarVendaCompletaPorId(vendaId)
+                    .ifPresentOrElse(
+                            venda -> {
+                                VendaDetalhesDialog dialog = new VendaDetalhesDialog(owner, venda, appContext.getRelatorioService());
+                                dialog.setVisible(true);
+                            },
+                            () -> UIMessageUtil.showWarningMessage(this, "Não foi possível encontrar os detalhes para a venda selecionada.", "Aviso")
+                    );
+        } catch (Exception e) {
+            e.printStackTrace();
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro inesperado ao buscar os detalhes da venda: " + e.getMessage(), "Erro Crítico");
+        }
+    }
+
+    // MÉTODO ALTERADO: Ordem dos botões corrigida
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
 
-        // PAINEL DE FILTRO DE TEXTO
         JPanel textFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         textFilterPanel.add(new JLabel("Filtrar por texto:"));
         JTextField filterField = new JTextField(30);
@@ -71,7 +124,6 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
             }
         });
 
-        // PAINEL DE FILTRO DE DATA
         JPanel dateFilterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         SpinnerDateModel inicioModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
         dataInicioSpinner = new JSpinner(inicioModel);
@@ -82,6 +134,9 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         dataFimSpinner = new JSpinner(fimModel);
         dataFimSpinner.setEditor(new JSpinner.DateEditor(dataFimSpinner, "dd/MM/yyyy"));
         dataFimSpinner.addChangeListener(e -> dateFilterTimer.restart());
+
+        JButton refreshButton = new JButton("Atualizar");
+        refreshButton.addActionListener(e -> listener.aoCarregarMovimentos());
 
         JButton clearFilterButton = new JButton("Limpar Filtros");
         clearFilterButton.addActionListener(e -> {
@@ -96,6 +151,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         dateFilterPanel.add(new JLabel("Até:"));
         dateFilterPanel.add(dataFimSpinner);
         dateFilterPanel.add(clearFilterButton);
+        dateFilterPanel.add(refreshButton); // BOTÃO DE ATUALIZAR AGORA É O ÚLTIMO
 
         topPanel.add(textFilterPanel, BorderLayout.WEST);
         topPanel.add(dateFilterPanel, BorderLayout.EAST);
@@ -113,7 +169,8 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
                     m.getNumeroLote(),
                     m.getTipoMovimento(),
                     m.getQuantidade(),
-                    m.getNomeUsuario()
+                    m.getNomeUsuario(),
+                    m.getVendaId()
             });
         }
     }

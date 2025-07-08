@@ -1,4 +1,3 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/service/RelatorioService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -6,6 +5,7 @@ import com.lowagie.text.DocumentException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Venda;
+import com.titanaxis.model.VendaItem; // Importação necessária
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.repository.VendaRepository;
@@ -38,6 +38,7 @@ public class RelatorioService {
     }
 
     public String gerarRelatorioInventario() throws PersistenciaException {
+        // ... (código existente)
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
@@ -55,6 +56,7 @@ public class RelatorioService {
     }
 
     public ByteArrayOutputStream gerarRelatorioInventarioPdf() throws DocumentException, IOException, PersistenciaException {
+        // ... (código existente)
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
@@ -62,6 +64,7 @@ public class RelatorioService {
     }
 
     public String gerarRelatorioVendas() throws PersistenciaException {
+        // ... (código existente)
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
@@ -78,13 +81,47 @@ public class RelatorioService {
     }
 
     public ByteArrayOutputStream gerarRelatorioVendasPdf() throws DocumentException, IOException, PersistenciaException {
+        // ... (código existente)
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
         return PdfReportGenerator.generateVendasPdf(vendas);
     }
 
+    public ByteArrayOutputStream gerarReciboVendaPdf(Venda venda) throws DocumentException {
+        return PdfReportGenerator.generateReciboVendaPdf(venda);
+    }
+
+    // NOVO MÉTODO
+    public String gerarReciboVendaCsv(Venda venda) {
+        StringBuilder csv = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        // Cabeçalho do Recibo
+        csv.append("Recibo da Venda #").append(venda.getId()).append("\n");
+        csv.append("Data;").append(venda.getDataVenda().format(formatter)).append("\n");
+        csv.append("Cliente;").append(tratarStringParaCSV(venda.getCliente() != null ? venda.getCliente().getNome() : "N/A")).append("\n");
+        csv.append("Vendedor;").append(tratarStringParaCSV(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : "N/A")).append("\n\n");
+
+        // Itens
+        csv.append("Produto;Lote;Quantidade;Preco Unitario;Subtotal\n");
+        for (VendaItem item : venda.getItens()) {
+            csv.append(tratarStringParaCSV(item.getProduto().getNome())).append(";")
+                    .append(tratarStringParaCSV(item.getLote().getNumeroLote())).append(";")
+                    .append(item.getQuantidade()).append(";")
+                    .append(formatarMoedaParaCSV(item.getPrecoUnitario())).append(";")
+                    .append(formatarMoedaParaCSV(item.getQuantidade() * item.getPrecoUnitario())).append("\n");
+        }
+
+        // Total
+        csv.append("\n;;;;Total\n");
+        csv.append(";;;;").append(formatarMoedaParaCSV(venda.getValorTotal())).append("\n");
+
+        return csv.toString();
+    }
+
     public String gerarRelatorioAuditoriaCsv(List<Vector<Object>> data, String[] headers) {
+        // ... (código existente)
         StringBuilder csv = new StringBuilder();
         csv.append(String.join(";", headers)).append("\n");
         for (Vector<Object> row : data) {

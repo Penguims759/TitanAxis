@@ -1,14 +1,15 @@
-// src/main/java/com/titanaxis/service/ProdutoService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Lote;
+import com.titanaxis.model.MovimentoEstoque; // Importação necessária
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.ProdutoRepository;
 
+import java.time.LocalDateTime; // Importação necessária
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,8 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
         this.transactionService = transactionService;
     }
+
+    // ... (outros métodos do serviço permanecem iguais) ...
 
     public List<Produto> listarProdutos(boolean incluirInativos) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em -> {
@@ -70,18 +73,35 @@ public class ProdutoService {
         );
     }
 
+    // MÉTODO ALTERADO PARA REGISTAR MOVIMENTOS
     public Lote salvarLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
         }
-        return transactionService.executeInTransactionWithResult(em ->
-                produtoRepository.saveLote(lote, ator, em)
-        );
+
+        return transactionService.executeInTransactionWithResult(em -> {
+            // Guarda o lote para obter o ID e o estado mais recente
+            Lote loteSalvo = produtoRepository.saveLote(lote, ator, em);
+
+            // Cria um novo registo de movimento de estoque
+            MovimentoEstoque movimento = new MovimentoEstoque();
+            movimento.setProduto(loteSalvo.getProduto());
+            movimento.setLote(loteSalvo);
+            movimento.setQuantidade(loteSalvo.getQuantidade());
+            movimento.setDataMovimento(LocalDateTime.now());
+            movimento.setUsuario(ator);
+
+            // Define o tipo de movimento
+            boolean isUpdate = lote.getId() != 0;
+            movimento.setTipoMovimento(isUpdate ? "AJUSTE" : "ENTRADA");
+
+            // Persiste o novo movimento na base de dados
+            em.persist(movimento);
+
+            return loteSalvo;
+        });
     }
 
-    /**
-     * NOVO: Adiciona uma quantidade de estoque a um lote específico.
-     */
     public Lote adicionarEstoqueLote(String nomeProduto, String numeroLote, int quantidadeAdicionar, Usuario ator) throws PersistenciaException, IllegalArgumentException {
         return transactionService.executeInTransactionWithResult(em -> {
             Produto produto = produtoRepository.findByNome(nomeProduto, em)
@@ -96,7 +116,6 @@ public class ProdutoService {
             return produtoRepository.saveLote(lote, ator, em);
         });
     }
-
 
     public void removerLote(int loteId, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {

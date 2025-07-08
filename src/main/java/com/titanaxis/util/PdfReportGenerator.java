@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/util/PdfReportGenerator.java
 package com.titanaxis.util;
 
 import com.lowagie.text.*;
@@ -7,6 +6,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Venda;
+import com.titanaxis.model.VendaItem;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -90,10 +90,9 @@ public class PdfReportGenerator {
         return baos;
     }
 
-    // NOVO MÉTODO PARA GERAR PDFs DE AUDITORIA
     public static ByteArrayOutputStream generateAuditoriaPdf(String title, String[] headers, List<Vector<Object>> data) throws DocumentException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4.rotate()); // Deitado para mais espaço
+        Document document = new Document(PageSize.A4.rotate());
         PdfWriter.getInstance(document, baos);
         document.open();
 
@@ -117,6 +116,51 @@ public class PdfReportGenerator {
         date.setAlignment(Element.ALIGN_RIGHT);
         date.setSpacingBefore(10);
         document.add(date);
+
+        document.close();
+        return baos;
+    }
+
+    // NOVO MÉTODO
+    public static ByteArrayOutputStream generateReciboVendaPdf(Venda venda) throws DocumentException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, baos);
+        document.open();
+
+        Paragraph title = new Paragraph("Recibo da Venda #" + venda.getId(), FONT_TITLE);
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable infoTable = new PdfPTable(2);
+        infoTable.setWidthPercentage(100);
+        infoTable.addCell(createSimpleCell("Cliente:", FONT_TOTAL_BOLD));
+        infoTable.addCell(createSimpleCell(venda.getCliente() != null ? venda.getCliente().getNome() : "Não especificado", FONT_BODY));
+        infoTable.addCell(createSimpleCell("Data:", FONT_TOTAL_BOLD));
+        infoTable.addCell(createSimpleCell(venda.getDataVenda().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), FONT_BODY));
+        infoTable.addCell(createSimpleCell("Vendedor:", FONT_TOTAL_BOLD));
+        infoTable.addCell(createSimpleCell(venda.getUsuario().getNomeUsuario(), FONT_BODY));
+        document.add(infoTable);
+        document.add(Chunk.NEWLINE);
+
+        PdfPTable itemsTable = new PdfPTable(4);
+        itemsTable.setWidthPercentage(100);
+        itemsTable.setWidths(new float[]{4, 2, 2, 2});
+        addTableHeader(itemsTable, "Produto", "Quantidade", "Preço Unit.", "Subtotal");
+
+        for (VendaItem item : venda.getItens()) {
+            itemsTable.addCell(createCell(item.getProduto().getNome()));
+            itemsTable.addCell(createCell(String.valueOf(item.getQuantidade())));
+            itemsTable.addCell(createCell(CURRENCY_FORMAT.format(item.getPrecoUnitario())));
+            itemsTable.addCell(createCell(CURRENCY_FORMAT.format(item.getQuantidade() * item.getPrecoUnitario())));
+        }
+        document.add(itemsTable);
+
+        Paragraph total = new Paragraph("Valor Total: " + CURRENCY_FORMAT.format(venda.getValorTotal()), FONT_TITLE);
+        total.setAlignment(Element.ALIGN_RIGHT);
+        total.setSpacingBefore(20);
+        document.add(total);
 
         document.close();
         return baos;
@@ -158,6 +202,14 @@ public class PdfReportGenerator {
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setPadding(5);
+        return cell;
+    }
+
+    // NOVO MÉTODO
+    private static PdfPCell createSimpleCell(String text, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPadding(4);
         return cell;
     }
 }

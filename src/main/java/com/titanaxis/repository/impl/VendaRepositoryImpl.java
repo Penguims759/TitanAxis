@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -7,6 +6,7 @@ import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.VendaRepository;
 import com.titanaxis.util.AppLogger;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
@@ -31,12 +31,13 @@ public class VendaRepositoryImpl implements VendaRepository {
         Venda vendaSalva = em.merge(venda);
 
         for (VendaItem item : venda.getItens()) {
-            Query movimentoQuery = em.createNativeQuery("INSERT INTO movimentos_estoque (produto_id, lote_id, tipo_movimento, quantidade, usuario_id) VALUES (?, ?, ?, ?, ?)");
+            Query movimentoQuery = em.createNativeQuery("INSERT INTO movimentos_estoque (produto_id, lote_id, tipo_movimento, quantidade, usuario_id, venda_id) VALUES (?, ?, ?, ?, ?, ?)");
             movimentoQuery.setParameter(1, item.getLote().getProduto().getId());
             movimentoQuery.setParameter(2, item.getLote().getId());
             movimentoQuery.setParameter(3, "VENDA");
             movimentoQuery.setParameter(4, item.getQuantidade());
             movimentoQuery.setParameter(5, ator != null ? ator.getId() : null);
+            movimentoQuery.setParameter(6, vendaSalva.getId());
             movimentoQuery.executeUpdate();
         }
 
@@ -59,7 +60,7 @@ public class VendaRepositoryImpl implements VendaRepository {
     @Override
     public List<Venda> findAll(EntityManager em) {
         TypedQuery<Venda> query = em.createQuery(
-                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario LEFT JOIN FETCH v.itens i LEFT JOIN FETCH i.produto ORDER BY v.dataVenda DESC", Venda.class);
+                "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH v.usuario ORDER BY v.dataVenda DESC", Venda.class);
         return query.getResultList();
     }
 
@@ -70,9 +71,25 @@ public class VendaRepositoryImpl implements VendaRepository {
         return query.getResultList();
     }
 
+    // MÉTODO CORRIGIDO
     @Override
     public Optional<Venda> findById(Integer id, EntityManager em) {
-        return Optional.ofNullable(em.find(Venda.class, id));
+        try {
+            // Esta query agora usa 'LEFT JOIN FETCH' para carregar todas as associações necessárias
+            // (cliente, utilizador, itens, produto do item, lote do item) numa única consulta.
+            TypedQuery<Venda> query = em.createQuery(
+                    "SELECT v FROM Venda v " +
+                            "LEFT JOIN FETCH v.cliente " +
+                            "LEFT JOIN FETCH v.usuario " +
+                            "LEFT JOIN FETCH v.itens i " +
+                            "LEFT JOIN FETCH i.produto " +
+                            "LEFT JOIN FETCH i.lote " +
+                            "WHERE v.id = :id", Venda.class);
+            query.setParameter("id", id);
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -85,7 +102,6 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public List<Venda> findVendasBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
-        // CORREÇÃO: Adicionado "LEFT JOIN FETCH v.cliente" para carregar os dados do cliente na mesma consulta.
         TypedQuery<Venda> query = em.createQuery(
                 "SELECT v FROM Venda v LEFT JOIN FETCH v.cliente WHERE v.dataVenda BETWEEN :start AND :end", Venda.class);
         query.setParameter("start", start);
