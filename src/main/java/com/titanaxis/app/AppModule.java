@@ -1,6 +1,7 @@
 package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.titanaxis.repository.*;
@@ -8,6 +9,9 @@ import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.flows.*;
+
+// ALTERADO: A importação foi corrigida de javax.inject para jakarta.inject
+import jakarta.inject.Inject;
 
 public class AppModule extends AbstractModule {
 
@@ -27,7 +31,7 @@ public class AppModule extends AbstractModule {
         bind(AuthService.class).in(Singleton.class);
         bind(CategoriaService.class).in(Singleton.class);
         bind(ClienteService.class).in(Singleton.class);
-        bind(ProdutoService.class).in(Singleton.class);
+        // A configuração do ProdutoService foi movida para o método @Provides
         bind(VendaService.class).in(Singleton.class);
         bind(RelatorioService.class).in(Singleton.class);
         bind(AlertaService.class).in(Singleton.class);
@@ -39,10 +43,7 @@ public class AppModule extends AbstractModule {
 
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
 
-        // NOVO FLUXO
         flowBinder.addBinding().to(StartSaleFlow.class);
-
-        // Fluxos existentes
         flowBinder.addBinding().to(CreateUserFlow.class);
         flowBinder.addBinding().to(CreateProductFlow.class);
         flowBinder.addBinding().to(CreateCategoryFlow.class);
@@ -62,5 +63,12 @@ public class AppModule extends AbstractModule {
 
         // --- Contexto da Aplicação ---
         bind(AppContext.class).in(Singleton.class);
+    }
+
+    @Provides
+    @Singleton
+    @Inject
+    public ProdutoService provideProdutoService(ProdutoRepository produtoRepository, TransactionService transactionService, CategoriaRepository categoriaRepository) {
+        return new ProdutoService(produtoRepository, transactionService, categoriaRepository);
     }
 }

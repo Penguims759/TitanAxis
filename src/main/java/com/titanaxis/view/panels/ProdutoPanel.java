@@ -10,11 +10,13 @@ import com.titanaxis.view.dialogs.ProdutoDialog;
 import com.titanaxis.view.interfaces.ProdutoView;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -34,6 +36,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     private final JButton toggleStatusButton;
     private final JToggleButton showInactiveButton;
     private final JButton novoProdutoButton;
+    private final JButton importarCsvButton;
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ProdutoPanel(AppContext appContext) {
@@ -56,6 +59,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         toggleStatusButton = new JButton("Inativar/Reativar");
         showInactiveButton = new JToggleButton("Mostrar Inativos");
         novoProdutoButton = new JButton("Novo Produto");
+        importarCsvButton = new JButton("Importar de CSV");
 
         addTooltips();
         initComponents();
@@ -65,6 +69,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     private void addTooltips() {
         novoProdutoButton.setToolTipText("Criar um novo produto no sistema.");
+        importarCsvButton.setToolTipText("Importar uma lista de produtos a partir de um ficheiro CSV.");
         editProdutoButton.setToolTipText("Editar os detalhes do produto selecionado.");
         toggleStatusButton.setToolTipText("Alternar o estado do produto entre Ativo e Inativo.");
         showInactiveButton.setToolTipText("Exibir ou ocultar os produtos inativos na lista.");
@@ -80,7 +85,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         add(splitPane, BorderLayout.CENTER);
     }
 
-    // NOVO MÉTODO: Cria o menu de contexto para a tabela de produtos
     private JPopupMenu createProdutoContextMenu() {
         JPopupMenu contextMenu = new JPopupMenu();
 
@@ -108,7 +112,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         produtoTable.setRowSorter(new TableRowSorter<>(produtoTableModel));
         produtoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // ADICIONADO: Lógica do menu de contexto
         produtoTable.setComponentPopupMenu(createProdutoContextMenu());
         produtoTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -120,7 +123,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
                 }
             }
         });
-
 
         produtoTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -139,11 +141,13 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         novoProdutoButton.addActionListener(e -> listener.aoClicarNovoProduto());
+        importarCsvButton.addActionListener(e -> listener.aoClicarImportarCsv());
         editProdutoButton.addActionListener(e -> listener.aoClicarEditarProduto());
         toggleStatusButton.addActionListener(e -> listener.aoAlternarStatusDoProduto());
         showInactiveButton.addActionListener(e -> listener.aoCarregarProdutos());
 
         buttonPanel.add(novoProdutoButton);
+        buttonPanel.add(importarCsvButton);
         buttonPanel.add(editProdutoButton);
         buttonPanel.add(toggleStatusButton);
         southPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -151,6 +155,18 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         panel.add(southPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    @Override
+    public File mostrarSeletorDeFicheiroCsv() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecionar Ficheiro CSV para Importação");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Ficheiros CSV", "csv"));
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
     }
 
     private JPanel createDetalhesPanel() {

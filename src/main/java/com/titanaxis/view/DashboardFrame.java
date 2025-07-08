@@ -157,7 +157,8 @@ public class DashboardFrame extends JFrame {
 
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
-            mainTabbedPane.addTab("Assistente IA", aiAssistantPanel);
+            // ALTERADO AQUI
+            mainTabbedPane.addTab("Assistente", aiAssistantPanel);
             aiAssistantTabIndex = mainTabbedPane.getTabCount() - 1;
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
         }
@@ -223,7 +224,8 @@ public class DashboardFrame extends JFrame {
                 "Produtos & Estoque", produtosEstoqueTabbedPane,
                 "Relatórios", relatorioPanel,
                 "Administração", adminTabbedPane,
-                "Assistente IA", aiAssistantPanel
+                // ALTERADO AQUI
+                "Assistente", aiAssistantPanel
         );
 
         if (mainDestinations.containsKey(destination)) {

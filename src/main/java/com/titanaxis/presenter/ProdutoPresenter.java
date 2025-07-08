@@ -12,13 +12,14 @@ import com.titanaxis.view.dialogs.ProdutoDialog;
 import com.titanaxis.view.interfaces.ProdutoView;
 
 import javax.swing.*;
+import java.io.File;
 import java.util.Comparator;
 import java.util.Optional;
 
 public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
-    private final ProdutoView view; // Adicionado final
-    private final ProdutoService produtoService; // Adicionado final
-    private final AuthService authService; // Adicionado final
+    private final ProdutoView view;
+    private final ProdutoService produtoService;
+    private final AuthService authService;
     private Produto produtoSelecionado;
 
     public ProdutoPresenter(ProdutoView view, ProdutoService produtoService, AuthService authService) {
@@ -30,11 +31,45 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
     }
 
     @Override
+    public void aoClicarImportarCsv() {
+        String infoMessage = "Selecione um ficheiro CSV com as colunas na seguinte ordem:\n" +
+                "nome,descricao,preco,nome_da_categoria\n\n" +
+                "A primeira linha (cabeçalho) será ignorada. O separador deve ser ponto e vírgula (;).";
+        view.mostrarMensagem("Formato do Ficheiro CSV", infoMessage, false);
+
+        File ficheiro = view.mostrarSeletorDeFicheiroCsv();
+        if (ficheiro == null) {
+            return;
+        }
+
+        view.mostrarMensagem("Aguarde", "A processar o ficheiro CSV em segundo plano...", false);
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() throws Exception {
+                Usuario ator = authService.getUsuarioLogado().orElse(null);
+                return produtoService.importarProdutosDeCsv(ficheiro, ator);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String resultado = get();
+                    view.mostrarMensagem("Importação Concluída", resultado, false);
+                    aoCarregarProdutos();
+                } catch (Exception e) {
+                    view.mostrarMensagem("Erro na Importação", "Ocorreu um erro ao importar o ficheiro: " + e.getMessage(), true);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    @Override
     public void aoCarregarProdutos() {
         try {
             view.setProdutosNaTabela(produtoService.listarProdutos(view.isMostrarInativos()));
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar produtos: " + e.getMessage(), true);
         }
     }
@@ -54,7 +89,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
                 view.limparPainelDeDetalhes();
             }
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar detalhes do produto: " + e.getMessage(), true);
         }
     }
@@ -94,7 +128,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
                 view.limparPainelDeDetalhes();
                 view.limparSelecaoDaTabelaDeProdutos();
             } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-                // ALTERADO: Mensagem mais informativa
                 view.mostrarMensagem("Erro", "Erro ao alterar o estado do produto: " + e.getMessage(), true);
             }
         }
@@ -124,7 +157,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
                 dialog.getLoteSalvo().ifPresent(this::processarLoteSalvo);
             });
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro", "Erro ao buscar o lote para edição: " + e.getMessage(), true);
         }
     }
@@ -144,7 +176,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
                 aoSelecionarProduto(produtoSelecionado.getId());
                 aoCarregarProdutos();
             } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-                // ALTERADO: Mensagem mais informativa
                 view.mostrarMensagem("Erro", "Erro ao remover o lote: " + e.getMessage(), true);
             }
         }

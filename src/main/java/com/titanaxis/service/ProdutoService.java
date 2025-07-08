@@ -3,13 +3,19 @@ package com.titanaxis.service;
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
+import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Lote;
-import com.titanaxis.model.MovimentoEstoque; // Importação necessária
+import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
+import com.titanaxis.repository.CategoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
 
-import java.time.LocalDateTime; // Importação necessária
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,14 +24,64 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final TransactionService transactionService;
+    private final CategoriaRepository categoriaRepository;
 
     @Inject
-    public ProdutoService(ProdutoRepository produtoRepository, TransactionService transactionService) {
+    public ProdutoService(ProdutoRepository produtoRepository, TransactionService transactionService, CategoriaRepository categoriaRepository) {
         this.produtoRepository = produtoRepository;
         this.transactionService = transactionService;
+        this.categoriaRepository = categoriaRepository;
     }
 
-    // ... (outros métodos do serviço permanecem iguais) ...
+    // MÉTODO CORRIGIDO: Adicionado try-catch para a IOException
+    public String importarProdutosDeCsv(File ficheiro, Usuario ator) throws IOException, UtilizadorNaoAutenticadoException, PersistenciaException {
+        if (ator == null) {
+            throw new UtilizadorNaoAutenticadoException("Apenas utilizadores autenticados podem importar produtos.");
+        }
+
+        final int[] sucessos = {0};
+        final int[] falhas = {0};
+
+        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
+            br.readLine();
+
+            transactionService.executeInTransaction(em -> {
+                try {
+                    String linha;
+                    while ((linha = br.readLine()) != null) {
+                        final String[] dados = linha.split(";", -1);
+                        if (dados.length < 4) {
+                            falhas[0]++;
+                            continue;
+                        }
+
+                        try {
+                            String nome = dados[0].trim();
+                            String descricao = dados[1].trim();
+                            double preco = Double.parseDouble(dados[2].trim().replace(",", "."));
+                            String nomeCategoria = dados[3].trim();
+
+                            Categoria categoria = categoriaRepository.findByNome(nomeCategoria, em)
+                                    .orElse(categoriaRepository.findByNome("Geral", em)
+                                            .orElseThrow(() -> new RuntimeException("A categoria padrão 'Geral' não foi encontrada.")));
+
+                            Produto produto = new Produto(nome, descricao, preco, categoria);
+                            produto.setAtivo(true);
+                            produtoRepository.save(produto, ator, em);
+                            sucessos[0]++;
+                        } catch (Exception e) {
+                            falhas[0]++;
+                        }
+                    }
+                } catch (IOException e) {
+                    // Embrulha a IOException numa RuntimeException para ser apanhada pelo TransactionService
+                    throw new RuntimeException("Erro ao ler o ficheiro CSV dentro da transação.", e);
+                }
+            });
+        }
+
+        return String.format("Processo de importação concluído.\nSucessos: %d\nFalhas: %d", sucessos[0], falhas[0]);
+    }
 
     public List<Produto> listarProdutos(boolean incluirInativos) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em -> {
@@ -73,17 +129,14 @@ public class ProdutoService {
         );
     }
 
-    // MÉTODO ALTERADO PARA REGISTAR MOVIMENTOS
     public Lote salvarLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
         }
 
         return transactionService.executeInTransactionWithResult(em -> {
-            // Guarda o lote para obter o ID e o estado mais recente
             Lote loteSalvo = produtoRepository.saveLote(lote, ator, em);
 
-            // Cria um novo registo de movimento de estoque
             MovimentoEstoque movimento = new MovimentoEstoque();
             movimento.setProduto(loteSalvo.getProduto());
             movimento.setLote(loteSalvo);
@@ -91,11 +144,9 @@ public class ProdutoService {
             movimento.setDataMovimento(LocalDateTime.now());
             movimento.setUsuario(ator);
 
-            // Define o tipo de movimento
             boolean isUpdate = lote.getId() != 0;
             movimento.setTipoMovimento(isUpdate ? "AJUSTE" : "ENTRADA");
 
-            // Persiste o novo movimento na base de dados
             em.persist(movimento);
 
             return loteSalvo;
