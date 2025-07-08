@@ -2,11 +2,13 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
+import com.titanaxis.exception.PersistenciaException; // IMPORTAÇÃO CORRIGIDA
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaStatus;
 import com.titanaxis.presenter.HistoricoVendasPresenter;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
+import com.titanaxis.view.dialogs.DevolucaoDialog;
 import com.titanaxis.view.dialogs.VendaDetalhesDialog;
 import com.titanaxis.view.interfaces.HistoricoVendasView;
 import com.toedter.calendar.JDateChooser;
@@ -34,7 +36,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
     private final JDateChooser dataInicioChooser, dataFimChooser;
     private final JComboBox<VendaStatus> statusComboBox;
     private final JTextField clienteNomeField;
-    private final JButton buscarButton, limparButton;
+    private final JButton buscarButton, limparButton, convertButton, returnButton;
     private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
@@ -51,6 +53,9 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         clienteNomeField = new JTextField(20);
         buscarButton = new JButton("Buscar");
         limparButton = new JButton("Limpar Filtros");
+        convertButton = new JButton("Converter Orçamento em Venda");
+        returnButton = new JButton("Registrar Devolução");
+
 
         // Tabela
         String[] columnNames = {"ID", "Data", "Cliente", "Vendedor", "Valor Total", "Status"};
@@ -66,12 +71,14 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
     @Override
     public void refreshData(){
         if(listener != null) listener.aoAplicarFiltros();
+        updateActionButtons();
     }
 
     private void initComponents() {
         add(createFilterPanel(), BorderLayout.NORTH);
 
         table.setRowSorter(new TableRowSorter<>(tableModel));
+        table.getSelectionModel().addListSelectionListener(e -> updateActionButtons());
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -84,8 +91,6 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         });
 
         add(new JScrollPane(table), BorderLayout.CENTER);
-
-        // NOVO: Painel com botões de ação (Converter Orçamento, Registrar Devolução)
         add(createActionPanel(), BorderLayout.SOUTH);
     }
 
@@ -121,13 +126,9 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         return panel;
     }
 
-    // NOVO MÉTODO
     private JPanel createActionPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton convertButton = new JButton("Converter Orçamento em Venda");
         convertButton.addActionListener(e -> converterOrcamento());
-
-        JButton returnButton = new JButton("Registrar Devolução");
         returnButton.addActionListener(e -> registrarDevolucao());
 
         panel.add(convertButton);
@@ -135,24 +136,58 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         return panel;
     }
 
+    private void updateActionButtons() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            convertButton.setEnabled(false);
+            returnButton.setEnabled(false);
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(selectedRow);
+        String statusStr = (String) tableModel.getValueAt(modelRow, 5);
+
+        convertButton.setEnabled(VendaStatus.ORCAMENTO.getDescricao().equals(statusStr));
+        returnButton.setEnabled(VendaStatus.FINALIZADA.getDescricao().equals(statusStr));
+    }
+
+    private Optional<Venda> getSelectedVenda() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            UIMessageUtil.showWarningMessage(this, "Por favor, selecione uma venda na tabela.", "Nenhuma Venda Selecionada");
+            return Optional.empty();
+        }
+        int modelRow = table.convertRowIndexToModel(selectedRow);
+        int vendaId = (int) tableModel.getValueAt(modelRow, 0);
+        try {
+            return appContext.getVendaService().buscarVendaCompletaPorId(vendaId);
+        } catch (PersistenciaException e) {
+            mostrarErro("Erro de Base de Dados", "Não foi possível carregar os dados da venda selecionada.");
+            return Optional.empty();
+        }
+    }
+
     private void converterOrcamento() {
-        // Implementação futura:
-        // 1. Obter a venda selecionada
-        // 2. Verificar se o status é 'ORCAMENTO'
-        // 3. Chamar um novo método no VendaService: converterOrcamentoEmVenda(vendaId)
-        // 4. O serviço muda o status para 'FINALIZADA' e abate o estoque
-        // 5. Atualizar a tabela
-        UIMessageUtil.showInfoMessage(this, "Funcionalidade a ser implementada.", "Aviso");
+        getSelectedVenda().ifPresent(venda -> {
+            if (venda.getStatus() != VendaStatus.ORCAMENTO) return;
+            if (UIMessageUtil.showConfirmDialog(this, "Deseja converter o orçamento #" + venda.getId() + " em uma venda finalizada?", "Confirmar Conversão")) {
+                try {
+                    appContext.getVendaService().converterOrcamentoEmVenda(venda.getId(), appContext.getAuthService().getUsuarioLogado().orElse(null));
+                    UIMessageUtil.showInfoMessage(this, "Orçamento convertido em venda com sucesso!", "Sucesso");
+                    refreshData();
+                } catch (Exception e) {
+                    mostrarErro("Erro na Conversão", "Falha ao converter orçamento: " + e.getMessage());
+                }
+            }
+        });
     }
 
     private void registrarDevolucao() {
-        // Implementação futura:
-        // 1. Obter a venda selecionada
-        // 2. Verificar se o status é 'FINALIZADA'
-        // 3. Abrir um novo JDialog para registrar a devolução, onde o usuário
-        //    pode selecionar os itens e as quantidades a devolver.
-        // 4. Chamar o DevolucaoService para processar a devolução.
-        UIMessageUtil.showInfoMessage(this, "Funcionalidade a ser implementada.", "Aviso");
+        getSelectedVenda().ifPresent(venda -> {
+            if (venda.getStatus() != VendaStatus.FINALIZADA) return;
+            DevolucaoDialog dialog = new DevolucaoDialog((Frame) SwingUtilities.getWindowAncestor(this), appContext, venda);
+            dialog.setVisible(true);
+            // Poderia adicionar lógica aqui para atualizar algo se necessário após o dialog fechar
+        });
     }
 
     private void abrirDetalhesVenda(int vendaId) {
@@ -183,6 +218,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
                     v.getStatus().getDescricao()
             });
         }
+        updateActionButtons();
     }
 
     @Override

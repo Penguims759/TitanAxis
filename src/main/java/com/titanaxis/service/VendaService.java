@@ -71,6 +71,17 @@ public class VendaService {
         });
     }
 
+    public Venda converterOrcamentoEmVenda(int orcamentoId, Usuario ator) throws PersistenciaException, UtilizadorNaoAutenticadoException, CarrinhoVazioException {
+        Venda orcamento = buscarVendaCompletaPorId(orcamentoId)
+                .orElseThrow(() -> new PersistenciaException("Orçamento não encontrado.", null));
+
+        if (orcamento.getStatus() != VendaStatus.ORCAMENTO) {
+            throw new IllegalStateException("Apenas orçamentos podem ser convertidos em venda.");
+        }
+        // Re-finaliza a venda, agora com o status FINALIZADA, o que fará o abatimento do estoque
+        return finalizarVenda(orcamento, ator);
+    }
+
     public void cancelarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
