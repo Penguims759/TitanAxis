@@ -9,8 +9,11 @@ import com.titanaxis.model.Lote;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
-import com.titanaxis.model.VendaStatus; // IMPORTADO
+import com.titanaxis.model.VendaStatus;
 import com.titanaxis.repository.VendaRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,15 +38,22 @@ public class VendaService {
         );
     }
 
+    public List<Venda> buscarVendasPorFiltro(LocalDate dataInicio, LocalDate dataFim, VendaStatus status, String clienteNome) throws PersistenciaException {
+        LocalDateTime inicio = (dataInicio != null) ? dataInicio.atStartOfDay() : null;
+        LocalDateTime fim = (dataFim != null) ? dataFim.atTime(LocalTime.MAX) : null;
+        return transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.findWithFilters(inicio, fim, status, clienteNome, em)
+        );
+    }
+
     public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a venda.");
         }
         if (venda.getItens() == null || venda.getItens().isEmpty()) {
-            throw new CarrinhoVazioException("A venda não contém itens.");
+            throw new CarrinhoVazioException("O carrinho está vazio.");
         }
 
-        // Define o status como FINALIZADA antes de salvar
         venda.setStatus(VendaStatus.FINALIZADA);
 
         return transactionService.executeInTransactionWithResult(em -> {
@@ -58,18 +68,18 @@ public class VendaService {
         });
     }
 
-    // NOVO MÉTODO
     public void cancelarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a operação.");
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
         }
 
-        // Apenas salva a venda se ela já tiver itens, caso contrário, não há o que cancelar.
         if (venda.getItens() != null && !venda.getItens().isEmpty()) {
             venda.setStatus(VendaStatus.CANCELADA);
             transactionService.executeInTransaction(em -> {
+                // Apenas salva a venda para registar o cancelamento
                 vendaRepository.save(venda, ator, em);
             });
         }
+        // Se a venda não tiver itens, não há necessidade de a persistir.
     }
 }

@@ -13,6 +13,7 @@ import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
 import com.titanaxis.view.panels.*;
+import com.titanaxis.view.panels.dashboard.HomePanel; // IMPORTAÇÃO CORRIGIDA
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -34,8 +35,9 @@ public class DashboardFrame extends JFrame {
     // Painéis de Abas
     private JTabbedPane mainTabbedPane;
     private JTabbedPane produtosEstoqueTabbedPane;
-    private JTabbedPane cadastrosTabbedPane; // NOVO
+    private JTabbedPane cadastrosTabbedPane;
     private JTabbedPane adminTabbedPane;
+    private JTabbedPane vendasTabbedPane;
 
     // Painéis Individuais
     private HomePanel homePanel;
@@ -50,6 +52,7 @@ public class DashboardFrame extends JFrame {
     private AuditoriaPanel auditoriaPanel;
     private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
+    private HistoricoVendasPanel historicoVendasPanel;
     private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
@@ -159,48 +162,35 @@ public class DashboardFrame extends JFrame {
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
         }
 
+        vendasTabbedPane = new JTabbedPane();
         vendaPanel = new VendaPanel(appContext);
-        mainTabbedPane.addTab("Vendas", vendaPanel);
-        mainTabbedPane.addChangeListener(createRefreshListener(vendaPanel));
+        historicoVendasPanel = new HistoricoVendasPanel(appContext);
+        vendasTabbedPane.addTab("Nova Venda", vendaPanel);
+        vendasTabbedPane.addTab("Histórico", historicoVendasPanel);
+        mainTabbedPane.addTab("Vendas", vendasTabbedPane);
+        vendasTabbedPane.addChangeListener(createRefreshListener(null));
 
         if (authService.isGerente()) {
-            // Aba de Produtos & Estoque
             produtosEstoqueTabbedPane = new JTabbedPane();
             produtoPanel = new ProdutoPanel(appContext);
             categoriaPanel = new CategoriaPanel(appContext);
             alertaPanel = new AlertaPanel(appContext);
             movimentosPanel = new MovimentosPanel(this, appContext);
-
             produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel);
             produtosEstoqueTabbedPane.addTab("Categorias", categoriaPanel);
             produtosEstoqueTabbedPane.addTab("Alertas de Estoque", alertaPanel);
             produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", movimentosPanel);
             mainTabbedPane.addTab("Produtos & Estoque", produtosEstoqueTabbedPane);
+            produtosEstoqueTabbedPane.addChangeListener(createRefreshListener(null));
 
-            produtosEstoqueTabbedPane.addChangeListener(e -> {
-                Component selected = produtosEstoqueTabbedPane.getSelectedComponent();
-                if (selected instanceof Refreshable) {
-                    ((Refreshable) selected).refreshData();
-                }
-            });
-
-            // NOVA ABA DE CADASTROS
             cadastrosTabbedPane = new JTabbedPane();
             clientePanel = new ClientePanel(appContext);
             fornecedorPanel = new FornecedorPanel(appContext);
-
             cadastrosTabbedPane.addTab("Clientes", clientePanel);
             cadastrosTabbedPane.addTab("Fornecedores", fornecedorPanel);
             mainTabbedPane.addTab("Cadastros", cadastrosTabbedPane);
+            cadastrosTabbedPane.addChangeListener(createRefreshListener(null));
 
-            cadastrosTabbedPane.addChangeListener(e -> {
-                Component selected = cadastrosTabbedPane.getSelectedComponent();
-                if (selected instanceof Refreshable) {
-                    ((Refreshable) selected).refreshData();
-                }
-            });
-
-            // Aba de Relatórios
             relatorioPanel = new RelatorioPanel(appContext);
             mainTabbedPane.addTab("Relatórios", relatorioPanel);
             mainTabbedPane.addChangeListener(createRefreshListener(relatorioPanel));
@@ -210,68 +200,40 @@ public class DashboardFrame extends JFrame {
             adminTabbedPane = new JTabbedPane();
             usuarioPanel = new UsuarioPanel(appContext);
             auditoriaPanel = new AuditoriaPanel(appContext);
-
             adminTabbedPane.addTab("Gestão de Usuários", usuarioPanel);
             adminTabbedPane.addTab("Logs de Auditoria", auditoriaPanel);
             mainTabbedPane.addTab("Administração", adminTabbedPane);
-
-            adminTabbedPane.addChangeListener(e -> {
-                Component selected = adminTabbedPane.getSelectedComponent();
-                if (selected instanceof Refreshable) {
-                    ((Refreshable) selected).refreshData();
-                }
-            });
+            adminTabbedPane.addChangeListener(createRefreshListener(null));
         }
 
         add(mainTabbedPane);
     }
 
     public void navigateTo(String destination) {
-        // Mapeamento atualizado para a nova aba "Cadastros"
-        Map<String, Component> mainDestinations = Map.of(
-                "Início", homePanel,
-                "Vendas", vendaPanel,
-                "Cadastros", cadastrosTabbedPane, // ATUALIZADO
-                "Produtos & Estoque", produtosEstoqueTabbedPane,
-                "Relatórios", relatorioPanel,
-                "Administração", adminTabbedPane,
-                "Assistente", aiAssistantPanel
-        );
-
-        if (mainDestinations.containsKey(destination)) {
-            mainTabbedPane.setSelectedComponent(mainDestinations.get(destination));
-        } else {
-            // Lógica para navegar para sub-abas
-            if ("Clientes".equals(destination) || "Fornecedores".equals(destination)) {
-                navigateToCadastroSubTab(destination);
-            } else {
-                navigateToProductSubTab(destination);
+        for (int i = 0; i < mainTabbedPane.getTabCount(); i++) {
+            if (mainTabbedPane.getTitleAt(i).equalsIgnoreCase(destination)) {
+                mainTabbedPane.setSelectedIndex(i);
+                return;
             }
         }
+
+        if (navigateToSubTab(vendasTabbedPane, destination)) return;
+        if (navigateToSubTab(produtosEstoqueTabbedPane, destination)) return;
+        if (navigateToSubTab(cadastrosTabbedPane, destination)) return;
+        if (navigateToSubTab(adminTabbedPane, destination)) return;
     }
 
-    public void navigateToCadastroSubTab(String subTabName) {
-        if (cadastrosTabbedPane != null) {
-            mainTabbedPane.setSelectedComponent(cadastrosTabbedPane); // Garante que a aba principal está selecionada
-            for (int i = 0; i < cadastrosTabbedPane.getTabCount(); i++) {
-                if (cadastrosTabbedPane.getTitleAt(i).equals(subTabName)) {
-                    cadastrosTabbedPane.setSelectedIndex(i);
-                    break;
+    private boolean navigateToSubTab(JTabbedPane parentTabPane, String subTabName) {
+        if (parentTabPane != null) {
+            for (int i = 0; i < parentTabPane.getTabCount(); i++) {
+                if (parentTabPane.getTitleAt(i).equalsIgnoreCase(subTabName)) {
+                    mainTabbedPane.setSelectedComponent(parentTabPane);
+                    parentTabPane.setSelectedIndex(i);
+                    return true;
                 }
             }
         }
-    }
-
-    public void navigateToProductSubTab(String subTabName) {
-        if (produtosEstoqueTabbedPane != null) {
-            mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
-            for (int i = 0; i < produtosEstoqueTabbedPane.getTabCount(); i++) {
-                if (produtosEstoqueTabbedPane.getTitleAt(i).equals(subTabName)) {
-                    produtosEstoqueTabbedPane.setSelectedIndex(i);
-                    break;
-                }
-            }
-        }
+        return false;
     }
 
     public void executeAction(Action action, Map<String, Object> params) {
@@ -282,14 +244,14 @@ public class DashboardFrame extends JFrame {
                     navigateTo((String) params.get("destination"));
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_LOTE:
-                    navigateTo("Produtos & Estoque");
+                    navigateTo("Gestão de Produtos e Lotes");
                     if (produtoPanel != null) {
                         produtoPanel.selectFirstProduct();
                         UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
                     }
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
-                    navigateTo("Produtos & Estoque");
+                    navigateTo("Gestão de Produtos e Lotes");
                     if (produtoPanel != null) UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
                     break;
                 case DIRECT_CREATE_PRODUCT:
@@ -327,7 +289,7 @@ public class DashboardFrame extends JFrame {
                     setTheme((String) params.get("theme"));
                     break;
                 case START_SALE_FOR_CLIENT:
-                    navigateTo("Vendas");
+                    navigateTo("Nova Venda");
                     vendaPanel.refreshData();
                     Cliente cliente = (Cliente) params.get("cliente");
                     if (cliente != null) vendaPanel.selecionarCliente(cliente);
@@ -343,8 +305,16 @@ public class DashboardFrame extends JFrame {
 
     private ChangeListener createRefreshListener(Component panel) {
         return e -> {
-            if (mainTabbedPane.getSelectedComponent() == panel && panel instanceof Refreshable) {
-                ((Refreshable) panel).refreshData();
+            Object source = e.getSource();
+            Component selected = null;
+            if (source instanceof JTabbedPane) {
+                selected = ((JTabbedPane) source).getSelectedComponent();
+            } else if (panel != null) {
+                selected = panel;
+            }
+
+            if (selected instanceof Refreshable) {
+                ((Refreshable) selected).refreshData();
             }
         };
     }
@@ -389,7 +359,6 @@ public class DashboardFrame extends JFrame {
         }
     }
 
-    // Interface para padronizar o método de atualização dos painéis
     public interface Refreshable {
         void refreshData();
     }
