@@ -13,6 +13,8 @@ import com.titanaxis.view.DashboardFrame;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -26,12 +28,14 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private final ProdutoService produtoService;
 
     private final DefaultTableModel carrinhoTableModel;
+    private final JTable carrinhoTable;
     private final JComboBox<Cliente> clienteComboBox;
     private final JComboBox<Produto> produtoComboBox;
     private final JComboBox<Lote> loteComboBox;
     private final JSpinner quantidadeSpinner;
     private final JLabel totalLabel;
     private final JButton finalizarButton;
+    private final JButton orcamentoButton; // NOVO
 
     private Carrinho carrinho;
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
@@ -43,30 +47,48 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         this.clienteService = appContext.getClienteService();
         this.produtoService = appContext.getProdutoService();
 
-        carrinhoTableModel = new DefaultTableModel(new String[]{"Produto", "Lote", "Qtd", "Preço Unit.", "Subtotal"}, 0) {
+        carrinhoTableModel = new DefaultTableModel(new String[]{"Produto", "Lote", "Qtd", "Preço Unit.", "Desconto", "Subtotal"}, 0) { // Desconto adicionado
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
+        carrinhoTable = new JTable(carrinhoTableModel);
         clienteComboBox = new JComboBox<>();
         produtoComboBox = new JComboBox<>();
         loteComboBox = new JComboBox<>();
         quantidadeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
         totalLabel = new JLabel("Total: " + currencyFormat.format(0.0));
         finalizarButton = new JButton("Finalizar Venda");
+        orcamentoButton = new JButton("Salvar Orçamento"); // NOVO
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(createTopPanel(), BorderLayout.NORTH);
-        JTable carrinhoTable = new JTable(carrinhoTableModel);
         add(new JScrollPane(carrinhoTable), BorderLayout.CENTER);
         add(createBottomPanel(), BorderLayout.SOUTH);
+
+        addEventListeners();
     }
 
     @Override
-    public void refreshData() {
+    public void refreshData(){
         this.carrinho = new Carrinho(authService.getUsuarioLogado().orElse(null));
         carregarDadosIniciais();
         atualizarCarrinhoETotal();
+    }
+
+    private void addEventListeners() {
+        // Adiciona um listener para o clique duplo na tabela, para aplicar descontos
+        carrinhoTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int selectedRow = carrinhoTable.getSelectedRow();
+                    if (selectedRow != -1) {
+                        aplicarDescontoItem(selectedRow);
+                    }
+                }
+            }
+        });
     }
 
     public void selecionarCliente(Cliente clienteParaSelecionar) {
@@ -116,15 +138,18 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private void atualizarCarrinhoETotal() {
         carrinhoTableModel.setRowCount(0);
         for (VendaItem item : carrinho.getItens()) {
-            double subtotal = item.getPrecoUnitario() * item.getQuantidade();
+            double subtotal = item.getSubtotal();
             carrinhoTableModel.addRow(new Object[]{
                     item.getLote().getProduto().getNome(), item.getLote().getNumeroLote(),
                     item.getQuantidade(), currencyFormat.format(item.getPrecoUnitario()),
+                    currencyFormat.format(item.getDesconto()), // Coluna de desconto
                     currencyFormat.format(subtotal)
             });
         }
         totalLabel.setText("Total: " + currencyFormat.format(carrinho.getValorTotal()));
-        finalizarButton.setEnabled(!carrinho.getItens().isEmpty());
+        boolean hasItems = !carrinho.getItens().isEmpty();
+        finalizarButton.setEnabled(hasItems);
+        orcamentoButton.setEnabled(hasItems);
     }
 
     private void acaoLimparVenda() {
@@ -136,6 +161,21 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             refreshData(); // Cria um novo carrinho e reinicia a tela
         } catch (PersistenciaException | UtilizadorNaoAutenticadoException e) {
             UIMessageUtil.showErrorMessage(this, "Erro ao cancelar a venda: " + e.getMessage(), "Erro");
+        }
+    }
+
+    private void salvarOrcamento() {
+        carrinho.setCliente((Cliente) clienteComboBox.getSelectedItem());
+        try {
+            Venda orcamentoSalvo = vendaService.salvarOrcamento(carrinho.getVenda(), authService.getUsuarioLogado().orElse(null));
+            UIMessageUtil.showInfoMessage(this, "Orçamento #" + orcamentoSalvo.getId() + " salvo com sucesso!", "Sucesso");
+            refreshData();
+        } catch (CarrinhoVazioException e) {
+            UIMessageUtil.showWarningMessage(this, e.getMessage(), "Aviso");
+        } catch (UtilizadorNaoAutenticadoException e) {
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
+        } catch (PersistenciaException e) {
+            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro de base de dados: " + e.getMessage(), "Erro de Persistência");
         }
     }
 
@@ -151,6 +191,36 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
         } catch (PersistenciaException e) {
             UIMessageUtil.showErrorMessage(this, "Ocorreu um erro de base de dados: " + e.getMessage(), "Erro de Persistência");
+        }
+    }
+
+    private void aplicarDescontoItem(int rowIndex) {
+        String descontoStr = JOptionPane.showInputDialog(this, "Digite o valor do desconto para este item:", "Aplicar Desconto no Item", JOptionPane.PLAIN_MESSAGE);
+        if (descontoStr != null) {
+            try {
+                double desconto = Double.parseDouble(descontoStr.replace(",", "."));
+                carrinho.aplicarDescontoItem(rowIndex, desconto);
+                atualizarCarrinhoETotal();
+            } catch (NumberFormatException e) {
+                UIMessageUtil.showErrorMessage(this, "Valor de desconto inválido.", "Erro de Formato");
+            } catch (IllegalArgumentException e) {
+                UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Validação");
+            }
+        }
+    }
+
+    private void aplicarDescontoTotal() {
+        String descontoStr = JOptionPane.showInputDialog(this, "Digite o valor do desconto total da venda:", "Aplicar Desconto Total", JOptionPane.PLAIN_MESSAGE);
+        if (descontoStr != null) {
+            try {
+                double desconto = Double.parseDouble(descontoStr.replace(",", "."));
+                carrinho.aplicarDescontoTotal(desconto);
+                atualizarCarrinhoETotal();
+            } catch (NumberFormatException e) {
+                UIMessageUtil.showErrorMessage(this, "Valor de desconto inválido.", "Erro de Formato");
+            } catch (IllegalArgumentException e) {
+                UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Validação");
+            }
         }
     }
 
@@ -190,14 +260,24 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private JPanel createBottomPanel() {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         totalLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        bottomPanel.add(totalLabel, BorderLayout.WEST);
+
+        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton descontoTotalButton = new JButton("Aplicar Desconto Total");
+        descontoTotalButton.addActionListener(e -> aplicarDescontoTotal());
+        totalPanel.add(descontoTotalButton);
+        totalPanel.add(totalLabel);
+
+        bottomPanel.add(totalPanel, BorderLayout.WEST);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelarButton = new JButton("Cancelar Venda");
         cancelarButton.addActionListener(e -> acaoLimparVenda());
+
+        orcamentoButton.addActionListener(e -> salvarOrcamento());
         finalizarButton.addActionListener(e -> finalizarVenda());
 
         buttonsPanel.add(cancelarButton);
+        buttonsPanel.add(orcamentoButton); // NOVO
         buttonsPanel.add(finalizarButton);
         bottomPanel.add(buttonsPanel, BorderLayout.EAST);
 

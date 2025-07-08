@@ -38,6 +38,7 @@ public class DashboardFrame extends JFrame {
     private JTabbedPane cadastrosTabbedPane;
     private JTabbedPane adminTabbedPane;
     private JTabbedPane vendasTabbedPane;
+    private JTabbedPane financeiroTabbedPane; // NOVO
 
     // Painéis Individuais
     private HomePanel homePanel;
@@ -53,6 +54,7 @@ public class DashboardFrame extends JFrame {
     private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
     private HistoricoVendasPanel historicoVendasPanel;
+    private FinanceiroPanel financeiroPanel; // NOVO
     private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
@@ -171,6 +173,10 @@ public class DashboardFrame extends JFrame {
         vendasTabbedPane.addChangeListener(createRefreshListener(null));
 
         if (authService.isGerente()) {
+            financeiroPanel = new FinanceiroPanel(appContext); // NOVO
+            mainTabbedPane.addTab("Financeiro", financeiroPanel); // NOVO
+            mainTabbedPane.addChangeListener(createRefreshListener(financeiroPanel)); // NOVO
+
             produtosEstoqueTabbedPane = new JTabbedPane();
             produtoPanel = new ProdutoPanel(appContext);
             categoriaPanel = new CategoriaPanel(appContext);
@@ -221,6 +227,7 @@ public class DashboardFrame extends JFrame {
         if (navigateToSubTab(produtosEstoqueTabbedPane, destination)) return;
         if (navigateToSubTab(cadastrosTabbedPane, destination)) return;
         if (navigateToSubTab(adminTabbedPane, destination)) return;
+        if (navigateToSubTab(financeiroTabbedPane, destination)) return; // NOVO
     }
 
     private boolean navigateToSubTab(JTabbedPane parentTabPane, String subTabName) {

@@ -45,6 +45,27 @@ public class Carrinho {
         recalcularTotal();
     }
 
+    public void aplicarDescontoItem(int index, double desconto) {
+        if (index >= 0 && index < this.itens.size()) {
+            VendaItem item = this.itens.get(index);
+            if (desconto >= 0 && desconto <= item.getPrecoUnitario() * item.getQuantidade()) {
+                item.setDesconto(desconto);
+                recalcularTotal();
+            } else {
+                throw new IllegalArgumentException("Desconto inválido.");
+            }
+        }
+    }
+
+    public void aplicarDescontoTotal(double desconto) {
+        if (desconto >= 0) {
+            this.venda.setDescontoTotal(desconto);
+            recalcularTotal();
+        } else {
+            throw new IllegalArgumentException("Desconto total não pode ser negativo.");
+        }
+    }
+
     public void removerItem(int index) {
         if (index >= 0 && index < this.itens.size()) {
             this.itens.remove(index);
@@ -55,14 +76,16 @@ public class Carrinho {
     public void limpar() {
         this.itens.clear();
         this.venda.setCliente(null);
+        this.venda.setDescontoTotal(0);
         recalcularTotal();
     }
 
     public void recalcularTotal() {
-        double total = itens.stream()
-                .mapToDouble(item -> item.getQuantidade() * item.getPrecoUnitario())
+        double subtotalItens = itens.stream()
+                .mapToDouble(VendaItem::getSubtotal)
                 .sum();
-        this.venda.setValorTotal(total);
+        double totalFinal = subtotalItens - this.venda.getDescontoTotal();
+        this.venda.setValorTotal(Math.max(0, totalFinal)); // Garante que o total não seja negativo
     }
 
     public List<VendaItem> getItens() {

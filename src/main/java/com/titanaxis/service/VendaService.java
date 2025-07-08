@@ -46,14 +46,17 @@ public class VendaService {
         );
     }
 
-    public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
-        if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a venda.");
-        }
-        if (venda.getItens() == null || venda.getItens().isEmpty()) {
-            throw new CarrinhoVazioException("O carrinho está vazio.");
-        }
+    public Venda salvarOrcamento(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
+        validarVenda(venda, ator);
+        venda.setStatus(VendaStatus.ORCAMENTO);
+        // Não mexe no estoque ao salvar orçamento
+        return transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.save(venda, ator, em)
+        );
+    }
 
+    public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
+        validarVenda(venda, ator);
         venda.setStatus(VendaStatus.FINALIZADA);
 
         return transactionService.executeInTransactionWithResult(em -> {
@@ -81,5 +84,14 @@ public class VendaService {
             });
         }
         // Se a venda não tiver itens, não há necessidade de a persistir.
+    }
+
+    private void validarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException {
+        if (ator == null) {
+            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a venda.");
+        }
+        if (venda.getItens() == null || venda.getItens().isEmpty()) {
+            throw new CarrinhoVazioException("O carrinho está vazio.");
+        }
     }
 }

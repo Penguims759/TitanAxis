@@ -9,7 +9,7 @@ import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.dialogs.VendaDetalhesDialog;
 import com.titanaxis.view.interfaces.HistoricoVendasView;
-import com.toedter.calendar.JDateChooser; // Agora esta importação funcionará
+import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -78,13 +78,15 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
                 if (e.getClickCount() == 2 && table.getSelectedRow() != -1) {
                     int modelRow = table.convertRowIndexToModel(table.getSelectedRow());
                     int vendaId = (int) tableModel.getValueAt(modelRow, 0);
-                    listener.aoVerDetalhesVenda(vendaId);
                     abrirDetalhesVenda(vendaId);
                 }
             }
         });
 
         add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // NOVO: Painel com botões de ação (Converter Orçamento, Registrar Devolução)
+        add(createActionPanel(), BorderLayout.SOUTH);
     }
 
     private JPanel createFilterPanel() {
@@ -117,6 +119,40 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         panel.add(limparButton);
 
         return panel;
+    }
+
+    // NOVO MÉTODO
+    private JPanel createActionPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton convertButton = new JButton("Converter Orçamento em Venda");
+        convertButton.addActionListener(e -> converterOrcamento());
+
+        JButton returnButton = new JButton("Registrar Devolução");
+        returnButton.addActionListener(e -> registrarDevolucao());
+
+        panel.add(convertButton);
+        panel.add(returnButton);
+        return panel;
+    }
+
+    private void converterOrcamento() {
+        // Implementação futura:
+        // 1. Obter a venda selecionada
+        // 2. Verificar se o status é 'ORCAMENTO'
+        // 3. Chamar um novo método no VendaService: converterOrcamentoEmVenda(vendaId)
+        // 4. O serviço muda o status para 'FINALIZADA' e abate o estoque
+        // 5. Atualizar a tabela
+        UIMessageUtil.showInfoMessage(this, "Funcionalidade a ser implementada.", "Aviso");
+    }
+
+    private void registrarDevolucao() {
+        // Implementação futura:
+        // 1. Obter a venda selecionada
+        // 2. Verificar se o status é 'FINALIZADA'
+        // 3. Abrir um novo JDialog para registrar a devolução, onde o usuário
+        //    pode selecionar os itens e as quantidades a devolver.
+        // 4. Chamar o DevolucaoService para processar a devolução.
+        UIMessageUtil.showInfoMessage(this, "Funcionalidade a ser implementada.", "Aviso");
     }
 
     private void abrirDetalhesVenda(int vendaId) {

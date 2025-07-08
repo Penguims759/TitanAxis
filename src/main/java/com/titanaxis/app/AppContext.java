@@ -18,7 +18,9 @@ public class AppContext {
     private final MovimentoService movimentoService;
     private final AIAssistantService aiAssistantService;
     private final AnalyticsService analyticsService;
-    private final FornecedorService fornecedorService; // NOVO
+    private final FornecedorService fornecedorService;
+    private final DevolucaoService devolucaoService; // NOVO
+    private final FinanceiroService financeiroService; // NOVO
 
     @Inject
     public AppContext(AuthService authService, CategoriaService categoriaService,
@@ -26,7 +28,8 @@ public class AppContext {
                       VendaService vendaService, RelatorioService relatorioService,
                       AlertaService alertaService, MovimentoService movimentoService,
                       AIAssistantService aiAssistantService, AnalyticsService analyticsService,
-                      FornecedorService fornecedorService) { // NOVO
+                      FornecedorService fornecedorService, DevolucaoService devolucaoService,
+                      FinanceiroService financeiroService) { // NOVO
         this.authService = authService;
         this.categoriaService = categoriaService;
         this.clienteService = clienteService;
@@ -37,7 +40,9 @@ public class AppContext {
         this.movimentoService = movimentoService;
         this.aiAssistantService = aiAssistantService;
         this.analyticsService = analyticsService;
-        this.fornecedorService = fornecedorService; // NOVO
+        this.fornecedorService = fornecedorService;
+        this.devolucaoService = devolucaoService; // NOVO
+        this.financeiroService = financeiroService; // NOVO
     }
 
     public AuthService getAuthService() { return authService; }
@@ -50,5 +55,7 @@ public class AppContext {
     public MovimentoService getMovimentoService() { return movimentoService; }
     public AIAssistantService getAIAssistantService() { return aiAssistantService; }
     public AnalyticsService getAnalyticsService() { return analyticsService; }
-    public FornecedorService getFornecedorService() { return fornecedorService; } // NOVO
+    public FornecedorService getFornecedorService() { return fornecedorService; }
+    public DevolucaoService getDevolucaoService() { return devolucaoService; } // NOVO
+    public FinanceiroService getFinanceiroService() { return financeiroService; } // NOVO
 }

@@ -29,16 +29,24 @@ public class VendaItem {
     @Column(name = "preco_unitario", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double precoUnitario;
 
+    @Column(name = "desconto", nullable = false, columnDefinition = "DECIMAL(10,2)")
+    private double desconto; // NOVO
+
     public VendaItem() {}
 
-    // ALTERADO: Construtor para inicializar o campo 'produto'
+    // ALTERADO: Construtor para inicializar o campo 'produto' e 'desconto'
     public VendaItem(Lote lote, int quantidade) {
         this.lote = lote;
         this.quantidade = quantidade;
+        this.desconto = 0.0; // NOVO
         if (lote != null && lote.getProduto() != null) {
             this.precoUnitario = lote.getProduto().getPreco();
             this.produto = lote.getProduto(); // NOVO: Inicializa o campo produto
         }
+    }
+
+    public double getSubtotal() {
+        return (precoUnitario * quantidade) - desconto;
     }
 
     public int getId() { return id; }
@@ -56,4 +64,6 @@ public class VendaItem {
     public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
     public double getPrecoUnitario() { return precoUnitario; }
     public void setPrecoUnitario(double precoUnitario) { this.precoUnitario = precoUnitario; }
+    public double getDesconto() { return desconto; } // NOVO
+    public void setDesconto(double desconto) { this.desconto = desconto; } // NOVO
 }

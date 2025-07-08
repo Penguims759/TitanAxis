@@ -2,6 +2,7 @@
 package com.titanaxis.model;
 
 public enum VendaStatus {
+    ORCAMENTO("Orçamento"), // NOVO
     EM_ANDAMENTO("Em Andamento"),
     FINALIZADA("Finalizada"),
     CANCELADA("Cancelada");

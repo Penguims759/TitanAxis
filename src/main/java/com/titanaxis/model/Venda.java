@@ -27,6 +27,9 @@ public class Venda {
     @Column(name = "valor_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double valorTotal;
 
+    @Column(name = "desconto_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
+    private double descontoTotal; // NOVO
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private VendaStatus status;
@@ -40,11 +43,14 @@ public class Venda {
     public Venda() {
         this.dataVenda = LocalDateTime.now();
         this.status = VendaStatus.EM_ANDAMENTO;
+        this.descontoTotal = 0.0; // NOVO
     }
 
     // Outros construtores e métodos...
     // Getters e Setters para 'status'
 
+    public double getDescontoTotal() { return descontoTotal; } // NOVO
+    public void setDescontoTotal(double descontoTotal) { this.descontoTotal = descontoTotal; } // NOVO
     public VendaStatus getStatus() { return status; }
     public void setStatus(VendaStatus status) { this.status = status; }
 
