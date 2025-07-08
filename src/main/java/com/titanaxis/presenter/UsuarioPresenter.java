@@ -13,23 +13,21 @@ import java.util.List;
 
 public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
 
-    private final UsuarioView view; // Adicionado final
-    private final AuthService authService; // Adicionado final
+    private final UsuarioView view;
+    private final AuthService authService;
 
     public UsuarioPresenter(UsuarioView view, AuthService authService) {
         this.view = view;
         this.authService = authService;
         this.view.setListener(this);
-        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+        aoCarregarDadosIniciais();
     }
 
-    // ALTERADO: Método tornado público por ser parte da interface UsuarioViewListener
     @Override
     public void aoCarregarDadosIniciais() {
         try {
             view.setUsuariosNaTabela(authService.listarUsuarios());
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar utilizadores: " + e.getMessage(), true);
         }
     }
@@ -50,7 +48,6 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             Usuario ator = authService.getUsuarioLogado().orElse(null);
             if (isUpdate) {
                 int id = Integer.parseInt(view.getId());
-                // A busca pelo utilizador original agora também pode lançar uma exceção
                 Usuario userOriginal = authService.listarUsuarios().stream().filter(u -> u.getId() == id).findFirst()
                         .orElseThrow(() -> new PersistenciaException("Utilizador a ser atualizado não encontrado.", null));
 
@@ -64,11 +61,10 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
                 view.mostrarMensagem("Sucesso", "Utilizador adicionado!", false);
             }
             aoLimpar();
-            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+            aoCarregarDadosIniciais();
         } catch (NomeDuplicadoException e) {
             view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro", "Erro ao salvar utilizador: " + e.getMessage(), true);
         }
     }
@@ -84,16 +80,19 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             view.mostrarMensagem("Ação Inválida", "Não pode eliminar o seu próprio utilizador.", true);
             return;
         }
-        if (!view.mostrarConfirmacao("Confirmar", "Tem certeza?")) return;
+
+        String nomeUtilizador = view.getUsername();
+        String mensagem = String.format("Tem a certeza que deseja eliminar o utilizador '%s'?", nomeUtilizador);
+
+        if (!view.mostrarConfirmacao("Confirmar", mensagem)) return;
 
         try {
             Usuario ator = authService.getUsuarioLogado().orElse(null);
             authService.deletarUsuario(idToDelete, ator);
             view.mostrarMensagem("Sucesso", "Utilizador eliminado!", false);
             aoLimpar();
-            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+            aoCarregarDadosIniciais();
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro", "Erro ao eliminar utilizador: " + e.getMessage(), true);
         }
     }
@@ -114,10 +113,9 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             if (termo != null && !termo.trim().isEmpty()) {
                 view.setUsuariosNaTabela(authService.buscarUsuariosPorNomeContendo(termo));
             } else {
-                aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+                aoCarregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar utilizadores: " + e.getMessage(), true);
         }
     }
@@ -125,7 +123,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
     @Override
     public void aoLimparBusca() {
         view.setTermoBusca("");
-        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+        aoCarregarDadosIniciais();
     }
 
     @Override

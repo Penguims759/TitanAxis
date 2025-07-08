@@ -13,26 +13,24 @@ import java.util.List;
 
 public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
 
-    private final CategoriaView view; // Adicionado final
-    private final CategoriaService categoriaService; // Adicionado final
-    private final AuthService authService; // Adicionado final
+    private final CategoriaView view;
+    private final CategoriaService categoriaService;
+    private final AuthService authService;
 
     public CategoriaPresenter(CategoriaView view, CategoriaService categoriaService, AuthService authService) {
         this.view = view;
         this.categoriaService = categoriaService;
         this.authService = authService;
         this.view.setListener(this);
-        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+        aoCarregarDadosIniciais();
     }
 
-    // ALTERADO: Método tornado público por ser parte da interface CategoriaViewListener
     @Override
     public void aoCarregarDadosIniciais() {
         try {
             List<Categoria> categorias = categoriaService.listarTodasCategorias();
             view.setCategoriasNaTabela(categorias);
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar categorias: " + e.getMessage(), true);
         }
     }
@@ -54,13 +52,12 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             categoriaService.salvar(categoria, ator);
             view.mostrarMensagem("Sucesso", "Categoria " + (isUpdate ? "atualizada" : "adicionada") + " com sucesso!", false);
             aoLimpar();
-            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+            aoCarregarDadosIniciais();
         } catch (NomeDuplicadoException e) {
             view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar a categoria: " + e.getMessage(), true);
         }
     }
@@ -71,20 +68,24 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             view.mostrarMensagem("Aviso", "Selecione uma categoria para eliminar.", true);
             return;
         }
-        if (!view.mostrarConfirmacao("Confirmar Eliminação", "Tem certeza que deseja eliminar esta categoria?\n(Os produtos nesta categoria ficarão sem categoria definida)")) {
+
+        String nomeCategoria = view.getNome();
+        String mensagem = String.format("Tem certeza que deseja eliminar a categoria '%s'?\n(Os produtos nesta categoria ficarão sem categoria definida)", nomeCategoria);
+
+        if (!view.mostrarConfirmacao("Confirmar Eliminação", mensagem)) {
             return;
         }
+
         int id = Integer.parseInt(view.getId());
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
             categoriaService.deletar(id, ator);
             view.mostrarMensagem("Sucesso", "Categoria eliminada com sucesso!", false);
             aoLimpar();
-            aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+            aoCarregarDadosIniciais();
         } catch (UtilizadorNaoAutenticadoException e) {
             view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar a categoria: " + e.getMessage(), true);
         }
     }
@@ -103,11 +104,10 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             if (termo != null && !termo.trim().isEmpty()) {
                 view.setCategoriasNaTabela(categoriaService.buscarCategoriasPorNome(termo));
             } else {
-                aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+                aoCarregarDadosIniciais();
             }
         }
         catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar categorias: " + e.getMessage(), true);
         }
     }
@@ -115,7 +115,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
     @Override
     public void aoLimparBusca() {
         view.setTermoBusca("");
-        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+        aoCarregarDadosIniciais();
     }
 
     @Override

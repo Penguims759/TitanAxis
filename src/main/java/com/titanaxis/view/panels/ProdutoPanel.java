@@ -55,9 +55,23 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         showInactiveButton = new JToggleButton("Mostrar Inativos");
         novoProdutoButton = new JButton("Novo Produto");
 
+        // ADICIONADO: Tooltips
+        addTooltips();
+
         initComponents();
 
         new ProdutoPresenter(this, appContext.getProdutoService(), appContext.getAuthService());
+    }
+
+    // NOVO MÉTODO: Adiciona as dicas de ferramentas
+    private void addTooltips() {
+        novoProdutoButton.setToolTipText("Criar um novo produto no sistema.");
+        editProdutoButton.setToolTipText("Editar os detalhes do produto selecionado.");
+        toggleStatusButton.setToolTipText("Alternar o estado do produto entre Ativo e Inativo.");
+        showInactiveButton.setToolTipText("Exibir ou ocultar os produtos inativos na lista.");
+        addLoteButton.setToolTipText("Adicionar um novo lote de estoque para o produto selecionado.");
+        editLoteButton.setToolTipText("Editar o lote selecionado na tabela de lotes.");
+        deleteLoteButton.setToolTipText("Remover permanentemente o lote selecionado.");
     }
 
     private void initComponents() {
@@ -202,7 +216,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
                 appContext.getAuthService().getUsuarioLogado().orElse(null));
     }
 
-    // CORREÇÃO: Método em falta adicionado aqui.
     @Override
     public LoteDialog mostrarDialogoDeLote(Produto produtoPai, Lote lote) {
         return new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this),

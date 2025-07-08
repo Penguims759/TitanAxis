@@ -12,26 +12,24 @@ import java.util.List;
 
 public class ClientePresenter implements ClienteView.ClienteViewListener {
 
-    private final ClienteView view; // Adicionado final
-    private final ClienteService clienteService; // Adicionado final
-    private final AuthService authService; // Adicionado final
+    private final ClienteView view;
+    private final ClienteService clienteService;
+    private final AuthService authService;
 
     public ClientePresenter(ClienteView view, ClienteService clienteService, AuthService authService) {
         this.view = view;
         this.clienteService = clienteService;
         this.authService = authService;
         this.view.setListener(this);
-        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+        aoCarregarDadosIniciais();
     }
 
-    // ALTERADO: Método tornado público por ser parte da interface ClienteViewListener
     @Override
     public void aoCarregarDadosIniciais() {
         try {
             List<Cliente> clientes = clienteService.listarTodos();
             view.setClientesNaTabela(clientes);
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar clientes: " + e.getMessage(), true);
         }
     }
@@ -50,7 +48,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         Usuario ator = authService.getUsuarioLogado().orElse(null);
 
         try {
-            Cliente clienteSalvo = clienteService.salvar(cliente, ator); // O serviço agora retorna o cliente salvo
+            Cliente clienteSalvo = clienteService.salvar(cliente, ator);
             if (isUpdate) {
                 view.atualizarClienteNaTabela(clienteSalvo);
                 view.mostrarMensagem("Sucesso", "Cliente atualizado com sucesso!", false);
@@ -72,14 +70,18 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             view.mostrarMensagem("Aviso", "Selecione um cliente para eliminar.", true);
             return;
         }
-        if (!view.mostrarConfirmacao("Confirmar Eliminação", "Tem certeza que deseja eliminar este cliente?")) {
+
+        String nomeCliente = view.getNome();
+        String mensagem = String.format("Tem certeza que deseja eliminar o cliente '%s'?", nomeCliente);
+
+        if (!view.mostrarConfirmacao("Confirmar Eliminação", mensagem)) {
             return;
         }
         int id = Integer.parseInt(view.getId());
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
             clienteService.deletar(id, ator);
-            view.removerClienteDaTabela(id); // Nova chamada para a view
+            view.removerClienteDaTabela(id);
             view.mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
             aoLimpar();
         } catch (UtilizadorNaoAutenticadoException e) {
@@ -105,10 +107,9 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             if (termo != null && !termo.trim().isEmpty()) {
                 view.setClientesNaTabela(clienteService.buscarPorNome(termo));
             } else {
-                aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+                aoCarregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            // ALTERADO: Mensagem mais informativa
             view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar clientes: " + e.getMessage(), true);
         }
     }
@@ -116,7 +117,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
     @Override
     public void aoLimparBusca() {
         view.setTermoBusca("");
-        aoCarregarDadosIniciais(); // ALTERADO: Chama o novo método público
+        aoCarregarDadosIniciais();
     }
 
     @Override

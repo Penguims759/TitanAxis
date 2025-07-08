@@ -1,11 +1,10 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/RelatorioPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -30,7 +29,6 @@ public class RelatorioPanel extends JPanel {
     public RelatorioPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
 
-        // Inicialização dos botões para serem final
         inventarioCsvButton = new JButton("Gerar CSV");
         inventarioPdfButton = new JButton("Gerar PDF");
         vendasCsvButton = new JButton("Gerar CSV");
@@ -51,7 +49,6 @@ public class RelatorioPanel extends JPanel {
 
         JPanel inventarioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         inventarioPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Inventário"));
-        // botões já inicializados no construtor
         inventarioCsvButton.addActionListener(e -> gerarRelatorioInventarioCsv());
         inventarioPanel.add(inventarioCsvButton);
         inventarioPdfButton.addActionListener(e -> gerarRelatorioInventarioPdf());
@@ -60,7 +57,6 @@ public class RelatorioPanel extends JPanel {
 
         JPanel vendasPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         vendasPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Vendas"));
-        // botões já inicializados no construtor
         vendasCsvButton.addActionListener(e -> gerarRelatorioVendasCsv());
         vendasPanel.add(vendasCsvButton);
         vendasPdfButton.addActionListener(e -> gerarRelatorioVendasPdf());
@@ -86,10 +82,7 @@ public class RelatorioPanel extends JPanel {
             protected void done() {
                 try {
                     String conteudoCSV = get();
-                    try (PrintWriter out = new PrintWriter(arquivoParaSalvar, StandardCharsets.UTF_8)) {
-                        out.print(conteudoCSV);
-                        UIMessageUtil.showInfoMessage(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso");
-                    }
+                    salvarEabrirRelatorio(arquivoParaSalvar, conteudoCSV, null);
                 } catch (Exception ex) {
                     handleException("Erro ao gerar/salvar o relatório de inventário (CSV).", ex);
                 } finally {
@@ -116,10 +109,7 @@ public class RelatorioPanel extends JPanel {
             protected void done() {
                 try {
                     String conteudoCSV = get();
-                    try (PrintWriter out = new PrintWriter(arquivoParaSalvar, StandardCharsets.UTF_8)) {
-                        out.print(conteudoCSV);
-                        UIMessageUtil.showInfoMessage(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso");
-                    }
+                    salvarEabrirRelatorio(arquivoParaSalvar, conteudoCSV, null);
                 } catch (Exception ex) {
                     handleException("Erro ao gerar/salvar o relatório de vendas (CSV).", ex);
                 } finally {
@@ -146,10 +136,7 @@ public class RelatorioPanel extends JPanel {
             protected void done() {
                 try {
                     ByteArrayOutputStream baos = get();
-                    try (FileOutputStream fos = new FileOutputStream(arquivoParaSalvar)) {
-                        baos.writeTo(fos);
-                        UIMessageUtil.showInfoMessage(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso");
-                    }
+                    salvarEabrirRelatorio(arquivoParaSalvar, null, baos);
                 } catch (Exception ex) {
                     handleException("Erro ao gerar/salvar o relatório de inventário (PDF).", ex);
                 } finally {
@@ -176,10 +163,7 @@ public class RelatorioPanel extends JPanel {
             protected void done() {
                 try {
                     ByteArrayOutputStream baos = get();
-                    try (FileOutputStream fos = new FileOutputStream(arquivoParaSalvar)) {
-                        baos.writeTo(fos);
-                        UIMessageUtil.showInfoMessage(RelatorioPanel.this, "Relatório salvo com sucesso!", "Sucesso");
-                    }
+                    salvarEabrirRelatorio(arquivoParaSalvar, null, baos);
                 } catch (Exception ex) {
                     handleException("Erro ao gerar/salvar o relatório de vendas (PDF).", ex);
                 } finally {
@@ -188,6 +172,31 @@ public class RelatorioPanel extends JPanel {
             }
         };
         worker.execute();
+    }
+
+    // NOVO MÉTODO: Centraliza a lógica de salvar e perguntar se abre o ficheiro
+    private void salvarEabrirRelatorio(File file, String csvContent, ByteArrayOutputStream pdfContent) throws IOException {
+        if (csvContent != null) {
+            try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
+                out.print(csvContent);
+            }
+        } else if (pdfContent != null) {
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                pdfContent.writeTo(fos);
+            }
+        }
+
+        if (UIMessageUtil.showConfirmDialog(this, "Relatório salvo com sucesso em:\n" + file.getAbsolutePath() + "\n\nDeseja abri-lo agora?", "Sucesso")) {
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (IOException ex) {
+                    handleException("Não foi possível abrir o ficheiro. Verifique se tem um programa instalado para abrir este tipo de ficheiro.", ex);
+                }
+            } else {
+                UIMessageUtil.showWarningMessage(this, "A sua plataforma não suporta a abertura automática de ficheiros.", "Aviso");
+            }
+        }
     }
 
     private void setBotoesAtivados(boolean ativado) {
@@ -226,10 +235,8 @@ public class RelatorioPanel extends JPanel {
         return file;
     }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame).
-    // Para RelatorioPanel, "refresh" significa reativar botões ou garantir estado.
     public void refreshData() {
         logger.info("RelatorioPanel refreshData() chamado. Botões de relatório reativados.");
-        setBotoesAtivados(true); // Garante que os botões não estejam desativados
+        setBotoesAtivados(true);
     }
 }
