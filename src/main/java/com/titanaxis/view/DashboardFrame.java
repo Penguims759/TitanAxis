@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -30,13 +31,18 @@ public class DashboardFrame extends JFrame {
     private final UIPersonalizationService personalizationService;
     private static final Logger logger = AppLogger.getLogger();
 
+    // Painéis de Abas
     private JTabbedPane mainTabbedPane;
     private JTabbedPane produtosEstoqueTabbedPane;
+    private JTabbedPane cadastrosTabbedPane; // NOVO
     private JTabbedPane adminTabbedPane;
+
+    // Painéis Individuais
     private HomePanel homePanel;
     private ProdutoPanel produtoPanel;
     private ClientePanel clientePanel;
     private CategoriaPanel categoriaPanel;
+    private FornecedorPanel fornecedorPanel;
     private AlertaPanel alertaPanel;
     private MovimentosPanel movimentosPanel;
     private RelatorioPanel relatorioPanel;
@@ -128,21 +134,12 @@ public class DashboardFrame extends JFrame {
     }
 
     private void rebuildAndShowHomePanel() {
-        int homeTabIndex = -1;
-        for (int i = 0; i < mainTabbedPane.getTabCount(); i++) {
-            if (mainTabbedPane.getTitleAt(i).equals("Início")) {
-                homeTabIndex = i;
-                break;
-            }
-        }
-
+        int homeTabIndex = mainTabbedPane.indexOfTab("Início");
         if (homeTabIndex != -1) {
             homePanel = new HomePanel(appContext);
             mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
-
             mainTabbedPane.revalidate();
             mainTabbedPane.repaint();
-
             logger.info("Painel de início reconstruído com sucesso.");
         }
     }
@@ -167,6 +164,7 @@ public class DashboardFrame extends JFrame {
         mainTabbedPane.addChangeListener(createRefreshListener(vendaPanel));
 
         if (authService.isGerente()) {
+            // Aba de Produtos & Estoque
             produtosEstoqueTabbedPane = new JTabbedPane();
             produtoPanel = new ProdutoPanel(appContext);
             categoriaPanel = new CategoriaPanel(appContext);
@@ -181,16 +179,28 @@ public class DashboardFrame extends JFrame {
 
             produtosEstoqueTabbedPane.addChangeListener(e -> {
                 Component selected = produtosEstoqueTabbedPane.getSelectedComponent();
-                if (selected instanceof ProdutoPanel) ((ProdutoPanel) selected).refreshData();
-                else if (selected instanceof CategoriaPanel) ((CategoriaPanel) selected).refreshData();
-                else if (selected instanceof AlertaPanel) ((AlertaPanel) selected).refreshData();
-                else if (selected instanceof MovimentosPanel) ((MovimentosPanel) selected).refreshData();
+                if (selected instanceof Refreshable) {
+                    ((Refreshable) selected).refreshData();
+                }
             });
 
+            // NOVA ABA DE CADASTROS
+            cadastrosTabbedPane = new JTabbedPane();
             clientePanel = new ClientePanel(appContext);
-            mainTabbedPane.addTab("Clientes", clientePanel);
-            mainTabbedPane.addChangeListener(createRefreshListener(clientePanel));
+            fornecedorPanel = new FornecedorPanel(appContext);
 
+            cadastrosTabbedPane.addTab("Clientes", clientePanel);
+            cadastrosTabbedPane.addTab("Fornecedores", fornecedorPanel);
+            mainTabbedPane.addTab("Cadastros", cadastrosTabbedPane);
+
+            cadastrosTabbedPane.addChangeListener(e -> {
+                Component selected = cadastrosTabbedPane.getSelectedComponent();
+                if (selected instanceof Refreshable) {
+                    ((Refreshable) selected).refreshData();
+                }
+            });
+
+            // Aba de Relatórios
             relatorioPanel = new RelatorioPanel(appContext);
             mainTabbedPane.addTab("Relatórios", relatorioPanel);
             mainTabbedPane.addChangeListener(createRefreshListener(relatorioPanel));
@@ -207,8 +217,9 @@ public class DashboardFrame extends JFrame {
 
             adminTabbedPane.addChangeListener(e -> {
                 Component selected = adminTabbedPane.getSelectedComponent();
-                if (selected instanceof UsuarioPanel) ((UsuarioPanel) selected).refreshData();
-                else if (selected instanceof AuditoriaPanel) ((AuditoriaPanel) selected).refreshData();
+                if (selected instanceof Refreshable) {
+                    ((Refreshable) selected).refreshData();
+                }
             });
         }
 
@@ -216,10 +227,11 @@ public class DashboardFrame extends JFrame {
     }
 
     public void navigateTo(String destination) {
+        // Mapeamento atualizado para a nova aba "Cadastros"
         Map<String, Component> mainDestinations = Map.of(
                 "Início", homePanel,
                 "Vendas", vendaPanel,
-                "Clientes", clientePanel,
+                "Cadastros", cadastrosTabbedPane, // ATUALIZADO
                 "Produtos & Estoque", produtosEstoqueTabbedPane,
                 "Relatórios", relatorioPanel,
                 "Administração", adminTabbedPane,
@@ -229,12 +241,30 @@ public class DashboardFrame extends JFrame {
         if (mainDestinations.containsKey(destination)) {
             mainTabbedPane.setSelectedComponent(mainDestinations.get(destination));
         } else {
-            navigateToProductSubTab(destination);
+            // Lógica para navegar para sub-abas
+            if ("Clientes".equals(destination) || "Fornecedores".equals(destination)) {
+                navigateToCadastroSubTab(destination);
+            } else {
+                navigateToProductSubTab(destination);
+            }
+        }
+    }
+
+    public void navigateToCadastroSubTab(String subTabName) {
+        if (cadastrosTabbedPane != null) {
+            mainTabbedPane.setSelectedComponent(cadastrosTabbedPane); // Garante que a aba principal está selecionada
+            for (int i = 0; i < cadastrosTabbedPane.getTabCount(); i++) {
+                if (cadastrosTabbedPane.getTitleAt(i).equals(subTabName)) {
+                    cadastrosTabbedPane.setSelectedIndex(i);
+                    break;
+                }
+            }
         }
     }
 
     public void navigateToProductSubTab(String subTabName) {
         if (produtosEstoqueTabbedPane != null) {
+            mainTabbedPane.setSelectedComponent(produtosEstoqueTabbedPane);
             for (int i = 0; i < produtosEstoqueTabbedPane.getTabCount(); i++) {
                 if (produtosEstoqueTabbedPane.getTitleAt(i).equals(subTabName)) {
                     produtosEstoqueTabbedPane.setSelectedIndex(i);
@@ -249,8 +279,7 @@ public class DashboardFrame extends JFrame {
             Usuario ator = authService.getUsuarioLogado().orElse(null);
             switch (action) {
                 case UI_NAVIGATE:
-                    String destination = (String) params.get("destination");
-                    navigateTo(destination);
+                    navigateTo((String) params.get("destination"));
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_LOTE:
                     navigateTo("Produtos & Estoque");
@@ -261,26 +290,29 @@ public class DashboardFrame extends JFrame {
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
                     navigateTo("Produtos & Estoque");
-                    if (produtoPanel != null) {
-                        UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
-                    }
+                    if (produtoPanel != null) UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
                     break;
                 case DIRECT_CREATE_PRODUCT:
-                    String nomeProduto = (String) params.get("nome");
-                    Double preco = (Double) params.get("preco");
-                    Categoria categoria = (Categoria) params.get("categoria");
-                    Produto novoProduto = new Produto(nomeProduto, "", preco, categoria);
+                    Produto novoProduto = new Produto((String) params.get("nome"), "", (Double) params.get("preco"), (Categoria) params.get("categoria"));
                     appContext.getProdutoService().salvarProduto(novoProduto, ator);
-                    UIMessageUtil.showInfoMessage(this, "Produto '" + nomeProduto + "' criado com sucesso!", "Ação Concluída");
+                    UIMessageUtil.showInfoMessage(this, "Produto '" + novoProduto.getNome() + "' criado com sucesso!", "Ação Concluída");
                     if (produtoPanel != null) produtoPanel.refreshData();
                     break;
                 case DIRECT_CREATE_CLIENT:
-                    String nome = (String) params.get("nome");
-                    String contato = (String) params.get("contato");
-                    Cliente novoCliente = new Cliente(nome, contato, "");
+                    Cliente novoCliente = new Cliente((String) params.get("nome"), (String) params.get("contato"), "");
                     appContext.getClienteService().salvar(novoCliente, ator);
-                    UIMessageUtil.showInfoMessage(this, "Cliente '" + nome + "' foi criado com sucesso!", "Ação Concluída");
+                    UIMessageUtil.showInfoMessage(this, "Cliente '" + novoCliente.getNome() + "' foi criado com sucesso!", "Ação Concluída");
                     if (clientePanel != null) clientePanel.refreshData();
+                    break;
+                case DIRECT_CREATE_FORNECEDOR:
+                    Fornecedor novoFornecedor = new Fornecedor();
+                    novoFornecedor.setNome((String) params.get("nome"));
+                    novoFornecedor.setContatoNome((String) params.get("contatoNome"));
+                    novoFornecedor.setContatoTelefone((String) params.get("contatoTelefone"));
+                    novoFornecedor.setContatoEmail((String) params.get("contatoEmail"));
+                    appContext.getFornecedorService().salvar(novoFornecedor, ator);
+                    UIMessageUtil.showInfoMessage(this, "Fornecedor '" + novoFornecedor.getNome() + "' criado com sucesso!", "Ação Concluída");
+                    if (fornecedorPanel != null) fornecedorPanel.refreshData();
                     break;
                 case DIRECT_ADJUST_STOCK:
                     String prodName = (String) params.get("productName");
@@ -298,31 +330,21 @@ public class DashboardFrame extends JFrame {
                     navigateTo("Vendas");
                     vendaPanel.refreshData();
                     Cliente cliente = (Cliente) params.get("cliente");
-                    if (cliente != null) {
-                        vendaPanel.selecionarCliente(cliente);
-                    }
+                    if (cliente != null) vendaPanel.selecionarCliente(cliente);
                     break;
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro detalhado ao executar a ação '" + action + "': ", e);
-            String errorMessage = e.getMessage();
-            if (e.getCause() != null) {
-                errorMessage += "\nCausa Raiz: " + e.getCause().getMessage();
-            }
+            String errorMessage = e.getMessage() != null ? e.getMessage() : "Causa desconhecida.";
+            if (e.getCause() != null) errorMessage += "\nCausa Raiz: " + e.getCause().getMessage();
             UIMessageUtil.showErrorMessage(this, "Erro ao executar a ação: " + errorMessage, "Erro na Ação do Assistente");
         }
     }
 
     private ChangeListener createRefreshListener(Component panel) {
         return e -> {
-            if (mainTabbedPane.getSelectedComponent() == panel) {
-                try {
-                    if (panel.isDisplayable()) {
-                        panel.getClass().getMethod("refreshData").invoke(panel);
-                    }
-                } catch (Exception ex) {
-                    // Silencioso
-                }
+            if (mainTabbedPane.getSelectedComponent() == panel && panel instanceof Refreshable) {
+                ((Refreshable) panel).refreshData();
             }
         };
     }
@@ -341,11 +363,7 @@ public class DashboardFrame extends JFrame {
 
     private void setTheme(String themeName) {
         try {
-            if ("light".equals(themeName)) {
-                UIManager.setLookAndFeel(new FlatLightLaf());
-            } else {
-                UIManager.setLookAndFeel(new FlatDarkLaf());
-            }
+            UIManager.setLookAndFeel("light".equals(themeName) ? new FlatLightLaf() : new FlatDarkLaf());
             SwingUtilities.updateComponentTreeUI(this);
             personalizationService.savePreference("theme", themeName);
             logger.info("Tema alterado para: " + themeName);
@@ -369,5 +387,10 @@ public class DashboardFrame extends JFrame {
             logger.info("Aplicação encerrada pelo usuário.");
             System.exit(0);
         }
+    }
+
+    // Interface para padronizar o método de atualização dos painéis
+    public interface Refreshable {
+        void refreshData();
     }
 }

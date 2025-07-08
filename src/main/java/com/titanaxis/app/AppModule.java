@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/app/AppModule.java
 package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
@@ -9,7 +10,6 @@ import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.flows.*;
-
 import jakarta.inject.Inject;
 
 public class AppModule extends AbstractModule {
@@ -17,6 +17,9 @@ public class AppModule extends AbstractModule {
     @Override
     protected void configure() {
         // --- Repositórios ---
+        // Mapeia cada interface de repositório para a sua implementação concreta.
+        // O .in(Singleton.class) garante que apenas uma instância de cada repositório
+        // seja criada e reutilizada em toda a aplicação.
         bind(AuditoriaRepository.class).to(AuditoriaRepositoryImpl.class).in(Singleton.class);
         bind(UsuarioRepository.class).to(UsuarioRepositoryImpl.class).in(Singleton.class);
         bind(CategoriaRepository.class).to(CategoriaRepositoryImpl.class).in(Singleton.class);
@@ -24,8 +27,10 @@ public class AppModule extends AbstractModule {
         bind(ProdutoRepository.class).to(ProdutoRepositoryImpl.class).in(Singleton.class);
         bind(VendaRepository.class).to(VendaRepositoryImpl.class).in(Singleton.class);
         bind(MovimentoRepository.class).to(MovimentoRepositoryImpl.class).in(Singleton.class);
+        bind(FornecedorRepository.class).to(FornecedorRepositoryImpl.class).in(Singleton.class);
 
         // --- Serviços ---
+        // Regista todos os serviços como Singletons, para que sejam partilhados.
         bind(TransactionService.class).in(Singleton.class);
         bind(AuthService.class).in(Singleton.class);
         bind(CategoriaService.class).in(Singleton.class);
@@ -36,19 +41,23 @@ public class AppModule extends AbstractModule {
         bind(AlertaService.class).in(Singleton.class);
         bind(MovimentoService.class).in(Singleton.class);
         bind(AnalyticsService.class).in(Singleton.class);
+        bind(FornecedorService.class).in(Singleton.class);
 
         // --- Lógica do Assistente IA ---
         bind(AIAssistantService.class).in(Singleton.class);
 
+        // Utiliza um Multibinder para agrupar todas as implementações de ConversationFlow.
+        // O AIAssistantService receberá um Set<ConversationFlow> com todas as classes
+        // listadas abaixo.
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
-
         flowBinder.addBinding().to(StartSaleFlow.class);
         flowBinder.addBinding().to(CreateUserFlow.class);
         flowBinder.addBinding().to(CreateProductFlow.class);
         flowBinder.addBinding().to(CreateCategoryFlow.class);
-        flowBinder.addBinding().to(ManageStockFlow.class);
-        flowBinder.addBinding().to(AdjustStockFlow.class); // NOVO FLUXO
         flowBinder.addBinding().to(CreateClientFlow.class);
+        flowBinder.addBinding().to(CreateFornecedorFlow.class);
+        flowBinder.addBinding().to(ManageStockFlow.class);
+        flowBinder.addBinding().to(AdjustStockFlow.class);
         flowBinder.addBinding().to(UpdateProductFlow.class);
         flowBinder.addBinding().to(QueryStockFlow.class);
         flowBinder.addBinding().to(QueryClientFlow.class);
@@ -62,6 +71,8 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(QueryExpiringLotsFlow.class);
 
         // --- Contexto da Aplicação ---
+        // Regista o AppContext como um Singleton para ser o ponto de entrada central
+        // para aceder a todos os serviços.
         bind(AppContext.class).in(Singleton.class);
     }
 }

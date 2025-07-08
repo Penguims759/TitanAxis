@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/service/Intent.java
 package com.titanaxis.service;
 
 import java.util.Arrays;
@@ -5,11 +6,12 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public enum Intent {
-    // INTENÇÕES DE CRIAÇÃO (Fluxos de Conversa)
+    // INTENÇÕES DE CRIAÇÃO
     CREATE_PRODUCT(List.of("criar produto", "novo produto", "cadastrar produto"), List.of()),
     CREATE_USER(List.of("criar utilizador", "novo utilizador", "adicionar utilizador"), List.of()),
     CREATE_CATEGORY(List.of("criar categoria", "nova categoria", "adicionar categoria"), List.of()),
     CREATE_CLIENT(List.of("criar cliente", "novo cliente", "adicionar cliente"), List.of()),
+    CREATE_FORNECEDOR(List.of("criar fornecedor", "novo fornecedor", "cadastrar fornecedor"), List.of()), // ADICIONADO
 
     // INTENÇÃO DE VENDA
     START_SALE(List.of("inicie uma venda", "começar venda", "abrir venda", "nova venda para"), List.of("venda")),
@@ -17,7 +19,7 @@ public enum Intent {
     // INTENÇÕES DE ATUALIZAÇÃO E GESTÃO
     UPDATE_PRODUCT(List.of("alterar produto", "mudar produto", "atualizar produto", "alterar preco", "alterar status"), List.of()),
     MANAGE_STOCK(List.of("adicionar stock", "adicionar unidades", "adicionar ao lote", "gerir stock", "gerir estoque"), List.of("stock", "estoque", "lote")),
-    ADJUST_STOCK(List.of("ajustar stock", "ajustar estoque", "corrigir stock", "corrigir estoque"), List.of("ajustar", "corrigir")), // NOVA INTENÇÃO
+    ADJUST_STOCK(List.of("ajustar stock", "ajustar estoque", "corrigir stock", "corrigir estoque"), List.of("ajustar", "corrigir")),
 
     // INTENÇÕES DE CONSULTA
     QUERY_STOCK(List.of("qual o stock", "qual o estoque", "ver stock", "ver estoque"), List.of("stock", "estoque")),
@@ -51,10 +53,8 @@ public enum Intent {
         this.coreTerms = coreTerms;
     }
 
-    public List<String> getKeywords() {
-        return phrases;
-    }
-
+    // O resto da classe permanece igual
+    public List<String> getKeywords() { return phrases; }
     public int getScore(String normalizedQuery) {
         if (this == UNKNOWN || this == GREETING || this == CONFIRM || this == DENY) return 0;
         int score = 0;

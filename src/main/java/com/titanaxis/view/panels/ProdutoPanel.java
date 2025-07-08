@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/view/panels/ProdutoPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -145,7 +146,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         produtoTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 if (produtoTable.getSelectedRow() != -1) {
-                    // CORRIGIDO: Usada a variável 'produtoTable' em vez de 'table'
                     int modelRow = produtoTable.convertRowIndexToModel(produtoTable.getSelectedRow());
                     int produtoId = (int) produtoTableModel.getValueAt(modelRow, 0);
                     listener.aoSelecionarProduto(produtoId);
@@ -327,16 +327,26 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     @Override
     public ProdutoDialog mostrarDialogoDeProduto(Produto produto) {
-        return new ProdutoDialog((JFrame) SwingUtilities.getWindowAncestor(this),
-                appContext.getProdutoService(), appContext.getCategoriaService(), produto,
-                appContext.getAuthService().getUsuarioLogado().orElse(null));
+        // LINHA CORRIGIDA: Adicionado appContext.getFornecedorService()
+        return new ProdutoDialog(
+                (JFrame) SwingUtilities.getWindowAncestor(this),
+                appContext.getProdutoService(),
+                appContext.getCategoriaService(),
+                appContext.getFornecedorService(), // <-- Argumento que faltava
+                produto,
+                appContext.getAuthService().getUsuarioLogado().orElse(null)
+        );
     }
 
     @Override
     public LoteDialog mostrarDialogoDeLote(Produto produtoPai, Lote lote) {
-        return new LoteDialog((JFrame) SwingUtilities.getWindowAncestor(this),
-                appContext.getProdutoService(), produtoPai, lote,
-                appContext.getAuthService().getUsuarioLogado().orElse(null));
+        return new LoteDialog(
+                (JFrame) SwingUtilities.getWindowAncestor(this),
+                appContext.getProdutoService(),
+                produtoPai,
+                lote,
+                appContext.getAuthService().getUsuarioLogado().orElse(null)
+        );
     }
 
     public void refreshData() {

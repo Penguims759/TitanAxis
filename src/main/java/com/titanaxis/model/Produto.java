@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/model/Produto.java
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
@@ -17,13 +18,16 @@ public class Produto {
 
     private String descricao;
 
-    // CORREÇÃO: Especificamos a definição exata da coluna para corresponder ao script SQL.
     @Column(name = "preco", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double preco;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fornecedor_id")
+    private Fornecedor fornecedor;
 
     @Column(nullable = false)
     private boolean ativo;
@@ -37,7 +41,12 @@ public class Produto {
     @Transient
     private String nomeCategoria;
 
-    // Construtores
+    // Construtores, Getters e Setters...
+
+    public Fornecedor getFornecedor() { return fornecedor; }
+    public void setFornecedor(Fornecedor fornecedor) { this.fornecedor = fornecedor; }
+
+    // Restante dos métodos...
     public Produto() {}
 
     public Produto(String nome, String descricao, double preco, Categoria categoria) {
@@ -48,12 +57,6 @@ public class Produto {
         this.ativo = true;
     }
 
-    public void addLote(Lote lote) {
-        this.lotes.add(lote);
-        lote.setProduto(this);
-    }
-
-    // --- Getters e Setters (sem alterações) ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getNome() { return nome; }
@@ -68,21 +71,6 @@ public class Produto {
     public void setAtivo(boolean ativo) { this.ativo = ativo; }
     public List<Lote> getLotes() { return lotes; }
     public void setLotes(List<Lote> lotes) { this.lotes = lotes; }
-
-    public int getQuantidadeTotal() {
-        if (this.lotes == null) {
-            return 0;
-        }
-        return this.lotes.stream().mapToInt(Lote::getQuantidade).sum();
-    }
-    public void setQuantidadeTotal(int quantidadeTotal) { this.quantidadeTotal = quantidadeTotal; }
-
-    public String getNomeCategoria() {
-        return (categoria != null) ? categoria.getNome() : null;
-    }
-
-    @Override
-    public String toString() {
-        return this.nome;
-    }
+    public int getQuantidadeTotal() { return this.lotes.stream().mapToInt(Lote::getQuantidade).sum(); }
+    public String getNomeCategoria() { return (categoria != null) ? categoria.getNome() : null; }
 }

@@ -1,4 +1,4 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-3ba50f4eda4e3ead1b6e411789a4b7fad11b0564/src/main/java/com/titanaxis/model/Venda.java
+// src/main/java/com/titanaxis/model/Venda.java
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
@@ -27,39 +27,28 @@ public class Venda {
     @Column(name = "valor_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double valorTotal;
 
-    // ALTERADO: Changed from EAGER to LAZY loading for performance optimization.
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private VendaStatus status;
+
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<VendaItem> itens = new ArrayList<>();
 
-    // ... (resto da classe sem alterações) ...
     @Transient
     private String nomeCliente;
 
-    public Venda() {}
-
-    public Venda(Cliente cliente, Usuario usuario, double valorTotal) {
-        this.cliente = cliente;
-        this.usuario = usuario;
-        this.valorTotal = valorTotal;
+    public Venda() {
         this.dataVenda = LocalDateTime.now();
+        this.status = VendaStatus.EM_ANDAMENTO;
     }
 
-    public Venda(int id, Cliente cliente, Usuario usuario, LocalDateTime dataVenda, double valorTotal) {
-        this.id = id;
-        this.cliente = cliente;
-        this.usuario = usuario;
-        this.dataVenda = dataVenda;
-        this.valorTotal = valorTotal;
-        if (cliente != null) {
-            this.nomeCliente = cliente.getNome();
-        }
-    }
+    // Outros construtores e métodos...
+    // Getters e Setters para 'status'
 
-    public void adicionarItem(VendaItem item) {
-        itens.add(item);
-        item.setVenda(this);
-    }
+    public VendaStatus getStatus() { return status; }
+    public void setStatus(VendaStatus status) { this.status = status; }
 
+    // ... restante dos getters e setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public Cliente getCliente() { return cliente; }
@@ -72,9 +61,11 @@ public class Venda {
     public void setValorTotal(double valorTotal) { this.valorTotal = valorTotal; }
     public List<VendaItem> getItens() { return itens; }
     public void setItens(List<VendaItem> itens) { this.itens = itens; }
-
-    public String getNomeCliente() {
-        return (cliente != null) ? cliente.getNome() : "N/A";
-    }
+    public String getNomeCliente() { return (cliente != null) ? cliente.getNome() : "N/A"; }
     public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
+
+    public void adicionarItem(VendaItem item) {
+        itens.add(item);
+        item.setVenda(this);
+    }
 }

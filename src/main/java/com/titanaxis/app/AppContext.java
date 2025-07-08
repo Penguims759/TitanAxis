@@ -18,13 +18,15 @@ public class AppContext {
     private final MovimentoService movimentoService;
     private final AIAssistantService aiAssistantService;
     private final AnalyticsService analyticsService;
+    private final FornecedorService fornecedorService; // NOVO
 
     @Inject
     public AppContext(AuthService authService, CategoriaService categoriaService,
                       ClienteService clienteService, ProdutoService produtoService,
                       VendaService vendaService, RelatorioService relatorioService,
                       AlertaService alertaService, MovimentoService movimentoService,
-                      AIAssistantService aiAssistantService, AnalyticsService analyticsService) {
+                      AIAssistantService aiAssistantService, AnalyticsService analyticsService,
+                      FornecedorService fornecedorService) { // NOVO
         this.authService = authService;
         this.categoriaService = categoriaService;
         this.clienteService = clienteService;
@@ -35,6 +37,7 @@ public class AppContext {
         this.movimentoService = movimentoService;
         this.aiAssistantService = aiAssistantService;
         this.analyticsService = analyticsService;
+        this.fornecedorService = fornecedorService; // NOVO
     }
 
     public AuthService getAuthService() { return authService; }
@@ -47,4 +50,5 @@ public class AppContext {
     public MovimentoService getMovimentoService() { return movimentoService; }
     public AIAssistantService getAIAssistantService() { return aiAssistantService; }
     public AnalyticsService getAnalyticsService() { return analyticsService; }
+    public FornecedorService getFornecedorService() { return fornecedorService; } // NOVO
 }

@@ -6,6 +6,7 @@
     <persistence-unit name="TitanAxisPU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+        <class>com.titanaxis.model.Fornecedor</class>
         <class>com.titanaxis.model.Categoria</class>
         <class>com.titanaxis.model.Produto</class>
         <class>com.titanaxis.model.Lote</class>
@@ -24,7 +25,10 @@
             <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
             <property name="hibernate.hikari.minimumIdle" value="5"/>
             <property name="hibernate.hikari.maximumPoolSize" value="20"/>
-            <property name="hibernate.hikari.idleTimeout" value="30000"/> <property name="hibernate.hikari.connectionTimeout" value="30000"/> <property name="hibernate.hikari.maxLifetime" value="1800000"/> <property name="hibernate.hikari.poolName" value="TitanAxisHikariCP"/>
+            <property name="hibernate.hikari.idleTimeout" value="30000"/>
+            <property name="hibernate.hikari.connectionTimeout" value="30000"/>
+            <property name="hibernate.hikari.maxLifetime" value="1800000"/>
+            <property name="hibernate.hikari.poolName" value="TitanAxisHikariCP"/>
 
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
