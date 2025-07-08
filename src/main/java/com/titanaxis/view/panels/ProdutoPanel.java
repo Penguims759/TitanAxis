@@ -37,6 +37,9 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     private final JToggleButton showInactiveButton;
     private final JButton novoProdutoButton;
     private final JButton importarCsvButton;
+    private final JButton importarPdfButton;
+    private JTextField filtroTexto;
+
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ProdutoPanel(AppContext appContext) {
@@ -60,6 +63,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         showInactiveButton = new JToggleButton("Mostrar Inativos");
         novoProdutoButton = new JButton("Novo Produto");
         importarCsvButton = new JButton("Importar de CSV");
+        importarPdfButton = new JButton("Importar de PDF");
 
         addTooltips();
         initComponents();
@@ -70,6 +74,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     private void addTooltips() {
         novoProdutoButton.setToolTipText("Criar um novo produto no sistema.");
         importarCsvButton.setToolTipText("Importar uma lista de produtos a partir de um ficheiro CSV.");
+        importarPdfButton.setToolTipText("Importar uma lista de produtos a partir de um ficheiro PDF (funcionalidade futura).");
         editProdutoButton.setToolTipText("Editar os detalhes do produto selecionado.");
         toggleStatusButton.setToolTipText("Alternar o estado do produto entre Ativo e Inativo.");
         showInactiveButton.setToolTipText("Exibir ou ocultar os produtos inativos na lista.");
@@ -83,6 +88,131 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createProdutoListPanel(), createDetalhesPanel());
         splitPane.setResizeWeight(0.5);
         add(splitPane, BorderLayout.CENTER);
+    }
+
+    private JPanel createFilterAndActionsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        filtroTexto = new JTextField(25);
+        filtroTexto.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { listener.aoFiltrarTexto(filtroTexto.getText()); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { listener.aoFiltrarTexto(filtroTexto.getText()); }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { listener.aoFiltrarTexto(filtroTexto.getText()); }
+        });
+        filterPanel.add(new JLabel("Filtrar por Nome:"));
+        filterPanel.add(filtroTexto);
+
+        JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton refreshButton = new JButton("Atualizar");
+        refreshButton.addActionListener(e -> listener.aoCarregarProdutos());
+
+        importarCsvButton.addActionListener(e -> listener.aoClicarImportarCsv());
+        importarPdfButton.addActionListener(e -> listener.aoClicarImportarPdf());
+
+        actionsPanel.add(importarCsvButton);
+        actionsPanel.add(importarPdfButton);
+        actionsPanel.add(refreshButton);
+
+        panel.add(filterPanel, BorderLayout.WEST);
+        panel.add(actionsPanel, BorderLayout.EAST);
+
+        return panel;
+    }
+
+    private JPanel createProdutoListPanel() {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBorder(BorderFactory.createTitledBorder("Produtos Cadastrados"));
+
+        panel.add(createFilterAndActionsPanel(), BorderLayout.NORTH);
+
+        produtoTable.setRowSorter(new TableRowSorter<>(produtoTableModel));
+        produtoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        produtoTable.setComponentPopupMenu(createProdutoContextMenu());
+        produtoTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Point point = e.getPoint();
+                int row = produtoTable.rowAtPoint(point);
+                if (row != -1) {
+                    produtoTable.setRowSelectionInterval(row, row);
+                }
+            }
+        });
+
+        produtoTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                if (produtoTable.getSelectedRow() != -1) {
+                    // CORRIGIDO: Usada a variável 'produtoTable' em vez de 'table'
+                    int modelRow = produtoTable.convertRowIndexToModel(produtoTable.getSelectedRow());
+                    int produtoId = (int) produtoTableModel.getValueAt(modelRow, 0);
+                    listener.aoSelecionarProduto(produtoId);
+                } else {
+                    limparPainelDeDetalhes();
+                }
+            }
+        });
+        panel.add(new JScrollPane(produtoTable), BorderLayout.CENTER);
+
+        JPanel southPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        novoProdutoButton.addActionListener(e -> listener.aoClicarNovoProduto());
+        editProdutoButton.addActionListener(e -> listener.aoClicarEditarProduto());
+        toggleStatusButton.addActionListener(e -> listener.aoAlternarStatusDoProduto());
+        showInactiveButton.addActionListener(e -> listener.aoCarregarProdutos());
+
+        buttonPanel.add(novoProdutoButton);
+        buttonPanel.add(editProdutoButton);
+        buttonPanel.add(toggleStatusButton);
+        southPanel.add(buttonPanel, BorderLayout.CENTER);
+        southPanel.add(showInactiveButton, BorderLayout.EAST);
+        panel.add(southPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    @Override
+    public File mostrarSeletorDeFicheiroCsv() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecionar Ficheiro CSV para Importação");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Ficheiros CSV", "csv"));
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    @Override
+    public File mostrarSeletorDeFicheiroPdf() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecionar Ficheiro PDF para Importação");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Ficheiros PDF", "pdf"));
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    @Override
+    public void setFiltroDeTexto(String texto) {
+        if (!filtroTexto.getText().equals(texto)) {
+            filtroTexto.setText(texto);
+        }
+    }
+
+    @Override
+    public void aplicarFiltroNaTabela(String texto) {
+        TableRowSorter<DefaultTableModel> sorter = (TableRowSorter<DefaultTableModel>) produtoTable.getRowSorter();
+        if (texto != null && !texto.trim().isEmpty()) {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + texto));
+        } else {
+            sorter.setRowFilter(null);
+        }
     }
 
     private JPopupMenu createProdutoContextMenu() {
@@ -103,70 +233,6 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
         contextMenu.add(loteItem);
 
         return contextMenu;
-    }
-
-    private JPanel createProdutoListPanel() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Produtos Cadastrados"));
-
-        produtoTable.setRowSorter(new TableRowSorter<>(produtoTableModel));
-        produtoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        produtoTable.setComponentPopupMenu(createProdutoContextMenu());
-        produtoTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                Point point = e.getPoint();
-                int row = produtoTable.rowAtPoint(point);
-                if (row != -1) {
-                    produtoTable.setRowSelectionInterval(row, row);
-                }
-            }
-        });
-
-        produtoTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                if (produtoTable.getSelectedRow() != -1) {
-                    int modelRow = produtoTable.convertRowIndexToModel(produtoTable.getSelectedRow());
-                    int produtoId = (int) produtoTableModel.getValueAt(modelRow, 0);
-                    listener.aoSelecionarProduto(produtoId);
-                } else {
-                    limparPainelDeDetalhes();
-                }
-            }
-        });
-        panel.add(new JScrollPane(produtoTable), BorderLayout.CENTER);
-
-        JPanel southPanel = new JPanel(new BorderLayout());
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-        novoProdutoButton.addActionListener(e -> listener.aoClicarNovoProduto());
-        importarCsvButton.addActionListener(e -> listener.aoClicarImportarCsv());
-        editProdutoButton.addActionListener(e -> listener.aoClicarEditarProduto());
-        toggleStatusButton.addActionListener(e -> listener.aoAlternarStatusDoProduto());
-        showInactiveButton.addActionListener(e -> listener.aoCarregarProdutos());
-
-        buttonPanel.add(novoProdutoButton);
-        buttonPanel.add(importarCsvButton);
-        buttonPanel.add(editProdutoButton);
-        buttonPanel.add(toggleStatusButton);
-        southPanel.add(buttonPanel, BorderLayout.CENTER);
-        southPanel.add(showInactiveButton, BorderLayout.EAST);
-        panel.add(southPanel, BorderLayout.SOUTH);
-
-        return panel;
-    }
-
-    @Override
-    public File mostrarSeletorDeFicheiroCsv() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecionar Ficheiro CSV para Importação");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Ficheiros CSV", "csv"));
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            return fileChooser.getSelectedFile();
-        }
-        return null;
     }
 
     private JPanel createDetalhesPanel() {

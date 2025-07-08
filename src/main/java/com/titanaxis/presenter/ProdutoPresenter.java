@@ -65,6 +65,22 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         worker.execute();
     }
 
+    // NOVO MÉTODO
+    @Override
+    public void aoClicarImportarPdf() {
+        // Lógica para PDF (atualmente um placeholder)
+        File ficheiro = view.mostrarSeletorDeFicheiroPdf();
+        if (ficheiro != null) {
+            view.mostrarMensagem("Funcionalidade Futura", "A importação de produtos a partir de PDF será implementada numa versão futura.", true);
+        }
+    }
+
+    // NOVO MÉTODO
+    @Override
+    public void aoFiltrarTexto(String texto) {
+        view.aplicarFiltroNaTabela(texto);
+    }
+
     @Override
     public void aoCarregarProdutos() {
         try {
