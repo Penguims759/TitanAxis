@@ -51,6 +51,18 @@ public class AnalyticsService {
         return vendas.stream().mapToDouble(Venda::getValorTotal).sum();
     }
 
+    // NOVO MÉTODO
+    public double getVendasPorVendedorNoPeriodo(int usuarioId, LocalDate start, LocalDate end) throws PersistenciaException {
+        List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
+                vendaRepository.findVendasBetweenDates(start.atStartOfDay(), end.atTime(LocalTime.MAX), em));
+
+        return vendas.stream()
+                .filter(v -> v.getUsuario() != null && v.getUsuario().getId() == usuarioId)
+                .mapToDouble(Venda::getValorTotal)
+                .sum();
+    }
+
+
     public long getNovosClientes(LocalDate start, LocalDate end) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.countNewClientesBetweenDates(start.atStartOfDay(), end.atTime(LocalTime.MAX), em));

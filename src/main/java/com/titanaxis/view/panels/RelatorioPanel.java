@@ -5,6 +5,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.view.dialogs.ComissaoRelatorioDialog;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -24,7 +25,7 @@ public class RelatorioPanel extends JPanel {
     private final RelatorioService relatorioService;
     private static final Logger logger = AppLogger.getLogger();
 
-    private final JButton inventarioCsvButton, inventarioPdfButton, vendasCsvButton, vendasPdfButton;
+    private final JButton inventarioCsvButton, inventarioPdfButton, vendasCsvButton, vendasPdfButton, comissoesButton;
 
     public RelatorioPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
@@ -33,6 +34,7 @@ public class RelatorioPanel extends JPanel {
         inventarioPdfButton = new JButton("Gerar PDF");
         vendasCsvButton = new JButton("Gerar CSV");
         vendasPdfButton = new JButton("Gerar PDF");
+        comissoesButton = new JButton("Gerar Relatório de Comissões"); // NOVO
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -63,8 +65,30 @@ public class RelatorioPanel extends JPanel {
         vendasPanel.add(vendasPdfButton);
         centerPanel.add(vendasPanel, gbc);
 
+        // NOVO PAINEL
+        JPanel comissoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        comissoesPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Comissões"));
+        comissoesButton.addActionListener(e -> gerarRelatorioComissoes());
+        comissoesPanel.add(comissoesButton);
+        centerPanel.add(comissoesPanel, gbc);
+
         add(centerPanel, BorderLayout.CENTER);
     }
+
+    private void gerarRelatorioComissoes() {
+        ComissaoRelatorioDialog dialog = new ComissaoRelatorioDialog((Frame) SwingUtilities.getWindowAncestor(this));
+        dialog.setVisible(true);
+
+        if (dialog.isConfirmado()) {
+            LocalDate inicio = dialog.getDataInicio().orElse(LocalDate.now().withDayOfMonth(1));
+            LocalDate fim = dialog.getDataFim().orElse(LocalDate.now());
+
+            // Lógica de geração em background
+            // ... (A ser implementada)
+            UIMessageUtil.showInfoMessage(this, "Funcionalidade de geração de relatório de comissões a ser implementada.", "Aviso");
+        }
+    }
+
 
     private void gerarRelatorioInventarioCsv() {
         JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", "Arquivo CSV (*.csv)");
@@ -204,6 +228,7 @@ public class RelatorioPanel extends JPanel {
         inventarioPdfButton.setEnabled(ativado);
         vendasCsvButton.setEnabled(ativado);
         vendasPdfButton.setEnabled(ativado);
+        comissoesButton.setEnabled(ativado); // NOVO
         setCursor(ativado ? Cursor.getDefaultCursor() : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 

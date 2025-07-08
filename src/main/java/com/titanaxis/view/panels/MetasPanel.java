@@ -4,6 +4,7 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MetaVenda;
 import com.titanaxis.model.Usuario;
+import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.FinanceiroService;
 import com.titanaxis.util.UIMessageUtil;
@@ -11,8 +12,10 @@ import com.titanaxis.view.DashboardFrame;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -21,8 +24,10 @@ import java.util.Locale;
 public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
 
     private final FinanceiroService financeiroService;
+    private final AnalyticsService analyticsService;
     private final AuthService authService;
     private final DefaultTableModel tableModel;
+    private final JTable table;
     private final JComboBox<Usuario> usuarioComboBox;
     private final JSpinner mesSpinner;
     private final JSpinner anoSpinner;
@@ -30,11 +35,21 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
 
     public MetasPanel(AppContext appContext) {
         this.financeiroService = appContext.getFinanceiroService();
+        this.analyticsService = appContext.getAnalyticsService();
         this.authService = appContext.getAuthService();
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createTitledBorder("Gestão de Metas de Venda"));
 
-        tableModel = new DefaultTableModel(new String[]{"ID", "Utilizador", "Período (Ano/Mês)", "Valor da Meta"}, 0);
+        tableModel = new DefaultTableModel(new String[]{"ID", "Utilizador", "Período", "Meta", "Vendido", "Progresso"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        table = new JTable(tableModel);
+        // Aplicar o renderer customizado na coluna de progresso
+        table.getColumnModel().getColumn(5).setCellRenderer(new ProgressRenderer());
+
         usuarioComboBox = new JComboBox<>();
         mesSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getMonthValue(), 1, 12, 1));
         anoSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getYear(), 2020, 2100, 1));
@@ -45,7 +60,7 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     private void initComponents() {
-        add(new JScrollPane(new JTable(tableModel)), BorderLayout.CENTER);
+        add(new JScrollPane(table), BorderLayout.CENTER);
         add(createFormPanel(), BorderLayout.SOUTH);
     }
 
@@ -77,11 +92,20 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
             for (MetaVenda meta : metas) {
+                YearMonth periodo = YearMonth.parse(meta.getAnoMes());
+                LocalDate inicioPeriodo = periodo.atDay(1);
+                LocalDate fimPeriodo = periodo.atEndOfMonth();
+
+                double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), inicioPeriodo, fimPeriodo);
+                double progresso = meta.getValorMeta() > 0 ? (valorVendido / meta.getValorMeta()) * 100 : 0;
+
                 tableModel.addRow(new Object[]{
                         meta.getId(),
                         meta.getUsuario().getNomeUsuario(),
                         meta.getAnoMes(),
-                        currencyFormat.format(meta.getValorMeta())
+                        currencyFormat.format(meta.getValorMeta()),
+                        currencyFormat.format(valorVendido),
+                        (int) Math.round(progresso) // Passa o percentual para a barra de progresso
                 });
             }
         } catch (PersistenciaException e) {
@@ -118,6 +142,21 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
             UIMessageUtil.showErrorMessage(this, "Valor da meta inválido.", "Erro de Formato");
         } catch (Exception e) {
             UIMessageUtil.showErrorMessage(this, "Erro ao salvar meta: " + e.getMessage(), "Erro");
+        }
+    }
+
+    // Classe interna para renderizar a barra de progresso
+    private static class ProgressRenderer extends JProgressBar implements TableCellRenderer {
+        public ProgressRenderer() {
+            super(0, 100);
+            setStringPainted(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            int progress = (value instanceof Number) ? ((Number) value).intValue() : 0;
+            setValue(progress);
+            return this;
         }
     }
 }

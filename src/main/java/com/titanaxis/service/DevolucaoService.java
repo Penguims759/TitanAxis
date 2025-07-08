@@ -37,6 +37,13 @@ public class DevolucaoService {
 
                 criarMovimentoEstoque(em, ator, lote, itemDevolvido.getQuantidadeDevolvida(), devolucaoSalva.getId());
             }
+
+            // Adiciona crédito ao cliente, se houver
+            if (devolucao.getVenda().getCliente() != null && devolucao.getValorEstornado() > 0) {
+                Cliente cliente = em.find(Cliente.class, devolucao.getVenda().getCliente().getId());
+                cliente.adicionarCredito(devolucao.getValorEstornado());
+                em.merge(cliente);
+            }
         });
     }
 
