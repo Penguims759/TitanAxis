@@ -3,7 +3,7 @@ package com.titanaxis.service.ai.flows;
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Categoria;
-import com.titanaxis.model.Produto; // Import necessário
+import com.titanaxis.model.Produto;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.CategoriaRepository;
@@ -57,7 +57,6 @@ public class CreateProductFlow extends AbstractConversationFlow {
                     categoriaRepository.findByNome(nomeCategoria, em)
             ).orElseThrow(() -> new IllegalStateException("A categoria validada não foi encontrada."));
 
-            // Cria um objeto Produto para passar para a ação
             Produto novoProduto = new Produto(nome, "", preco, categoria);
 
             Map<String, Object> actionParams = new HashMap<>();
@@ -65,7 +64,7 @@ public class CreateProductFlow extends AbstractConversationFlow {
             actionParams.put("preco", preco);
             actionParams.put("categoria", categoria);
 
-            // NOVO: Adiciona a entidade criada para que seja guardada no contexto
+            // Coloca a entidade criada nos dados para ser guardada no contexto pelo serviço
             conversationData.put("foundEntity", novoProduto);
 
             return new AssistantResponse(

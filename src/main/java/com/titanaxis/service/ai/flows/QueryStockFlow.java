@@ -1,3 +1,4 @@
+// Conteúdo já fornecido e correto na resposta anterior
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -9,7 +10,6 @@ import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
-import com.titanaxis.util.StringUtil;
 
 import java.util.Map;
 import java.util.Optional;
@@ -35,30 +35,23 @@ public class QueryStockFlow implements ConversationFlow {
         String productName = (String) data.get("entity");
 
         if (productName == null) {
-            if (data.containsKey("askedForProduct")) {
-                productName = userInput;
-            } else {
-                data.put("askedForProduct", true);
-                return new AssistantResponse("Qual produto você gostaria de consultar o stock?", Action.AWAITING_INFO, null);
-            }
+            // Se a entidade não foi fornecida, o fluxo precisa de perguntar.
+            return new AssistantResponse("De qual produto você gostaria de ver o stock?", Action.AWAITING_INFO, null);
         }
 
         try {
-            final String finalProductName = productName;
             Optional<Produto> produtoOpt = transactionService.executeInTransactionWithResult(
-                    em -> produtoRepository.findByNome(finalProductName, em)
+                    em -> produtoRepository.findByNome(productName, em)
             );
 
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();
-                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
-                data.put("foundEntity", produto);
+                data.put("foundEntity", produto); // Guarda a entidade encontrada para o contexto
                 int totalStock = produto.getQuantidadeTotal();
                 return new AssistantResponse("O stock atual do produto '" + produto.getNome() + "' é de " + totalStock + " unidades.");
             } else {
-                return new AssistantResponse("Não consegui encontrar o produto '" + finalProductName + "'. Por favor, verifique o nome.");
+                return new AssistantResponse("Não consegui encontrar o produto '" + productName + "'. Por favor, verifique o nome.");
             }
-
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados. Tente novamente.");
         }

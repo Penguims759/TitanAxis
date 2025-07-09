@@ -1,3 +1,4 @@
+// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/service/ai/flows/StartSaleFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -8,7 +9,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
-import com.titanaxis.util.StringUtil;
+import com.titanaxis.service.ai.ConversationFlow;
 
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class StartSaleFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("clientName", new Step(
                 "Para qual cliente é a venda? (Opcional, pode deixar em branco)",
-                this::isClientNameValid,
+                this::isClientNameValidOrEmpty,
                 "Cliente não encontrado. Verifique o nome ou deixe em branco para continuar."
         ));
     }
@@ -55,7 +56,6 @@ public class StartSaleFlow extends AbstractConversationFlow {
         if (clientName == null || clientName.trim().isEmpty()) {
             return new AssistantResponse("Ok, a abrir o painel de vendas.", Action.UI_NAVIGATE, Map.of("destination", "Vendas"));
         }
-
         return validateAndFinish(clientName, conversationData);
     }
 
@@ -65,9 +65,9 @@ public class StartSaleFlow extends AbstractConversationFlow {
                     clienteRepository.findByNome(clientName, em));
 
             if (clienteOpt.isPresent()) {
-                data.put("cliente", clienteOpt.get());
-                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
-                data.put("foundEntity", clienteOpt.get());
+                Cliente cliente = clienteOpt.get();
+                data.put("cliente", cliente);
+                data.put("foundEntity", cliente);
                 return new AssistantResponse(
                         "Ok, a iniciar a venda para o cliente " + clientName,
                         Action.START_SALE_FOR_CLIENT,
@@ -81,7 +81,7 @@ public class StartSaleFlow extends AbstractConversationFlow {
         }
     }
 
-    private boolean isClientNameValid(String name) {
+    private boolean isClientNameValidOrEmpty(String name) {
         if (name == null || name.trim().isEmpty()) {
             return true;
         }

@@ -1,6 +1,7 @@
+// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/service/ai/flows/CreateClientFlow.java
 package com.titanaxis.service.ai.flows;
 
-import com.titanaxis.model.Cliente; // Import necessário
+import com.titanaxis.model.Cliente;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
@@ -24,8 +25,8 @@ public class CreateClientFlow extends AbstractConversationFlow {
         String nome = (String) conversationData.get("nome");
         String contato = (String) conversationData.get("contato");
 
-        // NOVO: Adiciona a entidade criada para que seja guardada no contexto
         Cliente novoCliente = new Cliente(nome, contato, "");
+        // Coloca a entidade criada nos dados para ser guardada no contexto pelo serviço
         conversationData.put("foundEntity", novoCliente);
 
         return new AssistantResponse(

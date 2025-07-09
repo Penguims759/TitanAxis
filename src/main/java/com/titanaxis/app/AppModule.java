@@ -1,4 +1,4 @@
-// src/main/java/com/titanaxis/app/AppModule.java
+// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/app/AppModule.java
 package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
@@ -11,10 +11,8 @@ import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.flows.*;
 
 public class AppModule extends AbstractModule {
-
     @Override
     protected void configure() {
-        // --- Repositórios ---
         bind(AuditoriaRepository.class).to(AuditoriaRepositoryImpl.class).in(Singleton.class);
         bind(UsuarioRepository.class).to(UsuarioRepositoryImpl.class).in(Singleton.class);
         bind(CategoriaRepository.class).to(CategoriaRepositoryImpl.class).in(Singleton.class);
@@ -26,7 +24,6 @@ public class AppModule extends AbstractModule {
         bind(DevolucaoRepository.class).to(DevolucaoRepositoryImpl.class).in(Singleton.class);
         bind(FinanceiroRepository.class).to(FinanceiroRepositoryImpl.class).in(Singleton.class);
 
-        // --- Serviços ---
         bind(TransactionService.class).in(Singleton.class);
         bind(AuthService.class).in(Singleton.class);
         bind(CategoriaService.class).in(Singleton.class);
@@ -41,10 +38,7 @@ public class AppModule extends AbstractModule {
         bind(DevolucaoService.class).in(Singleton.class);
         bind(FinanceiroService.class).in(Singleton.class);
 
-        // --- Lógica do Assistente IA ---
         bind(AIAssistantService.class).in(Singleton.class);
-
-        // CORREÇÃO: Adiciona o Multibinder para agrupar todas as implementações de ConversationFlow.
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
         flowBinder.addBinding().to(StartSaleFlow.class);
         flowBinder.addBinding().to(CreateUserFlow.class);
@@ -56,7 +50,7 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(AdjustStockFlow.class);
         flowBinder.addBinding().to(UpdateProductFlow.class);
         flowBinder.addBinding().to(QueryStockFlow.class);
-        flowBinder.addBinding().to(QueryClientFlow.class);
+        flowBinder.addBinding().to(QueryClientDetailsFlow.class);
         flowBinder.addBinding().to(QueryProductLotsFlow.class);
         flowBinder.addBinding().to(QueryMovementHistoryFlow.class);
         flowBinder.addBinding().to(GenerateReportFlow.class);
@@ -66,8 +60,6 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(QueryTopClientsFlow.class);
         flowBinder.addBinding().to(QueryExpiringLotsFlow.class);
 
-
-        // --- Contexto da Aplicação ---
         bind(AppContext.class).in(Singleton.class);
     }
 }

@@ -1,3 +1,4 @@
+// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/service/ai/flows/ManageStockFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.titanaxis.model.ai.Action;
@@ -16,7 +17,6 @@ public class ManageStockFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        // Verifica se a entidade (nome do produto) já veio do contexto
         if (conversationData.get("entity") != null && !conversationData.containsKey("productName")) {
             conversationData.put("productName", conversationData.get("entity"));
         }

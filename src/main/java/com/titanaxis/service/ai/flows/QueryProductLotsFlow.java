@@ -1,3 +1,4 @@
+// Conteúdo já fornecido e correto na resposta anterior
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -10,7 +11,6 @@ import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
-import com.titanaxis.util.StringUtil;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,23 +40,16 @@ public class QueryProductLotsFlow implements ConversationFlow {
         String productName = (String) data.get("entity");
 
         if (productName == null) {
-            if (data.containsKey("askedForProduct")) {
-                productName = userInput;
-            } else {
-                data.put("askedForProduct", true);
-                return new AssistantResponse("De qual produto você gostaria de ver os lotes?", Action.AWAITING_INFO, null);
-            }
+            return new AssistantResponse("De qual produto você gostaria de ver os lotes?", Action.AWAITING_INFO, null);
         }
 
         try {
-            final String finalProductName = productName;
             Optional<Produto> produtoOpt = transactionService.executeInTransactionWithResult(
-                    em -> produtoRepository.findByNome(finalProductName, em)
+                    em -> produtoRepository.findByNome(productName, em)
             );
 
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();
-                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
                 data.put("foundEntity", produto);
                 List<Lote> lotes = produto.getLotes();
 
@@ -75,9 +68,8 @@ public class QueryProductLotsFlow implements ConversationFlow {
 
                 return new AssistantResponse("Encontrei estes lotes para o produto '" + produto.getNome() + "':\n" + lotesDetails);
             } else {
-                return new AssistantResponse("Não consegui encontrar o produto '" + finalProductName + "'.");
+                return new AssistantResponse("Não consegui encontrar o produto '" + productName + "'.");
             }
-
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados.");
         }
