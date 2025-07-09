@@ -26,8 +26,8 @@ public class CreateUserFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        if (!authService.isAdmin()) {
-            return new AssistantResponse("Desculpe, apenas administradores podem criar novos utilizadores.");
+        if (!authService.isGerente()) { // Apenas Gerentes ou Admins podem criar utilizadores
+            return new AssistantResponse("Desculpe, apenas gestores ou administradores podem criar novos utilizadores.");
         }
         return super.process(userInput, conversationData);
     }

@@ -44,6 +44,13 @@ public class UpdateProductFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
+        // Verifica se a entidade (nome do produto) já veio do contexto
+        if (conversationData.get("entity") != null && !conversationData.containsKey("productName")) {
+            if(isProdutoValido((String) conversationData.get("entity"))){
+                conversationData.put("productName", conversationData.get("entity"));
+            }
+        }
+
         // Primeiro, executa a lógica padrão de recolha de dados
         AssistantResponse response = super.process(userInput, conversationData);
 
@@ -93,7 +100,6 @@ public class UpdateProductFlow extends AbstractConversationFlow {
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
-        // Esta lógica é agora tratada pelo `process` e sub-manipuladores, mas podemos ter um fallback
         if ("sim".equalsIgnoreCase((String) conversationData.get("confirmation"))) {
             return new AssistantResponse("Ok, a atualizar o produto...", Action.DIRECT_UPDATE_PRODUCT, conversationData);
         }

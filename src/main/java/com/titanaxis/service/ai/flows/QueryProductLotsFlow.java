@@ -56,6 +56,8 @@ public class QueryProductLotsFlow implements ConversationFlow {
 
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();
+                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
+                data.put("foundEntity", produto);
                 List<Lote> lotes = produto.getLotes();
 
                 if (lotes.isEmpty()) {

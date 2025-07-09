@@ -1,5 +1,6 @@
 package com.titanaxis.service.ai.flows;
 
+import com.titanaxis.model.Cliente; // Import necessário
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
@@ -22,6 +23,10 @@ public class CreateClientFlow extends AbstractConversationFlow {
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         String nome = (String) conversationData.get("nome");
         String contato = (String) conversationData.get("contato");
+
+        // NOVO: Adiciona a entidade criada para que seja guardada no contexto
+        Cliente novoCliente = new Cliente(nome, contato, "");
+        conversationData.put("foundEntity", novoCliente);
 
         return new AssistantResponse(
                 "Entendido! A criar o cliente '" + nome + "'.",

@@ -3,7 +3,7 @@ package com.titanaxis.service.ai.flows;
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Cliente;
-import com.titanaxis.model.ai.Action; // <-- IMPORTAÇÃO ADICIONADA
+import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
@@ -32,13 +32,11 @@ public class QueryClientFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        // O nome do cliente agora é passado através do mapa de dados pelo AIAssistantService
         String clientName = (String) data.get("entity");
 
         if (clientName == null) {
-            // Se a entidade não foi extraída, pergunta ao utilizador.
             if (data.containsKey("askedForClient")) {
-                clientName = userInput; // Utilizador respondeu à pergunta
+                clientName = userInput;
             } else {
                 data.put("askedForClient", true);
                 return new AssistantResponse("Qual cliente você gostaria de consultar?", Action.AWAITING_INFO, null);
@@ -54,6 +52,8 @@ public class QueryClientFlow implements ConversationFlow {
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
+                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
+                data.put("foundEntity", cliente);
                 String details = String.format(
                         "Aqui estão os detalhes do cliente '%s':\n- Nome: %s\n- Contato: %s\n- Endereço: %s",
                         cliente.getNome(),
@@ -69,10 +69,5 @@ public class QueryClientFlow implements ConversationFlow {
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados. Tente novamente.");
         }
-    }
-
-    private boolean isInitialCommand(String userInput) {
-        String normalized = StringUtil.normalize(userInput);
-        return normalized.contains("detalhes") && normalized.contains("cliente");
     }
 }

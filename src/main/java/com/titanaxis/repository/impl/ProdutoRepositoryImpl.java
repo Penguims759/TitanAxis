@@ -79,7 +79,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         });
     }
 
-    // --- MÉTODOS DE CONSULTA (sem alterações) ---
     @Override
     public List<Produto> findAll(EntityManager em) {
         return findProductsByStatus(em, true);
@@ -91,6 +90,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     }
 
     private List<Produto> findProductsByStatus(EntityManager em, boolean onlyActive) {
+        // ALTERAÇÃO: Adicionado LEFT JOIN FETCH p.lotes para carregar os lotes proativamente
         String jpql = "SELECT DISTINCT p FROM Produto p LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.lotes";
         if (onlyActive) {
             jpql += " WHERE p.ativo = true";
@@ -102,6 +102,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     @Override
     public Optional<Produto> findById(Integer id, EntityManager em) {
         try {
+            // ALTERAÇÃO: Adicionado LEFT JOIN FETCH p.lotes para carregar os lotes proativamente
             TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.lotes WHERE p.id = :id", Produto.class);
             query.setParameter("id", id);
             return Optional.ofNullable(query.getSingleResult());
@@ -112,15 +113,17 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public Optional<Lote> findLoteById(int loteId, EntityManager em) {
-        // ALTERADO: Adicionado FETCH JOIN para buscar o Produto associado ao Lote
         TypedQuery<Lote> query = em.createQuery("SELECT l FROM Lote l LEFT JOIN FETCH l.produto WHERE l.id = :loteId", Lote.class);
         query.setParameter("loteId", loteId);
-        return Optional.ofNullable(query.getSingleResult());
+        try { // Adicionado try-catch para robustez
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (jakarta.persistence.NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public List<Lote> findLotesByProdutoId(int produtoId, EntityManager em) {
-        // ALTERADO: Adicionado FETCH JOIN para buscar o Produto associado ao Lote
         TypedQuery<Lote> query = em.createQuery("SELECT l FROM Lote l LEFT JOIN FETCH l.produto WHERE l.produto.id = :produtoId ORDER BY l.dataValidade ASC", Lote.class);
         query.setParameter("produtoId", produtoId);
         return query.getResultList();
@@ -129,7 +132,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     @Override
     public Optional<Produto> findByNome(String nome, EntityManager em) {
         try {
-            TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p WHERE p.nome = :nome", Produto.class);
+            // ALTERAÇÃO: Adicionado LEFT JOIN FETCH para carregar as coleções necessárias
+            TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p LEFT JOIN FETCH p.lotes WHERE p.nome = :nome", Produto.class);
             query.setParameter("nome", nome);
             return Optional.of(query.getSingleResult());
         } catch (jakarta.persistence.NoResultException e) {
@@ -139,7 +143,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public List<Produto> findByNomeContaining(String termo, EntityManager em) {
-        TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p WHERE LOWER(p.nome) LIKE LOWER(:termo)", Produto.class);
+        // ALTERAÇÃO: Adicionado LEFT JOIN FETCH para carregar as coleções
+        TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p LEFT JOIN FETCH p.lotes WHERE LOWER(p.nome) LIKE LOWER(:termo)", Produto.class);
         query.setParameter("termo", "%" + termo + "%");
         return query.getResultList();
     }

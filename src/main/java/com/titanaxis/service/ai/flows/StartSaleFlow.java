@@ -31,15 +31,12 @@ public class StartSaleFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        // Tenta obter o nome do cliente que foi pré-extraído pelo AIAssistantService.
         String clientName = (String) conversationData.get("entity");
 
         if (clientName != null) {
-            // Se um nome foi extraído, o fluxo tenta validá-lo e terminar imediatamente.
             return validateAndFinish(clientName, conversationData);
         }
 
-        // Se nenhum cliente foi fornecido na frase inicial, continua com os passos normais.
         return super.process(userInput, conversationData);
     }
 
@@ -47,7 +44,7 @@ public class StartSaleFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("clientName", new Step(
                 "Para qual cliente é a venda? (Opcional, pode deixar em branco)",
-                this::isClientNameValid, // A validação agora permite uma string vazia.
+                this::isClientNameValid,
                 "Cliente não encontrado. Verifique o nome ou deixe em branco para continuar."
         ));
     }
@@ -55,12 +52,10 @@ public class StartSaleFlow extends AbstractConversationFlow {
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         String clientName = (String) conversationData.get("clientName");
-        // Se o utilizador não digitou um nome, o fluxo simplesmente abre o painel de vendas.
         if (clientName == null || clientName.trim().isEmpty()) {
             return new AssistantResponse("Ok, a abrir o painel de vendas.", Action.UI_NAVIGATE, Map.of("destination", "Vendas"));
         }
 
-        // Se um nome foi fornecido, o fluxo valida-o.
         return validateAndFinish(clientName, conversationData);
     }
 
@@ -71,14 +66,14 @@ public class StartSaleFlow extends AbstractConversationFlow {
 
             if (clienteOpt.isPresent()) {
                 data.put("cliente", clienteOpt.get());
+                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
+                data.put("foundEntity", clienteOpt.get());
                 return new AssistantResponse(
                         "Ok, a iniciar a venda para o cliente " + clientName,
                         Action.START_SALE_FOR_CLIENT,
                         data
                 );
             } else {
-                // Se o cliente não existe, pergunta se o utilizador quer criá-lo.
-                // Esta lógica poderia ser expandida para iniciar o CreateClientFlow.
                 return new AssistantResponse("Cliente '" + clientName + "' não encontrado. Gostaria de o criar primeiro?");
             }
         } catch (PersistenciaException e) {
@@ -87,11 +82,9 @@ public class StartSaleFlow extends AbstractConversationFlow {
     }
 
     private boolean isClientNameValid(String name) {
-        // Permite que o campo seja vazio para vendas sem cliente definido.
         if (name == null || name.trim().isEmpty()) {
             return true;
         }
-        // Se um nome for fornecido, verifica se ele existe.
         try {
             return transactionService.executeInTransactionWithResult(em ->
                     clienteRepository.findByNome(name, em)

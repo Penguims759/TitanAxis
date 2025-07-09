@@ -56,6 +56,8 @@ public class QueryClientHistoryFlow implements ConversationFlow {
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
+                // NOVO: Coloca a entidade encontrada nos dados para ser guardada no contexto
+                conversationData.put("foundEntity", cliente);
                 String history = analyticsService.getClientPurchaseHistory(cliente.getId());
                 return new AssistantResponse(history);
             } else {

@@ -29,7 +29,6 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Categoria '%s' (ID: %d) foi %s.",
                     categoriaSalva.getNome(), categoriaSalva.getId(), isUpdate ? "atualizada" : "criada");
-            // CORREÇÃO: Passar o EntityManager 'em'
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Categoria", detalhes, em);
         }
         return categoriaSalva;
@@ -41,7 +40,6 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
         categoriaOpt.ifPresent(categoria -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Categoria '%s' (ID: %d) foi eliminada.", categoria.getNome(), id);
-                // CORREÇÃO: Passar o EntityManager 'em'
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", detalhes, em);
             }
             em.remove(categoria);
@@ -56,7 +54,8 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
     @Override
     public Optional<Categoria> findByNome(String nome, EntityManager em) {
         try {
-            TypedQuery<Categoria> query = em.createQuery("SELECT c FROM Categoria c WHERE c.nome = :nome", Categoria.class);
+            // ALTERAÇÃO: Adicionado LEFT JOIN FETCH para carregar a lista de produtos
+            TypedQuery<Categoria> query = em.createQuery("SELECT c FROM Categoria c LEFT JOIN FETCH c.produtos WHERE c.nome = :nome", Categoria.class);
             query.setParameter("nome", nome);
             return Optional.of(query.getSingleResult());
         } catch (NoResultException e) {
@@ -66,11 +65,13 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
     @Override
     public List<Categoria> findAll(EntityManager em) {
-        return em.createQuery("SELECT c FROM Categoria c ORDER BY c.nome", Categoria.class).getResultList();
+        // ALTERAÇÃO: Adicionado LEFT JOIN FETCH para carregar os produtos de forma proativa
+        return em.createQuery("SELECT c FROM Categoria c LEFT JOIN FETCH c.produtos ORDER BY c.nome", Categoria.class).getResultList();
     }
 
     @Override
     public List<Categoria> findAllWithProductCount(EntityManager em) {
+        // Esta consulta não carrega a entidade completa, apenas constrói um DTO, então não precisa de fetch.
         String jpql = "SELECT new com.titanaxis.model.Categoria(c.id, c.nome, SIZE(c.produtos)) " +
                 "FROM Categoria c ORDER BY c.nome";
         return em.createQuery(jpql, Categoria.class).getResultList();
@@ -78,6 +79,7 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
     @Override
     public List<Categoria> findByNomeContainingWithProductCount(String termo, EntityManager em) {
+        // Esta consulta também não precisa de fetch.
         String jpql = "SELECT new com.titanaxis.model.Categoria(c.id, c.nome, SIZE(c.produtos)) " +
                 "FROM Categoria c WHERE LOWER(c.nome) LIKE LOWER(:termo) ORDER BY c.nome";
         TypedQuery<Categoria> query = em.createQuery(jpql, Categoria.class);

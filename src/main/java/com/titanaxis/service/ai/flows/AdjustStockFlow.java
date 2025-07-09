@@ -15,6 +15,15 @@ public class AdjustStockFlow extends AbstractConversationFlow {
     }
 
     @Override
+    public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
+        // Verifica se a entidade (nome do produto) já veio do contexto
+        if (conversationData.get("entity") != null && !conversationData.containsKey("productName")) {
+            conversationData.put("productName", conversationData.get("entity"));
+        }
+        return super.process(userInput, conversationData);
+    }
+
+    @Override
     protected void defineSteps() {
         steps.put("productName", new Step("Ok, vamos ajustar um estoque. Qual o nome do produto?"));
         steps.put("lotNumber", new Step(data -> "Qual o número do lote para '" + data.get("productName") + "'?"));

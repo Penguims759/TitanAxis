@@ -1,11 +1,13 @@
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException; // <-- A IMPORTAÇÃO NECESSÁRIA
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
+import com.titanaxis.model.Produto; // Import necessário
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.MovimentoRepository;
+import com.titanaxis.repository.ProdutoRepository; // Import necessário
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
@@ -14,18 +16,21 @@ import com.titanaxis.util.StringUtil;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional; // Import necessário
 import java.util.stream.Collectors;
 
 public class QueryMovementHistoryFlow implements ConversationFlow {
 
     private final TransactionService transactionService;
     private final MovimentoRepository movimentoRepository;
+    private final ProdutoRepository produtoRepository; // Repositório de produto
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Inject
-    public QueryMovementHistoryFlow(TransactionService transactionService, MovimentoRepository movimentoRepository) {
+    public QueryMovementHistoryFlow(TransactionService transactionService, MovimentoRepository movimentoRepository, ProdutoRepository produtoRepository) {
         this.transactionService = transactionService;
         this.movimentoRepository = movimentoRepository;
+        this.produtoRepository = produtoRepository;
     }
 
     @Override
@@ -48,12 +53,24 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
 
         try {
             final String finalProductName = productName;
+
+            // Primeiro, encontramos o produto para poder guardá-lo no contexto
+            Optional<Produto> produtoOpt = transactionService.executeInTransactionWithResult(
+                    em -> produtoRepository.findByNome(finalProductName, em)
+            );
+
+            if (produtoOpt.isEmpty()) {
+                return new AssistantResponse("Não encontrei o produto '" + finalProductName + "'.");
+            }
+
+            data.put("foundEntity", produtoOpt.get());
+
             List<MovimentoEstoque> todosMovimentos = transactionService.executeInTransactionWithResult(
                     em -> movimentoRepository.findAll(em)
             );
 
             List<MovimentoEstoque> movimentosProduto = todosMovimentos.stream()
-                    .filter(mov -> StringUtil.normalize(finalProductName).equalsIgnoreCase(StringUtil.normalize(mov.getNomeProduto())))
+                    .filter(mov -> mov.getProduto() != null && finalProductName.equalsIgnoreCase(StringUtil.normalize(mov.getProduto().getNome())))
                     .collect(Collectors.toList());
 
 
@@ -77,10 +94,5 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro ao consultar o histórico. Tente novamente.");
         }
-    }
-
-    private boolean isInitialCommand(String userInput) {
-        String normalized = StringUtil.normalize(userInput);
-        return normalized.contains("historico") && normalized.contains("movimentos");
     }
 }
