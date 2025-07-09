@@ -32,15 +32,19 @@ public class QueryClientFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        String clientName = StringUtil.extractFuzzyValueAfter(userInput, "cliente");
+        // O nome do cliente agora é passado através do mapa de dados pelo AIAssistantService
+        String clientName = (String) data.get("entity");
 
         if (clientName == null) {
-            if (userInput.isEmpty() || isInitialCommand(userInput)) {
-                // Agora isto funciona corretamente
+            // Se a entidade não foi extraída, pergunta ao utilizador.
+            if (data.containsKey("askedForClient")) {
+                clientName = userInput; // Utilizador respondeu à pergunta
+            } else {
+                data.put("askedForClient", true);
                 return new AssistantResponse("Qual cliente você gostaria de consultar?", Action.AWAITING_INFO, null);
             }
-            clientName = userInput;
         }
+
 
         try {
             final String finalClientName = clientName;

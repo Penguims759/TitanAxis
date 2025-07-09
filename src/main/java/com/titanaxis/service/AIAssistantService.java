@@ -58,7 +58,11 @@ public class AIAssistantService {
     }
 
     private AssistantResponse handleNewCommand(String query) {
-        Intent intent = getIntent(query);
+        String normalizedQuery = StringUtil.normalize(query);
+        Intent intent = getIntent(normalizedQuery);
+
+        // Extrai a entidade, se houver um padrão para a intenção detetada
+        Optional<String> entity = intent.extractEntity(normalizedQuery);
 
         switch (intent) {
             case DENY:
@@ -66,12 +70,11 @@ public class AIAssistantService {
             case GREETING:
                 return new AssistantResponse("Olá! Em que posso ajudar?");
             case CHANGE_THEME:
-                return handleChangeTheme(query);
+                return handleChangeTheme(normalizedQuery);
             case NAVIGATE_TO:
-                return handleNavigation(query);
+                return handleNavigation(normalizedQuery);
             case GUIDE_ADD_LOTE:
                 return new AssistantResponse("Claro, vou mostrar-lhe como adicionar um lote.", Action.GUIDE_NAVIGATE_TO_ADD_LOTE, null);
-            // CORRIGIDO: Agora usa a nova intenção e ação
             case GUIDE_ADD_PRODUCT:
                 return new AssistantResponse("Com certeza. Vou mostrar-lhe como adicionar um novo produto.", Action.GUIDE_NAVIGATE_TO_ADD_PRODUCT, null);
         }
@@ -79,15 +82,15 @@ public class AIAssistantService {
         Optional<ConversationFlow> handler = findHandlerFor(intent);
         if (handler.isPresent()) {
             conversationState.startConversation(handler.get());
+            // Se uma entidade foi extraída, já a adicionamos ao estado da conversa
+            entity.ifPresent(e -> conversationState.getCollectedData().put("entity", e));
             return handleOngoingConversation(query);
         }
 
         return new AssistantResponse("Desculpe, não consegui entender o seu pedido. Pode tentar reformular?");
     }
 
-    private Intent getIntent(String query) {
-        String normalizedQuery = StringUtil.normalize(query);
-
+    private Intent getIntent(String normalizedQuery) {
         if (Intent.DENY.getKeywords().stream().anyMatch(normalizedQuery::contains)) return Intent.DENY;
         if (Intent.CONFIRM.getKeywords().stream().anyMatch(normalizedQuery::contains)) return Intent.CONFIRM;
         if (Intent.GREETING.getKeywords().stream().anyMatch(normalizedQuery::contains)) return Intent.GREETING;

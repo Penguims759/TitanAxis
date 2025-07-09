@@ -35,16 +35,15 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        String productName = StringUtil.extractFuzzyValueAfter(userInput, "produto");
-        if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "de");
-        }
+        String productName = (String) data.get("entity");
 
         if (productName == null) {
-            if (userInput.isEmpty() || isInitialCommand(userInput)) {
+            if (data.containsKey("askedForProduct")) {
+                productName = userInput;
+            } else {
+                data.put("askedForProduct", true);
                 return new AssistantResponse("De qual produto você gostaria de ver o histórico de movimentos?", Action.AWAITING_INFO, null);
             }
-            productName = userInput;
         }
 
         try {
@@ -54,7 +53,7 @@ public class QueryMovementHistoryFlow implements ConversationFlow {
             );
 
             List<MovimentoEstoque> movimentosProduto = todosMovimentos.stream()
-                    .filter(mov -> finalProductName.equalsIgnoreCase(StringUtil.normalize(mov.getNomeProduto())))
+                    .filter(mov -> StringUtil.normalize(finalProductName).equalsIgnoreCase(StringUtil.normalize(mov.getNomeProduto())))
                     .collect(Collectors.toList());
 
 

@@ -37,12 +37,9 @@ public class QueryProductLotsFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        String productName = StringUtil.extractFuzzyValueAfter(userInput, "de");
-        if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "lotes");
-        }
+        String productName = (String) data.get("entity");
 
-        if (productName == null || productName.trim().isEmpty()) {
+        if (productName == null) {
             if (data.containsKey("askedForProduct")) {
                 productName = userInput;
             } else {

@@ -1,5 +1,17 @@
-# Arquivos compilados do Maven
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Este ficheiro especifica os ficheiros e diretórios que o Git deve ignorar.#
+# Manter este ficheiro atualizado é essencial para evitar que ficheiros     #
+# desnecessários, como compilações, logs e configurações locais, sejam      #
+# enviados para o repositório.                                              #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# Arquivos de Compilação e Build do Maven
+# O diretório 'target/' é gerado pelo Maven durante o processo de build e contém
+# os artefactos compilados (ex: .jar, .class), que não devem ser versionados.
 target/
+
+# Ficheiros de backup e de estado gerados pelo plugin Maven Release.
+# São ficheiros temporários e específicos do processo de release.
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -8,24 +20,31 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 
-# Arquivos de Log
+# Ficheiros de Log
+# Ignora ficheiros de log, que são gerados dinamicamente pela aplicação
+# e não devem fazer parte do histórico de commits.
 *.log
 logs/
 
-# Arquivos do banco de dados SQLite local
+# Ficheiros de Banco de Dados Local (se aplicável, como SQLite)
+# Mantém a base de dados de desenvolvimento fora do controlo de versão.
 *.db
 *.db-journal
 
-# Arquivos de IDE
-.idea/
-*.iml
-*.ipr
-*.iws
-.classpath
-.project
-.settings/
-.vscode/
+# Ficheiros de Configuração de IDEs
+# Ignora ficheiros e diretórios específicos de ambientes de desenvolvimento
+# para evitar conflitos entre as configurações locais dos programadores.
+.idea/      # IntelliJ IDEA
+*.iml       # IntelliJ IDEA
+*.ipr       # IntelliJ IDEA
+*.iws       # IntelliJ IDEA
+.classpath  # Eclipse
+.project    # Eclipse
+.settings/  # Eclipse
+.vscode/    # Visual Studio Code
 
-# Arquivos do sistema operacional
-.DS_Store
-Thumbs.db
+# Ficheiros do Sistema Operacional
+# Ignora ficheiros de metadados gerados pelo sistema operativo que não
+# são relevantes para o projeto.
+.DS_Store # macOS
+Thumbs.db # Windows

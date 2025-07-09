@@ -1,20 +1,30 @@
-# docker-compose.yml
+# Define a versão do Docker Compose. A versão '3.8' é recomendada por ser moderna e suportar todas as funcionalidades atuais.
 version: '3.8'
 
+# Define os serviços (containers) que compõem a aplicação.
 services:
+  # Nome do serviço do banco de dados.
   titanaxis-db:
+    # Especifica a imagem Docker a ser utilizada. Neste caso, é o MariaDB na versão 11.4.
     image: mariadb:11.4
+    # Define um nome customizado para o container, facilitando a sua identificação.
     container_name: titanaxis-db
+    # Política de reinicialização. 'unless-stopped' garante que o container reinicie automaticamente, a menos que seja parado manualmente.
     restart: unless-stopped
+    # Define as variáveis de ambiente para a configuração inicial do banco de dados.
     environment:
-      MARIADB_ROOT_PASSWORD: root_password_super_secret
-      MARIADB_DATABASE: titanaxis_db
-      MARIADB_USER: titan_user
-      MARIADB_PASSWORD: titanpass
+      MARIADB_ROOT_PASSWORD: root_password_super_secret # Senha para o utilizador root do MariaDB.
+      MARIADB_DATABASE: titanaxis_db                     # Cria uma base de dados com este nome na inicialização.
+      MARIADB_USER: titan_user                           # Cria um novo utilizador com este nome.
+      MARIADB_PASSWORD: titanpass                        # Define a senha para o novo utilizador.
+    # Mapeia a porta do container para a porta do host. Permite aceder ao banco de dados a partir do seu computador em 'localhost:3306'.
     ports:
-      - "3306:3306" # Expõe a porta do container para o seu localhost
+      - "3306:3306"
+    # Define os volumes para persistir os dados. 'mariadb_data' é um volume nomeado que armazena os dados do banco de dados,
+    # garantindo que eles não sejam perdidos quando o container for reiniciado ou recriado.
     volumes:
       - mariadb_data:/var/lib/mysql
 
+# Declaração dos volumes nomeados utilizados pelos serviços.
 volumes:
   mariadb_data:

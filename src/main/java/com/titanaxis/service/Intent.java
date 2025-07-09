@@ -3,7 +3,10 @@ package com.titanaxis.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 public enum Intent {
     // INTENÇÕES DE CRIAÇÃO
@@ -13,22 +16,94 @@ public enum Intent {
     CREATE_CLIENT(List.of("criar cliente", "novo cliente", "adicionar cliente"), List.of()),
     CREATE_FORNECEDOR(List.of("criar fornecedor", "novo fornecedor", "cadastrar fornecedor"), List.of()), // ADICIONADO
 
-    // INTENÇÃO DE VENDA
-    START_SALE(List.of("inicie uma venda", "começar venda", "abrir venda", "nova venda para"), List.of("venda")),
+    // INTENÇÃO DE VENDA - Padrão para capturar o nome do cliente
+    START_SALE(List.of("inicie uma venda", "começar venda", "abrir venda", "nova venda para"), List.of("venda"),
+            Pattern.compile("(?:para|para o cliente)\\s+(.+)")){
+        @Override
+        public Optional<String> extractEntity(String normalizedQuery) {
+            if (this.entityPattern != null) {
+                Matcher matcher = this.entityPattern.matcher(normalizedQuery);
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1).trim());
+                }
+            }
+            return Optional.empty();
+        }
+    },
 
     // INTENÇÕES DE ATUALIZAÇÃO E GESTÃO
     UPDATE_PRODUCT(List.of("alterar produto", "mudar produto", "atualizar produto", "alterar preco", "alterar status"), List.of()),
     MANAGE_STOCK(List.of("adicionar stock", "adicionar unidades", "adicionar ao lote", "gerir stock", "gerir estoque"), List.of("stock", "estoque", "lote")),
     ADJUST_STOCK(List.of("ajustar stock", "ajustar estoque", "corrigir stock", "corrigir estoque"), List.of("ajustar", "corrigir")),
 
-    // INTENÇÕES DE CONSULTA
-    QUERY_STOCK(List.of("qual o stock", "qual o estoque", "ver stock", "ver estoque"), List.of("stock", "estoque")),
-    QUERY_CLIENT_DETAILS(List.of("detalhes do cliente", "ver cliente", "informacoes do cliente"), List.of("cliente")),
-    QUERY_PRODUCT_LOTS(List.of("quais os lotes", "lotes do produto", "ver lotes"), List.of("lote")),
-    QUERY_MOVEMENT_HISTORY(List.of("historico de movimentos", "ver historico"), List.of("historico")),
+    // INTENÇÕES DE CONSULTA - Padrões para capturar o nome do produto/cliente
+    QUERY_STOCK(List.of("qual o stock", "qual o estoque", "ver stock", "ver estoque"), List.of("stock", "estoque"),
+            Pattern.compile("(?:do produto|de|da)\\s+(.+)")){
+        @Override
+        public Optional<String> extractEntity(String normalizedQuery) {
+            if (this.entityPattern != null) {
+                Matcher matcher = this.entityPattern.matcher(normalizedQuery);
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1).trim());
+                }
+            }
+            return Optional.empty();
+        }
+    },
+    QUERY_CLIENT_DETAILS(List.of("detalhes do cliente", "ver cliente", "informacoes do cliente"), List.of("cliente"),
+            Pattern.compile("(?:do cliente|de|da)\\s+(.+)")){
+        @Override
+        public Optional<String> extractEntity(String normalizedQuery) {
+            if (this.entityPattern != null) {
+                Matcher matcher = this.entityPattern.matcher(normalizedQuery);
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1).trim());
+                }
+            }
+            return Optional.empty();
+        }
+    },
+    QUERY_PRODUCT_LOTS(List.of("quais os lotes", "lotes do produto", "ver lotes"), List.of("lote"),
+            Pattern.compile("(?:do produto|de|da)\\s+(.+)")){
+        @Override
+        public Optional<String> extractEntity(String normalizedQuery) {
+            if (this.entityPattern != null) {
+                Matcher matcher = this.entityPattern.matcher(normalizedQuery);
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1).trim());
+                }
+            }
+            return Optional.empty();
+        }
+    },
+    QUERY_MOVEMENT_HISTORY(List.of("historico de movimentos", "ver historico"), List.of("historico"),
+            Pattern.compile("(?:do produto|de|da)\\s+(.+)")){
+        @Override
+        public Optional<String> extractEntity(String normalizedQuery) {
+            if (this.entityPattern != null) {
+                Matcher matcher = this.entityPattern.matcher(normalizedQuery);
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1).trim());
+                }
+            }
+            return Optional.empty();
+        }
+    },
     QUERY_TOP_CLIENTS(List.of("quais os melhores clientes", "top clientes", "ranking de clientes"), List.of("cliente")),
     QUERY_TOP_PRODUCT(List.of("produto mais vendido", "qual o mais vendido"), List.of("vendido")),
-    QUERY_CLIENT_HISTORY(List.of("historico de compras do cliente", "compras do cliente"), List.of("historico")),
+    QUERY_CLIENT_HISTORY(List.of("historico de compras do cliente", "compras do cliente"), List.of("historico"),
+            Pattern.compile("(?:do cliente|de|da)\\s+(.+)")){
+        @Override
+        public Optional<String> extractEntity(String normalizedQuery) {
+            if (this.entityPattern != null) {
+                Matcher matcher = this.entityPattern.matcher(normalizedQuery);
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1).trim());
+                }
+            }
+            return Optional.empty();
+        }
+    },
     QUERY_LOW_STOCK(List.of("baixo estoque", "baixo stock", "pouco estoque", "pouco stock"), List.of()),
     QUERY_EXPIRING_LOTS(List.of("quais lotes estao para vencer", "lotes a vencer"), List.of("vencer", "validade")),
 
@@ -47,14 +122,25 @@ public enum Intent {
 
     private final List<String> phrases;
     private final List<String> coreTerms;
+    protected final Pattern entityPattern; // Protegido para ser acessível na subclasse anônima
 
     Intent(List<String> phrases, List<String> coreTerms) {
-        this.phrases = phrases;
-        this.coreTerms = coreTerms;
+        this(phrases, coreTerms, null);
     }
 
-    // O resto da classe permanece igual
+    Intent(List<String> phrases, List<String> coreTerms, Pattern entityPattern) {
+        this.phrases = phrases;
+        this.coreTerms = coreTerms;
+        this.entityPattern = entityPattern;
+    }
+
     public List<String> getKeywords() { return phrases; }
+
+    public Optional<String> extractEntity(String normalizedQuery) {
+        return Optional.empty();
+    }
+
+
     public int getScore(String normalizedQuery) {
         if (this == UNKNOWN || this == GREETING || this == CONFIRM || this == DENY) return 0;
         int score = 0;

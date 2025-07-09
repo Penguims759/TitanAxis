@@ -31,17 +31,15 @@ public class StartSaleFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        // Tenta extrair o nome do cliente da primeira interação.
-        if (!conversationData.containsKey("attemptedExtraction")) {
-            String clientName = StringUtil.extractFuzzyValueAfter(userInput, "cliente");
-            if (clientName != null) {
-                // Se um nome foi encontrado, o fluxo tenta validá-lo e terminar imediatamente.
-                return validateAndFinish(clientName, conversationData);
-            }
-            conversationData.put("attemptedExtraction", true);
+        // Tenta obter o nome do cliente que foi pré-extraído pelo AIAssistantService.
+        String clientName = (String) conversationData.get("entity");
+
+        if (clientName != null) {
+            // Se um nome foi extraído, o fluxo tenta validá-lo e terminar imediatamente.
+            return validateAndFinish(clientName, conversationData);
         }
 
-        // Se nenhum cliente foi fornecido ou o fluxo já está em andamento, continua com os passos.
+        // Se nenhum cliente foi fornecido na frase inicial, continua com os passos normais.
         return super.process(userInput, conversationData);
     }
 

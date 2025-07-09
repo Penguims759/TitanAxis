@@ -1,3 +1,11 @@
-# Default ignored files
+# Este ficheiro .gitignore é específico para o diretório .idea/ do IntelliJ IDEA.
+# Ele garante que ficheiros de trabalho temporários e específicos do utilizador não sejam adicionados ao controlo de versão.
+
+# Ignora o diretório 'shelf', que contém alterações de código "engavetadas" (shelved changes).
+# Estas são cópias de segurança locais e não devem ser partilhadas com a equipa.
 /shelf/
+
+# Ignora o ficheiro 'workspace.xml', que armazena informações sobre a configuração do espaço de trabalho do utilizador,
+# como o layout das janelas, ficheiros abertos, histórico local e configurações de execução.
+# Este ficheiro é altamente volátil e específico para cada utilizador.
 /workspace.xml

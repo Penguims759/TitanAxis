@@ -32,16 +32,17 @@ public class QueryStockFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        String productName = StringUtil.extractFuzzyValueAfter(userInput, "produto");
-        if (productName == null) {
-            productName = StringUtil.extractFuzzyValueAfter(userInput, "de");
-        }
+        // O nome do produto agora é passado através do mapa de dados pelo AIAssistantService
+        String productName = (String) data.get("entity");
 
         if (productName == null) {
-            if (userInput.isEmpty() || userInput.equalsIgnoreCase("qual o stock do produto")) {
+            // Se a entidade não foi extraída, pergunta ao utilizador.
+            if (data.containsKey("askedForProduct")) {
+                productName = userInput; // Utilizador respondeu à pergunta
+            } else {
+                data.put("askedForProduct", true);
                 return new AssistantResponse("Qual produto você gostaria de consultar o stock?", Action.AWAITING_INFO, null);
             }
-            productName = userInput;
         }
 
         try {

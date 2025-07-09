@@ -37,11 +37,15 @@ public class QueryClientHistoryFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        // Tenta extrair o nome do cliente da pergunta
-        String clientName = extractClientName(userInput);
+        String clientName = (String) conversationData.get("entity");
 
         if (clientName == null) {
-            return new AssistantResponse("De qual cliente você gostaria de ver o histórico?", Action.AWAITING_INFO, null);
+            if (conversationData.containsKey("askedForClient")) {
+                clientName = userInput;
+            } else {
+                conversationData.put("askedForClient", true);
+                return new AssistantResponse("De qual cliente você gostaria de ver o histórico?", Action.AWAITING_INFO, null);
+            }
         }
 
         try {
@@ -61,12 +65,5 @@ public class QueryClientHistoryFlow implements ConversationFlow {
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro ao consultar a base de dados.");
         }
-    }
-
-    private String extractClientName(String userInput) {
-        // Tenta extrair o que vem depois de "cliente" ou "de"
-        String name = StringUtil.extractFuzzyValueAfter(userInput, "cliente");
-        if (name != null) return name;
-        return StringUtil.extractFuzzyValueAfter(userInput, "do");
     }
 }
