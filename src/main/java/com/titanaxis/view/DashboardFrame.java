@@ -286,12 +286,20 @@ public class DashboardFrame extends JFrame {
                 case DIRECT_ADJUST_STOCK:
                     String prodName = (String) params.get("productName");
                     String lotNumber = (String) params.get("lotNumber");
-                    int newQuantity = Integer.parseInt((String) params.get("quantity"));
-                    appContext.getProdutoService().ajustarEstoqueLote(prodName, lotNumber, newQuantity, ator);
+                    // CORREÇÃO: Trata a quantidade como um número, não como String.
+                    Object quantityObj = params.get("quantity");
+                    if (quantityObj instanceof String) {
+                        int newQuantity = Integer.parseInt((String) quantityObj);
+                        appContext.getProdutoService().ajustarEstoqueLote(prodName, lotNumber, newQuantity, ator);
+                    } else if (quantityObj instanceof Number) {
+                        int newQuantity = ((Number) quantityObj).intValue();
+                        appContext.getProdutoService().ajustarEstoqueLote(prodName, lotNumber, newQuantity, ator);
+                    }
                     UIMessageUtil.showInfoMessage(this, "Estoque do lote " + lotNumber + " ajustado com sucesso!", "Ação Concluída");
                     if (produtoPanel != null) produtoPanel.refreshData();
                     if (movimentosPanel != null) movimentosPanel.refreshData();
                     break;
+
                 case UI_CHANGE_THEME:
                     setTheme((String) params.get("theme"));
                     break;

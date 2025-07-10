@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/service/ProdutoService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -33,6 +34,25 @@ public class ProdutoService {
         this.transactionService = transactionService;
         this.categoriaRepository = categoriaRepository;
     }
+
+    public boolean produtoExiste(String nome) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em ->
+                produtoRepository.findByNome(nome, em).isPresent()
+        );
+    }
+
+    // NOVO MÉTODO
+    public boolean loteExiste(String nomeProduto, String numeroLote) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em -> {
+            Optional<Produto> produtoOpt = produtoRepository.findByNome(nomeProduto, em);
+            if (produtoOpt.isPresent()) {
+                return produtoOpt.get().getLotes().stream()
+                        .anyMatch(lote -> lote.getNumeroLote().equalsIgnoreCase(numeroLote));
+            }
+            return false;
+        });
+    }
+
 
     public String importarProdutosDeCsv(File ficheiro, Usuario ator) throws IOException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {

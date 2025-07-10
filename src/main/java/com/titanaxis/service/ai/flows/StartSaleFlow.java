@@ -1,4 +1,4 @@
-// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/service/ai/flows/StartSaleFlow.java
+// src/main/java/com/titanaxis/service/ai/flows/StartSaleFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -9,8 +9,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
-import com.titanaxis.service.ai.ConversationFlow;
-
+import com.titanaxis.util.StringUtil; // Importado
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,7 +52,7 @@ public class StartSaleFlow extends AbstractConversationFlow {
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         String clientName = (String) conversationData.get("clientName");
-        if (clientName == null || clientName.trim().isEmpty()) {
+        if (clientName == null || clientName.trim().isEmpty() || isClientless(clientName)) { // ALTERADO
             return new AssistantResponse("Ok, a abrir o painel de vendas.", Action.UI_NAVIGATE, Map.of("destination", "Vendas"));
         }
         return validateAndFinish(clientName, conversationData);
@@ -81,8 +80,13 @@ public class StartSaleFlow extends AbstractConversationFlow {
         }
     }
 
+    private boolean isClientless(String input) {
+        String normalized = StringUtil.normalize(input);
+        return normalized.contains("sem cliente") || normalized.equals("nenhum") || normalized.equals("branco");
+    }
+
     private boolean isClientNameValidOrEmpty(String name) {
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null || name.trim().isEmpty() || isClientless(name)) { // ALTERADO
             return true;
         }
         try {

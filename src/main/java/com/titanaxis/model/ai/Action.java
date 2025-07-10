@@ -9,7 +9,7 @@ public enum Action {
     // Ações de Execução Direta
     DIRECT_CREATE_PRODUCT,
     DIRECT_CREATE_CLIENT,
-    DIRECT_CREATE_FORNECEDOR, // ADICIONADO
+    DIRECT_CREATE_FORNECEDOR,
     DIRECT_CREATE_CATEGORY,
     DIRECT_CREATE_USER,
     DIRECT_UPDATE_PRODUCT,
@@ -21,6 +21,10 @@ public enum Action {
     // Ações de Navegação e UI
     UI_CHANGE_THEME,
     UI_NAVIGATE,
+
+    // Ações Proativas (para confirmação do utilizador)
+    PROACTIVE_SUGGEST_ADD_LOTE,
+    PROACTIVE_SUGGEST_START_SALE,
 
     // Ação especial
     AWAITING_INFO,

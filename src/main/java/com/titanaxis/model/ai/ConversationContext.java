@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/model/ai/ConversationContext.java
 package com.titanaxis.model.ai;
 
 import com.titanaxis.service.Intent;
@@ -15,18 +16,25 @@ public class ConversationContext {
     private Object lastEntity;
     private Intent lastIntent;
 
+    // NOVO: Para guardar o contexto de uma pergunta proativa
+    private Action pendingProactiveAction;
+    private Map<String, Object> proactiveActionParams;
+
     public boolean isAwaitingInfo() {
-        return currentFlow != null;
+        return currentFlow != null || pendingProactiveAction != null;
     }
 
     public void startFlow(ConversationFlow flow) {
         this.currentFlow = flow;
         this.collectedData.clear();
+        this.pendingProactiveAction = null; // Limpa qualquer ação proativa pendente
     }
 
     public void resetFlow() {
         this.currentFlow = null;
         this.collectedData.clear();
+        this.pendingProactiveAction = null;
+        this.proactiveActionParams = null;
     }
 
     public void fullReset() {
@@ -58,4 +66,19 @@ public class ConversationContext {
     public void setLastIntent(Intent lastIntent) {
         this.lastIntent = lastIntent;
     }
+
+    // --- NOVOS MÉTODOS ---
+    public Optional<Action> getPendingProactiveAction() {
+        return Optional.ofNullable(pendingProactiveAction);
+    }
+
+    public void setPendingProactiveAction(Action action, Map<String, Object> params) {
+        this.pendingProactiveAction = action;
+        this.proactiveActionParams = params;
+        this.currentFlow = null; // Garante que não há um fluxo normal ativo
+    }
+    public Map<String, Object> getProactiveActionParams() {
+        return proactiveActionParams;
+    }
+
 }

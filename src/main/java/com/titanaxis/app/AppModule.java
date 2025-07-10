@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/app/AppModule.java
 package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
@@ -51,6 +52,7 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(ManageStockFlow.class);
         flowBinder.addBinding().to(AdjustStockFlow.class);
         flowBinder.addBinding().to(UpdateProductFlow.class);
+        flowBinder.addBinding().to(UpdateLoteFlow.class); // NOVO
         flowBinder.addBinding().to(QueryStockFlow.class);
         flowBinder.addBinding().to(QueryClientDetailsFlow.class);
         flowBinder.addBinding().to(QueryProductLotsFlow.class);

@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/presenter/AIAssistantPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.model.ai.Action;
@@ -6,7 +7,7 @@ import com.titanaxis.service.AIAssistantService;
 import com.titanaxis.view.interfaces.AIAssistantView;
 
 import javax.swing.SwingWorker;
-import javax.swing.Timer; // ADICIONADO: Importação corrigida
+import javax.swing.Timer;
 import java.util.Map;
 
 public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewListener {
@@ -42,8 +43,13 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
                     view.appendMessage(response.getTextResponse(), false);
 
                     if (response.hasAction()) {
-                        view.requestAction(response.getAction(), response.getActionParams());
-                        handleProactiveSuggestion(response);
+                        // Se for uma ação proativa, apenas a define no serviço, não a executa na UI
+                        if (response.getAction().name().startsWith("PROACTIVE_")) {
+                            service.getContext().setPendingProactiveAction(response.getAction(), response.getActionParams());
+                        } else {
+                            view.requestAction(response.getAction(), response.getActionParams());
+                            handleProactiveSuggestion(response);
+                        }
                     }
                 } catch (Exception e) {
                     view.showThinkingIndicator(false);
@@ -57,6 +63,7 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
         worker.execute();
     }
 
+
     private void handleProactiveSuggestion(AssistantResponse response) {
         Action completedAction = response.getAction();
         Map<String, Object> params = response.getActionParams();
@@ -65,6 +72,8 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             String nomeProduto = (String) params.get("nome");
             if (nomeProduto != null) {
                 Timer timer = new Timer(1500, e -> {
+                    // Prepara a sugestão como uma ação pendente
+                    service.getContext().setPendingProactiveAction(Action.PROACTIVE_SUGGEST_ADD_LOTE, params);
                     view.appendMessage("Produto '" + nomeProduto + "' criado. Gostaria de adicionar o primeiro lote de estoque agora?", false);
                 });
                 timer.setRepeats(false);
@@ -75,6 +84,8 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             String nomeCliente = (String) params.get("nome");
             if (nomeCliente != null) {
                 Timer timer = new Timer(1500, e -> {
+                    // Prepara a sugestão como uma ação pendente
+                    service.getContext().setPendingProactiveAction(Action.PROACTIVE_SUGGEST_START_SALE, params);
                     view.appendMessage("Cliente '" + nomeCliente + "' criado. Quer iniciar uma nova venda para ele?", false);
                 });
                 timer.setRepeats(false);

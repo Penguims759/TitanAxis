@@ -20,12 +20,17 @@ START_SALE inicie uma venda para o cliente joao silva
 START_SALE começar uma venda para o cliente XPTO
 START_SALE abrir venda para o cliente Teste
 START_SALE nova venda
+START_SALE iniciar venda
 UPDATE_PRODUCT alterar o preço do produto caneta
 UPDATE_PRODUCT preciso mudar o status do produto borracha
 UPDATE_PRODUCT atualizar o produto lapis
+UPDATE_LOTE alterar lote
+UPDATE_LOTE modificar lote
+UPDATE_LOTE quero alterar um lote
 MANAGE_STOCK adicionar estoque de caneta
 MANAGE_STOCK entrada de 10 unidades do lote 123
 MANAGE_STOCK quero dar entrada no estoque
+ADJUST_STOCK alterar estoque
 ADJUST_STOCK ajustar o estoque do lote abc para 50
 ADJUST_STOCK corrigir a quantidade do produto caneta
 ADJUST_STOCK ajustar estoque
@@ -70,6 +75,7 @@ NAVIGATE_TO ir para a tela de vendas
 NAVIGATE_TO navegar para clientes
 NAVIGATE_TO abrir o painel de produtos
 NAVIGATE_TO ir para relatorios
+NAVIGATE_TO me leve para o estoque
 CHANGE_THEME mudar o tema para claro
 CHANGE_THEME alterar para o tema escuro
 CHANGE_THEME tema escuro
@@ -81,7 +87,12 @@ CONFIRM sim
 CONFIRM confirmo
 CONFIRM pode ser
 CONFIRM ok
+CONFIRM s
 DENY nao
 DENY cancelar
 DENY para
 DENY deixa pra la
+DENY n
+UNKNOWN qual a previsao do tempo?
+UNKNOWN quem descobriu o brasil?
+UNKNOWN qual a capital da frança

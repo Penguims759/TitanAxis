@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/util/StringUtil.java
 package com.titanaxis.util;
 
 import java.text.Normalizer;
@@ -13,11 +14,11 @@ public final class StringUtil {
     private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
     /**
-     * Extrai o texto que vem a seguir a uma de várias palavras-chave.
-     * Ex: extractValueAfter("... ver lotes de caneta azul...", new String[]{"de", "do", "da"}) -> "caneta azul"
+     * Extrai o texto que vem a seguir a uma de várias palavras-chave, limpando o resultado final.
+     * Ex: extractValueAfter("... ver lotes de caneta azul?", new String[]{"de", "do", "da"}) -> "caneta azul"
      * @param originalText O texto completo a ser analisado.
      * @param keywords As palavras-chave a serem procuradas.
-     * @return O resto do texto, ou null se não for encontrada.
+     * @return O resto do texto limpo, ou null se não for encontrada.
      */
     public static String extractValueAfter(String originalText, String[] keywords) {
         if (originalText == null || keywords == null || keywords.length == 0) {
@@ -32,15 +33,18 @@ public final class StringUtil {
             int index = lowerCaseText.indexOf(spacedKeyword);
             if (index != -1) {
                 bestMatchIndex = index + spacedKeyword.length();
-                break;
+                break; // Encontrou a primeira correspondência
             }
         }
 
         if (bestMatchIndex != -1) {
-            return originalText.substring(bestMatchIndex).trim();
+            String extracted = originalText.substring(bestMatchIndex).trim();
+            // Remove pontuação comum do final da string
+            return extracted.replaceAll("[?.,!]$", "").trim();
         }
         return null;
     }
+
 
     /**
      * @deprecated Use extractValueAfter para uma correspondência mais simples ou um extrator de entidade de PNL para mais complexidade.
@@ -61,7 +65,7 @@ public final class StringUtil {
     }
 
     public static boolean isNumeric(String str) {
-        if (str == null) {
+        if (str == null || str.trim().isEmpty()) { // Adicionado trim() e verificação de vazio
             return false;
         }
         try {
