@@ -1,4 +1,3 @@
-// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/app/AppModule.java
 package com.titanaxis.app;
 
 import com.google.inject.AbstractModule;
@@ -8,6 +7,7 @@ import com.titanaxis.repository.*;
 import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.service.ai.NLPIntentService;
 import com.titanaxis.service.ai.flows.*;
 
 public class AppModule extends AbstractModule {
@@ -38,6 +38,8 @@ public class AppModule extends AbstractModule {
         bind(DevolucaoService.class).in(Singleton.class);
         bind(FinanceiroService.class).in(Singleton.class);
 
+        // --- Configuração da IA ---
+        bind(NLPIntentService.class).in(Singleton.class);
         bind(AIAssistantService.class).in(Singleton.class);
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
         flowBinder.addBinding().to(StartSaleFlow.class);

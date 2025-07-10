@@ -1,0 +1,87 @@
+CREATE_PRODUCT quero criar um novo produto
+CREATE_PRODUCT pode me ajudar a cadastrar um item?
+CREATE_PRODUCT novo produto
+CREATE_PRODUCT como faco para adicionar um produto
+CREATE_PRODUCT criar produto
+CREATE_USER criar utilizador
+CREATE_USER novo utilizador
+CREATE_USER adicionar um novo utilizador
+CREATE_USER registrar um colaborador
+CREATE_CATEGORY criar categoria
+CREATE_CATEGORY nova categoria
+CREATE_CATEGORY adicionar uma categoria de produtos
+CREATE_CLIENT criar cliente
+CREATE_CLIENT cadastrar um novo cliente
+CREATE_CLIENT adicionar cliente
+CREATE_FORNECEDOR criar fornecedor
+CREATE_FORNECEDOR novo fornecedor
+CREATE_FORNECEDOR cadastrar fornecedor
+START_SALE inicie uma venda para o cliente joao silva
+START_SALE começar uma venda para o cliente XPTO
+START_SALE abrir venda para o cliente Teste
+START_SALE nova venda
+UPDATE_PRODUCT alterar o preço do produto caneta
+UPDATE_PRODUCT preciso mudar o status do produto borracha
+UPDATE_PRODUCT atualizar o produto lapis
+MANAGE_STOCK adicionar estoque de caneta
+MANAGE_STOCK entrada de 10 unidades do lote 123
+MANAGE_STOCK quero dar entrada no estoque
+ADJUST_STOCK ajustar o estoque do lote abc para 50
+ADJUST_STOCK corrigir a quantidade do produto caneta
+ADJUST_STOCK ajustar estoque
+QUERY_STOCK qual o estoque do produto caneta?
+QUERY_STOCK ver o stock de borracha
+QUERY_STOCK quantas unidades tem do produto lapis?
+QUERY_STOCK stock de caneta
+QUERY_CLIENT_DETAILS detalhes do cliente joao
+QUERY_CLIENT_DETAILS ver informações do cliente maria
+QUERY_CLIENT_DETAILS quais os detalhes do cliente Teste
+QUERY_PRODUCT_LOTS quais os lotes da caneta?
+QUERY_PRODUCT_LOTS ver lotes do produto borracha
+QUERY_PRODUCT_LOTS lotes do produto lapis
+QUERY_MOVEMENT_HISTORY qual o historico de movimentos da caneta?
+QUERY_MOVEMENT_HISTORY ver o historico do produto lapis
+QUERY_MOVEMENT_HISTORY historico de movimentos do produto
+QUERY_TOP_CLIENTS quais sao os meus melhores clientes?
+QUERY_TOP_CLIENTS ranking de clientes
+QUERY_TOP_CLIENTS top clientes do mes
+QUERY_TOP_PRODUCT qual o produto mais vendido?
+QUERY_TOP_PRODUCT qual item sai mais?
+QUERY_TOP_PRODUCT mais vendido
+QUERY_CLIENT_HISTORY qual o historico de compras do cliente joao?
+QUERY_CLIENT_HISTORY ver as compras do cliente maria
+QUERY_CLIENT_HISTORY historico de compras
+QUERY_LOW_STOCK quais produtos tem baixo estoque?
+QUERY_LOW_STOCK produtos acabando
+QUERY_LOW_STOCK ver produtos com pouco stock
+QUERY_EXPIRING_LOTS quais lotes estao para vencer?
+QUERY_EXPIRING_LOTS ver lotes com validade proxima
+QUERY_EXPIRING_LOTS lotes a vencer
+GENERATE_REPORT gerar relatorio de vendas em pdf
+GENERATE_REPORT quero um relatorio de inventario em csv
+GENERATE_REPORT relatorio de vendas
+GUIDE_ADD_LOTE como eu adiciono um lote?
+GUIDE_ADD_LOTE me ajude a adicionar um lote
+GUIDE_ADD_LOTE ajuda para adicionar lote
+GUIDE_ADD_PRODUCT como criar um produto?
+GUIDE_ADD_PRODUCT me mostre como adicionar um produto novo
+GUIDE_ADD_PRODUCT ajuda para criar produto
+NAVIGATE_TO ir para a tela de vendas
+NAVIGATE_TO navegar para clientes
+NAVIGATE_TO abrir o painel de produtos
+NAVIGATE_TO ir para relatorios
+CHANGE_THEME mudar o tema para claro
+CHANGE_THEME alterar para o tema escuro
+CHANGE_THEME tema escuro
+GREETING ola
+GREETING oi
+GREETING bom dia
+GREETING boa tarde
+CONFIRM sim
+CONFIRM confirmo
+CONFIRM pode ser
+CONFIRM ok
+DENY nao
+DENY cancelar
+DENY para
+DENY deixa pra la

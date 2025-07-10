@@ -1,8 +1,9 @@
 package com.titanaxis.util;
 
 import java.text.Normalizer;
-import java.util.regex.Pattern;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class StringUtil {
@@ -12,19 +13,45 @@ public final class StringUtil {
     private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
     /**
-     * Extrai o texto que vem a seguir a uma palavra-chave, com tolerância a erros.
-     * Ex: extractFuzzyValueAfter("... ver lotes de caneta azul...", "de") -> "caneta azul"
-     * @param text O texto completo a ser analisado.
-     * @param targetKeyword A palavra-chave a ser procurada.
+     * Extrai o texto que vem a seguir a uma de várias palavras-chave.
+     * Ex: extractValueAfter("... ver lotes de caneta azul...", new String[]{"de", "do", "da"}) -> "caneta azul"
+     * @param originalText O texto completo a ser analisado.
+     * @param keywords As palavras-chave a serem procuradas.
      * @return O resto do texto, ou null se não for encontrada.
      */
+    public static String extractValueAfter(String originalText, String[] keywords) {
+        if (originalText == null || keywords == null || keywords.length == 0) {
+            return null;
+        }
+
+        String lowerCaseText = originalText.toLowerCase();
+        int bestMatchIndex = -1;
+
+        for (String keyword : keywords) {
+            String spacedKeyword = " " + keyword + " ";
+            int index = lowerCaseText.indexOf(spacedKeyword);
+            if (index != -1) {
+                bestMatchIndex = index + spacedKeyword.length();
+                break;
+            }
+        }
+
+        if (bestMatchIndex != -1) {
+            return originalText.substring(bestMatchIndex).trim();
+        }
+        return null;
+    }
+
+    /**
+     * @deprecated Use extractValueAfter para uma correspondência mais simples ou um extrator de entidade de PNL para mais complexidade.
+     */
+    @Deprecated
     public static String extractFuzzyValueAfter(String text, String targetKeyword) {
         String normalizedText = normalize(text);
         String[] words = normalizedText.split("\\s+");
         for (int i = 0; i < words.length; i++) {
             if (levenshteinDistance(words[i], targetKeyword) <= 1) {
                 if (i + 1 < words.length) {
-                    // Retorna todas as palavras restantes unidas por um espaço
                     return Arrays.stream(words, i + 1, words.length)
                             .collect(Collectors.joining(" "));
                 }
