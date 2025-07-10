@@ -25,8 +25,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Produto produtoSalvo = em.merge(produto);
         if (ator != null) {
             String acao = produto.getId() != 0 ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            // CORREÇÃO: Passar o EntityManager 'em'
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", "Produto " + produtoSalvo.getNome() + " salvo.", em);
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produtoSalvo.getId(), "Produto " + produtoSalvo.getNome() + " salvo.", em);
         }
         return produtoSalvo;
     }
@@ -36,8 +35,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Lote loteSalvo = em.merge(lote);
         if (ator != null) {
             String acao = lote.getId() != 0 ? "ATUALIZAÇÃO DE LOTE" : "ENTRADA DE LOTE";
-            // CORREÇÃO: Passar o EntityManager 'em'
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", "Lote " + loteSalvo.getNumeroLote() + " salvo.", em);
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", loteSalvo.getProdutoId(), "Lote " + loteSalvo.getNumeroLote() + " salvo para o produto '" + lote.getProduto().getNome() + "'.", em);
         }
         return loteSalvo;
     }
@@ -49,8 +47,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
             produto.setAtivo(ativo);
             if (ator != null) {
                 String acao = ativo ? "REATIVAÇÃO" : "INATIVAÇÃO";
-                // CORREÇÃO: Passar o EntityManager 'em'
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", "Status do produto " + produto.getNome() + " alterado.", em);
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produto.getId(), "Status do produto " + produto.getNome() + " alterado.", em);
             }
         });
     }
@@ -60,8 +57,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Produto> produtoOpt = findById(id, em);
         produtoOpt.ifPresent(produto -> {
             if (ator != null) {
-                // CORREÇÃO: Passar o EntityManager 'em'
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", "Produto " + produto.getNome() + " eliminado.", em);
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", produto.getId(), "Produto " + produto.getNome() + " eliminado.", em);
             }
             em.remove(produto);
         });
@@ -72,8 +68,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Lote> loteOpt = findLoteById(loteId, em);
         loteOpt.ifPresent(lote -> {
             if (ator != null) {
-                // CORREÇÃO: Passar o EntityManager 'em'
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", "Lote " + lote.getNumeroLote() + " removido.", em);
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", lote.getProdutoId(), "Lote " + lote.getNumeroLote() + " removido.", em);
             }
             em.remove(lote);
         });
@@ -90,7 +85,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     }
 
     private List<Produto> findProductsByStatus(EntityManager em, boolean onlyActive) {
-        // ALTERAÇÃO: Adicionado LEFT JOIN FETCH p.lotes para carregar os lotes proativamente
         String jpql = "SELECT DISTINCT p FROM Produto p LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.lotes";
         if (onlyActive) {
             jpql += " WHERE p.ativo = true";
@@ -102,7 +96,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     @Override
     public Optional<Produto> findById(Integer id, EntityManager em) {
         try {
-            // ALTERAÇÃO: Adicionado LEFT JOIN FETCH p.lotes para carregar os lotes proativamente
             TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.lotes WHERE p.id = :id", Produto.class);
             query.setParameter("id", id);
             return Optional.ofNullable(query.getSingleResult());
@@ -115,7 +108,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     public Optional<Lote> findLoteById(int loteId, EntityManager em) {
         TypedQuery<Lote> query = em.createQuery("SELECT l FROM Lote l LEFT JOIN FETCH l.produto WHERE l.id = :loteId", Lote.class);
         query.setParameter("loteId", loteId);
-        try { // Adicionado try-catch para robustez
+        try {
             return Optional.ofNullable(query.getSingleResult());
         } catch (jakarta.persistence.NoResultException e) {
             return Optional.empty();
@@ -132,7 +125,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
     @Override
     public Optional<Produto> findByNome(String nome, EntityManager em) {
         try {
-            // ALTERAÇÃO: Adicionado LEFT JOIN FETCH para carregar as coleções necessárias
             TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p LEFT JOIN FETCH p.lotes WHERE p.nome = :nome", Produto.class);
             query.setParameter("nome", nome);
             return Optional.of(query.getSingleResult());
@@ -143,7 +135,6 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
 
     @Override
     public List<Produto> findByNomeContaining(String termo, EntityManager em) {
-        // ALTERAÇÃO: Adicionado LEFT JOIN FETCH para carregar as coleções
         TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p LEFT JOIN FETCH p.lotes WHERE LOWER(p.nome) LIKE LOWER(:termo)", Produto.class);
         query.setParameter("termo", "%" + termo + "%");
         return query.getResultList();

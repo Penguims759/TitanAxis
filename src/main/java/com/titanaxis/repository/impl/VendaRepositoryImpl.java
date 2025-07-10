@@ -46,6 +46,8 @@ public class VendaRepositoryImpl implements VendaRepository {
                 movimentoQuery.setParameter(6, vendaSalva.getId());
                 movimentoQuery.executeUpdate();
             }
+        } else if (venda.getStatus() == VendaStatus.ORCAMENTO) {
+            acao = "CRIAÇÃO DE ORÇAMENTO";
         } else {
             acao = "CANCELAMENTO DE VENDA";
         }
@@ -55,7 +57,7 @@ public class VendaRepositoryImpl implements VendaRepository {
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
             String detalhes = String.format("Venda #%d (%s) para o cliente '%s'. Valor total: %s.",
                     vendaSalva.getId(), venda.getStatus().getDescricao(), nomeCliente, currencyFormat.format(vendaSalva.getValorTotal()));
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Venda", detalhes, em);
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Venda", vendaSalva.getId(), detalhes, em);
         }
 
         return vendaSalva;

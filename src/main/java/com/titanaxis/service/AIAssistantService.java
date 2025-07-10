@@ -4,37 +4,39 @@ package com.titanaxis.service;
 import com.google.inject.Inject;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Produto;
+import com.titanaxis.model.Usuario;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.model.ai.ConversationContext;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.NLPIntentService;
+import com.titanaxis.service.ai.NerService;
 import com.titanaxis.util.StringUtil;
 
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AIAssistantService {
     private final Set<ConversationFlow> conversationFlows;
     private final ConversationContext context = new ConversationContext();
     private final NLPIntentService nlpIntentService;
+    private final NerService nerService;
+    private final AuthService authService; // NOVO
 
-    // Padrões para remover partes comuns dos comandos e isolar a entidade
+    // Padrões antigos de regex (agora usados como fallback ou para intenções simples)
     private static final Pattern QUERY_STOCK_PATTERN = Pattern.compile("^(qual o estoque do produto|ver o stock de|estoque de|qual o estoque de)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern QUERY_PRODUCT_LOTS_PATTERN = Pattern.compile("^(quais os lotes da|ver lotes do produto|lotes do produto)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern NAVIGATION_PATTERN = Pattern.compile("^(ir para|navegar para|abrir o painel de|me leve para)\\s*", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EXECUTE_SALE_PATTERN = Pattern.compile("vender\\s+(\\d+)\\s+(?:unidades de|de)?\\s*'?([^']*)'?\\s*(?:do lote\\s*'([^']*)')?\\s*(?:para o cliente\\s*'([^']*)')?", Pattern.CASE_INSENSITIVE);
-
 
     @Inject
-    public AIAssistantService(Set<ConversationFlow> conversationFlows, NLPIntentService nlpIntentService) {
+    public AIAssistantService(Set<ConversationFlow> conversationFlows, NLPIntentService nlpIntentService, NerService nerService, AuthService authService) { // NOVO
         this.conversationFlows = conversationFlows;
         this.nlpIntentService = nlpIntentService;
+        this.nerService = nerService;
+        this.authService = authService; // NOVO
     }
 
     public ConversationContext getContext() {
@@ -53,7 +55,7 @@ public class AIAssistantService {
             return handleOngoingConversation(query);
         }
 
-        return handleNewCommand(query); // Passar a query original
+        return handleNewCommand(query);
     }
 
     private boolean isCancelCommand(String normalizedQuery) {
@@ -98,7 +100,6 @@ public class AIAssistantService {
         }
     }
 
-
     private AssistantResponse handleNewCommand(String originalQuery) {
         String normalizedQuery = StringUtil.normalize(originalQuery);
         Intent intent = nlpIntentService.getIntent(normalizedQuery);
@@ -109,7 +110,8 @@ public class AIAssistantService {
 
         switch (intent) {
             case GREETING:
-                return new AssistantResponse(getGreetingByTimeOfDay() + " Em que posso ajudar?");
+                String userName = authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
+                return new AssistantResponse(getGreetingByTimeOfDay() + " " + userName + "! Em que posso ajudar?");
             case CHANGE_THEME:
                 return handleChangeTheme(normalizedQuery);
             case NAVIGATE_TO:
@@ -128,28 +130,57 @@ public class AIAssistantService {
     private String getGreetingByTimeOfDay() {
         LocalTime now = LocalTime.now();
         if (now.isBefore(LocalTime.NOON)) {
-            return "Bom dia!";
+            return "Bom dia,";
         } else if (now.isBefore(LocalTime.of(18, 0))) {
-            return "Boa tarde!";
+            return "Boa tarde,";
         } else {
-            return "Boa noite!";
+            return "Boa noite,";
         }
     }
 
-    private Map<String, Object> extractSaleEntities(String query) {
-        Map<String, Object> entities = new HashMap<>();
-        Matcher matcher = EXECUTE_SALE_PATTERN.matcher(query);
-        if (matcher.find()) {
-            try {
-                entities.put("quantidade", Integer.parseInt(matcher.group(1)));
-                entities.put("produto", matcher.group(2).trim());
-                if (matcher.group(3) != null) entities.put("lote", matcher.group(3).trim());
-                if (matcher.group(4) != null) entities.put("cliente", matcher.group(4).trim());
-            } catch (NumberFormatException e) {
-                // ignora se a quantidade não for um número
+    private AssistantResponse startConversationFlow(Intent intent, String originalQuery) {
+        Optional<ConversationFlow> handlerOpt = findHandlerFor(intent);
+
+        if (handlerOpt.isPresent()) {
+            ConversationFlow handler = handlerOpt.get();
+            context.startFlow(handler);
+            context.getCollectedData().put("intent", intent);
+
+            Map<String, String> extractedEntities = nerService.extractEntities(originalQuery);
+            if (!extractedEntities.isEmpty()) {
+                if (extractedEntities.containsKey("quantidade")) {
+                    try {
+                        context.getCollectedData().put("quantidade", Integer.parseInt(extractedEntities.get("quantidade")));
+                    } catch (NumberFormatException e) {
+                        // ignora
+                    }
+                }
+                extractedEntities.forEach((key, value) -> {
+                    if (!key.equals("quantidade")) {
+                        context.getCollectedData().put(key, value);
+                    }
+                });
+            } else {
+                String extractedEntity = cleanAndExtractEntity(originalQuery, intent);
+                if (extractedEntity != null && !extractedEntity.isEmpty()) {
+                    context.getCollectedData().put("entity", extractedEntity);
+                }
             }
+
+            if (!context.getCollectedData().containsKey("entity") && !context.getCollectedData().containsKey("produto") && !context.getCollectedData().containsKey("cliente")) {
+                context.getLastEntity().ifPresent(lastEntity -> {
+                    if (lastEntity instanceof Produto && isProductQuery(intent)) {
+                        context.getCollectedData().put("entity", ((Produto) lastEntity).getNome());
+                    } else if (lastEntity instanceof Cliente && isClientQuery(intent)) {
+                        context.getCollectedData().put("entity", ((Cliente) lastEntity).getNome());
+                    }
+                });
+            }
+
+            return handler.process(originalQuery, context.getCollectedData());
         }
-        return entities;
+
+        return new AssistantResponse("Não tenho a certeza de como processar esse pedido: " + intent.name());
     }
 
     private String cleanAndExtractEntity(String query, Intent intent) {
@@ -164,40 +195,6 @@ public class AIAssistantService {
             default:
                 return StringUtil.extractValueAfter(cleanedQuery, new String[]{"de", "do", "da", "para", "para o", "para a"});
         }
-    }
-
-
-    private AssistantResponse startConversationFlow(Intent intent, String originalQuery) {
-        Optional<ConversationFlow> handlerOpt = findHandlerFor(intent);
-
-        if (handlerOpt.isPresent()) {
-            ConversationFlow handler = handlerOpt.get();
-            context.startFlow(handler);
-            context.getCollectedData().put("intent", intent);
-
-            if (intent == Intent.EXECUTE_FULL_SALE) {
-                Map<String, Object> saleEntities = extractSaleEntities(originalQuery);
-                context.getCollectedData().putAll(saleEntities);
-            } else {
-                String extractedEntity = cleanAndExtractEntity(originalQuery, intent);
-                if (extractedEntity != null && !extractedEntity.isEmpty()) {
-                    context.getCollectedData().put("entity", extractedEntity);
-                    context.setLastEntity(null);
-                } else {
-                    context.getLastEntity().ifPresent(lastEntity -> {
-                        if (lastEntity instanceof Produto && isProductQuery(intent)) {
-                            context.getCollectedData().put("entity", ((Produto) lastEntity).getNome());
-                        } else if (lastEntity instanceof Cliente && isClientQuery(intent)) {
-                            context.getCollectedData().put("entity", ((Cliente) lastEntity).getNome());
-                        }
-                    });
-                }
-            }
-
-            return handler.process(originalQuery, context.getCollectedData());
-        }
-
-        return new AssistantResponse("Não tenho a certeza de como processar esse pedido: " + intent.name());
     }
 
     private Optional<ConversationFlow> findHandlerFor(Intent intent) {

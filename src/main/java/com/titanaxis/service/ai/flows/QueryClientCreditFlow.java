@@ -45,16 +45,20 @@ public class QueryClientCreditFlow implements ConversationFlow {
             return new AssistantResponse("De qual cliente você gostaria de ver o crédito?");
         }
 
+        // *** INÍCIO DA CORREÇÃO ***
+        final String finalClientName = clientName.trim();
+        // *** FIM DA CORREÇÃO ***
+
         try {
             Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(em ->
-                    clienteRepository.findByNome(clientName.trim(), em));
+                    clienteRepository.findByNome(finalClientName, em)); // Usa a variável final
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
                 String creditValue = currencyFormat.format(cliente.getCredito());
                 return new AssistantResponse(String.format("O cliente '%s' possui %s de crédito.", cliente.getNome(), creditValue));
             } else {
-                return new AssistantResponse("Não consegui encontrar o cliente '" + clientName + "'. Por favor, verifique o nome.");
+                return new AssistantResponse("Não consegui encontrar o cliente '" + finalClientName + "'. Por favor, verifique o nome.");
             }
 
         } catch (PersistenciaException e) {

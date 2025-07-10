@@ -24,7 +24,7 @@ public class DevolucaoRepositoryImpl implements DevolucaoRepository {
         if (usuarioLogado != null) {
             String detalhes = String.format("Devolução #%d registrada para a Venda #%d. Valor: %.2f",
                     devolucaoSalva.getId(), devolucao.getVenda().getId(), devolucao.getValorEstornado());
-            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "REGISTRO DE DEVOLUÇÃO", "Venda", detalhes, em);
+            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "REGISTRO DE DEVOLUÇÃO", "Venda", devolucao.getVenda().getId(), detalhes, em);
         }
         return devolucaoSalva;
     }

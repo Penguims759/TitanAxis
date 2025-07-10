@@ -19,8 +19,9 @@ public class AppContext {
     private final AIAssistantService aiAssistantService;
     private final AnalyticsService analyticsService;
     private final FornecedorService fornecedorService;
-    private final DevolucaoService devolucaoService; // NOVO
-    private final FinanceiroService financeiroService; // NOVO
+    private final DevolucaoService devolucaoService;
+    private final FinanceiroService financeiroService;
+    private final UserHabitService userHabitService; // NOVO
 
     @Inject
     public AppContext(AuthService authService, CategoriaService categoriaService,
@@ -29,7 +30,7 @@ public class AppContext {
                       AlertaService alertaService, MovimentoService movimentoService,
                       AIAssistantService aiAssistantService, AnalyticsService analyticsService,
                       FornecedorService fornecedorService, DevolucaoService devolucaoService,
-                      FinanceiroService financeiroService) { // NOVO
+                      FinanceiroService financeiroService, UserHabitService userHabitService) { // NOVO
         this.authService = authService;
         this.categoriaService = categoriaService;
         this.clienteService = clienteService;
@@ -41,8 +42,9 @@ public class AppContext {
         this.aiAssistantService = aiAssistantService;
         this.analyticsService = analyticsService;
         this.fornecedorService = fornecedorService;
-        this.devolucaoService = devolucaoService; // NOVO
-        this.financeiroService = financeiroService; // NOVO
+        this.devolucaoService = devolucaoService;
+        this.financeiroService = financeiroService;
+        this.userHabitService = userHabitService; // NOVO
     }
 
     public AuthService getAuthService() { return authService; }
@@ -56,6 +58,7 @@ public class AppContext {
     public AIAssistantService getAIAssistantService() { return aiAssistantService; }
     public AnalyticsService getAnalyticsService() { return analyticsService; }
     public FornecedorService getFornecedorService() { return fornecedorService; }
-    public DevolucaoService getDevolucaoService() { return devolucaoService; } // NOVO
-    public FinanceiroService getFinanceiroService() { return financeiroService; } // NOVO
+    public DevolucaoService getDevolucaoService() { return devolucaoService; }
+    public FinanceiroService getFinanceiroService() { return financeiroService; }
+    public UserHabitService getUserHabitService() { return userHabitService; } // NOVO
 }

@@ -9,6 +9,7 @@ import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.NLPIntentService;
+import com.titanaxis.service.ai.NerService;
 import com.titanaxis.service.ai.flows.*;
 
 public class AppModule extends AbstractModule {
@@ -38,9 +39,11 @@ public class AppModule extends AbstractModule {
         bind(FornecedorService.class).in(Singleton.class);
         bind(DevolucaoService.class).in(Singleton.class);
         bind(FinanceiroService.class).in(Singleton.class);
+        bind(UserHabitService.class).in(Singleton.class); // NOVO
 
         // --- Configuração da IA ---
         bind(NLPIntentService.class).in(Singleton.class);
+        bind(NerService.class).in(Singleton.class);
         bind(AIAssistantService.class).in(Singleton.class);
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
         flowBinder.addBinding().to(StartSaleFlow.class);
@@ -53,7 +56,7 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(CreatePurchaseOrderFlow.class);
         flowBinder.addBinding().to(ManageStockFlow.class);
         flowBinder.addBinding().to(AdjustStockFlow.class);
-        flowBinder.addBinding().to(AdjustStockPercentageFlow.class); // NOVO
+        flowBinder.addBinding().to(AdjustStockPercentageFlow.class);
         flowBinder.addBinding().to(UpdateProductFlow.class);
         flowBinder.addBinding().to(UpdateLoteFlow.class);
         flowBinder.addBinding().to(QueryStockFlow.class);

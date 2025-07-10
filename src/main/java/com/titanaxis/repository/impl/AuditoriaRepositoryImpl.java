@@ -18,18 +18,33 @@ public class AuditoriaRepositoryImpl implements AuditoriaRepository {
 
     @Override
     public void registrarAcao(Integer usuarioId, String usuarioNome, String acao, String entidade, String detalhes, EntityManager em) {
+        registrarAcao(usuarioId, usuarioNome, acao, entidade, null, detalhes, em);
+    }
+
+    @Override
+    public void registrarAcao(Integer usuarioId, String usuarioNome, String acao, String entidade, Integer entidadeId, String detalhes, EntityManager em) {
         try {
-            Query query = em.createNativeQuery("INSERT INTO auditoria_logs (data_evento, usuario_id, usuario_nome, acao, entidade, detalhes) VALUES (?, ?, ?, ?, ?, ?)");
+            Query query = em.createNativeQuery("INSERT INTO auditoria_logs (data_evento, usuario_id, usuario_nome, acao, entidade, entidade_id, detalhes) VALUES (?, ?, ?, ?, ?, ?, ?)");
             query.setParameter(1, Timestamp.valueOf(LocalDateTime.now()));
             query.setParameter(2, usuarioId);
             query.setParameter(3, usuarioNome);
             query.setParameter(4, acao);
             query.setParameter(5, entidade);
-            query.setParameter(6, detalhes);
+            query.setParameter(6, entidadeId);
+            query.setParameter(7, detalhes);
             query.executeUpdate();
         } catch (Exception e) {
             throw new PersistenceException("Falha ao registrar ação de auditoria para o utilizador: " + usuarioNome, e);
         }
+    }
+
+    @Override
+    public List<Object[]> findUserActionsForHabitAnalysis(int usuarioId, int days, EntityManager em) {
+        String sql = "SELECT acao, data_evento FROM auditoria_logs WHERE usuario_id = :userId AND data_evento >= :startDate";
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("userId", usuarioId);
+        query.setParameter("startDate", LocalDateTime.now().minusDays(days));
+        return query.getResultList();
     }
 
     @Override

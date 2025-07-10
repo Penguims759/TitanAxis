@@ -31,7 +31,7 @@ public class ClienteRepositoryImpl implements ClienteRepository {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Cliente '%s' (ID: %d) foi %s.",
                     clienteSalvo.getNome(), clienteSalvo.getId(), isUpdate ? "atualizado" : "criado");
-            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Cliente", detalhes, em);
+            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Cliente", clienteSalvo.getId(), detalhes, em);
         }
         return clienteSalvo;
     }
@@ -42,7 +42,7 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         clienteOpt.ifPresent(cliente -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", cliente.getNome(), id);
-                auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Cliente", detalhes, em);
+                auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Cliente", id, detalhes, em);
             }
             em.remove(cliente);
         });
@@ -79,7 +79,7 @@ public class ClienteRepositoryImpl implements ClienteRepository {
     @Override
     public long countNewClientesBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
         Query query = em.createNativeQuery(
-                "SELECT COUNT(DISTINCT detalhes) FROM auditoria_logs WHERE acao = 'CRIAÇÃO' AND entidade = 'Cliente' AND data_evento BETWEEN ? AND ?");
+                "SELECT COUNT(DISTINCT entidade_id) FROM auditoria_logs WHERE acao = 'CRIAÇÃO' AND entidade = 'Cliente' AND data_evento BETWEEN ? AND ?");
         query.setParameter(1, start);
         query.setParameter(2, end);
         Object result = query.getSingleResult();

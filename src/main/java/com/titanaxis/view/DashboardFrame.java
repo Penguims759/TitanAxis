@@ -6,6 +6,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.*;
 import com.titanaxis.model.ai.Action;
+import com.titanaxis.model.auditoria.HabitoUsuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
@@ -23,8 +24,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -341,15 +344,24 @@ public class DashboardFrame extends JFrame {
         new SwingWorker<List<String>, Void>() {
             @Override
             protected List<String> doInBackground() throws Exception {
-                // Busca os insights em background para não bloquear a UI
-                return appContext.getAnalyticsService().getSystemInsightsSummary();
+                List<String> combinedInsights = new ArrayList<>(appContext.getAnalyticsService().getSystemInsightsSummary());
+                int userId = authService.getUsuarioLogadoId();
+                if (userId != 0) {
+                    List<HabitoUsuario> habits = appContext.getUserHabitService().findHabitsForToday(userId);
+                    habits.stream()
+                            .map(HabitoUsuario::getSugestao)
+                            .filter(Objects::nonNull)
+                            .forEach(combinedInsights::add);
+                }
+                return combinedInsights;
             }
 
             @Override
             protected void done() {
                 try {
                     List<String> insights = get();
-                    String greeting = getGreetingByTimeOfDay();
+                    String userName = authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
+                    String greeting = getGreetingByTimeOfDay() + " " + userName + "!";
 
                     if (insights.isEmpty()) {
                         aiAssistantPanel.appendMessage(greeting + " Como posso ajudar hoje?", false);
@@ -369,11 +381,11 @@ public class DashboardFrame extends JFrame {
     private String getGreetingByTimeOfDay() {
         LocalTime now = LocalTime.now();
         if (now.isBefore(LocalTime.NOON)) {
-            return "Bom dia!";
+            return "Bom dia,";
         } else if (now.isBefore(LocalTime.of(18, 0))) {
-            return "Boa tarde!";
+            return "Boa tarde,";
         } else {
-            return "Boa noite!";
+            return "Boa noite,";
         }
     }
 

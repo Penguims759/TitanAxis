@@ -34,8 +34,6 @@ public class AuthService {
 
         if (usuarioOpt.isPresent() && PasswordUtil.checkPassword(senha, usuarioOpt.get().getSenhaHash())) {
             this.usuarioLogado = usuarioOpt.get();
-            // CORREÇÃO: A auditoria de login/logout é uma operação isolada,
-            // então criamos uma transação para ela usando o TransactionService.
             transactionService.executeInTransaction(em ->
                     auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", "Login bem-sucedido.", em)
             );
@@ -50,8 +48,7 @@ public class AuthService {
         this.usuarioLogado = null;
         return Optional.empty();
     }
-    // ... (restante da classe `AuthService` permanece igual)
-    // --- COLE O RESTO DOS MÉTODOS DA CLASSE AQUI ---
+
     public void cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) throws NomeDuplicadoException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
             throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");

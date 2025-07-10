@@ -30,7 +30,7 @@ public class FornecedorRepositoryImpl implements FornecedorRepository {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
             String detalhes = String.format("Fornecedor '%s' (ID: %d) foi %s.",
                     fornecedorSalvo.getNome(), fornecedorSalvo.getId(), isUpdate ? "atualizado" : "criado");
-            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Fornecedor", detalhes, em);
+            auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Fornecedor", fornecedorSalvo.getId(), detalhes, em);
         }
         return fornecedorSalvo;
     }
@@ -40,7 +40,7 @@ public class FornecedorRepositoryImpl implements FornecedorRepository {
         findById(id, em).ifPresent(fornecedor -> {
             if (usuarioLogado != null) {
                 String detalhes = String.format("Fornecedor '%s' (ID: %d) foi eliminado.", fornecedor.getNome(), id);
-                auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Fornecedor", detalhes, em);
+                auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Fornecedor", id, detalhes, em);
             }
             em.remove(fornecedor);
         });
