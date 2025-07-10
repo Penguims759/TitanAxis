@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/Intent.java
 package com.titanaxis.service;
 
 public enum Intent {
@@ -8,13 +7,14 @@ public enum Intent {
     CREATE_CLIENT,
     CREATE_FORNECEDOR,
     CREATE_PURCHASE_ORDER,
+    CREATE_MANUAL_HABIT, // NOVO
     START_SALE,
     EXECUTE_FULL_SALE,
     UPDATE_PRODUCT,
     UPDATE_LOTE,
     MANAGE_STOCK,
     ADJUST_STOCK,
-    ADJUST_STOCK_PERCENTAGE, // NOVO
+    ADJUST_STOCK_PERCENTAGE,
     QUERY_STOCK,
     QUERY_CLIENT_DETAILS,
     QUERY_PRODUCT_LOTS,
@@ -29,6 +29,7 @@ public enum Intent {
     QUERY_SALES_COMPARISON,
     QUERY_SYSTEM_INSIGHTS,
     QUERY_CLIENT_CREDIT,
+    QUERY_USER_HABITS, // NOVO
     GENERATE_REPORT,
     GUIDE_ADD_LOTE,
     GUIDE_ADD_PRODUCT,

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;

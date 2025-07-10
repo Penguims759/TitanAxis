@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -6,7 +5,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.*;
 import com.titanaxis.model.ai.Action;
-import com.titanaxis.model.auditoria.HabitoUsuario;
+import com.titanaxis.model.auditoria.Habito;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
@@ -347,9 +346,9 @@ public class DashboardFrame extends JFrame {
                 List<String> combinedInsights = new ArrayList<>(appContext.getAnalyticsService().getSystemInsightsSummary());
                 int userId = authService.getUsuarioLogadoId();
                 if (userId != 0) {
-                    List<HabitoUsuario> habits = appContext.getUserHabitService().findHabitsForToday(userId);
+                    List<Habito> habits = appContext.getUserHabitService().findHabitsForToday(userId);
                     habits.stream()
-                            .map(HabitoUsuario::getSugestao)
+                            .map(Habito::getSugestao)
                             .filter(Objects::nonNull)
                             .forEach(combinedInsights::add);
                 }

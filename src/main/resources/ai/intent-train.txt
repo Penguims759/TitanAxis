@@ -221,6 +221,12 @@ CREATE_PURCHASE_ORDER gerar um pedido ao fornecedor
 CREATE_PURCHASE_ORDER nova encomenda
 CREATE_PURCHASE_ORDER fazer uma encomenda
 CREATE_PURCHASE_ORDER registrar pedido de compra
+CREATE_MANUAL_HABIT adicionar o hábito de gerar relatórios toda segunda-feira
+CREATE_MANUAL_HABIT quero que me lembre de verificar o stock às quartas
+CREATE_MANUAL_HABIT adicione um hábito para ver os clientes devedores na sexta
+CREATE_MANUAL_HABIT registrar o hábito de analisar as vendas no sábado
+CREATE_MANUAL_HABIT quero adicionar um hábito manual
+CREATE_MANUAL_HABIT como adiciono um novo hábito?
 START_SALE inicie uma venda para o cliente joao silva
 START_SALE começar uma venda para o cliente XPTO
 START_SALE abrir venda para o cliente Teste
@@ -744,6 +750,12 @@ QUERY_SYSTEM_INSIGHTS me mostre os insights do sistema
 QUERY_SYSTEM_INSIGHTS analise o sistema e me dê um resumo
 QUERY_SYSTEM_INSIGHTS insights do sistema
 QUERY_SYSTEM_INSIGHTS recomendações
+QUERY_USER_HABITS quais são os meus hábitos?
+QUERY_USER_HABITS ver meus hábitos
+QUERY_USER_HABITS pode me mostrar os hábitos que você aprendeu?
+QUERY_USER_HABITS quero ver meus hábitos registrados
+QUERY_USER_HABITS como vejo meus hábitos
+QUERY_USER_HABITS listar meus hábitos
 GENERATE_REPORT gerar relatorio de vendas em pdf
 GENERATE_REPORT quero um relatorio de inventario em csv
 GENERATE_REPORT relatorio de vendas

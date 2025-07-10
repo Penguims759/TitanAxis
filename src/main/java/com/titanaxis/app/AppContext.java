@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/app/AppContext.java
 package com.titanaxis.app;
 
 import com.google.inject.Inject;
@@ -21,7 +20,7 @@ public class AppContext {
     private final FornecedorService fornecedorService;
     private final DevolucaoService devolucaoService;
     private final FinanceiroService financeiroService;
-    private final UserHabitService userHabitService; // NOVO
+    private final UserHabitService userHabitService;
 
     @Inject
     public AppContext(AuthService authService, CategoriaService categoriaService,
@@ -30,7 +29,7 @@ public class AppContext {
                       AlertaService alertaService, MovimentoService movimentoService,
                       AIAssistantService aiAssistantService, AnalyticsService analyticsService,
                       FornecedorService fornecedorService, DevolucaoService devolucaoService,
-                      FinanceiroService financeiroService, UserHabitService userHabitService) { // NOVO
+                      FinanceiroService financeiroService, UserHabitService userHabitService) {
         this.authService = authService;
         this.categoriaService = categoriaService;
         this.clienteService = clienteService;
@@ -44,7 +43,7 @@ public class AppContext {
         this.fornecedorService = fornecedorService;
         this.devolucaoService = devolucaoService;
         this.financeiroService = financeiroService;
-        this.userHabitService = userHabitService; // NOVO
+        this.userHabitService = userHabitService;
     }
 
     public AuthService getAuthService() { return authService; }
@@ -60,5 +59,5 @@ public class AppContext {
     public FornecedorService getFornecedorService() { return fornecedorService; }
     public DevolucaoService getDevolucaoService() { return devolucaoService; }
     public FinanceiroService getFinanceiroService() { return financeiroService; }
-    public UserHabitService getUserHabitService() { return userHabitService; } // NOVO
+    public UserHabitService getUserHabitService() { return userHabitService; }
 }

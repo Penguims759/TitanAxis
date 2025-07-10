@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/AIAssistantService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -24,19 +23,19 @@ public class AIAssistantService {
     private final ConversationContext context = new ConversationContext();
     private final NLPIntentService nlpIntentService;
     private final NerService nerService;
-    private final AuthService authService; // NOVO
+    private final AuthService authService;
 
-    // Padrões antigos de regex (agora usados como fallback ou para intenções simples)
     private static final Pattern QUERY_STOCK_PATTERN = Pattern.compile("^(qual o estoque do produto|ver o stock de|estoque de|qual o estoque de)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern QUERY_PRODUCT_LOTS_PATTERN = Pattern.compile("^(quais os lotes da|ver lotes do produto|lotes do produto)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern NAVIGATION_PATTERN = Pattern.compile("^(ir para|navegar para|abrir o painel de|me leve para)\\s*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EXECUTE_SALE_PATTERN = Pattern.compile("vender\\s+(\\d+)\\s+(?:unidades de|de)?\\s*'?([^']*)'?\\s*(?:do lote\\s*'([^']*)')?\\s*(?:para o cliente\\s*'([^']*)')?", Pattern.CASE_INSENSITIVE);
 
     @Inject
-    public AIAssistantService(Set<ConversationFlow> conversationFlows, NLPIntentService nlpIntentService, NerService nerService, AuthService authService) { // NOVO
+    public AIAssistantService(Set<ConversationFlow> conversationFlows, NLPIntentService nlpIntentService, NerService nerService, AuthService authService) {
         this.conversationFlows = conversationFlows;
         this.nlpIntentService = nlpIntentService;
         this.nerService = nerService;
-        this.authService = authService; // NOVO
+        this.authService = authService;
     }
 
     public ConversationContext getContext() {

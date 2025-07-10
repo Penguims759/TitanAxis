@@ -62,3 +62,7 @@ qual o <START:credito> crédito <END> disponível para o <START:cliente> cliente
 <START:venda> vender <END> <START:quantidade> 2 <END> <START:produto> mochilas para portátil <END> para o <START:cliente> cliente Viajante <END>
 <START:ajuste> reduzir o estoque de <END> <START:produto> capas de portátil <END> em <START:percentual> 18% <END>
 compare as vendas de <START:periodo> este mês <END> com as do <START:periodo> mesmo período no ano passado <END>
+<START:habito> adicionar o hábito de <END> <START:acao> gerar relatórios <END> toda <START:dia> segunda-feira <END>
+<START:habito> quero que me lembre de <END> <START:acao> verificar o stock <END> às <START:dia> quartas <END>
+<START:habito> adicione um hábito para <END> <START:acao> ver os clientes devedores <END> na <START:dia> sexta <END>
+<START:habito> registrar o hábito de <END> <START:acao> analisar as vendas <END> no <START:dia> sábado <END>
