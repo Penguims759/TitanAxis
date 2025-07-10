@@ -28,7 +28,10 @@ public class Venda {
     private double valorTotal;
 
     @Column(name = "desconto_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
-    private double descontoTotal; // NOVO
+    private double descontoTotal;
+
+    @Column(name = "credito_utilizado", nullable = false, columnDefinition = "DECIMAL(10,2)") // NOVO
+    private double creditoUtilizado; // NOVO
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -43,18 +46,17 @@ public class Venda {
     public Venda() {
         this.dataVenda = LocalDateTime.now();
         this.status = VendaStatus.EM_ANDAMENTO;
-        this.descontoTotal = 0.0; // NOVO
+        this.descontoTotal = 0.0;
+        this.creditoUtilizado = 0.0; // NOVO
     }
 
-    // Outros construtores e métodos...
-    // Getters e Setters para 'status'
-
-    public double getDescontoTotal() { return descontoTotal; } // NOVO
-    public void setDescontoTotal(double descontoTotal) { this.descontoTotal = descontoTotal; } // NOVO
+    // Getters e Setters
+    public double getCreditoUtilizado() { return creditoUtilizado; } // NOVO
+    public void setCreditoUtilizado(double creditoUtilizado) { this.creditoUtilizado = creditoUtilizado; } // NOVO
+    public double getDescontoTotal() { return descontoTotal; }
+    public void setDescontoTotal(double descontoTotal) { this.descontoTotal = descontoTotal; }
     public VendaStatus getStatus() { return status; }
     public void setStatus(VendaStatus status) { this.status = status; }
-
-    // ... restante dos getters e setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public Cliente getCliente() { return cliente; }

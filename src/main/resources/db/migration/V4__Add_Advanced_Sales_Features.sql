@@ -7,6 +7,9 @@ ALTER TABLE venda_itens ADD COLUMN desconto DECIMAL(10, 2) NOT NULL DEFAULT 0.00
 -- Adiciona campo para comissão do utilizador
 ALTER TABLE usuarios ADD COLUMN percentual_comissao DECIMAL(5, 2) NOT NULL DEFAULT 0.00;
 
+-- Adiciona a coluna para registrar o crédito utilizado na venda (NOVO)
+ALTER TABLE vendas ADD COLUMN credito_utilizado DECIMAL(10, 2) NOT NULL DEFAULT 0.00;
+
 -- Tabela para Devoluções
 CREATE TABLE devolucoes (
     id INT AUTO_INCREMENT PRIMARY KEY,

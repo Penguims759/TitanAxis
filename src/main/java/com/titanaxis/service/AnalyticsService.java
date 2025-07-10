@@ -18,6 +18,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,18 +33,22 @@ public class AnalyticsService {
     private final ClienteRepository clienteRepository;
     private final AuditoriaRepository auditoriaRepository;
     private final ProdutoRepository produtoRepository;
+    private final AlertaService alertaService; // NOVO
     private final TransactionService transactionService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     @Inject
-    public AnalyticsService(VendaRepository vendaRepository, ClienteRepository clienteRepository, AuditoriaRepository auditoriaRepository, ProdutoRepository produtoRepository, TransactionService transactionService) {
+    public AnalyticsService(VendaRepository vendaRepository, ClienteRepository clienteRepository, AuditoriaRepository auditoriaRepository, ProdutoRepository produtoRepository, AlertaService alertaService, TransactionService transactionService) { // NOVO
         this.vendaRepository = vendaRepository;
         this.clienteRepository = clienteRepository;
         this.auditoriaRepository = auditoriaRepository;
         this.produtoRepository = produtoRepository;
+        this.alertaService = alertaService; // NOVO
         this.transactionService = transactionService;
     }
+
+    // ... (restante dos métodos existentes) ...
 
     public double getVendas(LocalDate start, LocalDate end) throws PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
@@ -51,7 +56,6 @@ public class AnalyticsService {
         return vendas.stream().mapToDouble(Venda::getValorTotal).sum();
     }
 
-    // NOVO MÉTODO
     public double getVendasPorVendedorNoPeriodo(int usuarioId, LocalDate start, LocalDate end) throws PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findVendasBetweenDates(start.atStartOfDay(), end.atTime(LocalTime.MAX), em));
@@ -184,6 +188,39 @@ public class AnalyticsService {
         } catch (PersistenciaException e) {
             return "Não consegui carregar os insights diários devido a um erro no banco de dados.";
         }
+    }
+
+    // NOVO MÉTODO
+    public List<String> getSystemInsightsSummary() throws PersistenciaException {
+        List<String> insights = new ArrayList<>();
+
+        // 1. Produtos com Estoque Baixo
+        alertaService.getProdutosComEstoqueBaixo().stream()
+                .findFirst()
+                .ifPresent(p -> insights.add(String.format("* **Alerta de Stock Baixo:** O produto '%s' está com apenas %d unidades.", p.getNome(), p.getQuantidadeTotal())));
+
+        // 2. Lotes Próximos do Vencimento
+        alertaService.getLotesProximosDoVencimento().stream()
+                .min(Comparator.comparing(lote -> lote.getDataValidade()))
+                .ifPresent(l -> insights.add(String.format("* **Lote a Vencer:** O lote '%s' do produto '%s' vence em %s.", l.getNumeroLote(), l.getProduto().getNome(), l.getDataValidade().format(DATE_FORMATTER))));
+
+        // 3. Produto Mais Vendido
+        String topProduct = getTopSellingProduct();
+        if (!topProduct.contains("Nenhuma venda")) {
+            insights.add(String.format("* **Destaque de Vendas:** O produto '%s' é o mais vendido do momento.", topProduct));
+        }
+
+        // 4. Clientes Inativos (exemplo: não compram há 45 dias)
+        transactionService.executeInTransactionWithResult(vendaRepository::findAll).stream()
+                .filter(v -> v.getCliente() != null)
+                .collect(Collectors.groupingBy(Venda::getCliente, Collectors.maxBy(Comparator.comparing(Venda::getDataVenda))))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().isPresent() && ChronoUnit.DAYS.between(entry.getValue().get().getDataVenda(), LocalDateTime.now()) > 45)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .ifPresent(c -> insights.add(String.format("* **Oportunidade:** O cliente '%s' não compra há mais de um mês. Que tal contactá-lo?", c.getNome())));
+
+        return insights;
     }
 
     public String getClientPurchaseHistory(int clienteId) throws PersistenciaException {

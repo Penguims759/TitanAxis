@@ -35,7 +35,8 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private final JSpinner quantidadeSpinner;
     private final JLabel totalLabel;
     private final JButton finalizarButton;
-    private final JButton orcamentoButton; // NOVO
+    private final JButton orcamentoButton;
+    private final JButton usarCreditoButton; // NOVO
 
     private Carrinho carrinho;
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
@@ -47,7 +48,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         this.clienteService = appContext.getClienteService();
         this.produtoService = appContext.getProdutoService();
 
-        carrinhoTableModel = new DefaultTableModel(new String[]{"Produto", "Lote", "Qtd", "Preço Unit.", "Desconto", "Subtotal"}, 0) { // Desconto adicionado
+        carrinhoTableModel = new DefaultTableModel(new String[]{"Produto", "Lote", "Qtd", "Preço Unit.", "Desconto", "Subtotal"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         carrinhoTable = new JTable(carrinhoTableModel);
@@ -57,7 +58,8 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         quantidadeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
         totalLabel = new JLabel("Total: " + currencyFormat.format(0.0));
         finalizarButton = new JButton("Finalizar Venda");
-        orcamentoButton = new JButton("Salvar Orçamento"); // NOVO
+        orcamentoButton = new JButton("Salvar Orçamento");
+        usarCreditoButton = new JButton("Usar Crédito"); // NOVO
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -89,6 +91,9 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
                 }
             }
         });
+
+        // NOVO: Listener para o ComboBox de clientes para atualizar o botão de crédito
+        clienteComboBox.addActionListener(e -> atualizarEstadoBotaoCredito());
     }
 
     public void selecionarCliente(Cliente clienteParaSelecionar) {
@@ -224,6 +229,37 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         }
     }
 
+    // NOVO MÉTODO
+    private void usarCreditoCliente() {
+        Cliente cliente = (Cliente) clienteComboBox.getSelectedItem();
+        if (cliente == null || cliente.getCredito() <= 0) return;
+
+        double totalVenda = carrinho.getValorTotal();
+        double creditoDisponivel = cliente.getCredito();
+        double valorParaUsar = Math.min(totalVenda, creditoDisponivel);
+
+        String msg = String.format("O cliente %s tem %s de crédito.\nDeseja usar %s para abater nesta venda?",
+                cliente.getNome(), currencyFormat.format(creditoDisponivel), currencyFormat.format(valorParaUsar));
+
+        if (UIMessageUtil.showConfirmDialog(this, msg, "Usar Crédito do Cliente")) {
+            carrinho.aplicarCredito(valorParaUsar);
+            atualizarCarrinhoETotal();
+            usarCreditoButton.setEnabled(false); // Desativa o botão após o uso
+        }
+    }
+
+    // NOVO MÉTODO
+    private void atualizarEstadoBotaoCredito() {
+        Cliente cliente = (Cliente) clienteComboBox.getSelectedItem();
+        if (cliente != null && cliente.getCredito() > 0) {
+            usarCreditoButton.setEnabled(true);
+            usarCreditoButton.setText(String.format("Usar Crédito (%s)", currencyFormat.format(cliente.getCredito())));
+        } else {
+            usarCreditoButton.setEnabled(false);
+            usarCreditoButton.setText("Usar Crédito");
+        }
+    }
+
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
         topPanel.setBorder(BorderFactory.createTitledBorder("Nova Venda"));
@@ -264,6 +300,11 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton descontoTotalButton = new JButton("Aplicar Desconto Total");
         descontoTotalButton.addActionListener(e -> aplicarDescontoTotal());
+
+        usarCreditoButton.addActionListener(e -> usarCreditoCliente()); // NOVO
+        usarCreditoButton.setEnabled(false); // NOVO
+
+        totalPanel.add(usarCreditoButton); // NOVO
         totalPanel.add(descontoTotalButton);
         totalPanel.add(totalLabel);
 
@@ -277,7 +318,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         finalizarButton.addActionListener(e -> finalizarVenda());
 
         buttonsPanel.add(cancelarButton);
-        buttonsPanel.add(orcamentoButton); // NOVO
+        buttonsPanel.add(orcamentoButton);
         buttonsPanel.add(finalizarButton);
         bottomPanel.add(buttonsPanel, BorderLayout.EAST);
 

@@ -9,6 +9,7 @@ import com.titanaxis.service.Intent;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.StringUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class AdjustStockFlow extends AbstractConversationFlow {
@@ -86,7 +87,7 @@ public class AdjustStockFlow extends AbstractConversationFlow {
             return new AssistantResponse(
                     "Ok, a enviar o ajuste de estoque...",
                     Action.DIRECT_ADJUST_STOCK,
-                    conversationData);
+                    new HashMap<>(conversationData)); // CORREÇÃO APLICADA
         } else {
             return new AssistantResponse("Ok, ação cancelada.");
         }

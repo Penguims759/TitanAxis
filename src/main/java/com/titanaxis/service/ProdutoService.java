@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -263,5 +264,59 @@ public class ProdutoService {
         transactionService.executeInTransaction(em ->
                 produtoRepository.updateStatusAtivo(produtoId, novoStatus, ator, em)
         );
+    }
+
+    // NOVO MÉTODO
+    public String ajustarEstoquePercentual(String nomeProduto, double percentual, Usuario ator) throws PersistenciaException, IllegalArgumentException {
+        if (ator == null) {
+            throw new IllegalArgumentException("Utilizador não autenticado.");
+        }
+
+        return transactionService.executeInTransactionWithResult(em -> {
+            Produto produto = produtoRepository.findByNome(nomeProduto, em)
+                    .orElseThrow(() -> new IllegalArgumentException("Produto '" + nomeProduto + "' não encontrado."));
+
+            int quantidadeAtual = produto.getQuantidadeTotal();
+            if (quantidadeAtual == 0 && percentual > 0) {
+                throw new IllegalArgumentException("Não é possível aumentar o estoque percentualmente de um produto com 0 unidades.");
+            }
+
+            int quantidadeAjuste = (int) Math.round(quantidadeAtual * (percentual / 100.0));
+            int novaQuantidadeTotal = quantidadeAtual + quantidadeAjuste;
+
+            if (novaQuantidadeTotal < 0) {
+                throw new IllegalArgumentException("A redução percentual resulta em estoque negativo, o que não é permitido.");
+            }
+
+            // Estratégia: Ajustar no lote mais recente (com maior ID, ou data de entrada mais recente) que tenha estoque.
+            Lote loteParaAjuste = produto.getLotes().stream()
+                    .filter(l -> l.getQuantidade() > 0)
+                    .max(Comparator.comparing(Lote::getId))
+                    .orElse(produto.getLotes().stream().findFirst().orElse(null));
+
+            if (loteParaAjuste == null) {
+                throw new IllegalArgumentException("Produto não possui lotes para ajustar.");
+            }
+
+            int novaQuantidadeLote = loteParaAjuste.getQuantidade() + quantidadeAjuste;
+            if (novaQuantidadeLote < 0) {
+                throw new IllegalArgumentException("O ajuste percentual deixaria o lote principal com estoque negativo.");
+            }
+            loteParaAjuste.setQuantidade(novaQuantidadeLote);
+            produtoRepository.saveLote(loteParaAjuste, ator, em);
+
+            // Registrar movimento
+            MovimentoEstoque movimento = new MovimentoEstoque();
+            movimento.setProduto(produto);
+            movimento.setLote(loteParaAjuste);
+            movimento.setQuantidade(Math.abs(quantidadeAjuste));
+            movimento.setDataMovimento(LocalDateTime.now());
+            movimento.setUsuario(ator);
+            movimento.setTipoMovimento(quantidadeAjuste >= 0 ? "AJUSTE_AUMENTO" : "AJUSTE_REDUCAO");
+            em.persist(movimento);
+
+            return String.format("O estoque de '%s' foi ajustado em %d unidades (%.1f%%), de %d para %d.",
+                    nomeProduto, quantidadeAjuste, percentual, quantidadeAtual, novaQuantidadeTotal);
+        });
     }
 }

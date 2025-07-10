@@ -9,6 +9,7 @@ import com.titanaxis.service.Intent;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.StringUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ManageStockFlow extends AbstractConversationFlow {
@@ -66,7 +67,10 @@ public class ManageStockFlow extends AbstractConversationFlow {
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         if ("sim".equalsIgnoreCase((String) conversationData.get("confirmation"))) {
-            return new AssistantResponse("Ok, a atualizar o stock...", Action.DIRECT_ADD_STOCK, conversationData);
+            return new AssistantResponse(
+                    "Ok, a atualizar o stock...",
+                    Action.DIRECT_ADD_STOCK,
+                    new HashMap<>(conversationData)); // CORREÇÃO APLICADA
         } else {
             return new AssistantResponse("Ok, ação cancelada.");
         }

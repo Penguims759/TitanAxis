@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.titanaxis.exception.CarrinhoVazioException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
+import com.titanaxis.model.Cliente; // NOVO
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.model.Venda;
@@ -67,6 +68,14 @@ public class VendaService {
                 }
                 lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
             }
+
+            // Lógica para debitar o crédito do cliente (NOVO)
+            if (venda.getCliente() != null && venda.getCreditoUtilizado() > 0) {
+                Cliente cliente = em.find(Cliente.class, venda.getCliente().getId());
+                cliente.debitarCredito(venda.getCreditoUtilizado());
+                em.merge(cliente);
+            }
+
             return vendaRepository.save(venda, ator, em);
         });
     }

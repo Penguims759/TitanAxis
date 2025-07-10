@@ -11,9 +11,12 @@ import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.NLPIntentService;
 import com.titanaxis.util.StringUtil;
 
+import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AIAssistantService {
@@ -25,6 +28,7 @@ public class AIAssistantService {
     private static final Pattern QUERY_STOCK_PATTERN = Pattern.compile("^(qual o estoque do produto|ver o stock de|estoque de|qual o estoque de)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern QUERY_PRODUCT_LOTS_PATTERN = Pattern.compile("^(quais os lotes da|ver lotes do produto|lotes do produto)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern NAVIGATION_PATTERN = Pattern.compile("^(ir para|navegar para|abrir o painel de|me leve para)\\s*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EXECUTE_SALE_PATTERN = Pattern.compile("vender\\s+(\\d+)\\s+(?:unidades de|de)?\\s*'?([^']*)'?\\s*(?:do lote\\s*'([^']*)')?\\s*(?:para o cliente\\s*'([^']*)')?", Pattern.CASE_INSENSITIVE);
 
 
     @Inject
@@ -105,7 +109,7 @@ public class AIAssistantService {
 
         switch (intent) {
             case GREETING:
-                return new AssistantResponse("Olá! Em que posso ajudar?");
+                return new AssistantResponse(getGreetingByTimeOfDay() + " Em que posso ajudar?");
             case CHANGE_THEME:
                 return handleChangeTheme(normalizedQuery);
             case NAVIGATE_TO:
@@ -121,8 +125,35 @@ public class AIAssistantService {
         }
     }
 
+    private String getGreetingByTimeOfDay() {
+        LocalTime now = LocalTime.now();
+        if (now.isBefore(LocalTime.NOON)) {
+            return "Bom dia!";
+        } else if (now.isBefore(LocalTime.of(18, 0))) {
+            return "Boa tarde!";
+        } else {
+            return "Boa noite!";
+        }
+    }
+
+    private Map<String, Object> extractSaleEntities(String query) {
+        Map<String, Object> entities = new HashMap<>();
+        Matcher matcher = EXECUTE_SALE_PATTERN.matcher(query);
+        if (matcher.find()) {
+            try {
+                entities.put("quantidade", Integer.parseInt(matcher.group(1)));
+                entities.put("produto", matcher.group(2).trim());
+                if (matcher.group(3) != null) entities.put("lote", matcher.group(3).trim());
+                if (matcher.group(4) != null) entities.put("cliente", matcher.group(4).trim());
+            } catch (NumberFormatException e) {
+                // ignora se a quantidade não for um número
+            }
+        }
+        return entities;
+    }
+
     private String cleanAndExtractEntity(String query, Intent intent) {
-        String cleanedQuery = query.replaceAll("[?.,!]$", "").trim(); // Remove pontuação final
+        String cleanedQuery = query.replaceAll("[?.,!]$", "").trim();
         switch(intent) {
             case QUERY_STOCK:
                 return QUERY_STOCK_PATTERN.matcher(cleanedQuery).replaceAll("");
@@ -131,7 +162,6 @@ public class AIAssistantService {
             case NAVIGATE_TO:
                 return NAVIGATION_PATTERN.matcher(cleanedQuery).replaceAll("");
             default:
-                // Para outros casos, usa o método antigo como fallback
                 return StringUtil.extractValueAfter(cleanedQuery, new String[]{"de", "do", "da", "para", "para o", "para a"});
         }
     }
@@ -141,24 +171,30 @@ public class AIAssistantService {
         Optional<ConversationFlow> handlerOpt = findHandlerFor(intent);
 
         if (handlerOpt.isPresent()) {
-            context.startFlow(handlerOpt.get());
+            ConversationFlow handler = handlerOpt.get();
+            context.startFlow(handler);
             context.getCollectedData().put("intent", intent);
 
-            String extractedEntity = cleanAndExtractEntity(originalQuery, intent);
-
-            if (extractedEntity != null && !extractedEntity.isEmpty()) {
-                context.getCollectedData().put("entity", extractedEntity);
-                context.setLastEntity(null);
+            if (intent == Intent.EXECUTE_FULL_SALE) {
+                Map<String, Object> saleEntities = extractSaleEntities(originalQuery);
+                context.getCollectedData().putAll(saleEntities);
             } else {
-                context.getLastEntity().ifPresent(lastEntity -> {
-                    if (lastEntity instanceof Produto && isProductQuery(intent)) {
-                        context.getCollectedData().put("entity", ((Produto) lastEntity).getNome());
-                    } else if (lastEntity instanceof Cliente && isClientQuery(intent)) {
-                        context.getCollectedData().put("entity", ((Cliente) lastEntity).getNome());
-                    }
-                });
+                String extractedEntity = cleanAndExtractEntity(originalQuery, intent);
+                if (extractedEntity != null && !extractedEntity.isEmpty()) {
+                    context.getCollectedData().put("entity", extractedEntity);
+                    context.setLastEntity(null);
+                } else {
+                    context.getLastEntity().ifPresent(lastEntity -> {
+                        if (lastEntity instanceof Produto && isProductQuery(intent)) {
+                            context.getCollectedData().put("entity", ((Produto) lastEntity).getNome());
+                        } else if (lastEntity instanceof Cliente && isClientQuery(intent)) {
+                            context.getCollectedData().put("entity", ((Cliente) lastEntity).getNome());
+                        }
+                    });
+                }
             }
-            return handleOngoingConversation(originalQuery);
+
+            return handler.process(originalQuery, context.getCollectedData());
         }
 
         return new AssistantResponse("Não tenho a certeza de como processar esse pedido: " + intent.name());

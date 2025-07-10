@@ -13,7 +13,7 @@ import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
 import com.titanaxis.view.panels.*;
-import com.titanaxis.view.panels.dashboard.HomePanel; // IMPORTAÇÃO CORRIGIDA
+import com.titanaxis.view.panels.dashboard.HomePanel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -22,6 +22,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +40,7 @@ public class DashboardFrame extends JFrame {
     private JTabbedPane cadastrosTabbedPane;
     private JTabbedPane adminTabbedPane;
     private JTabbedPane vendasTabbedPane;
-    private JTabbedPane financeiroTabbedPane; // NOVO
+    private JTabbedPane financeiroTabbedPane;
 
     // Painéis Individuais
     private HomePanel homePanel;
@@ -54,7 +56,7 @@ public class DashboardFrame extends JFrame {
     private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
     private HistoricoVendasPanel historicoVendasPanel;
-    private FinanceiroPanel financeiroPanel; // NOVO
+    private FinanceiroPanel financeiroPanel;
     private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
@@ -173,9 +175,9 @@ public class DashboardFrame extends JFrame {
         vendasTabbedPane.addChangeListener(createRefreshListener(null));
 
         if (authService.isGerente()) {
-            financeiroPanel = new FinanceiroPanel(appContext); // NOVO
-            mainTabbedPane.addTab("Financeiro", financeiroPanel); // NOVO
-            mainTabbedPane.addChangeListener(createRefreshListener(financeiroPanel)); // NOVO
+            financeiroPanel = new FinanceiroPanel(appContext);
+            mainTabbedPane.addTab("Financeiro", financeiroPanel);
+            mainTabbedPane.addChangeListener(createRefreshListener(financeiroPanel));
 
             produtosEstoqueTabbedPane = new JTabbedPane();
             produtoPanel = new ProdutoPanel(appContext);
@@ -227,7 +229,7 @@ public class DashboardFrame extends JFrame {
         if (navigateToSubTab(produtosEstoqueTabbedPane, destination)) return;
         if (navigateToSubTab(cadastrosTabbedPane, destination)) return;
         if (navigateToSubTab(adminTabbedPane, destination)) return;
-        if (navigateToSubTab(financeiroTabbedPane, destination)) return; // NOVO
+        if (navigateToSubTab(financeiroTabbedPane, destination)) return;
     }
 
     private boolean navigateToSubTab(JTabbedPane parentTabPane, String subTabName) {
@@ -286,7 +288,6 @@ public class DashboardFrame extends JFrame {
                 case DIRECT_ADJUST_STOCK:
                     String prodName = (String) params.get("productName");
                     String lotNumber = (String) params.get("lotNumber");
-                    // CORREÇÃO: Trata a quantidade como um número, não como String.
                     Object quantityObj = params.get("quantity");
                     if (quantityObj instanceof String) {
                         int newQuantity = Integer.parseInt((String) quantityObj);
@@ -335,14 +336,44 @@ public class DashboardFrame extends JFrame {
     }
 
     private void showProactiveInsights() {
-        if (aiAssistantPanel != null) {
-            String insights = appContext.getAnalyticsService().getProactiveInsightsSummary();
-            if (insights != null && !insights.isEmpty()) {
-                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, Color.CYAN);
-                aiAssistantPanel.appendMessage("Olá! Tenho alguns insights para você hoje:\n" + insights, false);
-            } else {
-                aiAssistantPanel.appendMessage("Olá! Sou o Assistente. Como posso ajudar?", false);
+        if (aiAssistantPanel == null) return;
+
+        new SwingWorker<List<String>, Void>() {
+            @Override
+            protected List<String> doInBackground() throws Exception {
+                // Busca os insights em background para não bloquear a UI
+                return appContext.getAnalyticsService().getSystemInsightsSummary();
             }
+
+            @Override
+            protected void done() {
+                try {
+                    List<String> insights = get();
+                    String greeting = getGreetingByTimeOfDay();
+
+                    if (insights.isEmpty()) {
+                        aiAssistantPanel.appendMessage(greeting + " Como posso ajudar hoje?", false);
+                    } else {
+                        mainTabbedPane.setForegroundAt(aiAssistantTabIndex, Color.CYAN);
+                        String insightsMessage = greeting + " Notei alguns pontos que podem precisar da sua atenção:\n" + String.join("\n", insights);
+                        aiAssistantPanel.appendMessage(insightsMessage, false);
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "Falha ao obter insights proativos.", e);
+                    aiAssistantPanel.appendMessage(getGreetingByTimeOfDay() + " Tive um problema ao carregar os insights, mas estou pronto para ajudar.", false);
+                }
+            }
+        }.execute();
+    }
+
+    private String getGreetingByTimeOfDay() {
+        LocalTime now = LocalTime.now();
+        if (now.isBefore(LocalTime.NOON)) {
+            return "Bom dia!";
+        } else if (now.isBefore(LocalTime.of(18, 0))) {
+            return "Boa tarde!";
+        } else {
+            return "Boa noite!";
         }
     }
 

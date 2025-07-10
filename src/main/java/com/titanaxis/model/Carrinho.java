@@ -66,6 +66,16 @@ public class Carrinho {
         }
     }
 
+    // NOVO MÉTODO
+    public void aplicarCredito(double credito) {
+        if (credito >= 0) {
+            this.venda.setCreditoUtilizado(credito);
+            recalcularTotal();
+        } else {
+            throw new IllegalArgumentException("O crédito não pode ser negativo.");
+        }
+    }
+
     public void removerItem(int index) {
         if (index >= 0 && index < this.itens.size()) {
             this.itens.remove(index);
@@ -77,6 +87,7 @@ public class Carrinho {
         this.itens.clear();
         this.venda.setCliente(null);
         this.venda.setDescontoTotal(0);
+        this.venda.setCreditoUtilizado(0); // NOVO
         recalcularTotal();
     }
 
@@ -84,7 +95,8 @@ public class Carrinho {
         double subtotalItens = itens.stream()
                 .mapToDouble(VendaItem::getSubtotal)
                 .sum();
-        double totalFinal = subtotalItens - this.venda.getDescontoTotal();
+        double totalComDesconto = subtotalItens - this.venda.getDescontoTotal();
+        double totalFinal = totalComDesconto - this.venda.getCreditoUtilizado(); // NOVO
         this.venda.setValorTotal(Math.max(0, totalFinal)); // Garante que o total não seja negativo
     }
 

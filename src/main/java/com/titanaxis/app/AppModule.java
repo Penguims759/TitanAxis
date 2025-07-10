@@ -44,15 +44,18 @@ public class AppModule extends AbstractModule {
         bind(AIAssistantService.class).in(Singleton.class);
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
         flowBinder.addBinding().to(StartSaleFlow.class);
+        flowBinder.addBinding().to(ExecuteFullSaleFlow.class);
         flowBinder.addBinding().to(CreateUserFlow.class);
         flowBinder.addBinding().to(CreateProductFlow.class);
         flowBinder.addBinding().to(CreateCategoryFlow.class);
         flowBinder.addBinding().to(CreateClientFlow.class);
         flowBinder.addBinding().to(CreateFornecedorFlow.class);
+        flowBinder.addBinding().to(CreatePurchaseOrderFlow.class);
         flowBinder.addBinding().to(ManageStockFlow.class);
         flowBinder.addBinding().to(AdjustStockFlow.class);
+        flowBinder.addBinding().to(AdjustStockPercentageFlow.class); // NOVO
         flowBinder.addBinding().to(UpdateProductFlow.class);
-        flowBinder.addBinding().to(UpdateLoteFlow.class); // NOVO
+        flowBinder.addBinding().to(UpdateLoteFlow.class);
         flowBinder.addBinding().to(QueryStockFlow.class);
         flowBinder.addBinding().to(QueryClientDetailsFlow.class);
         flowBinder.addBinding().to(QueryProductLotsFlow.class);
@@ -63,6 +66,11 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(QueryLowStockFlow.class);
         flowBinder.addBinding().to(QueryTopClientsFlow.class);
         flowBinder.addBinding().to(QueryExpiringLotsFlow.class);
+        flowBinder.addBinding().to(QueryFinancialSummaryFlow.class);
+        flowBinder.addBinding().to(QuerySalespersonPerformanceFlow.class);
+        flowBinder.addBinding().to(QuerySalesComparisonFlow.class);
+        flowBinder.addBinding().to(QuerySystemInsightsFlow.class);
+        flowBinder.addBinding().to(QueryClientCreditFlow.class);
 
         bind(AppContext.class).in(Singleton.class);
     }
