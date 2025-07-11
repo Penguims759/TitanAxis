@@ -227,6 +227,9 @@ CREATE_MANUAL_HABIT adicione um hábito para ver os clientes devedores na sexta
 CREATE_MANUAL_HABIT registrar o hábito de analisar as vendas no sábado
 CREATE_MANUAL_HABIT quero adicionar um hábito manual
 CREATE_MANUAL_HABIT como adiciono um novo hábito?
+CREATE_MANUAL_HABIT habito
+CREATE_MANUAL_HABIT adicionar habito
+CREATE_MANUAL_HABIT vamos adicionar um habito
 START_SALE inicie uma venda para o cliente joao silva
 START_SALE começar uma venda para o cliente XPTO
 START_SALE abrir venda para o cliente Teste
@@ -750,12 +753,16 @@ QUERY_SYSTEM_INSIGHTS me mostre os insights do sistema
 QUERY_SYSTEM_INSIGHTS analise o sistema e me dê um resumo
 QUERY_SYSTEM_INSIGHTS insights do sistema
 QUERY_SYSTEM_INSIGHTS recomendações
+QUERY_SYSTEM_INSIGHTS insight
 QUERY_USER_HABITS quais são os meus hábitos?
 QUERY_USER_HABITS ver meus hábitos
 QUERY_USER_HABITS pode me mostrar os hábitos que você aprendeu?
 QUERY_USER_HABITS quero ver meus hábitos registrados
 QUERY_USER_HABITS como vejo meus hábitos
 QUERY_USER_HABITS listar meus hábitos
+QUERY_USER_HABITS habito
+QUERY_USER_HABITS habitos
+QUERY_USER_HABITS ver habitos
 GENERATE_REPORT gerar relatorio de vendas em pdf
 GENERATE_REPORT quero um relatorio de inventario em csv
 GENERATE_REPORT relatorio de vendas
