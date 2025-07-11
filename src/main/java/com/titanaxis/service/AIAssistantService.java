@@ -70,7 +70,7 @@ public class AIAssistantService {
         ConversationFlow handler = context.getCurrentFlow();
         AssistantResponse response = handler.process(originalQuery, context.getCollectedData());
 
-        if (response.getAction() != Action.AWAITING_INFO && response.getAction() != null && !response.getAction().name().startsWith("PROACTIVE_")) {
+        if (response.getAction() != Action.AWAITING_INFO) {
             Optional.ofNullable(context.getCollectedData().get("foundEntity")).ifPresent(entity -> {
                 context.setLastEntity(entity);
                 context.setLastIntent((Intent) context.getCollectedData().get("intent"));
@@ -86,11 +86,14 @@ public class AIAssistantService {
         context.resetFlow();
 
         if (userIntent == Intent.CONFIRM) {
+            String entityName = (String) params.get("nome"); // O nome da entidade (produto, cliente, fornecedor)
             switch (proactiveAction) {
                 case PROACTIVE_SUGGEST_ADD_LOTE:
-                    return startConversationFlow(Intent.MANAGE_STOCK, (String) params.get("nome"));
+                    return startConversationFlow(Intent.MANAGE_STOCK, entityName);
                 case PROACTIVE_SUGGEST_START_SALE:
-                    return startConversationFlow(Intent.START_SALE, (String) params.get("nome"));
+                    return startConversationFlow(Intent.START_SALE, entityName);
+                case PROACTIVE_SUGGEST_CREATE_PURCHASE_ORDER:
+                    return startConversationFlow(Intent.CREATE_PURCHASE_ORDER, "para o fornecedor " + entityName);
                 default:
                     return new AssistantResponse("Ok, mas não sei como continuar a partir daqui.");
             }
@@ -176,7 +179,22 @@ public class AIAssistantService {
                 });
             }
 
-            return handler.process(originalQuery, context.getCollectedData());
+            AssistantResponse response = handler.process(originalQuery, context.getCollectedData());
+
+            // *** INÍCIO DA CORREÇÃO ***
+            // Se a resposta do primeiro passo de um fluxo não estiver a aguardar
+            // mais informações, significa que o fluxo já terminou (é um "one-shot flow").
+            // Portanto, o contexto deve ser resetado.
+            if (response.getAction() != Action.AWAITING_INFO) {
+                Optional.ofNullable(context.getCollectedData().get("foundEntity")).ifPresent(entity -> {
+                    context.setLastEntity(entity);
+                    context.setLastIntent((Intent) context.getCollectedData().get("intent"));
+                });
+                context.resetFlow();
+            }
+            // *** FIM DA CORREÇÃO ***
+
+            return response;
         }
 
         return new AssistantResponse("Não tenho a certeza de como processar esse pedido: " + intent.name());

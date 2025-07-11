@@ -221,15 +221,46 @@ CREATE_PURCHASE_ORDER gerar um pedido ao fornecedor
 CREATE_PURCHASE_ORDER nova encomenda
 CREATE_PURCHASE_ORDER fazer uma encomenda
 CREATE_PURCHASE_ORDER registrar pedido de compra
+CREATE_PURCHASE_ORDER quero pedir mais material
+CREATE_PURCHASE_ORDER nova compra para fornecedor
+CREATE_PURCHASE_ORDER gerar ordem de compra
+CREATE_PURCHASE_ORDER abrir pedido de compra
+CREATE_PURCHASE_ORDER pode fazer um pedido?
+CREATE_PURCHASE_ORDER preciso comprar mais itens
+CREATE_PURCHASE_ORDER quero solicitar uma compra
+CREATE_PURCHASE_ORDER registrar uma nova compra
+CREATE_PURCHASE_ORDER como eu peço algo para um fornecedor
+CREATE_PURCHASE_ORDER me ajuda a fazer uma ordem de compra
+CREATE_PURCHASE_ORDER vamos pedir mais produtos
+CREATE_PURCHASE_ORDER solicitação de compra
+CREATE_PURCHASE_ORDER nova solicitação de compra
+CREATE_PURCHASE_ORDER fazer uma solicitação de compra
+CREATE_PURCHASE_ORDER quero fazer uma requisição
+CREATE_PURCHASE_ORDER preciso de uma nova ordem de compra
 CREATE_MANUAL_HABIT adicionar o hábito de gerar relatórios toda segunda-feira
 CREATE_MANUAL_HABIT quero que me lembre de verificar o stock às quartas
 CREATE_MANUAL_HABIT adicione um hábito para ver os clientes devedores na sexta
 CREATE_MANUAL_HABIT registrar o hábito de analisar as vendas no sábado
 CREATE_MANUAL_HABIT quero adicionar um hábito manual
 CREATE_MANUAL_HABIT como adiciono um novo hábito?
-CREATE_MANUAL_HABIT habito
 CREATE_MANUAL_HABIT adicionar habito
 CREATE_MANUAL_HABIT vamos adicionar um habito
+CREATE_MANUAL_HABIT criar novo habito
+CREATE_MANUAL_HABIT quero que me sugira uma ação
+CREATE_MANUAL_HABIT registrar um novo lembrete
+CREATE_MANUAL_HABIT como crio um hábito personalizado?
+CREATE_MANUAL_HABIT pode me lembrar de fazer algo?
+CREATE_MANUAL_HABIT quero definir uma sugestão
+CREATE_MANUAL_HABIT novo hábito manual
+CREATE_MANUAL_HABIT me ajude a criar um hábito
+CREATE_MANUAL_HABIT registrar hábito
+CREATE_MANUAL_HABIT como registrar um hábito
+CREATE_MANUAL_HABIT quero que me lembre de algo
+CREATE_MANUAL_HABIT criar um lembrete periódico
+CREATE_MANUAL_HABIT novo habito
+CREATE_MANUAL_HABIT quero um novo habito
+CREATE_MANUAL_HABIT definir um novo habito
+CREATE_MANUAL_HABIT cadastrar um habito
 START_SALE inicie uma venda para o cliente joao silva
 START_SALE começar uma venda para o cliente XPTO
 START_SALE abrir venda para o cliente Teste
@@ -279,6 +310,16 @@ EXECUTE_FULL_SALE faz a venda de 4 canetas do lote L1
 EXECUTE_FULL_SALE registrar a venda de 10 produtos X
 EXECUTE_FULL_SALE pode vender 1 borracha para mim?
 EXECUTE_FULL_SALE vender agora 20 unidades de Y para o cliente Z
+EXECUTE_FULL_SALE quero registrar a venda de 5 itens para o cliente Teste Final
+EXECUTE_FULL_SALE venda 15 unidades de agrafador
+EXECUTE_FULL_SALE preciso vender 30 borrachas do lote K10
+EXECUTE_FULL_SALE venda para o cliente ABC 3 unidades do produto X
+EXECUTE_FULL_SALE pode lançar a venda de 10 clips?
+EXECUTE_FULL_SALE registrar uma venda de 50 canetas azuis para o cliente Empresa A
+EXECUTE_FULL_SALE venda agora 2 teclados para o João
+EXECUTE_FULL_SALE quero vender 1 monitor para a Maria do lote MON-24
+EXECUTE_FULL_SALE vender 4 cadeiras
+EXECUTE_FULL_SALE registrar a venda de 2 mesas para a cliente Ana
 UPDATE_PRODUCT alterar o preço do produto caneta
 UPDATE_PRODUCT preciso mudar o status do produto borracha
 UPDATE_PRODUCT atualizar o produto lapis
@@ -432,6 +473,18 @@ ADJUST_STOCK_PERCENTAGE quero um aumento de 50% no estoque de borrachas
 ADJUST_STOCK_PERCENTAGE diminuir em 25% o estoque de lapis
 ADJUST_STOCK_PERCENTAGE aumentar em 10 por cento o estoque
 ADJUST_STOCK_PERCENTAGE reduzir 5 por cento do inventario de
+ADJUST_STOCK_PERCENTAGE quero aumentar 30% do estoque
+ADJUST_STOCK_PERCENTAGE ajuste percentual de estoque
+ADJUST_STOCK_PERCENTAGE como ajustar o estoque em porcentagem
+ADJUST_STOCK_PERCENTAGE preciso de um aumento de 15% no estoque
+ADJUST_STOCK_PERCENTAGE pode reduzir o inventário em 10 por cento?
+ADJUST_STOCK_PERCENTAGE aumentar o estoque percentualmente
+ADJUST_STOCK_PERCENTAGE reduzir o estoque em percentual
+ADJUST_STOCK_PERCENTAGE quero ajustar 5% para mais no estoque
+ADJUST_STOCK_PERCENTAGE ajuste de 10% no estoque de caneta
+ADJUST_STOCK_PERCENTAGE pode aumentar em 20% o produto X?
+ADJUST_STOCK_PERCENTAGE preciso diminuir 5% do estoque de Y
+ADJUST_STOCK_PERCENTAGE vamos ajustar o estoque em 10%
 QUERY_STOCK qual o estoque do produto caneta?
 QUERY_STOCK ver o stock de borracha
 QUERY_STOCK quantas unidades tem do produto lapis?
@@ -512,6 +565,18 @@ QUERY_CLIENT_CREDIT o cliente XPTO tem algum crédito?
 QUERY_CLIENT_CREDIT qual o saldo do cliente
 QUERY_CLIENT_CREDIT ver saldo de crédito
 QUERY_CLIENT_CREDIT crédito do cliente
+QUERY_CLIENT_CREDIT o cliente tem crédito?
+QUERY_CLIENT_CREDIT qual o crédito disponível para o cliente?
+QUERY_CLIENT_CREDIT me informe o crédito de
+QUERY_CLIENT_CREDIT verificar o crédito de
+QUERY_CLIENT_CREDIT quanto de crédito tem o cliente
+QUERY_CLIENT_CREDIT pode ver o crédito do cliente?
+QUERY_CLIENT_CREDIT saldo de crédito do cliente
+QUERY_CLIENT_CREDIT o cliente tem algum valor de crédito?
+QUERY_CLIENT_CREDIT como vejo o crédito de um cliente?
+QUERY_CLIENT_CREDIT me mostre o crédito do cliente
+QUERY_CLIENT_CREDIT consultar saldo devedor do cliente
+QUERY_CLIENT_CREDIT qual o valor de crédito do cliente
 QUERY_PRODUCT_LOTS quais os lotes da caneta?
 QUERY_PRODUCT_LOTS ver lotes do produto borracha
 QUERY_PRODUCT_LOTS lotes do produto lapis
@@ -733,18 +798,59 @@ QUERY_FINANCIAL_SUMMARY resumo financeiro
 QUERY_FINANCIAL_SUMMARY como foi a performance de vendas este mês?
 QUERY_FINANCIAL_SUMMARY me mostre o resumo financeiro
 QUERY_FINANCIAL_SUMMARY qual a receita do mês?
+QUERY_FINANCIAL_SUMMARY pode me dar um panorama financeiro?
+QUERY_FINANCIAL_SUMMARY resumo das finanças
+QUERY_FINANCIAL_SUMMARY como foram as vendas no geral?
+QUERY_FINANCIAL_SUMMARY me mostre os números de vendas
+QUERY_FINANCIAL_SUMMARY quero um resumo das vendas
+QUERY_FINANCIAL_SUMMARY como está o faturamento?
+QUERY_FINANCIAL_SUMMARY resumo de vendas
+QUERY_FINANCIAL_SUMMARY ver o resumo financeiro
+QUERY_FINANCIAL_SUMMARY me diga como estão as vendas
+QUERY_FINANCIAL_SUMMARY panorama de vendas
+QUERY_FINANCIAL_SUMMARY pode resumir as finanças?
+QUERY_FINANCIAL_SUMMARY quero ver o financeiro
+QUERY_FINANCIAL_SUMMARY como estamos de vendas?
 QUERY_SALESPERSON_PERFORMANCE como foram as vendas do joao este mês?
 QUERY_SALESPERSON_PERFORMANCE qual o desempenho do vendedor maria?
 QUERY_SALESPERSON_PERFORMANCE me mostre as vendas do utilizador admin
 QUERY_SALESPERSON_PERFORMANCE quanto o vendedor Teste vendeu?
 QUERY_SALESPERSON_PERFORMANCE desempenho de vendas do colaborador
 QUERY_SALESPERSON_PERFORMANCE analisar vendas do vendedor
+QUERY_SALESPERSON_PERFORMANCE qual a performance de vendas do funcionário
+QUERY_SALESPERSON_PERFORMANCE ver desempenho de vendas
+QUERY_SALESPERSON_PERFORMANCE como o vendedor está se saindo?
+QUERY_SALESPERSON_PERFORMANCE quero ver as vendas de um utilizador
+QUERY_SALESPERSON_PERFORMANCE pode me mostrar a performance de
+QUERY_SALESPERSON_PERFORMANCE desempenho do vendedor
+QUERY_SALESPERSON_PERFORMANCE analisar performance de vendas
+QUERY_SALESPERSON_PERFORMANCE vendas por vendedor
+QUERY_SALESPERSON_PERFORMANCE consultar vendas de um colaborador
+QUERY_SALESPERSON_PERFORMANCE me diga as vendas de um vendedor
+QUERY_SALESPERSON_PERFORMANCE como foram as vendas de um funcionário
+QUERY_SALESPERSON_PERFORMANCE qual o total de vendas do vendedor?
+QUERY_SALESPERSON_PERFORMANCE quero analisar o desempenho de vendas
+QUERY_SALESPERSON_PERFORMANCE ver as vendas de um usuário
 QUERY_SALES_COMPARISON compare as vendas de hoje com as de ontem
 QUERY_SALES_COMPARISON como estamos esta semana em comparação com a semana passada?
 QUERY_SALES_COMPARISON comparar vendas deste mês com o mês passado
 QUERY_SALES_COMPARISON vendas de hoje vs ontem
 QUERY_SALES_COMPARISON qual a diferença de vendas entre esta semana e a anterior?
 QUERY_SALES_COMPARISON comparação de vendas
+QUERY_SALES_COMPARISON compare as vendas
+QUERY_SALES_COMPARISON como foram as vendas de hoje comparadas às de ontem
+QUERY_SALES_COMPARISON quero comparar as vendas
+QUERY_SALES_COMPARISON qual a comparação de vendas?
+QUERY_SALES_COMPARISON pode comparar as vendas de dois períodos?
+QUERY_SALES_COMPARISON comparação de faturamento
+QUERY_SALES_COMPARISON comparar receita
+QUERY_SALES_COMPARISON me mostre a comparação de vendas
+QUERY_SALES_COMPARISON como comparar as vendas?
+QUERY_SALES_COMPARISON quero ver uma comparação de vendas
+QUERY_SALES_COMPARISON vendas de hoje em relação a ontem
+QUERY_SALES_COMPARISON compare as vendas do mês atual com o anterior
+QUERY_SALES_COMPARISON qual a evolução das vendas?
+QUERY_SALES_COMPARISON comparar performance de vendas
 QUERY_SYSTEM_INSIGHTS me dê os insights de hoje
 QUERY_SYSTEM_INSIGHTS quais são as recomendações para o sistema?
 QUERY_SYSTEM_INSIGHTS o que preciso saber hoje?
@@ -754,15 +860,40 @@ QUERY_SYSTEM_INSIGHTS analise o sistema e me dê um resumo
 QUERY_SYSTEM_INSIGHTS insights do sistema
 QUERY_SYSTEM_INSIGHTS recomendações
 QUERY_SYSTEM_INSIGHTS insight
+QUERY_SYSTEM_INSIGHTS tem alguma dica para mim?
+QUERY_SYSTEM_INSIGHTS o que o sistema sugere?
+QUERY_SYSTEM_INSIGHTS me dê uma análise
+QUERY_SYSTEM_INSIGHTS quais os pontos de atenção?
+QUERY_SYSTEM_INSIGHTS sugestões do sistema
+QUERY_SYSTEM_INSIGHTS quero ver os insights
+QUERY_SYSTEM_INSIGHTS pode me dar um insight?
+QUERY_SYSTEM_INSIGHTS quais as sugestões do sistema?
+QUERY_SYSTEM_INSIGHTS me mostre as recomendações
+QUERY_SYSTEM_INSIGHTS análise do sistema
+QUERY_SYSTEM_INSIGHTS o que devo fazer agora?
 QUERY_USER_HABITS quais são os meus hábitos?
 QUERY_USER_HABITS ver meus hábitos
 QUERY_USER_HABITS pode me mostrar os hábitos que você aprendeu?
 QUERY_USER_HABITS quero ver meus hábitos registrados
 QUERY_USER_HABITS como vejo meus hábitos
 QUERY_USER_HABITS listar meus hábitos
-QUERY_USER_HABITS habito
-QUERY_USER_HABITS habitos
 QUERY_USER_HABITS ver habitos
+QUERY_USER_HABITS quais habitos voce conhece?
+QUERY_USER_HABITS meus habitos
+QUERY_USER_HABITS meus habitos registrados
+QUERY_USER_HABITS me mostre meus habitos
+QUERY_USER_HABITS quais hábitos você aprendeu sobre mim?
+QUERY_USER_HABITS me mostre meus hábitos de uso
+QUERY_USER_HABITS quero ver as minhas rotinas
+QUERY_USER_HABITS como você aprende meus hábitos?
+QUERY_USER_HABITS quais são os meus padrões?
+QUERY_USER_HABITS me diga meus hábitos
+QUERY_USER_HABITS pode listar meus hábitos?
+QUERY_USER_HABITS quero ver meus hábitos de trabalho
+QUERY_USER_HABITS me mostre as sugestões baseadas nos meus hábitos
+QUERY_USER_HABITS quais as minhas ações mais frequentes?
+QUERY_USER_HABITS ver os hábitos aprendidos
+QUERY_USER_HABITS meus hábitos
 GENERATE_REPORT gerar relatorio de vendas em pdf
 GENERATE_REPORT quero um relatorio de inventario em csv
 GENERATE_REPORT relatorio de vendas

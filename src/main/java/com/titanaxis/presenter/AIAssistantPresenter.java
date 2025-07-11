@@ -92,5 +92,17 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
                 timer.start();
             }
         }
+        // NOVO BLOCO: Sugere criar pedido de compra após criar fornecedor
+        else if (completedAction == Action.DIRECT_CREATE_FORNECEDOR && params != null) {
+            String nomeFornecedor = (String) params.get("nome");
+            if (nomeFornecedor != null) {
+                Timer timer = new Timer(1500, e -> {
+                    service.getContext().setPendingProactiveAction(Action.PROACTIVE_SUGGEST_CREATE_PURCHASE_ORDER, params);
+                    view.appendMessage("Fornecedor '" + nomeFornecedor + "' criado. Gostaria de criar um pedido de compra para ele agora?", false);
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        }
     }
 }
