@@ -14,8 +14,9 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.model.ModelUtil;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -28,12 +29,34 @@ public class NLPIntentService {
     private static final Logger logger = AppLogger.getLogger();
     private DocumentCategorizerME categorizer;
     private static final String TRAINING_FILE = "/ai/intent-train.txt";
+    private static final String MODEL_FILE = "nlp-intent-model.bin"; // NOVO: Ficheiro para guardar o modelo
 
     public NLPIntentService() {
-        trainModel();
+        loadOrTrainModel(); // ALTERADO: Chama o novo método
     }
 
-    private void trainModel() {
+    // NOVO MÉTODO: Carrega o modelo se existir, senão, treina e guarda.
+    private void loadOrTrainModel() {
+        try {
+            File modelFile = new File(MODEL_FILE);
+            if (modelFile.exists()) {
+                logger.info("A carregar modelo de intenção pré-treinado do ficheiro...");
+                try (InputStream modelIn = new FileInputStream(modelFile)) {
+                    DoccatModel model = new DoccatModel(modelIn);
+                    this.categorizer = new DocumentCategorizerME(model);
+                    logger.info("Modelo de intenção carregado com sucesso.");
+                }
+            } else {
+                logger.info("Nenhum modelo pré-treinado encontrado. A iniciar treino...");
+                trainAndSaveModel(modelFile);
+            }
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo de intenção.", e);
+        }
+    }
+
+    // ALTERADO: Método agora guarda o modelo após o treino.
+    private void trainAndSaveModel(File modelFile) throws IOException {
         try (InputStream dataIn = getClass().getResourceAsStream(TRAINING_FILE)) {
             if (dataIn == null) {
                 throw new IOException("Ficheiro de treino não encontrado: " + TRAINING_FILE);
@@ -44,15 +67,17 @@ public class NLPIntentService {
             ObjectStream<DocumentSample> sampleStream = new DocumentSampleStream(lineStream);
 
             TrainingParameters params = ModelUtil.createDefaultTrainingParameters();
-            params.put(TrainingParameters.CUTOFF_PARAM, 1); // Reduzido para incluir todas as features com poucas amostras
+            params.put(TrainingParameters.CUTOFF_PARAM, 1);
 
             DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, params, new DoccatFactory());
-
             this.categorizer = new DocumentCategorizerME(model);
             logger.info("Modelo de intenção treinado com sucesso.");
 
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao treinar o modelo de intenção.", e);
+            // Salva o modelo treinado no ficheiro
+            try (FileOutputStream modelOut = new FileOutputStream(modelFile)) {
+                model.serialize(modelOut);
+                logger.info("Modelo de intenção guardado em: " + modelFile.getAbsolutePath());
+            }
         }
     }
 

@@ -10,9 +10,11 @@ import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.model.ModelUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,12 +27,33 @@ public class NerService {
     private static final Logger logger = AppLogger.getLogger();
     private TokenNameFinderModel nerModel;
     private static final String TRAINING_FILE = "/ai/ner-train.txt";
+    private static final String MODEL_FILE = "ner-model.bin"; // NOVO: Ficheiro para guardar o modelo
 
     public NerService() {
-        trainModel();
+        loadOrTrainModel(); // ALTERADO: Chama o novo método
     }
 
-    private void trainModel() {
+    // NOVO MÉTODO: Carrega o modelo se existir, senão, treina e guarda.
+    private void loadOrTrainModel() {
+        try {
+            File modelFile = new File(MODEL_FILE);
+            if (modelFile.exists()) {
+                logger.info("A carregar modelo NER pré-treinado do ficheiro...");
+                try (InputStream modelIn = new FileInputStream(modelFile)) {
+                    nerModel = new TokenNameFinderModel(modelIn);
+                    logger.info("Modelo NER carregado com sucesso.");
+                }
+            } else {
+                logger.info("Nenhum modelo NER pré-treinado encontrado. A iniciar treino...");
+                trainAndSaveModel(modelFile);
+            }
+        } catch (java.io.IOException e) {
+            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo NER.", e);
+        }
+    }
+
+    // ALTERADO: Método agora guarda o modelo após o treino.
+    private void trainAndSaveModel(File modelFile) throws java.io.IOException {
         try (InputStream dataIn = getClass().getResourceAsStream(TRAINING_FILE)) {
             if (dataIn == null) {
                 throw new java.io.IOException("Ficheiro de treino NER não encontrado: " + TRAINING_FILE);
@@ -46,8 +69,11 @@ public class NerService {
             nerModel = NameFinderME.train("pt", null, sampleStream, params, TokenNameFinderFactory.create(null, null, Collections.emptyMap(), new BioCodec()));
             logger.info("Modelo de Reconhecimento de Entidades (NER) treinado com sucesso.");
 
-        } catch (java.io.IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao treinar o modelo NER.", e);
+            // Salva o modelo treinado no ficheiro
+            try (FileOutputStream modelOut = new FileOutputStream(modelFile)) {
+                nerModel.serialize(modelOut);
+                logger.info("Modelo NER guardado em: " + modelFile.getAbsolutePath());
+            }
         }
     }
 
@@ -57,11 +83,9 @@ public class NerService {
             return Collections.emptyMap();
         }
 
-        // *** INÍCIO DA CORREÇÃO ***
-        NameFinderME nameFinder = new NameFinderME(nerModel); // Cria a ferramenta de busca a partir do modelo
+        NameFinderME nameFinder = new NameFinderME(nerModel);
         String[] tokens = sentence.split("\\s+");
-        Span[] nameSpans = nameFinder.find(tokens); // Usa a ferramenta (nameFinder) e não o modelo (nerModel)
-        // *** FIM DA CORREÇÃO ***
+        Span[] nameSpans = nameFinder.find(tokens);
 
         Map<String, String> entities = new HashMap<>();
         for (Span span : nameSpans) {
@@ -69,7 +93,6 @@ public class NerService {
             for (int i = span.getStart(); i < span.getEnd(); i++) {
                 entityValue.append(tokens[i]).append(" ");
             }
-            // Limpa o valor da entidade de palavras comuns que podem ser apanhadas
             String cleanedValue = entityValue.toString().trim()
                     .replaceFirst("^(cliente|lote|fornecedor)\\s", "");
 
