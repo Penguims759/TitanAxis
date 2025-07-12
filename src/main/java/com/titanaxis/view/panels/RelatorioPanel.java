@@ -5,7 +5,7 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.ComissaoRelatorioDialog;
 
@@ -32,17 +32,17 @@ public class RelatorioPanel extends JPanel {
     public RelatorioPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
 
-        // ALTERADO
-        inventarioCsvButton = new JButton(I18n.getString("report.button.generateCsv"));
-        inventarioPdfButton = new JButton(I18n.getString("report.button.generatePdf"));
-        vendasCsvButton = new JButton(I18n.getString("report.button.generateCsv"));
-        vendasPdfButton = new JButton(I18n.getString("report.button.generatePdf"));
+        // CORRIGIDO
+        inventarioCsvButton = new JButton(I18n.getString("button.generateCsv"));
+        inventarioPdfButton = new JButton(I18n.getString("button.generatePdf"));
+        vendasCsvButton = new JButton(I18n.getString("button.generateCsv"));
+        vendasPdfButton = new JButton(I18n.getString("button.generatePdf"));
         comissoesButton = new JButton(I18n.getString("report.button.generateCommissionReport"));
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel(I18n.getString("report.panel.title")); // ALTERADO
+        JLabel titleLabel = new JLabel(I18n.getString("report.panel.title"));
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(titleLabel, BorderLayout.NORTH);
@@ -53,7 +53,7 @@ public class RelatorioPanel extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         JPanel inventarioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        inventarioPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.inventoryTitle"))); // ALTERADO
+        inventarioPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.inventoryTitle")));
         inventarioCsvButton.addActionListener(e -> gerarRelatorioInventarioCsv());
         inventarioPanel.add(inventarioCsvButton);
         inventarioPdfButton.addActionListener(e -> gerarRelatorioInventarioPdf());
@@ -61,7 +61,7 @@ public class RelatorioPanel extends JPanel {
         centerPanel.add(inventarioPanel, gbc);
 
         JPanel vendasPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        vendasPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.salesTitle"))); // ALTERADO
+        vendasPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.salesTitle")));
         vendasCsvButton.addActionListener(e -> gerarRelatorioVendasCsv());
         vendasPanel.add(vendasCsvButton);
         vendasPdfButton.addActionListener(e -> gerarRelatorioVendasPdf());
@@ -69,7 +69,7 @@ public class RelatorioPanel extends JPanel {
         centerPanel.add(vendasPanel, gbc);
 
         JPanel comissoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        comissoesPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.commissionTitle"))); // ALTERADO
+        comissoesPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.commissionTitle")));
         comissoesButton.addActionListener(e -> gerarRelatorioComissoes());
         comissoesPanel.add(comissoesButton);
         centerPanel.add(comissoesPanel, gbc);
@@ -84,13 +84,13 @@ public class RelatorioPanel extends JPanel {
         if (dialog.isConfirmado()) {
             LocalDate inicio = dialog.getDataInicio().orElse(LocalDate.now().withDayOfMonth(1));
             LocalDate fim = dialog.getDataFim().orElse(LocalDate.now());
-            UIMessageUtil.showInfoMessage(this, I18n.getString("report.panel.commission.futureFeature"), I18n.getString("warning.title")); // ALTERADO
+            UIMessageUtil.showInfoMessage(this, I18n.getString("report.panel.commission.futureFeature"), I18n.getString("warning.title"));
         }
     }
 
 
     private void gerarRelatorioInventarioCsv() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", I18n.getString("report.fileChooser.csvFilter")); // ALTERADO
+        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", I18n.getString("report.fileChooser.csvFilter"));
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
         setBotoesAtivados(false);
@@ -107,7 +107,7 @@ public class RelatorioPanel extends JPanel {
                     String conteudoCSV = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, conteudoCSV, null);
                 } catch (Exception ex) {
-                    handleException(I18n.getString("report.error.generateCsvInventory"), ex); // ALTERADO
+                    handleException(I18n.getString("report.error.generateCsvInventory"), ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -117,7 +117,7 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void gerarRelatorioVendasCsv() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "csv", I18n.getString("report.fileChooser.csvFilter")); // ALTERADO
+        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "csv", I18n.getString("report.fileChooser.csvFilter"));
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
         setBotoesAtivados(false);
@@ -134,7 +134,7 @@ public class RelatorioPanel extends JPanel {
                     String conteudoCSV = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, conteudoCSV, null);
                 } catch (Exception ex) {
-                    handleException(I18n.getString("report.error.generateCsvSales"), ex); // ALTERADO
+                    handleException(I18n.getString("report.error.generateCsvSales"), ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -144,7 +144,7 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void gerarRelatorioInventarioPdf() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "pdf", I18n.getString("report.fileChooser.pdfFilter")); // ALTERADO
+        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "pdf", I18n.getString("report.fileChooser.pdfFilter"));
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
         setBotoesAtivados(false);
@@ -161,7 +161,7 @@ public class RelatorioPanel extends JPanel {
                     ByteArrayOutputStream baos = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, null, baos);
                 } catch (Exception ex) {
-                    handleException(I18n.getString("report.error.generatePdfInventory"), ex); // ALTERADO
+                    handleException(I18n.getString("report.error.generatePdfInventory"), ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -171,7 +171,7 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void gerarRelatorioVendasPdf() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "pdf", I18n.getString("report.fileChooser.pdfFilter")); // ALTERADO
+        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "pdf", I18n.getString("report.fileChooser.pdfFilter"));
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
         setBotoesAtivados(false);
@@ -188,7 +188,7 @@ public class RelatorioPanel extends JPanel {
                     ByteArrayOutputStream baos = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, null, baos);
                 } catch (Exception ex) {
-                    handleException(I18n.getString("report.error.generatePdfSales"), ex); // ALTERADO
+                    handleException(I18n.getString("report.error.generatePdfSales"), ex);
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -208,15 +208,15 @@ public class RelatorioPanel extends JPanel {
             }
         }
 
-        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("report.dialog.saveSuccess", file.getAbsolutePath()), I18n.getString("success.title"))) { // ALTERADO
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("report.dialog.saveSuccess", file.getAbsolutePath()), I18n.getString("success.title"))) {
             if (Desktop.isDesktopSupported()) {
                 try {
                     Desktop.getDesktop().open(file);
                 } catch (IOException ex) {
-                    handleException(I18n.getString("report.error.openFile"), ex); // ALTERADO
+                    handleException(I18n.getString("report.error.openFile"), ex);
                 }
             } else {
-                UIMessageUtil.showWarningMessage(this, I18n.getString("report.error.unsupportedOpenFile"), I18n.getString("warning.title")); // ALTERADO
+                UIMessageUtil.showWarningMessage(this, I18n.getString("report.error.unsupportedOpenFile"), I18n.getString("warning.title"));
             }
         }
     }
@@ -233,18 +233,18 @@ public class RelatorioPanel extends JPanel {
     private void handleException(String message, Exception ex) {
         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
         logger.log(Level.SEVERE, message, cause);
-        String errorMessage = I18n.getString("error.unexpected.title"); // ALTERADO
+        String errorMessage = I18n.getString("error.unexpected.title");
         if (cause instanceof PersistenciaException) {
-            errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage(); // ALTERADO
+            errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage();
         } else if (cause instanceof IOException) {
-            errorMessage = I18n.getString("error.file.title") + ": " + I18n.getString("report.error.saveFile"); // ALTERADO
+            errorMessage = I18n.getString("error.file.title") + ": " + I18n.getString("report.error.saveFile");
         }
-        UIMessageUtil.showErrorMessage(this, errorMessage + "\n" + I18n.getString("error.seeLogs"), "Erro"); // ALTERADO
+        UIMessageUtil.showErrorMessage(this, errorMessage + "\n" + I18n.getString("error.seeLogs"), "Erro");
     }
 
     private JFileChooser createFileChooser(String nomeBase, String ext, String desc) {
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle(I18n.getString("report.fileChooser.title")); // ALTERADO
+        fc.setDialogTitle(I18n.getString("report.fileChooser.title"));
         fc.setSelectedFile(new File(nomeBase + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "." + ext));
         fc.setFileFilter(new FileNameExtensionFilter(desc, ext));
         return fc;

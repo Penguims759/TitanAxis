@@ -5,7 +5,7 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.presenter.MovimentoPresenter;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.VendaDetalhesDialog;
 import com.titanaxis.view.interfaces.MovimentoView;
@@ -41,7 +41,6 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         this.appContext = appContext;
         this.owner = owner;
 
-        // ALTERADO
         tableModel = new DefaultTableModel(new String[]{
                 I18n.getString("movement.table.header.date"),
                 I18n.getString("movement.table.header.product"),
@@ -67,7 +66,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createTitledBorder(I18n.getString("movement.panel.title"))); // ALTERADO
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("movement.panel.title")));
 
         add(createTopPanel(), BorderLayout.NORTH);
 
@@ -98,7 +97,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
 
         JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         southPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
-        southPanel.add(new JLabel(I18n.getString("movement.panel.tip"))); // ALTERADO
+        southPanel.add(new JLabel(I18n.getString("movement.panel.tip")));
         add(southPanel, BorderLayout.SOUTH);
     }
 
@@ -110,11 +109,11 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
                                 VendaDetalhesDialog dialog = new VendaDetalhesDialog(owner, venda, appContext.getRelatorioService());
                                 dialog.setVisible(true);
                             },
-                            () -> UIMessageUtil.showWarningMessage(this, I18n.getString("movement.error.detailsNotFound"), I18n.getString("warning.title")) // ALTERADO
+                            () -> UIMessageUtil.showWarningMessage(this, I18n.getString("movement.error.detailsNotFound"), I18n.getString("warning.title"))
                     );
         } catch (Exception e) {
             e.printStackTrace();
-            UIMessageUtil.showErrorMessage(this, I18n.getString("movement.error.unexpectedDetails", e.getMessage()), I18n.getString("error.critical.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("movement.error.unexpectedDetails", e.getMessage()), I18n.getString("error.critical.title"));
         }
     }
 
@@ -122,7 +121,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         JPanel topPanel = new JPanel(new BorderLayout());
 
         JPanel textFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        textFilterPanel.add(new JLabel(I18n.getString("movement.label.filterByText"))); // ALTERADO
+        textFilterPanel.add(new JLabel(I18n.getString("movement.label.filterByText")));
         JTextField filterField = new JTextField(30);
         textFilterPanel.add(filterField);
         filterField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -145,10 +144,10 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         dataFimSpinner.setEditor(new JSpinner.DateEditor(dataFimSpinner, "dd/MM/yyyy"));
         dataFimSpinner.addChangeListener(e -> dateFilterTimer.restart());
 
-        JButton refreshButton = new JButton(I18n.getString("button.refresh")); // ALTERADO
+        JButton refreshButton = new JButton(I18n.getString("button.refresh"));
         refreshButton.addActionListener(e -> listener.aoCarregarMovimentos());
 
-        JButton clearFilterButton = new JButton(I18n.getString("button.clearFilters")); // ALTERADO
+        JButton clearFilterButton = new JButton(I18n.getString("button.clearFilters")); // CORRIGIDO
         clearFilterButton.addActionListener(e -> {
             filterField.setText("");
             dataInicioSpinner.setValue(new Date());
@@ -156,9 +155,9 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
             listener.aoCarregarMovimentos();
         });
 
-        dateFilterPanel.add(new JLabel(I18n.getString("movement.label.from"))); // ALTERADO
+        dateFilterPanel.add(new JLabel(I18n.getString("movement.label.from")));
         dateFilterPanel.add(dataInicioSpinner);
-        dateFilterPanel.add(new JLabel(I18n.getString("movement.label.to"))); // ALTERADO
+        dateFilterPanel.add(new JLabel(I18n.getString("movement.label.to")));
         dateFilterPanel.add(dataFimSpinner);
         dateFilterPanel.add(clearFilterButton);
         dateFilterPanel.add(refreshButton);

@@ -24,6 +24,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,21 +168,47 @@ public class DashboardFrame extends JFrame {
     }
 
     private void switchLanguage(String language, String country) {
-        Locale newLocale = new Locale(language, country);
-        I18n.setLocale(newLocale);
-        // Salva a preferência de idioma para o utilizador atual E para o utilizador "padrão"
-        personalizationService.savePreference("locale", newLocale.toLanguageTag());
-        new UIPersonalizationService("default_user").savePreference("locale", newLocale.toLanguageTag());
+        try {
+            Locale newLocale = new Locale(language, country);
+            // Salva a preferência de idioma para o utilizador atual E para o utilizador "padrão"
+            personalizationService.savePreference("locale", newLocale.toLanguageTag());
+            new UIPersonalizationService("default_user").savePreference("locale", newLocale.toLanguageTag());
 
-        JOptionPane.showMessageDialog(this,
-                I18n.getString("dashboard.language.restartMessage"),
-                I18n.getString("dashboard.language.restartTitle"),
-                JOptionPane.INFORMATION_MESSAGE);
+            // Define o locale para que o JOptionPane apareça no idioma correto
+            I18n.setLocale(newLocale);
 
-        this.dispose();
-        authService.logout();
-        LoginFrame login = new LoginFrame(appContext);
-        login.setVisible(true);
+            JOptionPane.showMessageDialog(this,
+                    I18n.getString("dashboard.language.restartMessage"),
+                    I18n.getString("dashboard.language.restartTitle"),
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            // Código para reiniciar a aplicação
+            final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+            final File currentJar = new File(MainApp.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+            // Verifica se está a correr a partir de um JAR
+            if (!currentJar.getName().endsWith(".jar")) {
+                // Se não estiver num JAR (ex: a correr a partir da IDE), apenas fecha.
+                // O utilizador da IDE pode reiniciar manualmente.
+                System.exit(0);
+                return;
+            }
+
+            // Constrói o comando para reiniciar
+            final ArrayList<String> command = new ArrayList<>();
+            command.add(javaBin);
+            command.add("-jar");
+            command.add(currentJar.getPath());
+
+            final ProcessBuilder builder = new ProcessBuilder(command);
+            builder.start();
+            System.exit(0);
+
+        } catch (java.net.URISyntaxException | IOException e) {
+            logger.log(Level.SEVERE, "Falha ao tentar reiniciar a aplicação.", e);
+            UIMessageUtil.showErrorMessage(this, "Não foi possível reiniciar a aplicação automaticamente. Por favor, reinicie manualmente.", "Erro de Reinicialização");
+            System.exit(0); // Fecha mesmo que não consiga reiniciar.
+        }
     }
 
     private void openCustomizationDialog() {

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/util/I18n.java
 package com.titanaxis.util;
 
 import java.util.Locale;
@@ -13,6 +12,7 @@ public final class I18n {
     private static Locale currentLocale;
 
     static {
+        // Define o locale padrão na inicialização
         setLocale(new Locale("pt", "BR"));
     }
 
@@ -21,10 +21,12 @@ public final class I18n {
     public static void setLocale(Locale locale) {
         currentLocale = locale;
         try {
-            bundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, currentLocale);
+            // Garante que o ResourceBundle seja carregado usando o ClassLoader da thread atual, o que é mais seguro em aplicações Swing.
+            bundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, currentLocale, Thread.currentThread().getContextClassLoader());
             AppLogger.getLogger().info("ResourceBundle para o locale '" + locale + "' carregado com sucesso.");
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Não foi possível carregar o ResourceBundle: " + BUNDLE_BASE_NAME + " para o locale " + locale, e);
+            // Fallback para um ResourceBundle vazio para evitar NullPointerException
             bundle = new ResourceBundle() {
                 @Override
                 protected Object handleGetObject(String key) {

@@ -1,4 +1,3 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/LoginFrame.java
 package com.titanaxis.view;
 
 import com.titanaxis.app.AppContext;
@@ -6,7 +5,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
@@ -23,7 +22,7 @@ public class LoginFrame extends JFrame {
     private static final Logger logger = AppLogger.getLogger();
 
     public LoginFrame(AppContext appContext) {
-        super(I18n.getString("login.title")); // ALTERADO
+        super(I18n.getString("login.title"));
         this.appContext = appContext;
         this.authService = appContext.getAuthService();
 
@@ -36,7 +35,7 @@ public class LoginFrame extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel(I18n.getString("login.welcomeMessage")); // ALTERADO
+        JLabel titleLabel = new JLabel(I18n.getString("login.welcomeMessage"));
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(titleLabel);
@@ -45,9 +44,9 @@ public class LoginFrame extends JFrame {
         JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         inputPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel userLabel = new JLabel(I18n.getString("login.usernameLabel")); // ALTERADO
+        JLabel userLabel = new JLabel(I18n.getString("login.usernameLabel"));
         usernameField = new JTextField(20);
-        JLabel passLabel = new JLabel(I18n.getString("login.passwordLabel")); // ALTERADO
+        JLabel passLabel = new JLabel(I18n.getString("login.passwordLabel"));
         passwordField = new JPasswordField(20);
 
         passwordField.addActionListener(e -> performLogin());
@@ -60,7 +59,7 @@ public class LoginFrame extends JFrame {
         panel.add(inputPanel);
         panel.add(Box.createVerticalStrut(20));
 
-        JButton loginButton = new JButton(I18n.getString("login.loginButton")); // ALTERADO
+        JButton loginButton = new JButton(I18n.getString("login.loginButton"));
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginButton.addActionListener(e -> performLogin());
 
@@ -73,7 +72,7 @@ public class LoginFrame extends JFrame {
         String password = new String(passwordField.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.emptyFields"), I18n.getString("login.error.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.emptyFields"), I18n.getString("error.title"));
             return;
         }
 
@@ -83,21 +82,21 @@ public class LoginFrame extends JFrame {
             if (usuarioOpt.isPresent()) {
                 Usuario usuario = usuarioOpt.get();
                 logger.info("Usuário " + usuario.getNomeUsuario() + " logou com sucesso.");
-                UIMessageUtil.showInfoMessage(this, I18n.getString("login.success.message", usuario.getNomeUsuario()), I18n.getString("login.success.title")); // ALTERADO
+                UIMessageUtil.showInfoMessage(this, I18n.getString("login.success.message", usuario.getNomeUsuario()), I18n.getString("success.title"));
 
                 DashboardFrame dashboard = new DashboardFrame(appContext);
                 dashboard.setVisible(true);
                 this.dispose();
             } else {
-                UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.invalidCredentials"), I18n.getString("login.error.title")); // ALTERADO
+                UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.invalidCredentials"), I18n.getString("error.title"));
                 logger.warning("Falha de login para o usuário: " + username);
             }
         } catch (PersistenciaException ex) {
             logger.log(Level.SEVERE, "Erro de base de dados durante o login do usuário: " + username, ex);
-            UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.dbConnection"), I18n.getString("login.error.connectionTitle")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.dbConnection"), I18n.getString("login.error.connectionTitle"));
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Erro inesperado durante o login do usuário: " + username, ex);
-            UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.unexpected"), I18n.getString("login.error.genericTitle")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.unexpected"), I18n.getString("error.title"));
         }
     }
 }
