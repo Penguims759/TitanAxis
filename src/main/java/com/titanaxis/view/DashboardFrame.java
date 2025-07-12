@@ -1,9 +1,9 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.titanaxis.app.AppContext;
+import com.titanaxis.app.MainApp;
 import com.titanaxis.model.*;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.auditoria.Habito;
@@ -27,6 +27,7 @@ import java.awt.event.WindowEvent;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -64,7 +65,7 @@ public class DashboardFrame extends JFrame {
     private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
-        super(I18n.getString("dashboard.title")); // ALTERADO
+        super(I18n.getString("dashboard.title"));
         this.appContext = appContext;
         this.authService = appContext.getAuthService();
         this.personalizationService = new UIPersonalizationService(
@@ -100,35 +101,60 @@ public class DashboardFrame extends JFrame {
 
     private void setupMenuBar() {
         final JMenuBar menuBar = new JMenuBar();
-        final JMenu menuArquivo = new JMenu(I18n.getString("dashboard.menu.file")); // ALTERADO
-        final JMenu menuView = new JMenu(I18n.getString("dashboard.menu.view")); // ALTERADO
-        final JMenu menuTema = new JMenu(I18n.getString("dashboard.menu.changeTheme")); // ALTERADO
+        final JMenu menuArquivo = new JMenu(I18n.getString("dashboard.menu.file"));
+        final JMenu menuView = new JMenu(I18n.getString("dashboard.menu.view"));
+        final JMenu menuTema = new JMenu(I18n.getString("dashboard.menu.changeTheme"));
+        final JMenu menuIdioma = new JMenu(I18n.getString("dashboard.menu.language"));
         final ButtonGroup themeGroup = new ButtonGroup();
+        final ButtonGroup languageGroup = new ButtonGroup();
 
-        final JMenuItem customizeDashboardItem = new JMenuItem(I18n.getString("dashboard.menu.customize")); // ALTERADO
+        final JMenuItem customizeDashboardItem = new JMenuItem(I18n.getString("dashboard.menu.customize"));
         customizeDashboardItem.addActionListener(e -> openCustomizationDialog());
         menuView.add(customizeDashboardItem);
 
-        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.lightTheme")); // ALTERADO
+        // Itens de menu para TEMA
+        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.lightTheme"));
         lightThemeItem.addActionListener(e -> setTheme("light"));
-
-        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.darkTheme")); // ALTERADO
-        darkThemeItem.setSelected(true);
+        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.darkTheme"));
         darkThemeItem.addActionListener(e -> setTheme("dark"));
-
         themeGroup.add(lightThemeItem);
         themeGroup.add(darkThemeItem);
         menuTema.add(lightThemeItem);
         menuTema.add(darkThemeItem);
 
-        final JMenuItem logoutMenuItem = new JMenuItem(I18n.getString("dashboard.menu.logout")); // ALTERADO
+        // Itens de menu para IDIOMA
+        JRadioButtonMenuItem ptBrItem = new JRadioButtonMenuItem("Português (Brasil)");
+        ptBrItem.addActionListener(e -> switchLanguage("pt", "BR"));
+        JRadioButtonMenuItem enUsItem = new JRadioButtonMenuItem("English (US)");
+        enUsItem.addActionListener(e -> switchLanguage("en", "US"));
+        languageGroup.add(ptBrItem);
+        languageGroup.add(enUsItem);
+        menuIdioma.add(ptBrItem);
+        menuIdioma.add(enUsItem);
+
+        // Define o botão de idioma selecionado com base no Locale atual
+        if ("pt".equals(I18n.getCurrentLocale().getLanguage())) {
+            ptBrItem.setSelected(true);
+        } else {
+            enUsItem.setSelected(true);
+        }
+
+        // Define o tema selecionado
+        if ("light".equals(personalizationService.getPreference("theme", "dark"))) {
+            lightThemeItem.setSelected(true);
+        } else {
+            darkThemeItem.setSelected(true);
+        }
+
+        final JMenuItem logoutMenuItem = new JMenuItem(I18n.getString("dashboard.menu.logout"));
         logoutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         logoutMenuItem.addActionListener(e -> fazerLogout());
 
-        final JMenuItem sairMenuItem = new JMenuItem(I18n.getString("dashboard.menu.exit")); // ALTERADO
+        final JMenuItem sairMenuItem = new JMenuItem(I18n.getString("dashboard.menu.exit"));
         sairMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         sairMenuItem.addActionListener(e -> confirmarSaida());
 
+        menuArquivo.add(menuIdioma);
         menuArquivo.add(menuTema);
         menuArquivo.addSeparator();
         menuArquivo.add(logoutMenuItem);
@@ -139,13 +165,31 @@ public class DashboardFrame extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    private void switchLanguage(String language, String country) {
+        Locale newLocale = new Locale(language, country);
+        I18n.setLocale(newLocale);
+        // Salva a preferência de idioma para o utilizador atual E para o utilizador "padrão"
+        personalizationService.savePreference("locale", newLocale.toLanguageTag());
+        new UIPersonalizationService("default_user").savePreference("locale", newLocale.toLanguageTag());
+
+        JOptionPane.showMessageDialog(this,
+                I18n.getString("dashboard.language.restartMessage"),
+                I18n.getString("dashboard.language.restartTitle"),
+                JOptionPane.INFORMATION_MESSAGE);
+
+        this.dispose();
+        authService.logout();
+        LoginFrame login = new LoginFrame(appContext);
+        login.setVisible(true);
+    }
+
     private void openCustomizationDialog() {
         DashboardCustomizationDialog dialog = new DashboardCustomizationDialog(this, personalizationService, this::rebuildAndShowHomePanel);
         dialog.setVisible(true);
     }
 
     private void rebuildAndShowHomePanel() {
-        int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home")); // ALTERADO
+        int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home"));
         if (homeTabIndex != -1) {
             homePanel = new HomePanel(appContext);
             mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
@@ -160,12 +204,12 @@ public class DashboardFrame extends JFrame {
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
         homePanel = new HomePanel(appContext);
-        mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel); // ALTERADO
+        mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
         mainTabbedPane.addChangeListener(createRefreshListener(homePanel));
 
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.assistant"), aiAssistantPanel); // ALTERADO
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.assistant"), aiAssistantPanel);
             aiAssistantTabIndex = mainTabbedPane.getTabCount() - 1;
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
         }
@@ -173,14 +217,14 @@ public class DashboardFrame extends JFrame {
         vendasTabbedPane = new JTabbedPane();
         vendaPanel = new VendaPanel(appContext);
         historicoVendasPanel = new HistoricoVendasPanel(appContext);
-        vendasTabbedPane.addTab(I18n.getString("dashboard.tab.newSale"), vendaPanel); // ALTERADO
-        vendasTabbedPane.addTab(I18n.getString("dashboard.tab.history"), historicoVendasPanel); // ALTERADO
-        mainTabbedPane.addTab(I18n.getString("dashboard.tab.sales"), vendasTabbedPane); // ALTERADO
+        vendasTabbedPane.addTab(I18n.getString("dashboard.tab.newSale"), vendaPanel);
+        vendasTabbedPane.addTab(I18n.getString("dashboard.tab.history"), historicoVendasPanel);
+        mainTabbedPane.addTab(I18n.getString("dashboard.tab.sales"), vendasTabbedPane);
         vendasTabbedPane.addChangeListener(createRefreshListener(null));
 
         if (authService.isGerente()) {
             financeiroPanel = new FinanceiroPanel(appContext);
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.financial"), financeiroPanel); // ALTERADO
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.financial"), financeiroPanel);
             mainTabbedPane.addChangeListener(createRefreshListener(financeiroPanel));
 
             produtosEstoqueTabbedPane = new JTabbedPane();
@@ -188,23 +232,23 @@ public class DashboardFrame extends JFrame {
             categoriaPanel = new CategoriaPanel(appContext);
             alertaPanel = new AlertaPanel(appContext);
             movimentosPanel = new MovimentosPanel(this, appContext);
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndBatches"), produtoPanel); // ALTERADO
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel); // ALTERADO
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel); // ALTERADO
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel); // ALTERADO
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), produtosEstoqueTabbedPane); // ALTERADO
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndBatches"), produtoPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), produtosEstoqueTabbedPane);
             produtosEstoqueTabbedPane.addChangeListener(createRefreshListener(null));
 
             cadastrosTabbedPane = new JTabbedPane();
             clientePanel = new ClientePanel(appContext);
             fornecedorPanel = new FornecedorPanel(appContext);
-            cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.clients"), clientePanel); // ALTERADO
-            cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.suppliers"), fornecedorPanel); // ALTERADO
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.registrations"), cadastrosTabbedPane); // ALTERADO
+            cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.clients"), clientePanel);
+            cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.suppliers"), fornecedorPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.registrations"), cadastrosTabbedPane);
             cadastrosTabbedPane.addChangeListener(createRefreshListener(null));
 
             relatorioPanel = new RelatorioPanel(appContext);
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.reports"), relatorioPanel); // ALTERADO
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.reports"), relatorioPanel);
             mainTabbedPane.addChangeListener(createRefreshListener(relatorioPanel));
         }
 
@@ -212,9 +256,9 @@ public class DashboardFrame extends JFrame {
             adminTabbedPane = new JTabbedPane();
             usuarioPanel = new UsuarioPanel(appContext);
             auditoriaPanel = new AuditoriaPanel(appContext);
-            adminTabbedPane.addTab(I18n.getString("dashboard.tab.userManagement"), usuarioPanel); // ALTERADO
-            adminTabbedPane.addTab(I18n.getString("dashboard.tab.auditLogs"), auditoriaPanel); // ALTERADO
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.administration"), adminTabbedPane); // ALTERADO
+            adminTabbedPane.addTab(I18n.getString("dashboard.tab.userManagement"), usuarioPanel);
+            adminTabbedPane.addTab(I18n.getString("dashboard.tab.auditLogs"), auditoriaPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.administration"), adminTabbedPane);
             adminTabbedPane.addChangeListener(createRefreshListener(null));
         }
 
@@ -257,26 +301,26 @@ public class DashboardFrame extends JFrame {
                     navigateTo((String) params.get("destination"));
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_LOTE:
-                    navigateTo(I18n.getString("dashboard.tab.productsAndBatches")); // ALTERADO
+                    navigateTo(I18n.getString("dashboard.tab.productsAndBatches"));
                     if (produtoPanel != null) {
                         produtoPanel.selectFirstProduct();
                         UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
                     }
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
-                    navigateTo(I18n.getString("dashboard.tab.productsAndBatches")); // ALTERADO
+                    navigateTo(I18n.getString("dashboard.tab.productsAndBatches"));
                     if (produtoPanel != null) UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
                     break;
                 case DIRECT_CREATE_PRODUCT:
                     Produto novoProduto = new Produto((String) params.get("nome"), "", (Double) params.get("preco"), (Categoria) params.get("categoria"));
                     appContext.getProdutoService().salvarProduto(novoProduto, ator);
-                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.productCreated", novoProduto.getNome()), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.productCreated", novoProduto.getNome()), I18n.getString("dashboard.action.actionComplete"));
                     if (produtoPanel != null) produtoPanel.refreshData();
                     break;
                 case DIRECT_CREATE_CLIENT:
                     Cliente novoCliente = new Cliente((String) params.get("nome"), (String) params.get("contato"), "");
                     appContext.getClienteService().salvar(novoCliente, ator);
-                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.clientCreated", novoCliente.getNome()), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.clientCreated", novoCliente.getNome()), I18n.getString("dashboard.action.actionComplete"));
                     if (clientePanel != null) clientePanel.refreshData();
                     break;
                 case DIRECT_CREATE_FORNECEDOR:
@@ -286,7 +330,7 @@ public class DashboardFrame extends JFrame {
                     novoFornecedor.setContatoTelefone((String) params.get("contatoTelefone"));
                     novoFornecedor.setContatoEmail((String) params.get("contatoEmail"));
                     appContext.getFornecedorService().salvar(novoFornecedor, ator);
-                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.supplierCreated", novoFornecedor.getNome()), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.supplierCreated", novoFornecedor.getNome()), I18n.getString("dashboard.action.actionComplete"));
                     if (fornecedorPanel != null) fornecedorPanel.refreshData();
                     break;
                 case DIRECT_ADJUST_STOCK:
@@ -300,7 +344,7 @@ public class DashboardFrame extends JFrame {
                         int newQuantity = ((Number) quantityObj).intValue();
                         appContext.getProdutoService().ajustarEstoqueLote(prodName, lotNumber, newQuantity, ator);
                     }
-                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.stockAdjusted", lotNumber), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.stockAdjusted", lotNumber), I18n.getString("dashboard.action.actionComplete"));
                     if (produtoPanel != null) produtoPanel.refreshData();
                     if (movimentosPanel != null) movimentosPanel.refreshData();
                     break;
@@ -309,7 +353,7 @@ public class DashboardFrame extends JFrame {
                     setTheme((String) params.get("theme"));
                     break;
                 case START_SALE_FOR_CLIENT:
-                    navigateTo(I18n.getString("dashboard.tab.newSale")); // ALTERADO
+                    navigateTo(I18n.getString("dashboard.tab.newSale"));
                     vendaPanel.refreshData();
                     Cliente cliente = (Cliente) params.get("cliente");
                     if (cliente != null) vendaPanel.selecionarCliente(cliente);
@@ -317,9 +361,9 @@ public class DashboardFrame extends JFrame {
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro detalhado ao executar a ação '" + action + "': ", e);
-            String errorMessage = e.getMessage() != null ? e.getMessage() : I18n.getString("error.unknownCause"); // ALTERADO
-            if (e.getCause() != null) errorMessage += I18n.getString("error.rootCause", e.getCause().getMessage()); // ALTERADO
-            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.action.errorExecuting", errorMessage), I18n.getString("dashboard.action.errorTitle")); // ALTERADO
+            String errorMessage = e.getMessage() != null ? e.getMessage() : I18n.getString("error.unknownCause");
+            if (e.getCause() != null) errorMessage += I18n.getString("error.rootCause", e.getCause().getMessage());
+            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.action.errorExecuting", errorMessage), I18n.getString("dashboard.action.errorTitle"));
         }
     }
 
@@ -365,15 +409,15 @@ public class DashboardFrame extends JFrame {
                     String greeting = getGreetingByTimeOfDay() + " " + userName + "!";
 
                     if (insights.isEmpty()) {
-                        aiAssistantPanel.appendMessage(greeting + I18n.getString("dashboard.assistant.howCanIHelp"), false); // ALTERADO
+                        aiAssistantPanel.appendMessage(greeting + I18n.getString("dashboard.assistant.howCanIHelp"), false);
                     } else {
                         mainTabbedPane.setForegroundAt(aiAssistantTabIndex, Color.CYAN);
-                        String insightsMessage = greeting + I18n.getString("dashboard.assistant.insightsFound") + "\n" + String.join("\n", insights); // ALTERADO
+                        String insightsMessage = greeting + I18n.getString("dashboard.assistant.insightsFound") + "\n" + String.join("\n", insights);
                         aiAssistantPanel.appendMessage(insightsMessage, false);
                     }
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Falha ao obter insights proativos.", e);
-                    aiAssistantPanel.appendMessage(getGreetingByTimeOfDay() + I18n.getString("dashboard.assistant.insightsError"), false); // ALTERADO
+                    aiAssistantPanel.appendMessage(getGreetingByTimeOfDay() + I18n.getString("dashboard.assistant.insightsError"), false);
                 }
             }
         }.execute();
@@ -382,11 +426,11 @@ public class DashboardFrame extends JFrame {
     private String getGreetingByTimeOfDay() {
         LocalTime now = LocalTime.now();
         if (now.isBefore(LocalTime.NOON)) {
-            return I18n.getString("dashboard.greeting.morning"); // ALTERADO
+            return I18n.getString("dashboard.greeting.morning");
         } else if (now.isBefore(LocalTime.of(18, 0))) {
-            return I18n.getString("dashboard.greeting.afternoon"); // ALTERADO
+            return I18n.getString("dashboard.greeting.afternoon");
         } else {
-            return I18n.getString("dashboard.greeting.evening"); // ALTERADO
+            return I18n.getString("dashboard.greeting.evening");
         }
     }
 
@@ -398,12 +442,12 @@ public class DashboardFrame extends JFrame {
             logger.info("Tema alterado para: " + themeName);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
-            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.theme.error"), I18n.getString("dashboard.theme.errorTitle")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.theme.error"), I18n.getString("dashboard.theme.errorTitle"));
         }
     }
 
     private void fazerLogout() {
-        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("dashboard.logout.confirm"), I18n.getString("dashboard.logout.title"))) { // ALTERADO
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("dashboard.logout.confirm"), I18n.getString("dashboard.logout.title"))) {
             authService.logout();
             new LoginFrame(appContext).setVisible(true);
             this.dispose();
@@ -411,7 +455,7 @@ public class DashboardFrame extends JFrame {
     }
 
     private void confirmarSaida() {
-        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("dashboard.exit.confirm"), I18n.getString("dashboard.exit.title"))) { // ALTERADO
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("dashboard.exit.confirm"), I18n.getString("dashboard.exit.title"))) {
             authService.logout();
             logger.info("Aplicação encerrada pelo usuário.");
             System.exit(0);

@@ -1,11 +1,11 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/CategoriaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.presenter.CategoriaPresenter;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.view.interfaces.CategoriaView; // IMPORT CORRIGIDO
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -27,7 +27,6 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
         nomeField = new JTextField();
         searchField = new JTextField(25);
 
-        // ALTERADO
         tableModel = new DefaultTableModel(new String[]{
                 I18n.getString("category.table.header.id"),
                 I18n.getString("category.table.header.name"),
@@ -67,19 +66,19 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("category.border.details"))); // ALTERADO
-        panel.add(new JLabel(I18n.getString("category.label.id"))); // ALTERADO
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("category.border.details")));
+        panel.add(new JLabel(I18n.getString("category.label.id")));
         panel.add(idField);
-        panel.add(new JLabel(I18n.getString("category.label.name"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("category.label.name")));
         panel.add(nomeField);
         return panel;
     }
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton saveButton = new JButton(I18n.getString("category.button.save")); // ALTERADO
-        JButton deleteButton = new JButton(I18n.getString("category.button.delete")); // ALTERADO
-        JButton clearButton = new JButton(I18n.getString("category.button.clear")); // ALTERADO
+        JButton saveButton = new JButton(I18n.getString("category.button.save"));
+        JButton deleteButton = new JButton(I18n.getString("category.button.delete"));
+        JButton clearButton = new JButton(I18n.getString("category.button.clear"));
 
         saveButton.addActionListener(e -> listener.aoSalvar());
         deleteButton.addActionListener(e -> listener.aoApagar());
@@ -93,10 +92,10 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
 
     private JPanel createSearchPanel(JTextField searchField) {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton(I18n.getString("category.button.search")); // ALTERADO
-        JButton clearSearchButton = new JButton(I18n.getString("category.button.clearSearch")); // ALTERADO
+        JButton searchButton = new JButton(I18n.getString("category.button.search"));
+        JButton clearSearchButton = new JButton(I18n.getString("category.button.clearSearch"));
 
-        searchPanel.add(new JLabel(I18n.getString("category.label.searchByName"))); // ALTERADO
+        searchPanel.add(new JLabel(I18n.getString("category.label.searchByName")));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);

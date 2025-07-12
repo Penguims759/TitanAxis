@@ -1,13 +1,14 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/MetasPanel.java
+// src/main/java/com/titanaxis/view/panels/MetasPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MetaVenda;
 import com.titanaxis.model.Usuario;
-import com.titanaxis.service.FinanceiroService;
+import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.AuthService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.service.FinanceiroService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.renderer.ProgressBarTableCellRenderer;
@@ -16,30 +17,31 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.NumberFormat;
-import java.time.Month;
-import java.time.format.TextStyle;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
 public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
 
     private final FinanceiroService financeiroService;
+    private final AnalyticsService analyticsService;
     private final AuthService authService;
     private final DefaultTableModel tableModel;
+    private final JTable table;
     private final JComboBox<Usuario> usuarioComboBox;
-    private final JComboBox<String> mesComboBox;
+    private final JSpinner mesSpinner;
     private final JSpinner anoSpinner;
     private final JTextField valorMetaField;
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public MetasPanel(AppContext appContext) {
         this.financeiroService = appContext.getFinanceiroService();
+        this.analyticsService = appContext.getAnalyticsService();
         this.authService = appContext.getAuthService();
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createTitledBorder(I18n.getString("goals.panel.title"))); // ALTERADO
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("goals.panel.title")));
 
-        // ALTERADO
         tableModel = new DefaultTableModel(new String[]{
                 I18n.getString("goals.table.header.id"),
                 I18n.getString("goals.table.header.user"),
@@ -53,108 +55,101 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
                 return false;
             }
         };
-        JTable table = new JTable(tableModel);
+        table = new JTable(tableModel);
         table.getColumnModel().getColumn(5).setCellRenderer(new ProgressBarTableCellRenderer());
 
         usuarioComboBox = new JComboBox<>();
-        mesComboBox = new JComboBox<>();
-        anoSpinner = new JSpinner(new SpinnerNumberModel(Calendar.getInstance().get(Calendar.YEAR), 2020, 2100, 1));
+        mesSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getMonthValue(), 1, 12, 1));
+        anoSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getYear(), 2020, 2100, 1));
         valorMetaField = new JTextField(10);
 
-        initComponents(table);
-        carregarDadosIniciais();
+        initComponents();
+        loadUsuarios();
     }
 
-    private void initComponents(JTable table) {
+    private void initComponents() {
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(createFormPanel(), BorderLayout.SOUTH);
     }
 
     private JPanel createFormPanel() {
-        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        formPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("goals.form.title"))); // ALTERADO
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("goals.form.title")));
 
-        // ALTERADO
-        formPanel.add(new JLabel(I18n.getString("goals.label.user")));
-        formPanel.add(usuarioComboBox);
-        formPanel.add(new JLabel(I18n.getString("goals.label.month")));
-        formPanel.add(mesComboBox);
-        formPanel.add(new JLabel(I18n.getString("goals.label.year")));
-        formPanel.add(anoSpinner);
-        formPanel.add(new JLabel(I18n.getString("goals.label.goalValue")));
-        formPanel.add(valorMetaField);
+        panel.add(new JLabel(I18n.getString("goals.label.user")));
+        panel.add(usuarioComboBox);
+        panel.add(new JLabel(I18n.getString("goals.label.month")));
+        panel.add(mesSpinner);
+        panel.add(new JLabel(I18n.getString("goals.label.year")));
+        panel.add(anoSpinner);
+        panel.add(new JLabel(I18n.getString("goals.label.goalValue")));
+        panel.add(valorMetaField);
 
-        JButton saveButton = new JButton(I18n.getString("goals.button.save")); // ALTERADO
+        JButton saveButton = new JButton(I18n.getString("goals.button.save"));
         saveButton.addActionListener(e -> salvarMeta());
-        formPanel.add(saveButton);
+        panel.add(saveButton);
 
-        return formPanel;
-    }
-
-    private void carregarDadosIniciais() {
-        try {
-            // Carregar usuários
-            List<Usuario> usuarios = authService.listarTodosUsuarios();
-            usuarios.forEach(usuarioComboBox::addItem);
-
-            // Carregar meses
-            Locale locale = new Locale("pt", "BR");
-            for (Month month : Month.values()) {
-                mesComboBox.addItem(month.getDisplayName(TextStyle.FULL, locale));
-            }
-            mesComboBox.setSelectedIndex(LocalDate.now().getMonthValue() - 1);
-
-            refreshData();
-        } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.loadInitialData", e.getMessage()), I18n.getString("error.db.title")); // ALTERADO
-        }
+        return panel;
     }
 
     @Override
     public void refreshData() {
         try {
-            List<MetaVenda> metas = financeiroService.listarTodasAsMetas();
+            List<MetaVenda> metas = financeiroService.listarMetas();
             tableModel.setRowCount(0);
-            Locale locale = new Locale("pt", "BR");
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
             for (MetaVenda meta : metas) {
-                double progresso = (meta.getValorMeta() > 0) ? (meta.getValorVendido() / meta.getValorMeta()) * 100 : 0;
-                String periodo = Month.of(meta.getMes()).getDisplayName(TextStyle.FULL, locale) + "/" + meta.getAno();
+                YearMonth periodo = YearMonth.parse(meta.getAnoMes());
+                LocalDate inicioPeriodo = periodo.atDay(1);
+                LocalDate fimPeriodo = periodo.atEndOfMonth();
+
+                double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), inicioPeriodo, fimPeriodo);
+                double progresso = meta.getValorMeta() > 0 ? (valorVendido / meta.getValorMeta()) * 100 : 0;
 
                 tableModel.addRow(new Object[]{
                         meta.getId(),
                         meta.getUsuario().getNomeUsuario(),
-                        periodo,
+                        meta.getAnoMes(),
                         currencyFormat.format(meta.getValorMeta()),
-                        currencyFormat.format(meta.getValorVendido()),
-                        (int) progresso
+                        currencyFormat.format(valorVendido),
+                        (int) Math.round(progresso)
                 });
             }
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.loadGoals", e.getMessage()), I18n.getString("error.db.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.loadGoals", e.getMessage()), I18n.getString("error.db.title"));
+        }
+    }
+
+    private void loadUsuarios() {
+        try {
+            authService.listarUsuarios().forEach(usuarioComboBox::addItem);
+        } catch (PersistenciaException e) {
+            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.loadInitialData", e.getMessage()), I18n.getString("error.db.title"));
         }
     }
 
     private void salvarMeta() {
-        Usuario usuario = (Usuario) usuarioComboBox.getSelectedItem();
-        int mes = mesComboBox.getSelectedIndex() + 1;
-        int ano = (Integer) anoSpinner.getValue();
-        String valorStr = valorMetaField.getText().replace(",", ".");
-
-        if (usuario == null || valorStr.trim().isEmpty()) {
-            UIMessageUtil.showWarningMessage(this, I18n.getString("goals.error.requiredFields"), I18n.getString("error.validation.title")); // ALTERADO
-            return;
-        }
-
         try {
-            double valor = Double.parseDouble(valorStr);
-            financeiroService.definirOuAtualizarMeta(usuario.getId(), mes, ano, valor);
-            UIMessageUtil.showInfoMessage(this, I18n.getString("goals.success.save"), I18n.getString("success.title")); // ALTERADO
+            Usuario usuario = (Usuario) usuarioComboBox.getSelectedItem();
+            int mes = (int) mesSpinner.getValue();
+            int ano = (int) anoSpinner.getValue();
+            double valor = Double.parseDouble(valorMetaField.getText().replace(",", "."));
+            String anoMes = String.format("%d-%02d", ano, mes);
+
+            MetaVenda meta = new MetaVenda();
+            meta.setUsuario(usuario);
+            meta.setAnoMes(anoMes);
+            meta.setValorMeta(valor);
+
+            financeiroService.salvarMeta(meta);
+            UIMessageUtil.showInfoMessage(this, I18n.getString("goals.success.save"), I18n.getString("success.title"));
             refreshData();
+
         } catch (NumberFormatException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.invalidValue"), I18n.getString("error.format.title")); // ALTERADO
-        } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.save", e.getMessage()), I18n.getString("error.db.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.invalidValue"), I18n.getString("error.format.title"));
+        } catch (Exception e) {
+            UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.save", e.getMessage()), I18n.getString("error.title"));
         }
     }
 }
