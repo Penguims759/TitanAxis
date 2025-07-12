@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.UsuarioRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -25,7 +26,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         Usuario usuarioSalvo = em.merge(usuario);
         if (ator != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", usuarioSalvo.getId(), "Usuário " + usuarioSalvo.getNomeUsuario() + " salvo.", em);
+            // ALTERADO
+            String detalhes = I18n.getString("log.user.saved", usuarioSalvo.getNomeUsuario());
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", usuarioSalvo.getId(), detalhes, em);
         }
         return usuarioSalvo;
     }
@@ -35,7 +38,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         Optional<Usuario> usuarioOpt = findById(id, em);
         usuarioOpt.ifPresent(usuario -> {
             if (ator != null) {
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Usuário", id, "Usuário " + usuario.getNomeUsuario() + " eliminado.", em);
+                // ALTERADO
+                String detalhes = I18n.getString("log.user.deleted", usuario.getNomeUsuario());
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Usuário", id, detalhes, em);
             }
             em.remove(usuario);
         });

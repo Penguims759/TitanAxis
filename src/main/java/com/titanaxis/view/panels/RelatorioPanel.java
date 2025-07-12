@@ -1,9 +1,11 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/RelatorioPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.ComissaoRelatorioDialog;
 
@@ -30,16 +32,17 @@ public class RelatorioPanel extends JPanel {
     public RelatorioPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
 
-        inventarioCsvButton = new JButton("Gerar CSV");
-        inventarioPdfButton = new JButton("Gerar PDF");
-        vendasCsvButton = new JButton("Gerar CSV");
-        vendasPdfButton = new JButton("Gerar PDF");
-        comissoesButton = new JButton("Gerar Relatório de Comissões"); // NOVO
+        // ALTERADO
+        inventarioCsvButton = new JButton(I18n.getString("report.button.generateCsv"));
+        inventarioPdfButton = new JButton(I18n.getString("report.button.generatePdf"));
+        vendasCsvButton = new JButton(I18n.getString("report.button.generateCsv"));
+        vendasPdfButton = new JButton(I18n.getString("report.button.generatePdf"));
+        comissoesButton = new JButton(I18n.getString("report.button.generateCommissionReport"));
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("Geração de Relatórios");
+        JLabel titleLabel = new JLabel(I18n.getString("report.panel.title")); // ALTERADO
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(titleLabel, BorderLayout.NORTH);
@@ -50,7 +53,7 @@ public class RelatorioPanel extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         JPanel inventarioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        inventarioPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Inventário"));
+        inventarioPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.inventoryTitle"))); // ALTERADO
         inventarioCsvButton.addActionListener(e -> gerarRelatorioInventarioCsv());
         inventarioPanel.add(inventarioCsvButton);
         inventarioPdfButton.addActionListener(e -> gerarRelatorioInventarioPdf());
@@ -58,16 +61,15 @@ public class RelatorioPanel extends JPanel {
         centerPanel.add(inventarioPanel, gbc);
 
         JPanel vendasPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        vendasPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Vendas"));
+        vendasPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.salesTitle"))); // ALTERADO
         vendasCsvButton.addActionListener(e -> gerarRelatorioVendasCsv());
         vendasPanel.add(vendasCsvButton);
         vendasPdfButton.addActionListener(e -> gerarRelatorioVendasPdf());
         vendasPanel.add(vendasPdfButton);
         centerPanel.add(vendasPanel, gbc);
 
-        // NOVO PAINEL
         JPanel comissoesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        comissoesPanel.setBorder(BorderFactory.createTitledBorder("Relatório de Comissões"));
+        comissoesPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("report.panel.commissionTitle"))); // ALTERADO
         comissoesButton.addActionListener(e -> gerarRelatorioComissoes());
         comissoesPanel.add(comissoesButton);
         centerPanel.add(comissoesPanel, gbc);
@@ -82,16 +84,13 @@ public class RelatorioPanel extends JPanel {
         if (dialog.isConfirmado()) {
             LocalDate inicio = dialog.getDataInicio().orElse(LocalDate.now().withDayOfMonth(1));
             LocalDate fim = dialog.getDataFim().orElse(LocalDate.now());
-
-            // Lógica de geração em background
-            // ... (A ser implementada)
-            UIMessageUtil.showInfoMessage(this, "Funcionalidade de geração de relatório de comissões a ser implementada.", "Aviso");
+            UIMessageUtil.showInfoMessage(this, I18n.getString("report.panel.commission.futureFeature"), I18n.getString("warning.title")); // ALTERADO
         }
     }
 
 
     private void gerarRelatorioInventarioCsv() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", "Arquivo CSV (*.csv)");
+        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "csv", I18n.getString("report.fileChooser.csvFilter")); // ALTERADO
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
         setBotoesAtivados(false);
@@ -108,7 +107,7 @@ public class RelatorioPanel extends JPanel {
                     String conteudoCSV = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, conteudoCSV, null);
                 } catch (Exception ex) {
-                    handleException("Erro ao gerar/salvar o relatório de inventário (CSV).", ex);
+                    handleException(I18n.getString("report.error.generateCsvInventory"), ex); // ALTERADO
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -118,7 +117,7 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void gerarRelatorioVendasCsv() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "csv", "Arquivo CSV (*.csv)");
+        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "csv", I18n.getString("report.fileChooser.csvFilter")); // ALTERADO
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".csv");
         setBotoesAtivados(false);
@@ -135,7 +134,7 @@ public class RelatorioPanel extends JPanel {
                     String conteudoCSV = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, conteudoCSV, null);
                 } catch (Exception ex) {
-                    handleException("Erro ao gerar/salvar o relatório de vendas (CSV).", ex);
+                    handleException(I18n.getString("report.error.generateCsvSales"), ex); // ALTERADO
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -145,7 +144,7 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void gerarRelatorioInventarioPdf() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "pdf", "Arquivo PDF (*.pdf)");
+        JFileChooser fileChooser = createFileChooser("Relatorio_Inventario", "pdf", I18n.getString("report.fileChooser.pdfFilter")); // ALTERADO
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
         setBotoesAtivados(false);
@@ -162,7 +161,7 @@ public class RelatorioPanel extends JPanel {
                     ByteArrayOutputStream baos = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, null, baos);
                 } catch (Exception ex) {
-                    handleException("Erro ao gerar/salvar o relatório de inventário (PDF).", ex);
+                    handleException(I18n.getString("report.error.generatePdfInventory"), ex); // ALTERADO
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -172,7 +171,7 @@ public class RelatorioPanel extends JPanel {
     }
 
     private void gerarRelatorioVendasPdf() {
-        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "pdf", "Arquivo PDF (*.pdf)");
+        JFileChooser fileChooser = createFileChooser("Relatorio_Vendas", "pdf", I18n.getString("report.fileChooser.pdfFilter")); // ALTERADO
         if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
         File arquivoParaSalvar = getSelectedFileWithExtension(fileChooser, ".pdf");
         setBotoesAtivados(false);
@@ -189,7 +188,7 @@ public class RelatorioPanel extends JPanel {
                     ByteArrayOutputStream baos = get();
                     salvarEabrirRelatorio(arquivoParaSalvar, null, baos);
                 } catch (Exception ex) {
-                    handleException("Erro ao gerar/salvar o relatório de vendas (PDF).", ex);
+                    handleException(I18n.getString("report.error.generatePdfSales"), ex); // ALTERADO
                 } finally {
                     setBotoesAtivados(true);
                 }
@@ -198,7 +197,6 @@ public class RelatorioPanel extends JPanel {
         worker.execute();
     }
 
-    // NOVO MÉTODO: Centraliza a lógica de salvar e perguntar se abre o ficheiro
     private void salvarEabrirRelatorio(File file, String csvContent, ByteArrayOutputStream pdfContent) throws IOException {
         if (csvContent != null) {
             try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
@@ -210,15 +208,15 @@ public class RelatorioPanel extends JPanel {
             }
         }
 
-        if (UIMessageUtil.showConfirmDialog(this, "Relatório salvo com sucesso em:\n" + file.getAbsolutePath() + "\n\nDeseja abri-lo agora?", "Sucesso")) {
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("report.dialog.saveSuccess", file.getAbsolutePath()), I18n.getString("success.title"))) { // ALTERADO
             if (Desktop.isDesktopSupported()) {
                 try {
                     Desktop.getDesktop().open(file);
                 } catch (IOException ex) {
-                    handleException("Não foi possível abrir o ficheiro. Verifique se tem um programa instalado para abrir este tipo de ficheiro.", ex);
+                    handleException(I18n.getString("report.error.openFile"), ex); // ALTERADO
                 }
             } else {
-                UIMessageUtil.showWarningMessage(this, "A sua plataforma não suporta a abertura automática de ficheiros.", "Aviso");
+                UIMessageUtil.showWarningMessage(this, I18n.getString("report.error.unsupportedOpenFile"), I18n.getString("warning.title")); // ALTERADO
             }
         }
     }
@@ -228,25 +226,25 @@ public class RelatorioPanel extends JPanel {
         inventarioPdfButton.setEnabled(ativado);
         vendasCsvButton.setEnabled(ativado);
         vendasPdfButton.setEnabled(ativado);
-        comissoesButton.setEnabled(ativado); // NOVO
+        comissoesButton.setEnabled(ativado);
         setCursor(ativado ? Cursor.getDefaultCursor() : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 
     private void handleException(String message, Exception ex) {
         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
         logger.log(Level.SEVERE, message, cause);
-        String errorMessage = "Ocorreu um erro inesperado.";
+        String errorMessage = I18n.getString("error.unexpected.title"); // ALTERADO
         if (cause instanceof PersistenciaException) {
-            errorMessage = "Erro de Base de Dados: " + cause.getMessage();
+            errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage(); // ALTERADO
         } else if (cause instanceof IOException) {
-            errorMessage = "Erro de Ficheiro: Falha ao salvar o relatório.";
+            errorMessage = I18n.getString("error.file.title") + ": " + I18n.getString("report.error.saveFile"); // ALTERADO
         }
-        UIMessageUtil.showErrorMessage(this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro");
+        UIMessageUtil.showErrorMessage(this, errorMessage + "\n" + I18n.getString("error.seeLogs"), "Erro"); // ALTERADO
     }
 
     private JFileChooser createFileChooser(String nomeBase, String ext, String desc) {
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Salvar Relatório");
+        fc.setDialogTitle(I18n.getString("report.fileChooser.title")); // ALTERADO
         fc.setSelectedFile(new File(nomeBase + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "." + ext));
         fc.setFileFilter(new FileNameExtensionFilter(desc, ext));
         return fc;

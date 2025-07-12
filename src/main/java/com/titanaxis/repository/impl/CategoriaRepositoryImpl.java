@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/CategoriaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -5,6 +6,7 @@ import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.CategoriaRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -26,8 +28,9 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
         if (usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            String detalhes = String.format("Categoria '%s' (ID: %d) foi %s.",
-                    categoriaSalva.getNome(), categoriaSalva.getId(), isUpdate ? "atualizada" : "criada");
+            // ALTERADO
+            String acaoDesc = isUpdate ? I18n.getString("log.action.updated") : I18n.getString("log.action.created");
+            String detalhes = I18n.getString("log.category.saved", categoriaSalva.getNome(), categoriaSalva.getId(), acaoDesc);
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Categoria", categoriaSalva.getId(), detalhes, em);
         }
         return categoriaSalva;
@@ -38,7 +41,8 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
         Optional<Categoria> categoriaOpt = findById(id, em);
         categoriaOpt.ifPresent(categoria -> {
             if (usuarioLogado != null) {
-                String detalhes = String.format("Categoria '%s' (ID: %d) foi eliminada.", categoria.getNome(), id);
+                // ALTERADO
+                String detalhes = I18n.getString("log.category.deleted", categoria.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", id, detalhes, em);
             }
             em.remove(categoria);

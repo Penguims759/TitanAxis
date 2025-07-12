@@ -8,6 +8,7 @@ import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.CategoriaRepository;
+import com.titanaxis.util.I18n; // Importado
 import java.util.List;
 import java.util.Optional;
 
@@ -33,31 +34,29 @@ public class CategoriaService {
         );
     }
 
-    // ALTERADO: Corrigida a forma de lançar NomeDuplicadoException dentro da transação.
-    // Lança RuntimeException na lambda e a captura para relançar NomeDuplicadoException.
     public void salvar(Categoria categoria, Usuario usuarioLogado) throws UtilizadorNaoAutenticadoException, NomeDuplicadoException, PersistenciaException {
         if (usuarioLogado == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
         }
-        try { // Bloco try-catch adicionado para capturar RuntimeException da lambda
+        try {
             transactionService.executeInTransaction(em -> {
                 Optional<Categoria> catExistenteOpt = categoriaRepository.findByNome(categoria.getNome(), em);
                 if (catExistenteOpt.isPresent() && catExistenteOpt.get().getId() != categoria.getId()) {
-                    // Lança RuntimeException que será capturada no bloco try/catch externo.
-                    throw new RuntimeException("Já existe uma categoria com este nome.");
+                    throw new RuntimeException(I18n.getString("service.category.error.nameExists", categoria.getNome())); // ALTERADO
                 }
                 categoriaRepository.save(categoria, usuarioLogado, em);
             });
         } catch (RuntimeException e) {
-            // Captura a RuntimeException e a encapsula em NomeDuplicadoException,
-            // que é a exceção checada esperada pelo chamador.
-            throw new NomeDuplicadoException(e.getMessage());
+            if(e.getMessage().contains(I18n.getString("service.category.error.nameExists.check"))){ // ALTERADO
+                throw new NomeDuplicadoException(e.getMessage());
+            }
+            throw new PersistenciaException(e.getMessage(), e);
         }
     }
 
     public void deletar(int id, Usuario usuarioLogado) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (usuarioLogado == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
         }
         transactionService.executeInTransaction(em ->
                 categoriaRepository.deleteById(id, usuarioLogado, em)

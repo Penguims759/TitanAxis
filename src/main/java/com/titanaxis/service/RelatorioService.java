@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/service/RelatorioService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -5,17 +6,17 @@ import com.lowagie.text.DocumentException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Venda;
-import com.titanaxis.model.VendaItem; // Importação necessária
+import com.titanaxis.model.VendaItem;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.repository.VendaRepository;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.PdfReportGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
@@ -38,12 +39,17 @@ public class RelatorioService {
     }
 
     public String gerarRelatorioInventario() throws PersistenciaException {
-        // ... (código existente)
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
         StringBuilder csv = new StringBuilder();
-        csv.append("ID;Nome;Categoria;Qtd. Total;Preço Unit.;Valor Total do Estoque\n");
+        // ALTERADO
+        csv.append(I18n.getString("report.inventory.header.id")).append(";")
+                .append(I18n.getString("report.inventory.header.name")).append(";")
+                .append(I18n.getString("report.inventory.header.category")).append(";")
+                .append(I18n.getString("report.inventory.header.totalQty")).append(";")
+                .append(I18n.getString("report.inventory.header.unitPrice")).append(";")
+                .append(I18n.getString("report.inventory.header.totalValue")).append("\n");
         for (Produto p : produtos) {
             csv.append(p.getId()).append(";")
                     .append(tratarStringParaCSV(p.getNome())).append(";")
@@ -56,7 +62,6 @@ public class RelatorioService {
     }
 
     public ByteArrayOutputStream gerarRelatorioInventarioPdf() throws DocumentException, IOException, PersistenciaException {
-        // ... (código existente)
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
@@ -64,12 +69,16 @@ public class RelatorioService {
     }
 
     public String gerarRelatorioVendas() throws PersistenciaException {
-        // ... (código existente)
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
         StringBuilder csv = new StringBuilder();
-        csv.append("ID Venda;Data;Cliente;Utilizador;Valor Total\n");
+        // ALTERADO
+        csv.append(I18n.getString("report.sales.header.id")).append(";")
+                .append(I18n.getString("report.sales.header.date")).append(";")
+                .append(I18n.getString("report.sales.header.client")).append(";")
+                .append(I18n.getString("report.sales.header.user")).append(";")
+                .append(I18n.getString("report.sales.header.totalValue")).append("\n");
         for (Venda v : vendas) {
             csv.append(v.getId()).append(";")
                     .append(v.getDataVenda().format(DATE_TIME_FORMATTER)).append(";")
@@ -81,7 +90,6 @@ public class RelatorioService {
     }
 
     public ByteArrayOutputStream gerarRelatorioVendasPdf() throws DocumentException, IOException, PersistenciaException {
-        // ... (código existente)
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
@@ -92,19 +100,22 @@ public class RelatorioService {
         return PdfReportGenerator.generateReciboVendaPdf(venda);
     }
 
-    // NOVO MÉTODO
     public String gerarReciboVendaCsv(Venda venda) {
         StringBuilder csv = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-        // Cabeçalho do Recibo
-        csv.append("Recibo da Venda #").append(venda.getId()).append("\n");
-        csv.append("Data;").append(venda.getDataVenda().format(formatter)).append("\n");
-        csv.append("Cliente;").append(tratarStringParaCSV(venda.getCliente() != null ? venda.getCliente().getNome() : "N/A")).append("\n");
-        csv.append("Vendedor;").append(tratarStringParaCSV(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : "N/A")).append("\n\n");
+        // Cabeçalho do Recibo - ALTERADO
+        csv.append(I18n.getString("receipt.header.title", venda.getId())).append("\n");
+        csv.append(I18n.getString("receipt.header.date")).append(";").append(venda.getDataVenda().format(formatter)).append("\n");
+        csv.append(I18n.getString("receipt.header.client")).append(";").append(tratarStringParaCSV(venda.getCliente() != null ? venda.getCliente().getNome() : I18n.getString("general.notAvailable"))).append("\n");
+        csv.append(I18n.getString("receipt.header.seller")).append(";").append(tratarStringParaCSV(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : I18n.getString("general.notAvailable"))).append("\n\n");
 
-        // Itens
-        csv.append("Produto;Lote;Quantidade;Preco Unitario;Subtotal\n");
+        // Itens - ALTERADO
+        csv.append(I18n.getString("receipt.items.header.product")).append(";")
+                .append(I18n.getString("receipt.items.header.batch")).append(";")
+                .append(I18n.getString("receipt.items.header.quantity")).append(";")
+                .append(I18n.getString("receipt.items.header.unitPrice")).append(";")
+                .append(I18n.getString("receipt.items.header.subtotal")).append("\n");
         for (VendaItem item : venda.getItens()) {
             csv.append(tratarStringParaCSV(item.getProduto().getNome())).append(";")
                     .append(tratarStringParaCSV(item.getLote().getNumeroLote())).append(";")
@@ -113,15 +124,14 @@ public class RelatorioService {
                     .append(formatarMoedaParaCSV(item.getQuantidade() * item.getPrecoUnitario())).append("\n");
         }
 
-        // Total
-        csv.append("\n;;;;Total\n");
+        // Total - ALTERADO
+        csv.append("\n;;;;").append(I18n.getString("receipt.footer.total")).append("\n");
         csv.append(";;;;").append(formatarMoedaParaCSV(venda.getValorTotal())).append("\n");
 
         return csv.toString();
     }
 
     public String gerarRelatorioAuditoriaCsv(List<Vector<Object>> data, String[] headers) {
-        // ... (código existente)
         StringBuilder csv = new StringBuilder();
         csv.append(String.join(";", headers)).append("\n");
         for (Vector<Object> row : data) {

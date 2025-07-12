@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/AIAssistantPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -5,6 +6,7 @@ import com.titanaxis.model.ChatMessage;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.presenter.AIAssistantPresenter;
 import com.titanaxis.service.VoiceRecognitionService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
 
@@ -32,9 +34,8 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // Reintroduz o JSplitPane para dividir o painel de ajuda e o chat
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.35); // Ajusta a proporção inicial
+        splitPane.setResizeWeight(0.35);
         splitPane.setDividerLocation(400);
         splitPane.setBorder(null);
 
@@ -44,10 +45,9 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         add(splitPane, BorderLayout.CENTER);
     }
 
-    // MÉTODO RESTAURADO E ATUALIZADO
     private JComponent createHelpPanel() {
         JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.setBorder(BorderFactory.createTitledBorder("Habilidades do Assistente"));
+        helpPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("assistant.help.title"))); // ALTERADO
 
         JEditorPane helpTextPane = new JEditorPane();
         helpTextPane.setContentType("text/html;charset=UTF-8");
@@ -55,36 +55,37 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         helpTextPane.setOpaque(false);
         helpTextPane.setBorder(new EmptyBorder(10, 15, 10, 15));
 
+        // ALTERADO: Todas as strings foram substituídas por chaves I18n
         String helpHtml = "<html><body style='font-family: Arial; font-size: 11pt;'>"
-                + "<h3>Experimente estes comandos:</h3>"
+                + "<h3>" + I18n.getString("assistant.help.subtitle") + "</h3>"
 
-                + "<b><u>Vendas & Clientes</u></b>"
+                + "<b><u>" + I18n.getString("assistant.help.section.sales") + "</u></b>"
                 + "<ul>"
-                + "<li><b>inicie uma venda para o cliente</b> <i>Nome do Cliente</i></li>"
-                + "<li><b>crie o cliente</b> <i>Nome</i> <b>com o contato</b> <i>email@exemplo.com</i></li>"
-                + "<li><b>histórico de compras do cliente</b> <i>Nome do Cliente</i></li>"
-                + "<li><b>quais são os melhores clientes?</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.sales.command1") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.sales.command2") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.sales.command3") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.sales.command4") + "</b></li>"
                 + "</ul>"
 
-                + "<b><u>Estoque & Produtos</u></b>"
+                + "<b><u>" + I18n.getString("assistant.help.section.stock") + "</u></b>"
                 + "<ul>"
-                + "<li><b>cadastrar um novo produto</b> (inicia um guia)</li>"
-                + "<li><b>qual o estoque do produto</b> <i>Nome do Produto</i><b>?</b></li>"
-                + "<li><b>quais produtos têm baixo estoque?</b></li>"
-                + "<li><b>quais lotes estão para vencer?</b></li>"
-                + "<li><b>como adicionar um lote?</b> (guia visual)</li>"
+                + "<li><b>" + I18n.getString("assistant.help.stock.command1") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.stock.command2") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.stock.command3") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.stock.command4") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.stock.command5") + "</b></li>"
                 + "</ul>"
 
-                + "<b><u>Relatórios & Navegação</u></b>"
+                + "<b><u>" + I18n.getString("assistant.help.section.reports") + "</u></b>"
                 + "<ul>"
-                + "<li><b>gere o relatório de inventário em pdf</b></li>"
-                + "<li><b>ir para o painel de Clientes</b></li>"
-                + "<li><b>mude o tema para claro</b> (ou escuro)</li>"
+                + "<li><b>" + I18n.getString("assistant.help.reports.command1") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.reports.command2") + "</b></li>"
+                + "<li><b>" + I18n.getString("assistant.help.reports.command3") + "</b></li>"
                 + "</ul>"
 
                 + "<hr>"
-                + "<p><b>Dica Proativa:</b> Após criar um produto, o assistente irá sugerir adicionar o primeiro lote. Experimente!</p>"
-                + "<p><b>Dica de Cancelamento:</b> A qualquer momento, diga ou escreva <b>cancelar</b> para interromper a ação atual.</p>"
+                + "<p><b>" + I18n.getString("assistant.help.tip.proactive") + "</b></p>"
+                + "<p><b>" + I18n.getString("assistant.help.tip.cancel") + "</b></p>"
 
                 + "</body></html>";
 
@@ -100,7 +101,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
 
     private JComponent createChatPanel(AppContext appContext) {
         JPanel chatPanel = new JPanel(new BorderLayout(5, 5));
-        chatPanel.setBorder(BorderFactory.createTitledBorder("Assistente Interativo"));
+        chatPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("assistant.chat.title"))); // ALTERADO
 
         voiceService = new VoiceRecognitionService();
 
@@ -124,17 +125,17 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         southPanel.add(inputField, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 5, 0));
-        sendButton = new JButton("Enviar");
+        sendButton = new JButton(I18n.getString("assistant.button.send")); // ALTERADO
         sendButton.addActionListener(e -> sendMessage());
-        voiceButton = new JButton("Voz");
+        voiceButton = new JButton(I18n.getString("assistant.button.voice")); // ALTERADO
         voiceButton.addActionListener(e -> toggleVoiceListening());
 
-        copyButton = new JButton("Copiar");
+        copyButton = new JButton(I18n.getString("assistant.button.copy")); // ALTERADO
         copyButton.addActionListener(this::copyConversationToClipboard);
 
         if (!voiceService.isAvailable()) {
             voiceButton.setEnabled(false);
-            voiceButton.setToolTipText("Serviço de voz indisponível no seu sistema.");
+            voiceButton.setToolTipText(I18n.getString("assistant.tooltip.voiceUnavailable")); // ALTERADO
         }
 
         buttonPanel.add(sendButton);
@@ -171,7 +172,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         for (int i = 0; i < chatModel.getSize(); i++) {
             ChatMessage message = chatModel.getElementAt(i);
             if (message.getType() != ChatMessage.MessageType.THINKING) {
-                String prefix = message.isUser() ? "Utilizador: " : "Assistente: ";
+                String prefix = message.isUser() ? I18n.getString("assistant.copy.userPrefix") : I18n.getString("assistant.copy.assistantPrefix"); // ALTERADO
                 conversationText.append(prefix)
                         .append(message.getText().replace("<br>", "\n"))
                         .append("\n\n");
@@ -181,7 +182,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         StringSelection stringSelection = new StringSelection(conversationText.toString());
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
 
-        JOptionPane.showMessageDialog(this, "A conversa foi copiada para a área de transferência.", "Copiado", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, I18n.getString("assistant.dialog.copy.message"), I18n.getString("assistant.dialog.copy.title"), JOptionPane.INFORMATION_MESSAGE); // ALTERADO
     }
 
     private void toggleVoiceListening() {
@@ -214,7 +215,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
                 chatModel.removeElementAt(chatModel.getSize() - 1);
             }
             if (show) {
-                chatModel.addElement(new ChatMessage("A pensar...", ChatMessage.MessageType.THINKING));
+                chatModel.addElement(new ChatMessage(I18n.getString("assistant.chat.thinking"), ChatMessage.MessageType.THINKING)); // ALTERADO
                 if (!thinkingTimer.isRunning()) thinkingTimer.start();
             } else {
                 if (thinkingTimer.isRunning()) thinkingTimer.stop();

@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/DashboardFrame.java
 package com.titanaxis.view;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -9,6 +10,7 @@ import com.titanaxis.model.auditoria.Habito;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
@@ -62,7 +64,7 @@ public class DashboardFrame extends JFrame {
     private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
-        super("Dashboard - TitanAxis");
+        super(I18n.getString("dashboard.title")); // ALTERADO
         this.appContext = appContext;
         this.authService = appContext.getAuthService();
         this.personalizationService = new UIPersonalizationService(
@@ -98,19 +100,19 @@ public class DashboardFrame extends JFrame {
 
     private void setupMenuBar() {
         final JMenuBar menuBar = new JMenuBar();
-        final JMenu menuArquivo = new JMenu("Arquivo");
-        final JMenu menuView = new JMenu("Visualização");
-        final JMenu menuTema = new JMenu("Alterar Tema");
+        final JMenu menuArquivo = new JMenu(I18n.getString("dashboard.menu.file")); // ALTERADO
+        final JMenu menuView = new JMenu(I18n.getString("dashboard.menu.view")); // ALTERADO
+        final JMenu menuTema = new JMenu(I18n.getString("dashboard.menu.changeTheme")); // ALTERADO
         final ButtonGroup themeGroup = new ButtonGroup();
 
-        final JMenuItem customizeDashboardItem = new JMenuItem("Personalizar Dashboard");
+        final JMenuItem customizeDashboardItem = new JMenuItem(I18n.getString("dashboard.menu.customize")); // ALTERADO
         customizeDashboardItem.addActionListener(e -> openCustomizationDialog());
         menuView.add(customizeDashboardItem);
 
-        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem("Tema Claro");
+        final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.lightTheme")); // ALTERADO
         lightThemeItem.addActionListener(e -> setTheme("light"));
 
-        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem("Tema Escuro");
+        final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.darkTheme")); // ALTERADO
         darkThemeItem.setSelected(true);
         darkThemeItem.addActionListener(e -> setTheme("dark"));
 
@@ -119,11 +121,11 @@ public class DashboardFrame extends JFrame {
         menuTema.add(lightThemeItem);
         menuTema.add(darkThemeItem);
 
-        final JMenuItem logoutMenuItem = new JMenuItem("Logout");
+        final JMenuItem logoutMenuItem = new JMenuItem(I18n.getString("dashboard.menu.logout")); // ALTERADO
         logoutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         logoutMenuItem.addActionListener(e -> fazerLogout());
 
-        final JMenuItem sairMenuItem = new JMenuItem("Sair");
+        final JMenuItem sairMenuItem = new JMenuItem(I18n.getString("dashboard.menu.exit")); // ALTERADO
         sairMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         sairMenuItem.addActionListener(e -> confirmarSaida());
 
@@ -143,7 +145,7 @@ public class DashboardFrame extends JFrame {
     }
 
     private void rebuildAndShowHomePanel() {
-        int homeTabIndex = mainTabbedPane.indexOfTab("Início");
+        int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home")); // ALTERADO
         if (homeTabIndex != -1) {
             homePanel = new HomePanel(appContext);
             mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
@@ -158,12 +160,12 @@ public class DashboardFrame extends JFrame {
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
         homePanel = new HomePanel(appContext);
-        mainTabbedPane.addTab("Início", homePanel);
+        mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel); // ALTERADO
         mainTabbedPane.addChangeListener(createRefreshListener(homePanel));
 
         if (authService.isGerente()) {
             aiAssistantPanel = new AIAssistantPanel(appContext);
-            mainTabbedPane.addTab("Assistente", aiAssistantPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.assistant"), aiAssistantPanel); // ALTERADO
             aiAssistantTabIndex = mainTabbedPane.getTabCount() - 1;
             mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
         }
@@ -171,14 +173,14 @@ public class DashboardFrame extends JFrame {
         vendasTabbedPane = new JTabbedPane();
         vendaPanel = new VendaPanel(appContext);
         historicoVendasPanel = new HistoricoVendasPanel(appContext);
-        vendasTabbedPane.addTab("Nova Venda", vendaPanel);
-        vendasTabbedPane.addTab("Histórico", historicoVendasPanel);
-        mainTabbedPane.addTab("Vendas", vendasTabbedPane);
+        vendasTabbedPane.addTab(I18n.getString("dashboard.tab.newSale"), vendaPanel); // ALTERADO
+        vendasTabbedPane.addTab(I18n.getString("dashboard.tab.history"), historicoVendasPanel); // ALTERADO
+        mainTabbedPane.addTab(I18n.getString("dashboard.tab.sales"), vendasTabbedPane); // ALTERADO
         vendasTabbedPane.addChangeListener(createRefreshListener(null));
 
         if (authService.isGerente()) {
             financeiroPanel = new FinanceiroPanel(appContext);
-            mainTabbedPane.addTab("Financeiro", financeiroPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.financial"), financeiroPanel); // ALTERADO
             mainTabbedPane.addChangeListener(createRefreshListener(financeiroPanel));
 
             produtosEstoqueTabbedPane = new JTabbedPane();
@@ -186,23 +188,23 @@ public class DashboardFrame extends JFrame {
             categoriaPanel = new CategoriaPanel(appContext);
             alertaPanel = new AlertaPanel(appContext);
             movimentosPanel = new MovimentosPanel(this, appContext);
-            produtosEstoqueTabbedPane.addTab("Gestão de Produtos e Lotes", produtoPanel);
-            produtosEstoqueTabbedPane.addTab("Categorias", categoriaPanel);
-            produtosEstoqueTabbedPane.addTab("Alertas de Estoque", alertaPanel);
-            produtosEstoqueTabbedPane.addTab("Histórico de Movimentos", movimentosPanel);
-            mainTabbedPane.addTab("Produtos & Estoque", produtosEstoqueTabbedPane);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndBatches"), produtoPanel); // ALTERADO
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel); // ALTERADO
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel); // ALTERADO
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel); // ALTERADO
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), produtosEstoqueTabbedPane); // ALTERADO
             produtosEstoqueTabbedPane.addChangeListener(createRefreshListener(null));
 
             cadastrosTabbedPane = new JTabbedPane();
             clientePanel = new ClientePanel(appContext);
             fornecedorPanel = new FornecedorPanel(appContext);
-            cadastrosTabbedPane.addTab("Clientes", clientePanel);
-            cadastrosTabbedPane.addTab("Fornecedores", fornecedorPanel);
-            mainTabbedPane.addTab("Cadastros", cadastrosTabbedPane);
+            cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.clients"), clientePanel); // ALTERADO
+            cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.suppliers"), fornecedorPanel); // ALTERADO
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.registrations"), cadastrosTabbedPane); // ALTERADO
             cadastrosTabbedPane.addChangeListener(createRefreshListener(null));
 
             relatorioPanel = new RelatorioPanel(appContext);
-            mainTabbedPane.addTab("Relatórios", relatorioPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.reports"), relatorioPanel); // ALTERADO
             mainTabbedPane.addChangeListener(createRefreshListener(relatorioPanel));
         }
 
@@ -210,9 +212,9 @@ public class DashboardFrame extends JFrame {
             adminTabbedPane = new JTabbedPane();
             usuarioPanel = new UsuarioPanel(appContext);
             auditoriaPanel = new AuditoriaPanel(appContext);
-            adminTabbedPane.addTab("Gestão de Usuários", usuarioPanel);
-            adminTabbedPane.addTab("Logs de Auditoria", auditoriaPanel);
-            mainTabbedPane.addTab("Administração", adminTabbedPane);
+            adminTabbedPane.addTab(I18n.getString("dashboard.tab.userManagement"), usuarioPanel); // ALTERADO
+            adminTabbedPane.addTab(I18n.getString("dashboard.tab.auditLogs"), auditoriaPanel); // ALTERADO
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.administration"), adminTabbedPane); // ALTERADO
             adminTabbedPane.addChangeListener(createRefreshListener(null));
         }
 
@@ -255,26 +257,26 @@ public class DashboardFrame extends JFrame {
                     navigateTo((String) params.get("destination"));
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_LOTE:
-                    navigateTo("Gestão de Produtos e Lotes");
+                    navigateTo(I18n.getString("dashboard.tab.productsAndBatches")); // ALTERADO
                     if (produtoPanel != null) {
                         produtoPanel.selectFirstProduct();
                         UIGuide.highlightComponent(produtoPanel.getAddLoteButton());
                     }
                     break;
                 case GUIDE_NAVIGATE_TO_ADD_PRODUCT:
-                    navigateTo("Gestão de Produtos e Lotes");
+                    navigateTo(I18n.getString("dashboard.tab.productsAndBatches")); // ALTERADO
                     if (produtoPanel != null) UIGuide.highlightComponent(produtoPanel.getNovoProdutoButton());
                     break;
                 case DIRECT_CREATE_PRODUCT:
                     Produto novoProduto = new Produto((String) params.get("nome"), "", (Double) params.get("preco"), (Categoria) params.get("categoria"));
                     appContext.getProdutoService().salvarProduto(novoProduto, ator);
-                    UIMessageUtil.showInfoMessage(this, "Produto '" + novoProduto.getNome() + "' criado com sucesso!", "Ação Concluída");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.productCreated", novoProduto.getNome()), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
                     if (produtoPanel != null) produtoPanel.refreshData();
                     break;
                 case DIRECT_CREATE_CLIENT:
                     Cliente novoCliente = new Cliente((String) params.get("nome"), (String) params.get("contato"), "");
                     appContext.getClienteService().salvar(novoCliente, ator);
-                    UIMessageUtil.showInfoMessage(this, "Cliente '" + novoCliente.getNome() + "' foi criado com sucesso!", "Ação Concluída");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.clientCreated", novoCliente.getNome()), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
                     if (clientePanel != null) clientePanel.refreshData();
                     break;
                 case DIRECT_CREATE_FORNECEDOR:
@@ -284,7 +286,7 @@ public class DashboardFrame extends JFrame {
                     novoFornecedor.setContatoTelefone((String) params.get("contatoTelefone"));
                     novoFornecedor.setContatoEmail((String) params.get("contatoEmail"));
                     appContext.getFornecedorService().salvar(novoFornecedor, ator);
-                    UIMessageUtil.showInfoMessage(this, "Fornecedor '" + novoFornecedor.getNome() + "' criado com sucesso!", "Ação Concluída");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.supplierCreated", novoFornecedor.getNome()), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
                     if (fornecedorPanel != null) fornecedorPanel.refreshData();
                     break;
                 case DIRECT_ADJUST_STOCK:
@@ -298,7 +300,7 @@ public class DashboardFrame extends JFrame {
                         int newQuantity = ((Number) quantityObj).intValue();
                         appContext.getProdutoService().ajustarEstoqueLote(prodName, lotNumber, newQuantity, ator);
                     }
-                    UIMessageUtil.showInfoMessage(this, "Estoque do lote " + lotNumber + " ajustado com sucesso!", "Ação Concluída");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("dashboard.action.stockAdjusted", lotNumber), I18n.getString("dashboard.action.actionComplete")); // ALTERADO
                     if (produtoPanel != null) produtoPanel.refreshData();
                     if (movimentosPanel != null) movimentosPanel.refreshData();
                     break;
@@ -307,7 +309,7 @@ public class DashboardFrame extends JFrame {
                     setTheme((String) params.get("theme"));
                     break;
                 case START_SALE_FOR_CLIENT:
-                    navigateTo("Nova Venda");
+                    navigateTo(I18n.getString("dashboard.tab.newSale")); // ALTERADO
                     vendaPanel.refreshData();
                     Cliente cliente = (Cliente) params.get("cliente");
                     if (cliente != null) vendaPanel.selecionarCliente(cliente);
@@ -315,9 +317,9 @@ public class DashboardFrame extends JFrame {
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro detalhado ao executar a ação '" + action + "': ", e);
-            String errorMessage = e.getMessage() != null ? e.getMessage() : "Causa desconhecida.";
-            if (e.getCause() != null) errorMessage += "\nCausa Raiz: " + e.getCause().getMessage();
-            UIMessageUtil.showErrorMessage(this, "Erro ao executar a ação: " + errorMessage, "Erro na Ação do Assistente");
+            String errorMessage = e.getMessage() != null ? e.getMessage() : I18n.getString("error.unknownCause"); // ALTERADO
+            if (e.getCause() != null) errorMessage += I18n.getString("error.rootCause", e.getCause().getMessage()); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.action.errorExecuting", errorMessage), I18n.getString("dashboard.action.errorTitle")); // ALTERADO
         }
     }
 
@@ -363,15 +365,15 @@ public class DashboardFrame extends JFrame {
                     String greeting = getGreetingByTimeOfDay() + " " + userName + "!";
 
                     if (insights.isEmpty()) {
-                        aiAssistantPanel.appendMessage(greeting + " Como posso ajudar hoje?", false);
+                        aiAssistantPanel.appendMessage(greeting + I18n.getString("dashboard.assistant.howCanIHelp"), false); // ALTERADO
                     } else {
                         mainTabbedPane.setForegroundAt(aiAssistantTabIndex, Color.CYAN);
-                        String insightsMessage = greeting + " Notei alguns pontos que podem precisar da sua atenção:\n" + String.join("\n", insights);
+                        String insightsMessage = greeting + I18n.getString("dashboard.assistant.insightsFound") + "\n" + String.join("\n", insights); // ALTERADO
                         aiAssistantPanel.appendMessage(insightsMessage, false);
                     }
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Falha ao obter insights proativos.", e);
-                    aiAssistantPanel.appendMessage(getGreetingByTimeOfDay() + " Tive um problema ao carregar os insights, mas estou pronto para ajudar.", false);
+                    aiAssistantPanel.appendMessage(getGreetingByTimeOfDay() + I18n.getString("dashboard.assistant.insightsError"), false); // ALTERADO
                 }
             }
         }.execute();
@@ -380,11 +382,11 @@ public class DashboardFrame extends JFrame {
     private String getGreetingByTimeOfDay() {
         LocalTime now = LocalTime.now();
         if (now.isBefore(LocalTime.NOON)) {
-            return "Bom dia,";
+            return I18n.getString("dashboard.greeting.morning"); // ALTERADO
         } else if (now.isBefore(LocalTime.of(18, 0))) {
-            return "Boa tarde,";
+            return I18n.getString("dashboard.greeting.afternoon"); // ALTERADO
         } else {
-            return "Boa noite,";
+            return I18n.getString("dashboard.greeting.evening"); // ALTERADO
         }
     }
 
@@ -396,12 +398,12 @@ public class DashboardFrame extends JFrame {
             logger.info("Tema alterado para: " + themeName);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
-            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro ao alterar o tema.", "Erro de Tema");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.theme.error"), I18n.getString("dashboard.theme.errorTitle")); // ALTERADO
         }
     }
 
     private void fazerLogout() {
-        if (UIMessageUtil.showConfirmDialog(this, "Tem certeza que deseja sair da sua conta?", "Logout")) {
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("dashboard.logout.confirm"), I18n.getString("dashboard.logout.title"))) { // ALTERADO
             authService.logout();
             new LoginFrame(appContext).setVisible(true);
             this.dispose();
@@ -409,7 +411,7 @@ public class DashboardFrame extends JFrame {
     }
 
     private void confirmarSaida() {
-        if (UIMessageUtil.showConfirmDialog(this, "Tem certeza que deseja fechar a aplicação?", "Sair do Sistema")) {
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("dashboard.exit.confirm"), I18n.getString("dashboard.exit.title"))) { // ALTERADO
             authService.logout();
             logger.info("Aplicação encerrada pelo usuário.");
             System.exit(0);

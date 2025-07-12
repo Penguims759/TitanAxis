@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/ClientePresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.PersistenciaException;
@@ -6,6 +7,7 @@ import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ClienteService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.view.interfaces.ClienteView;
 
 import java.util.List;
@@ -30,7 +32,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             List<Cliente> clientes = clienteService.listarTodos();
             view.setClientesNaTabela(clientes);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar clientes: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.load", e.getMessage()), true); // ALTERADO
         }
     }
 
@@ -38,7 +40,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
     public void aoSalvar() {
         String nome = view.getNome().trim();
         if (nome.isEmpty()) {
-            view.mostrarMensagem("Erro de Validação", "O nome do cliente é obrigatório.", true);
+            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.client.error.nameRequired"), true); // ALTERADO
             return;
         }
 
@@ -49,32 +51,33 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
 
         try {
             Cliente clienteSalvo = clienteService.salvar(cliente, ator);
+            String successMessage = isUpdate ? I18n.getString("presenter.client.success.update") : I18n.getString("presenter.client.success.add"); // ALTERADO
             if (isUpdate) {
                 view.atualizarClienteNaTabela(clienteSalvo);
-                view.mostrarMensagem("Sucesso", "Cliente atualizado com sucesso!", false);
+                view.mostrarMensagem(I18n.getString("success.title"), successMessage, false); // ALTERADO
             } else {
                 view.adicionarClienteNaTabela(clienteSalvo);
-                view.mostrarMensagem("Sucesso", "Cliente adicionado com sucesso!", false);
+                view.mostrarMensagem(I18n.getString("success.title"), successMessage, false); // ALTERADO
             }
             aoLimpar();
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar o cliente: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.save", e.getMessage()), true); // ALTERADO
         }
     }
 
     @Override
     public void aoApagar() {
         if (view.getId().isEmpty()) {
-            view.mostrarMensagem("Aviso", "Selecione um cliente para eliminar.", true);
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.client.error.selectToDelete"), true); // ALTERADO
             return;
         }
 
         String nomeCliente = view.getNome();
-        String mensagem = String.format("Tem certeza que deseja eliminar o cliente '%s'?", nomeCliente);
+        String mensagem = I18n.getString("presenter.client.confirm.delete", nomeCliente); // ALTERADO
 
-        if (!view.mostrarConfirmacao("Confirmar Eliminação", mensagem)) {
+        if (!view.mostrarConfirmacao(I18n.getString("presenter.client.confirm.delete.title"), mensagem)) { // ALTERADO
             return;
         }
         int id = Integer.parseInt(view.getId());
@@ -82,12 +85,12 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         try {
             clienteService.deletar(id, ator);
             view.removerClienteDaTabela(id);
-            view.mostrarMensagem("Sucesso", "Cliente eliminado com sucesso!", false);
+            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.client.success.delete"), false); // ALTERADO
             aoLimpar();
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar o cliente: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.delete", e.getMessage()), true); // ALTERADO
         }
     }
 
@@ -110,7 +113,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
                 aoCarregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar clientes: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.search", e.getMessage()), true); // ALTERADO
         }
     }
 

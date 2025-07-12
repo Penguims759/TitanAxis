@@ -1,32 +1,31 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/UsuarioPanel.java
+// File: penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/UsuarioPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.presenter.UsuarioPresenter;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.interfaces.UsuarioView;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.List;
 
 public class UsuarioPanel extends JPanel implements UsuarioView {
 
     private UsuarioViewListener listener;
-    private final DefaultTableModel tableModel; // Adicionado final
-    private final JTable table; // Adicionado final
-    private final JTextField idField; // Adicionado final
-    private final JTextField usernameField; // Adicionado final
-    private final JTextField searchField; // Adicionado final
-    private final JPasswordField passwordField; // Adicionado final
-    private final JComboBox<NivelAcesso> nivelAcessoComboBox; // Adicionado final
+    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final JTextField idField;
+    private final JTextField usernameField;
+    private final JTextField searchField;
+    private final JPasswordField passwordField;
+    private final JComboBox<NivelAcesso> nivelAcessoComboBox;
 
     public UsuarioPanel(AppContext appContext) {
-        // ALTERADO: Inicialização de campos 'final' movida para o construtor.
         idField = new JTextField();
         idField.setEditable(false);
         usernameField = new JTextField();
@@ -34,12 +33,17 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
         nivelAcessoComboBox = new JComboBox<>(NivelAcesso.values());
         searchField = new JTextField(25);
 
-        tableModel = new DefaultTableModel(new String[]{"ID", "Nome de Utilizador", "Nível de Acesso"}, 0) {
+        // ALTERADO
+        tableModel = new DefaultTableModel(new String[]{
+                I18n.getString("user.table.header.id"),
+                I18n.getString("user.table.header.name"),
+                I18n.getString("user.table.header.accessLevel")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
 
-        initComponents(); // Chama o método para construir o layout com os componentes já inicializados
+        initComponents();
         new UsuarioPresenter(this, appContext.getAuthService());
     }
 
@@ -52,12 +56,8 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
         add(northPanel, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
-        // searchField já inicializado no construtor
         centerPanel.add(createSearchPanel(searchField), BorderLayout.NORTH);
-
-        // tableModel e table já inicializados no construtor
         centerPanel.add(new JScrollPane(table), BorderLayout.CENTER);
-
         add(centerPanel, BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -73,24 +73,23 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Detalhes do Utilizador"));
-        // idField, usernameField, passwordField, nivelAcessoComboBox já inicializados no construtor
-        panel.add(new JLabel("ID:"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("user.border.details"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("user.label.id"))); // ALTERADO
         panel.add(idField);
-        panel.add(new JLabel("Nome de Utilizador:"));
+        panel.add(new JLabel(I18n.getString("user.label.username"))); // ALTERADO
         panel.add(usernameField);
-        panel.add(new JLabel("Nova Senha (deixe em branco para não alterar):"));
+        panel.add(new JLabel(I18n.getString("user.label.newPassword"))); // ALTERADO
         panel.add(passwordField);
-        panel.add(new JLabel("Nível de Acesso:"));
+        panel.add(new JLabel(I18n.getString("user.label.accessLevel"))); // ALTERADO
         panel.add(nivelAcessoComboBox);
         return panel;
     }
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton saveButton = new JButton("Salvar");
-        JButton deleteButton = new JButton("Eliminar");
-        JButton clearButton = new JButton("Limpar Campos");
+        JButton saveButton = new JButton(I18n.getString("user.button.save")); // ALTERADO
+        JButton deleteButton = new JButton(I18n.getString("user.button.delete")); // ALTERADO
+        JButton clearButton = new JButton(I18n.getString("user.button.clear")); // ALTERADO
         saveButton.addActionListener(e -> listener.aoSalvar());
         deleteButton.addActionListener(e -> listener.aoApagar());
         clearButton.addActionListener(e -> listener.aoLimpar());
@@ -102,10 +101,9 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
 
     private JPanel createSearchPanel(JTextField searchField) {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton("Buscar");
-        JButton clearSearchButton = new JButton("Limpar Busca");
-        searchPanel.add(new JLabel("Buscar por Nome:"));
-        // searchField já inicializado no construtor
+        JButton searchButton = new JButton(I18n.getString("user.button.search")); // ALTERADO
+        JButton clearSearchButton = new JButton(I18n.getString("user.button.clearSearch")); // ALTERADO
+        searchPanel.add(new JLabel(I18n.getString("user.label.searchByName"))); // ALTERADO
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);
@@ -143,7 +141,7 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     public void setUsuariosNaTabela(List<Usuario> usuarios) {
         tableModel.setRowCount(0);
         usuarios.forEach(u -> tableModel.addRow(new Object[]{u.getId(), u.getNomeUsuario(), u.getNivelAcesso()}));
-        table.clearSelection(); // NOVO: Limpa a seleção da tabela
+        table.clearSelection();
     }
 
     @Override
@@ -169,11 +167,10 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     @Override
     public void clearTableSelection() { table.clearSelection(); }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
     public void refreshData() {
         if (listener != null) {
-            listener.aoCarregarDadosIniciais(); // Chama o método da interface do listener
-            table.clearSelection(); // NOVO: Limpa a seleção da tabela
+            listener.aoCarregarDadosIniciais();
+            table.clearSelection();
         }
     }
 

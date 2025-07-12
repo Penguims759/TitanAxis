@@ -1,5 +1,6 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/view/panels/dashboard/PerformanceRankingsCard.java
 package com.titanaxis.view.panels.dashboard;
+
+import com.titanaxis.util.I18n;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,12 +12,11 @@ public class PerformanceRankingsCard extends JPanel {
 
     private final DefaultListModel<String> topProductsModel;
     private final DefaultListModel<String> topClientsModel;
-    // CORREÇÃO: Alterado o Locale de Portugal para Brasil
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public PerformanceRankingsCard() {
         setLayout(new GridLayout(1, 2, 15, 0));
-        setBorder(BorderFactory.createTitledBorder("Rankings de Desempenho (Mês Atual)"));
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("home.rankings.title")));
 
         topProductsModel = new DefaultListModel<>();
         JList<String> topProductsList = new JList<>(topProductsModel);
@@ -24,8 +24,8 @@ public class PerformanceRankingsCard extends JPanel {
         topClientsModel = new DefaultListModel<>();
         JList<String> topClientsList = new JList<>(topClientsModel);
 
-        add(createTitledScrollPane(topProductsList, "Top 3 Produtos (por Qtd)"));
-        add(createTitledScrollPane(topClientsList, "Top 3 Clientes (por Valor)"));
+        add(createTitledScrollPane(topProductsList, I18n.getString("home.rankings.topProducts")));
+        add(createTitledScrollPane(topClientsList, I18n.getString("home.rankings.topClients")));
     }
 
     private JScrollPane createTitledScrollPane(JComponent content, String title) {
@@ -37,18 +37,18 @@ public class PerformanceRankingsCard extends JPanel {
     public void setTopProducts(Map<String, Integer> products) {
         topProductsModel.clear();
         if (products.isEmpty()) {
-            topProductsModel.addElement("Nenhum produto vendido este mês.");
+            topProductsModel.addElement(I18n.getString("home.rankings.noProducts"));
         } else {
-            products.forEach((name, qty) -> topProductsModel.addElement(String.format("%s (%d un.)", name, qty)));
+            products.forEach((name, qty) -> topProductsModel.addElement(I18n.getString("home.rankings.productFormat", name, qty)));
         }
     }
 
     public void setTopClients(Map<String, Double> clients) {
         topClientsModel.clear();
         if (clients.isEmpty()) {
-            topClientsModel.addElement("Nenhuma venda a clientes este mês.");
+            topClientsModel.addElement(I18n.getString("home.rankings.noClients"));
         } else {
-            clients.forEach((name, value) -> topClientsModel.addElement(String.format("%s (%s)", name, currencyFormat.format(value))));
+            clients.forEach((name, value) -> topClientsModel.addElement(I18n.getString("home.rankings.clientFormat", name, currencyFormat.format(value))));
         }
     }
 }

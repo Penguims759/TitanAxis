@@ -4,6 +4,7 @@ package com.titanaxis.presenter;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Venda;
 import com.titanaxis.service.VendaService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.view.interfaces.HistoricoVendasView;
 import javax.swing.SwingWorker;
 import java.util.List;
@@ -40,8 +41,9 @@ public class HistoricoVendasPresenter implements HistoricoVendasView.HistoricoVe
                     view.setVendasNaTabela(vendas);
                 } catch (Exception e) {
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
-                    String msg = (cause instanceof PersistenciaException) ? "Erro de Base de Dados: " + cause.getMessage() : "Ocorreu um erro inesperado.";
-                    view.mostrarErro("Erro ao Carregar Vendas", msg);
+                    // ALTERADO
+                    String msg = (cause instanceof PersistenciaException) ? I18n.getString("error.db.generic", cause.getMessage()) : I18n.getString("error.unexpected.title");
+                    view.mostrarErro(I18n.getString("presenter.history.error.load"), msg);
                 } finally {
                     view.setCarregando(false);
                 }

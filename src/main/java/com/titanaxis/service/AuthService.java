@@ -9,6 +9,7 @@ import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.UsuarioRepository;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.PasswordUtil;
 
 import java.util.List;
@@ -35,12 +36,13 @@ public class AuthService {
         if (usuarioOpt.isPresent() && PasswordUtil.checkPassword(senha, usuarioOpt.get().getSenhaHash())) {
             this.usuarioLogado = usuarioOpt.get();
             transactionService.executeInTransaction(em ->
-                    auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", "Login bem-sucedido.", em)
+                    auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", I18n.getString("service.auth.log.loginSuccess"), em) // ALTERADO
             );
             return Optional.of(usuarioLogado);
         }
 
-        String detalhes = usuarioOpt.isPresent() ? "Tentativa de login com senha incorreta." : "Tentativa de login com utilizador inexistente.";
+        // ALTERADO
+        String detalhes = usuarioOpt.isPresent() ? I18n.getString("service.auth.log.loginFail.wrongPassword") : I18n.getString("service.auth.log.loginFail.userNotFound");
         Integer idTentativa = usuarioOpt.map(Usuario::getId).orElse(null);
         transactionService.executeInTransaction(em ->
                 auditoriaRepository.registrarAcao(idTentativa, nomeUsuario, "LOGIN_FALHA", "Autenticação", detalhes, em)
@@ -51,12 +53,12 @@ public class AuthService {
 
     public void cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) throws NomeDuplicadoException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // ALTERADO
         }
         try {
             transactionService.executeInTransaction(em -> {
                 if (usuarioRepository.findByNomeUsuario(nomeUsuario, em).isPresent()) {
-                    throw new RuntimeException("O nome de utilizador '" + nomeUsuario + "' já existe.");
+                    throw new RuntimeException(I18n.getString("service.auth.error.userExists", nomeUsuario)); // ALTERADO
                 }
                 String senhaHash = PasswordUtil.hashPassword(senha);
                 Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
@@ -69,7 +71,7 @@ public class AuthService {
 
     public boolean atualizarUsuario(Usuario usuario, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // ALTERADO
         }
         Usuario salvo = transactionService.executeInTransactionWithResult(em ->
                 usuarioRepository.save(usuario, ator, em)
@@ -79,7 +81,7 @@ public class AuthService {
 
     public void deletarUsuario(int id, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // ALTERADO
         }
         transactionService.executeInTransaction(em ->
                 usuarioRepository.deleteById(id, ator, em)

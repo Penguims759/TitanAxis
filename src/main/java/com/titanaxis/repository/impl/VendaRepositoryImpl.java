@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -5,6 +6,7 @@ import com.titanaxis.model.*;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.VendaRepository;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
@@ -33,8 +35,9 @@ public class VendaRepositoryImpl implements VendaRepository {
         Venda vendaSalva = em.merge(venda);
 
         String acao;
+        // ALTERADO
         if (venda.getStatus() == VendaStatus.FINALIZADA) {
-            acao = "FINALIZAÇÃO DE VENDA";
+            acao = I18n.getString("log.sale.action.finalize");
             for (VendaItem item : venda.getItens()) {
                 Query movimentoQuery = em.createNativeQuery("INSERT INTO movimentos_estoque (produto_id, lote_id, tipo_movimento, quantidade, usuario_id, venda_id) VALUES (?, ?, ?, ?, ?, ?)");
                 movimentoQuery.setParameter(1, item.getLote().getProduto().getId());
@@ -46,15 +49,16 @@ public class VendaRepositoryImpl implements VendaRepository {
                 movimentoQuery.executeUpdate();
             }
         } else if (venda.getStatus() == VendaStatus.ORCAMENTO) {
-            acao = "CRIAÇÃO DE ORÇAMENTO";
+            acao = I18n.getString("log.sale.action.createQuote");
         } else {
-            acao = "CANCELAMENTO DE VENDA";
+            acao = I18n.getString("log.sale.action.cancel");
         }
 
         if (ator != null) {
-            String nomeCliente = vendaSalva.getCliente() != null ? vendaSalva.getCliente().getNome() : "N/A";
+            String nomeCliente = vendaSalva.getCliente() != null ? vendaSalva.getCliente().getNome() : I18n.getString("general.notAvailable"); // ALTERADO
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-            String detalhes = String.format("Venda #%d (%s) para o cliente '%s'. Valor total: %s.",
+            // ALTERADO
+            String detalhes = I18n.getString("log.sale.details",
                     vendaSalva.getId(), venda.getStatus().getDescricao(), nomeCliente, currencyFormat.format(vendaSalva.getValorTotal()));
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Venda", vendaSalva.getId(), detalhes, em);
         }
@@ -64,7 +68,7 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public void deleteById(Integer id, Usuario ator, EntityManager em) {
-        logger.warning("A função de apagar vendas não está implementada por razões de integridade de dados.");
+        logger.warning(I18n.getString("log.sale.deleteNotImplemented")); // ALTERADO
     }
 
     @Override

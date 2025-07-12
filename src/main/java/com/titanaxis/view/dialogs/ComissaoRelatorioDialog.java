@@ -1,5 +1,7 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/dialogs/ComissaoRelatorioDialog.java
 package com.titanaxis.view.dialogs;
 
+import com.titanaxis.util.I18n; // Importado
 import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +17,7 @@ public class ComissaoRelatorioDialog extends JDialog {
     private boolean confirmado = false;
 
     public ComissaoRelatorioDialog(Frame owner) {
-        super(owner, "Gerar Relatório de Comissões", true);
+        super(owner, I18n.getString("commissionDialog.title"), true); // ALTERADO
         setLayout(new BorderLayout(10, 10));
 
         dataInicioChooser = new JDateChooser(new Date());
@@ -23,18 +25,18 @@ public class ComissaoRelatorioDialog extends JDialog {
 
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panel.add(new JLabel("Data de Início:"));
+        panel.add(new JLabel(I18n.getString("commissionDialog.label.startDate"))); // ALTERADO
         panel.add(dataInicioChooser);
-        panel.add(new JLabel("Data de Fim:"));
+        panel.add(new JLabel(I18n.getString("commissionDialog.label.endDate"))); // ALTERADO
         panel.add(dataFimChooser);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton okButton = new JButton("Gerar");
+        JButton okButton = new JButton(I18n.getString("commissionDialog.button.generate")); // ALTERADO
         okButton.addActionListener(e -> {
             confirmado = true;
             dispose();
         });
-        JButton cancelButton = new JButton("Cancelar");
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
         cancelButton.addActionListener(e -> dispose());
         buttonPanel.add(cancelButton);
         buttonPanel.add(okButton);

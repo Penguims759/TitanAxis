@@ -1,5 +1,7 @@
 package com.titanaxis.view.panels.dashboard;
 
+import com.titanaxis.util.I18n;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,15 +13,15 @@ public class FinancialSummaryCard extends JPanel {
 
     public FinancialSummaryCard() {
         setLayout(new GridLayout(3, 1, 5, 5));
-        setBorder(BorderFactory.createTitledBorder("Resumo Financeiro (Mês Atual)"));
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("home.financial.title")));
 
         revenueValue = createValueLabel();
         comparisonLabel = createComparisonLabel();
         avgTicketValue = createValueLabel();
 
-        add(createMetricPanel("Receita do Mês:", revenueValue));
-        add(createMetricPanel("Comparação c/ Mês Anterior:", comparisonLabel));
-        add(createMetricPanel("Ticket Médio:", avgTicketValue));
+        add(createMetricPanel(I18n.getString("home.financial.revenue"), revenueValue));
+        add(createMetricPanel(I18n.getString("home.financial.comparison"), comparisonLabel));
+        add(createMetricPanel(I18n.getString("home.financial.avgTicket"), avgTicketValue));
     }
 
     private JPanel createMetricPanel(String title, JComponent valueComponent) {
@@ -45,7 +47,7 @@ public class FinancialSummaryCard extends JPanel {
     public void setAvgTicket(String value) { avgTicketValue.setText(value); }
     public void setComparison(double percentage) {
         if (Double.isNaN(percentage)) {
-            comparisonLabel.setText("N/A");
+            comparisonLabel.setText(I18n.getString("general.notAvailable"));
             comparisonLabel.setForeground(Color.GRAY);
         } else {
             String text = String.format("%.1f%%", percentage);

@@ -5,7 +5,8 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.RelatorioService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -25,51 +26,71 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 public class AuditoriaPanel extends JPanel {
-    private final JTabbedPane tabbedPane; // Adicionado final
-    private final JTable acoesTable; // Adicionado final
-    private final JTable acessoTable; // Adicionado final
-    private final DefaultTableModel acoesTableModel; // Adicionado final
-    private final DefaultTableModel acessoTableModel; // Adicionado final
-    private final RelatorioService relatorioService; // Adicionado final
+    private final JTabbedPane tabbedPane;
+    private final JTable acoesTable;
+    private final JTable acessoTable;
+    private final DefaultTableModel acoesTableModel;
+    private final DefaultTableModel acessoTableModel;
+    private final RelatorioService relatorioService;
 
     public AuditoriaPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createTitledBorder("Logs de Auditoria do Sistema"));
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("audit.panel.title"))); // ALTERADO
 
-        // Inicialização dos table models e tabelas para serem final
-        acoesTableModel = new DefaultTableModel(new String[]{"Data/Hora", "Utilizador", "Ação", "Entidade", "Detalhes"}, 0) {
+        // ALTERADO
+        acoesTableModel = new DefaultTableModel(new String[]{
+                I18n.getString("audit.table.header.datetime"),
+                I18n.getString("audit.table.header.user"),
+                I18n.getString("audit.table.header.action"),
+                I18n.getString("audit.table.header.entity"),
+                I18n.getString("audit.table.header.details")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         acoesTable = new JTable(acoesTableModel);
 
-        acessoTableModel = new DefaultTableModel(new String[]{"Data/Hora", "Utilizador", "Resultado", "Entidade", "Detalhes"}, 0) {
+        // ALTERADO
+        acessoTableModel = new DefaultTableModel(new String[]{
+                I18n.getString("audit.table.header.datetime"),
+                I18n.getString("audit.table.header.user"),
+                I18n.getString("audit.table.header.result"),
+                I18n.getString("audit.table.header.entity"),
+                I18n.getString("audit.table.header.details")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         acessoTable = new JTable(acessoTableModel);
 
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Logs de Ações", createLogPanel(true));
-        tabbedPane.addTab("Logs de Acesso", createLogPanel(false));
+        tabbedPane.addTab(I18n.getString("audit.tab.actions"), createLogPanel(true)); // ALTERADO
+        tabbedPane.addTab(I18n.getString("audit.tab.access"), createLogPanel(false)); // ALTERADO
 
-        // NOVO: ChangeListener para recarregar a aba ativa ao mudar de sub-aba
         tabbedPane.addChangeListener(e -> refreshData());
-
         add(tabbedPane, BorderLayout.CENTER);
-
-        // Chamada inicial de refresh para a aba padrão (Logs de Ações)
         refreshData();
     }
 
     private JPanel createLogPanel(boolean isAcoes) {
-        String title = isAcoes ? "Logs de Ações do Sistema" : "Logs de Acesso ao Sistema";
-        String[] headers = isAcoes ?
-                new String[]{"Data/Hora", "Utilizador", "Ação", "Entidade", "Detalhes"} :
-                new String[]{"Data/Hora", "Utilizador", "Resultado", "Entidade", "Detalhes"};
+        // As strings de cabeçalho são passadas para o método de exportação, então precisam ser internacionalizadas aqui.
+        final String[] headers;
+        if (isAcoes) {
+            headers = new String[]{
+                    I18n.getString("audit.table.header.datetime"), I18n.getString("audit.table.header.user"),
+                    I18n.getString("audit.table.header.action"), I18n.getString("audit.table.header.entity"),
+                    I18n.getString("audit.table.header.details")
+            };
+        } else {
+            headers = new String[]{
+                    I18n.getString("audit.table.header.datetime"), I18n.getString("audit.table.header.user"),
+                    I18n.getString("audit.table.header.result"), I18n.getString("audit.table.header.entity"),
+                    I18n.getString("audit.table.header.details")
+            };
+        }
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        DefaultTableModel model = isAcoes ? acoesTableModel : acessoTableModel; // Usa o table model já inicializado
-        JTable table = isAcoes ? acoesTable : acessoTable; // Usa a tabela já inicializada
+        DefaultTableModel model = isAcoes ? acoesTableModel : acessoTableModel;
+        JTable table = isAcoes ? acoesTable : acessoTable;
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
@@ -86,22 +107,22 @@ public class AuditoriaPanel extends JPanel {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filterPanel.add(new JLabel("Filtrar:"));
+        filterPanel.add(new JLabel(I18n.getString("audit.label.filter"))); // ALTERADO
         filterPanel.add(filterField);
         topPanel.add(filterPanel, BorderLayout.CENTER);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton refreshButton = new JButton("Atualizar");
+        JButton refreshButton = new JButton(I18n.getString("button.refresh")); // ALTERADO
         refreshButton.addActionListener(e -> {
-            if (isAcoes) loadAcoesLogs(); else loadAcessoLogs(); // ALTERADO: Chamada direta sem passar model
+            if (isAcoes) loadAcoesLogs(); else loadAcessoLogs();
         });
         buttonsPanel.add(refreshButton);
 
-        JButton csvButton = new JButton("Gerar CSV");
+        JButton csvButton = new JButton(I18n.getString("button.generateCsv")); // ALTERADO
         csvButton.addActionListener(e -> exportarLogParaCsv(isAcoes, headers));
         buttonsPanel.add(csvButton);
 
-        JButton pdfButton = new JButton("Gerar PDF");
+        JButton pdfButton = new JButton(I18n.getString("button.generatePdf")); // ALTERADO
         pdfButton.addActionListener(e -> exportarLogParaPdf(isAcoes, headers));
         buttonsPanel.add(pdfButton);
         topPanel.add(buttonsPanel, BorderLayout.EAST);
@@ -109,11 +130,9 @@ public class AuditoriaPanel extends JPanel {
         panel.add(topPanel, BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Remove chamadas de load inicial aqui, pois refreshData() no construtor já cuida disso.
         return panel;
     }
 
-    // ALTERADO: Tornados private novamente, mas sem parâmetro model
     private void loadAcoesLogs() {
         carregarDadosDeLog(acoesTableModel, true);
     }
@@ -122,7 +141,6 @@ public class AuditoriaPanel extends JPanel {
         carregarDadosDeLog(acessoTableModel, false);
     }
 
-    // ALTERADO: Método privado para carregamento de dados, chamado por loadAcoesLogs/loadAcessoLogs
     private void carregarDadosDeLog(DefaultTableModel model, boolean isAcoes) {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingWorker<List<Vector<Object>>, Void> worker = new SwingWorker<>() {
@@ -141,7 +159,7 @@ public class AuditoriaPanel extends JPanel {
                         model.addRow(row);
                     }
                 } catch (Exception e) {
-                    handleException("Erro ao carregar logs de auditoria.", e);
+                    handleException(I18n.getString("audit.error.load"), e); // ALTERADO
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -165,7 +183,7 @@ public class AuditoriaPanel extends JPanel {
                     String csvContent = get();
                     salvarRelatorioCsv(fileNameBase, csvContent);
                 } catch (Exception e) {
-                    handleException("Erro ao gerar relatório CSV.", e);
+                    handleException(I18n.getString("audit.error.generateCsv"), e); // ALTERADO
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -175,7 +193,7 @@ public class AuditoriaPanel extends JPanel {
     }
 
     private void exportarLogParaPdf(boolean isAcoes, String[] headers) {
-        String title = isAcoes ? "Relatório de Auditoria de Ações" : "Relatório de Auditoria de Acesso";
+        String title = isAcoes ? I18n.getString("audit.pdf.title.actions") : I18n.getString("audit.pdf.title.access"); // ALTERADO
         String fileNameBase = isAcoes ? "Relatorio_Auditoria_Acoes" : "Relatorio_Auditoria_Acesso";
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingWorker<ByteArrayOutputStream, Void> worker = new SwingWorker<>() {
@@ -190,7 +208,7 @@ public class AuditoriaPanel extends JPanel {
                     ByteArrayOutputStream baos = get();
                     salvarRelatorioPdf(fileNameBase, baos);
                 } catch (Exception e) {
-                    handleException("Erro ao gerar relatório PDF.", e);
+                    handleException(I18n.getString("audit.error.generatePdf"), e); // ALTERADO
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -200,27 +218,27 @@ public class AuditoriaPanel extends JPanel {
     }
 
     private void salvarRelatorioCsv(String nomeBase, String conteudo) {
-        JFileChooser fileChooser = createFileChooser(nomeBase, "csv", "Arquivo CSV (*.csv)");
+        JFileChooser fileChooser = createFileChooser(nomeBase, "csv", I18n.getString("report.fileChooser.csvFilter")); // ALTERADO
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File arquivo = getSelectedFileWithExtension(fileChooser, ".csv");
             try (PrintWriter out = new PrintWriter(arquivo, StandardCharsets.UTF_8)) {
                 out.print(conteudo);
-                UIMessageUtil.showInfoMessage(this, "Relatório salvo com sucesso!", "Sucesso");
+                UIMessageUtil.showInfoMessage(this, I18n.getString("report.save.success"), I18n.getString("success.title")); // ALTERADO
             } catch (IOException e) {
-                handleException("Erro ao salvar o ficheiro.", e);
+                handleException(I18n.getString("report.save.error"), e); // ALTERADO
             }
         }
     }
 
     private void salvarRelatorioPdf(String nomeBase, ByteArrayOutputStream baos) {
-        JFileChooser fileChooser = createFileChooser(nomeBase, "pdf", "Arquivo PDF (*.pdf)");
+        JFileChooser fileChooser = createFileChooser(nomeBase, "pdf", I18n.getString("report.fileChooser.pdfFilter")); // ALTERADO
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File arquivo = getSelectedFileWithExtension(fileChooser, ".pdf");
             try (FileOutputStream fos = new FileOutputStream(arquivo)) {
                 baos.writeTo(fos);
-                UIMessageUtil.showInfoMessage(this, "Relatório salvo com sucesso!", "Sucesso");
+                UIMessageUtil.showInfoMessage(this, I18n.getString("report.save.success"), I18n.getString("success.title")); // ALTERADO
             } catch (IOException e) {
-                handleException("Erro ao salvar o ficheiro.", e);
+                handleException(I18n.getString("report.save.error"), e); // ALTERADO
             }
         }
     }
@@ -228,18 +246,18 @@ public class AuditoriaPanel extends JPanel {
     private void handleException(String message, Exception ex) {
         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
         AppLogger.getLogger().log(Level.SEVERE, message, cause);
-        String errorMessage = "Ocorreu um erro inesperado.";
+        String errorMessage = I18n.getString("error.unexpected.title"); // ALTERADO
         if (cause instanceof PersistenciaException) {
-            errorMessage = "Erro de Base de Dados: " + cause.getMessage();
+            errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage(); // ALTERADO
         } else if (cause instanceof IOException) {
-            errorMessage = "Erro de Ficheiro: Falha ao salvar o relatório.";
+            errorMessage = I18n.getString("error.file.title") + ": " + I18n.getString("report.error.saveFile"); // ALTERADO
         }
-        UIMessageUtil.showErrorMessage(this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro");
+        UIMessageUtil.showErrorMessage(this, errorMessage + "\n" + I18n.getString("error.seeLogs"), I18n.getString("error.title")); // ALTERADO
     }
 
     private JFileChooser createFileChooser(String nomeBase, String ext, String desc) {
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Salvar Relatório");
+        fc.setDialogTitle(I18n.getString("report.fileChooser.title")); // ALTERADO
         fc.setSelectedFile(new File(nomeBase + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "." + ext));
         fc.setFileFilter(new FileNameExtensionFilter(desc, ext));
         return fc;
@@ -253,11 +271,10 @@ public class AuditoriaPanel extends JPanel {
         return file;
     }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
     public void refreshData() {
-        if (tabbedPane.getSelectedIndex() == 0) { // Log de Ações
+        if (tabbedPane.getSelectedIndex() == 0) {
             loadAcoesLogs();
-        } else { // Log de Acesso
+        } else {
             loadAcessoLogs();
         }
     }

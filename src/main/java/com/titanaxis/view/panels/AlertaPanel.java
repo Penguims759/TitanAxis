@@ -5,7 +5,8 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.UIMessageUtil; // Importado
+import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +24,7 @@ public class AlertaPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("Alertas de Estoque", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(I18n.getString("alert.panel.title"), SwingConstants.CENTER); // ALTERADO
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(titleLabel, BorderLayout.NORTH);
 
@@ -32,19 +33,18 @@ public class AlertaPanel extends JPanel {
         alertaTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         alertaTextArea.setLineWrap(true);
         alertaTextArea.setWrapStyleWord(true);
-        alertaTextArea.setFocusable(false); // NOVO: Remove o foco visual do JTextArea
+        alertaTextArea.setFocusable(false);
         add(new JScrollPane(alertaTextArea), BorderLayout.CENTER);
 
-        JButton refreshButton = new JButton("Atualizar Alertas");
-        refreshButton.addActionListener(e -> refreshData()); // ALTERADO: Chama refreshData()
+        JButton refreshButton = new JButton(I18n.getString("alert.panel.refreshButton")); // ALTERADO
+        refreshButton.addActionListener(e -> refreshData());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(refreshButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        refreshData(); // Chama o refresh inicial
+        refreshData();
     }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
     public void refreshData() {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingWorker<List<String>, Void> worker = new SwingWorker<>() {
@@ -58,8 +58,8 @@ public class AlertaPanel extends JPanel {
                 try {
                     List<String> mensagens = get();
                     StringBuilder sb = new StringBuilder();
-                    if (mensagens.isEmpty()) {
-                        sb.append("Nenhum alerta de estoque ativo.");
+                    if (mensagens.isEmpty() || (mensagens.size() == 1 && mensagens.get(0).startsWith("Nenhum"))) { // Lógica para tratar o caso de nenhum alerta
+                        sb.append(I18n.getString("alert.panel.noAlerts")); // ALTERADO
                     } else {
                         for (String msg : mensagens) {
                             sb.append(msg).append("\n\n");
@@ -71,11 +71,11 @@ public class AlertaPanel extends JPanel {
                 } catch (Exception e) {
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
                     logger.log(Level.SEVERE, "Falha ao carregar alertas.", cause);
-                    String errorMessage = "Ocorreu um erro ao carregar os alertas.";
+                    String errorMessage = I18n.getString("alert.panel.error.load"); // ALTERADO
                     if (cause instanceof PersistenciaException) {
-                        errorMessage = "Erro de Base de Dados: " + cause.getMessage();
+                        errorMessage = I18n.getString("error.db.generic", cause.getMessage()); // ALTERADO
                     }
-                    UIMessageUtil.showErrorMessage(AlertaPanel.this, errorMessage + "\nConsulte os logs para mais detalhes.", "Erro");
+                    UIMessageUtil.showErrorMessage(AlertaPanel.this, errorMessage + "\n" + I18n.getString("error.seeLogs"), I18n.getString("error.title")); // ALTERADO
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }

@@ -11,6 +11,7 @@ import com.titanaxis.service.CategoriaService;
 import com.titanaxis.service.FornecedorService;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
@@ -34,14 +35,14 @@ public class ProdutoDialog extends JDialog {
     private final JComboBox<Fornecedor> fornecedorComboBox;
 
     public ProdutoDialog(Frame owner, ProdutoService ps, CategoriaService cs, FornecedorService fs, Produto p, Usuario ator) {
-        super(owner, "Detalhes do Produto", true);
+        super(owner, I18n.getString("productDialog.title"), true); // ALTERADO
         this.produtoService = ps;
         this.categoriaService = cs;
         this.fornecedorService = fs;
         this.produto = (p != null) ? p : new Produto();
         this.ator = ator;
 
-        setTitle(this.produto.getId() == 0 ? "Novo Produto" : "Editar Produto");
+        setTitle(this.produto.getId() == 0 ? I18n.getString("productDialog.title.new") : I18n.getString("productDialog.title.edit")); // ALTERADO
         setLayout(new BorderLayout());
 
         nomeField = new JTextField(20);
@@ -68,25 +69,25 @@ public class ProdutoDialog extends JDialog {
             populateCategoryComboBox();
             populateFornecedorComboBox();
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro ao carregar dados de suporte: " + e.getMessage(), "Erro de Base de Dados");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.loadSupportData", e.getMessage()), I18n.getString("error.db.title")); // ALTERADO
         }
 
-        formPanel.add(new JLabel("Nome*:"));
+        formPanel.add(new JLabel(I18n.getString("productDialog.label.name"))); // ALTERADO
         formPanel.add(nomeField);
-        formPanel.add(new JLabel("Descrição:"));
+        formPanel.add(new JLabel(I18n.getString("productDialog.label.description"))); // ALTERADO
         formPanel.add(descricaoField);
-        formPanel.add(new JLabel("Preço*:"));
+        formPanel.add(new JLabel(I18n.getString("productDialog.label.price"))); // ALTERADO
         formPanel.add(precoField);
-        formPanel.add(new JLabel("Categoria*:"));
+        formPanel.add(new JLabel(I18n.getString("productDialog.label.category"))); // ALTERADO
         formPanel.add(categoriaComboBox);
-        formPanel.add(new JLabel("Fornecedor:"));
+        formPanel.add(new JLabel(I18n.getString("productDialog.label.supplier"))); // ALTERADO
         formPanel.add(fornecedorComboBox);
         add(formPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton("Salvar");
+        JButton saveButton = new JButton(I18n.getString("button.save")); // ALTERADO
         saveButton.addActionListener(e -> save());
-        JButton cancelButton = new JButton("Cancelar");
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
         cancelButton.addActionListener(e -> dispose());
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
@@ -118,7 +119,7 @@ public class ProdutoDialog extends JDialog {
 
     private void save() {
         if (nomeField.getText().trim().isEmpty() || precoField.getText().trim().isEmpty() || categoriaComboBox.getSelectedItem() == null) {
-            UIMessageUtil.showErrorMessage(this, "Os campos com * (Nome, Preço e Categoria) são obrigatórios.", "Erro de Validação");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.requiredFields"), I18n.getString("error.validation.title")); // ALTERADO
             return;
         }
         try {
@@ -134,14 +135,14 @@ public class ProdutoDialog extends JDialog {
             saved = true;
             dispose();
         } catch (NumberFormatException e) {
-            UIMessageUtil.showErrorMessage(this, "Preço inválido. Use ponto como separador decimal.", "Erro de Formato");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.invalidPrice"), I18n.getString("error.format.title")); // ALTERADO
         } catch (UtilizadorNaoAutenticadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.auth.title")); // ALTERADO
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.save", e.getMessage()), I18n.getString("error.persistence.title")); // ALTERADO
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o produto.", e);
-            UIMessageUtil.showErrorMessage(this, "Erro ao salvar produto: " + e.getMessage(), "Erro Inesperado");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.unexpected", e.getMessage()), I18n.getString("error.unexpected.title")); // ALTERADO
         }
     }
 }

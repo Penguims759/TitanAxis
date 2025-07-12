@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -5,6 +6,7 @@ import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
@@ -29,8 +31,9 @@ public class ClienteRepositoryImpl implements ClienteRepository {
 
         if (usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            String detalhes = String.format("Cliente '%s' (ID: %d) foi %s.",
-                    clienteSalvo.getNome(), clienteSalvo.getId(), isUpdate ? "atualizado" : "criado");
+            // ALTERADO
+            String acaoDesc = isUpdate ? I18n.getString("log.action.updated") : I18n.getString("log.action.created");
+            String detalhes = I18n.getString("log.client.saved", clienteSalvo.getNome(), clienteSalvo.getId(), acaoDesc);
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Cliente", clienteSalvo.getId(), detalhes, em);
         }
         return clienteSalvo;
@@ -41,7 +44,8 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         Optional<Cliente> clienteOpt = findById(id, em);
         clienteOpt.ifPresent(cliente -> {
             if (usuarioLogado != null) {
-                String detalhes = String.format("Cliente '%s' (ID: %d) foi eliminado.", cliente.getNome(), id);
+                // ALTERADO
+                String detalhes = I18n.getString("log.client.deleted", cliente.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Cliente", id, detalhes, em);
             }
             em.remove(cliente);

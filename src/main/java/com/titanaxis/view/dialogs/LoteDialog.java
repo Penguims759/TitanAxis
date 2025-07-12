@@ -9,6 +9,7 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
@@ -31,13 +32,14 @@ public class LoteDialog extends JDialog {
     private final JFormattedTextField dataValidadeField;
 
     public LoteDialog(Frame owner, ProdutoService ps, Produto produtoPai, Lote l, Usuario ator) {
-        super(owner, "Detalhes do Lote", true);
+        super(owner, I18n.getString("batchDialog.title"), true); // ALTERADO
         this.produtoService = ps;
         this.produtoPai = produtoPai;
         this.lote = (l != null) ? l : new Lote();
         this.ator = ator;
 
-        setTitle(l == null || l.getId() == 0 ? "Novo Lote para " + produtoPai.getNome() : "Editar Lote");
+        // ALTERADO
+        setTitle(l == null || l.getId() == 0 ? I18n.getString("batchDialog.title.new", produtoPai.getNome()) : I18n.getString("batchDialog.title.edit"));
         setLayout(new BorderLayout());
 
         numeroLoteField = new JTextField(20);
@@ -68,18 +70,19 @@ public class LoteDialog extends JDialog {
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        formPanel.add(new JLabel("Número do Lote:"));
+        // ALTERADO
+        formPanel.add(new JLabel(I18n.getString("batchDialog.label.number")));
         formPanel.add(numeroLoteField);
-        formPanel.add(new JLabel("Quantidade:"));
+        formPanel.add(new JLabel(I18n.getString("batchDialog.label.quantity")));
         formPanel.add(quantidadeField);
-        formPanel.add(new JLabel("Data de Validade (dd/mm/aaaa):"));
+        formPanel.add(new JLabel(I18n.getString("batchDialog.label.expiry")));
         formPanel.add(dataValidadeField);
         add(formPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton("Salvar");
+        JButton saveButton = new JButton(I18n.getString("button.save")); // ALTERADO
         saveButton.addActionListener(e -> save());
-        JButton cancelButton = new JButton("Cancelar");
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
         cancelButton.addActionListener(e -> dispose());
 
         buttonPanel.add(saveButton);
@@ -109,7 +112,7 @@ public class LoteDialog extends JDialog {
             }
 
             if (lote.getNumeroLote().isEmpty() || lote.getQuantidade() <= 0) {
-                UIMessageUtil.showErrorMessage(this, "Número do lote e quantidade positiva são obrigatórios.", "Erro");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.requiredFields"), I18n.getString("error.title")); // ALTERADO
                 return;
             }
 
@@ -124,18 +127,18 @@ public class LoteDialog extends JDialog {
             dispose();
 
         } catch (NumberFormatException e) {
-            UIMessageUtil.showErrorMessage(this, "A quantidade deve ser um número válido.", "Erro de Formato");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidQuantity"), I18n.getString("error.format.title")); // ALTERADO
         } catch (java.time.format.DateTimeParseException e) {
-            UIMessageUtil.showErrorMessage(this, "Data de validade inválida. Use o formato dd/mm/aaaa.", "Erro de Formato");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidDate"), I18n.getString("error.format.title")); // ALTERADO
         } catch (UtilizadorNaoAutenticadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.auth.title")); // ALTERADO
         } catch (LoteDuplicadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Duplicação");
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.duplication.title")); // ALTERADO
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro de Base de Dados ao salvar: " + e.getMessage(), "Erro de Persistência");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.save", e.getMessage()), I18n.getString("error.persistence.title")); // ALTERADO
         } catch (Exception e) {
             AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o lote.", e);
-            UIMessageUtil.showErrorMessage(this, "Erro ao salvar o lote: " + e.getMessage(), "Erro Inesperado");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.unexpectedSave", e.getMessage()), I18n.getString("error.unexpected.title")); // ALTERADO
             this.loteSalvo = null;
         }
     }

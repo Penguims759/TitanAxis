@@ -8,6 +8,7 @@ import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Fornecedor;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.FornecedorRepository;
+import com.titanaxis.util.I18n; // Importado
 import java.util.List;
 import java.util.Optional;
 
@@ -24,18 +25,18 @@ public class FornecedorService {
 
     public Fornecedor salvar(Fornecedor fornecedor, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException, NomeDuplicadoException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
         }
         try {
             return transactionService.executeInTransactionWithResult(em -> {
                 Optional<Fornecedor> existente = fornecedorRepository.findByNome(fornecedor.getNome(), em);
                 if (existente.isPresent() && existente.get().getId() != fornecedor.getId()) {
-                    throw new RuntimeException("Já existe um fornecedor com o nome '" + fornecedor.getNome() + "'.");
+                    throw new RuntimeException(I18n.getString("service.supplier.error.nameExists", fornecedor.getNome())); // ALTERADO
                 }
                 return fornecedorRepository.save(fornecedor, ator, em);
             });
         } catch (RuntimeException e) {
-            if(e.getMessage().contains("Já existe um fornecedor com o nome")) {
+            if(e.getMessage().contains(I18n.getString("service.supplier.error.nameExists.check"))) { // ALTERADO
                 throw new NomeDuplicadoException(e.getMessage());
             }
             throw new PersistenciaException(e.getMessage(), e);
@@ -44,7 +45,7 @@ public class FornecedorService {
 
     public void deletar(int id, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
         }
         transactionService.executeInTransaction(em -> fornecedorRepository.deleteById(id, ator, em));
     }

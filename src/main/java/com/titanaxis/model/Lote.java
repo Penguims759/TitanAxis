@@ -1,5 +1,7 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/model/Lote.java
 package com.titanaxis.model;
 
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -60,7 +62,8 @@ public class Lote {
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String validadeFormatada = (dataValidade != null) ? dataValidade.format(formatter) : "N/A";
-        return "Lote: " + numeroLote + " (Val: " + validadeFormatada + ", Qtd: " + quantidade + ")";
+        String validadeFormatada = (dataValidade != null) ? dataValidade.format(formatter) : I18n.getString("general.notAvailable");
+        // ALTERADO: Utiliza o I18n para formatar a string
+        return I18n.getString("renderer.lote.format", numeroLote, validadeFormatada, quantidade);
     }
 }

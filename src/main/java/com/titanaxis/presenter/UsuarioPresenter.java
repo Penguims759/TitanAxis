@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/UsuarioPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.NomeDuplicadoException;
@@ -6,6 +7,7 @@ import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.PasswordUtil;
 import com.titanaxis.view.interfaces.UsuarioView;
 
@@ -28,7 +30,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         try {
             view.setUsuariosNaTabela(authService.listarUsuarios());
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar utilizadores: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.user.error.load", e.getMessage()), true); // ALTERADO
         }
     }
 
@@ -40,7 +42,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
         boolean isUpdate = !view.getId().isEmpty();
 
         if (username.isEmpty() || nivel == null || (!isUpdate && password.isEmpty())) {
-            view.mostrarMensagem("Erro de Validação", "Nome, senha (para novos) e nível de acesso são obrigatórios.", true);
+            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.user.error.requiredFields"), true); // ALTERADO
             return;
         }
 
@@ -49,51 +51,53 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
             if (isUpdate) {
                 int id = Integer.parseInt(view.getId());
                 Usuario userOriginal = authService.listarUsuarios().stream().filter(u -> u.getId() == id).findFirst()
-                        .orElseThrow(() -> new PersistenciaException("Utilizador a ser atualizado não encontrado.", null));
+                        .orElseThrow(() -> new PersistenciaException(I18n.getString("presenter.user.error.userNotFound"), null)); // ALTERADO
 
                 String senhaHash = password.isEmpty() ? userOriginal.getSenhaHash() : PasswordUtil.hashPassword(password);
                 Usuario usuarioAtualizado = new Usuario(id, username, senhaHash, nivel);
 
                 authService.atualizarUsuario(usuarioAtualizado, ator);
-                view.mostrarMensagem("Sucesso", "Utilizador atualizado!", false);
+                view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.user.success.update"), false); // ALTERADO
             } else {
                 authService.cadastrarUsuario(username, password, nivel, ator);
-                view.mostrarMensagem("Sucesso", "Utilizador adicionado!", false);
+                view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.user.success.add"), false); // ALTERADO
             }
             aoLimpar();
             aoCarregarDadosIniciais();
         } catch (NomeDuplicadoException e) {
-            view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.duplication.title"), e.getMessage(), true); // ALTERADO
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-            view.mostrarMensagem("Erro", "Erro ao salvar utilizador: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.user.error.save", e.getMessage()), true); // ALTERADO
         }
     }
 
     @Override
     public void aoApagar() {
         if (view.getId().isEmpty()) {
-            view.mostrarMensagem("Aviso", "Selecione um utilizador para eliminar.", true);
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.user.error.selectToDelete"), true); // ALTERADO
             return;
         }
         int idToDelete = Integer.parseInt(view.getId());
         if (authService.getUsuarioLogadoId() == idToDelete) {
-            view.mostrarMensagem("Ação Inválida", "Não pode eliminar o seu próprio utilizador.", true);
+            view.mostrarMensagem(I18n.getString("presenter.user.error.deleteSelf.title"), I18n.getString("presenter.user.error.deleteSelf.message"), true); // ALTERADO
             return;
         }
 
         String nomeUtilizador = view.getUsername();
-        String mensagem = String.format("Tem a certeza que deseja eliminar o utilizador '%s'?", nomeUtilizador);
+        String mensagem = I18n.getString("presenter.user.confirm.delete", nomeUtilizador); // ALTERADO
 
-        if (!view.mostrarConfirmacao("Confirmar", mensagem)) return;
+        if (!view.mostrarConfirmacao(I18n.getString("presenter.user.confirm.delete.title"), mensagem)) { // ALTERADO
+            return;
+        }
 
         try {
             Usuario ator = authService.getUsuarioLogado().orElse(null);
             authService.deletarUsuario(idToDelete, ator);
-            view.mostrarMensagem("Sucesso", "Utilizador eliminado!", false);
+            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.user.success.delete"), false); // ALTERADO
             aoLimpar();
             aoCarregarDadosIniciais();
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-            view.mostrarMensagem("Erro", "Erro ao eliminar utilizador: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.user.error.delete", e.getMessage()), true); // ALTERADO
         }
     }
 
@@ -116,7 +120,7 @@ public class UsuarioPresenter implements UsuarioView.UsuarioViewListener {
                 aoCarregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar utilizadores: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.user.error.search", e.getMessage()), true); // ALTERADO
         }
     }
 

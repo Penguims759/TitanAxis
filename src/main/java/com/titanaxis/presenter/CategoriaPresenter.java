@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/CategoriaPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.NomeDuplicadoException;
@@ -7,6 +8,7 @@ import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.CategoriaService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.view.interfaces.CategoriaView;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             List<Categoria> categorias = categoriaService.listarTodasCategorias();
             view.setCategoriasNaTabela(categorias);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao carregar categorias: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.load", e.getMessage()), true); // ALTERADO
         }
     }
 
@@ -39,7 +41,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
     public void aoSalvar() {
         String nome = view.getNome().trim();
         if (nome.isEmpty()) {
-            view.mostrarMensagem("Erro de Validação", "O nome da categoria é obrigatório.", true);
+            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.category.error.nameRequired"), true); // ALTERADO
             return;
         }
 
@@ -50,29 +52,30 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
 
         try {
             categoriaService.salvar(categoria, ator);
-            view.mostrarMensagem("Sucesso", "Categoria " + (isUpdate ? "atualizada" : "adicionada") + " com sucesso!", false);
+            String successMessage = isUpdate ? I18n.getString("presenter.category.success.update") : I18n.getString("presenter.category.success.add"); // ALTERADO
+            view.mostrarMensagem(I18n.getString("success.title"), successMessage, false); // ALTERADO
             aoLimpar();
             aoCarregarDadosIniciais();
         } catch (NomeDuplicadoException e) {
-            view.mostrarMensagem("Erro de Duplicação", e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.duplication.title"), e.getMessage(), true); // ALTERADO
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao salvar a categoria: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.save", e.getMessage()), true); // ALTERADO
         }
     }
 
     @Override
     public void aoApagar() {
         if (view.getId().isEmpty()) {
-            view.mostrarMensagem("Aviso", "Selecione uma categoria para eliminar.", true);
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.category.error.selectToDelete"), true); // ALTERADO
             return;
         }
 
         String nomeCategoria = view.getNome();
-        String mensagem = String.format("Tem certeza que deseja eliminar a categoria '%s'?\n(Os produtos nesta categoria ficarão sem categoria definida)", nomeCategoria);
+        String mensagem = I18n.getString("presenter.category.confirm.delete", nomeCategoria); // ALTERADO
 
-        if (!view.mostrarConfirmacao("Confirmar Eliminação", mensagem)) {
+        if (!view.mostrarConfirmacao(I18n.getString("presenter.category.confirm.delete.title"), mensagem)) { // ALTERADO
             return;
         }
 
@@ -80,13 +83,13 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
             categoriaService.deletar(id, ator);
-            view.mostrarMensagem("Sucesso", "Categoria eliminada com sucesso!", false);
+            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.category.success.delete"), false); // ALTERADO
             aoLimpar();
             aoCarregarDadosIniciais();
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem("Erro de Autenticação", e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
         } catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Ocorreu um erro ao eliminar a categoria: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.delete", e.getMessage()), true); // ALTERADO
         }
     }
 
@@ -108,7 +111,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             }
         }
         catch (PersistenciaException e) {
-            view.mostrarMensagem("Erro de Base de Dados", "Falha ao buscar categorias: " + e.getMessage(), true);
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.search", e.getMessage()), true); // ALTERADO
         }
     }
 

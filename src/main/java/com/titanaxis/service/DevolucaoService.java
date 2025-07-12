@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/service/DevolucaoService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -5,6 +6,7 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.*;
 import com.titanaxis.repository.DevolucaoRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 
 public class DevolucaoService {
@@ -20,7 +22,7 @@ public class DevolucaoService {
 
     public void registrarDevolucao(Devolucao devolucao, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
         }
         devolucao.setUsuario(ator);
 

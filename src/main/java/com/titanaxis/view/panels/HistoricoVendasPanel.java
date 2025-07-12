@@ -2,10 +2,11 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.exception.PersistenciaException; // IMPORTAÇÃO CORRIGIDA
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaStatus;
 import com.titanaxis.presenter.HistoricoVendasPresenter;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.dialogs.DevolucaoDialog;
@@ -51,14 +52,22 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         dataFimChooser.setPreferredSize(new Dimension(120, 25));
         statusComboBox = new JComboBox<>();
         clienteNomeField = new JTextField(20);
-        buscarButton = new JButton("Buscar");
-        limparButton = new JButton("Limpar Filtros");
-        convertButton = new JButton("Converter Orçamento em Venda");
-        returnButton = new JButton("Registrar Devolução");
+        buscarButton = new JButton(I18n.getString("history.button.search")); // ALTERADO
+        limparButton = new JButton(I18n.getString("history.button.clearFilters")); // ALTERADO
+        convertButton = new JButton(I18n.getString("history.button.convertQuote")); // ALTERADO
+        returnButton = new JButton(I18n.getString("history.button.registerReturn")); // ALTERADO
 
 
         // Tabela
-        String[] columnNames = {"ID", "Data", "Cliente", "Vendedor", "Valor Total", "Status"};
+        // ALTERADO
+        String[] columnNames = {
+                I18n.getString("history.table.header.id"),
+                I18n.getString("history.table.header.date"),
+                I18n.getString("history.table.header.client"),
+                I18n.getString("history.table.header.seller"),
+                I18n.getString("history.table.header.totalValue"),
+                I18n.getString("history.table.header.status")
+        };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -96,7 +105,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
 
     private JPanel createFilterPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Filtros de Busca"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("history.border.searchFilters"))); // ALTERADO
 
         statusComboBox.addItem(null);
         for (VendaStatus status : VendaStatus.values()) {
@@ -112,13 +121,13 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
             listener.aoLimparFiltros();
         });
 
-        panel.add(new JLabel("Período:"));
+        panel.add(new JLabel(I18n.getString("history.label.period"))); // ALTERADO
         panel.add(dataInicioChooser);
-        panel.add(new JLabel("até"));
+        panel.add(new JLabel(I18n.getString("history.label.until"))); // ALTERADO
         panel.add(dataFimChooser);
-        panel.add(new JLabel("Status:"));
+        panel.add(new JLabel(I18n.getString("history.label.status"))); // ALTERADO
         panel.add(statusComboBox);
-        panel.add(new JLabel("Cliente:"));
+        panel.add(new JLabel(I18n.getString("history.label.client"))); // ALTERADO
         panel.add(clienteNomeField);
         panel.add(buscarButton);
         panel.add(limparButton);
@@ -153,7 +162,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
     private Optional<Venda> getSelectedVenda() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            UIMessageUtil.showWarningMessage(this, "Por favor, selecione uma venda na tabela.", "Nenhuma Venda Selecionada");
+            UIMessageUtil.showWarningMessage(this, I18n.getString("history.error.noSaleSelected"), I18n.getString("history.error.noSaleSelected.title")); // ALTERADO
             return Optional.empty();
         }
         int modelRow = table.convertRowIndexToModel(selectedRow);
@@ -161,7 +170,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         try {
             return appContext.getVendaService().buscarVendaCompletaPorId(vendaId);
         } catch (PersistenciaException e) {
-            mostrarErro("Erro de Base de Dados", "Não foi possível carregar os dados da venda selecionada.");
+            mostrarErro(I18n.getString("error.db.title"), I18n.getString("history.error.loadSaleFailed")); // ALTERADO
             return Optional.empty();
         }
     }
@@ -169,13 +178,13 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
     private void converterOrcamento() {
         getSelectedVenda().ifPresent(venda -> {
             if (venda.getStatus() != VendaStatus.ORCAMENTO) return;
-            if (UIMessageUtil.showConfirmDialog(this, "Deseja converter o orçamento #" + venda.getId() + " em uma venda finalizada?", "Confirmar Conversão")) {
+            if (UIMessageUtil.showConfirmDialog(this, I18n.getString("history.dialog.confirmConversion", venda.getId()), I18n.getString("history.dialog.confirmConversion.title"))) { // ALTERADO
                 try {
                     appContext.getVendaService().converterOrcamentoEmVenda(venda.getId(), appContext.getAuthService().getUsuarioLogado().orElse(null));
-                    UIMessageUtil.showInfoMessage(this, "Orçamento convertido em venda com sucesso!", "Sucesso");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("history.quoteConvertedSuccess"), I18n.getString("success.title")); // ALTERADO
                     refreshData();
                 } catch (Exception e) {
-                    mostrarErro("Erro na Conversão", "Falha ao converter orçamento: " + e.getMessage());
+                    mostrarErro(I18n.getString("history.error.conversionFailed.title"), I18n.getString("history.error.conversionFailed", e.getMessage())); // ALTERADO
                 }
             }
         });
@@ -186,7 +195,6 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
             if (venda.getStatus() != VendaStatus.FINALIZADA) return;
             DevolucaoDialog dialog = new DevolucaoDialog((Frame) SwingUtilities.getWindowAncestor(this), appContext, venda);
             dialog.setVisible(true);
-            // Poderia adicionar lógica aqui para atualizar algo se necessário após o dialog fechar
         });
     }
 
@@ -197,9 +205,9 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
                     .ifPresentOrElse(venda -> {
                         VendaDetalhesDialog dialog = new VendaDetalhesDialog((Frame) SwingUtilities.getWindowAncestor(this), venda, appContext.getRelatorioService());
                         dialog.setVisible(true);
-                    }, () -> UIMessageUtil.showWarningMessage(this, "Não foi possível encontrar os detalhes para a venda selecionada.", "Aviso"));
+                    }, () -> UIMessageUtil.showWarningMessage(this, I18n.getString("history.error.detailsNotFound"), I18n.getString("warning.title"))); // ALTERADO
         } catch (Exception e) {
-            mostrarErro("Erro ao Abrir Detalhes", "Ocorreu um erro inesperado ao buscar os detalhes da venda: " + e.getMessage());
+            mostrarErro(I18n.getString("history.error.openDetails.title"), I18n.getString("history.error.openDetails", e.getMessage())); // ALTERADO
         } finally {
             setCarregando(false);
         }
@@ -212,8 +220,8 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
             tableModel.addRow(new Object[]{
                     v.getId(),
                     v.getDataVenda().format(FORMATTER),
-                    v.getCliente() != null ? v.getCliente().getNome() : "N/A",
-                    v.getUsuario() != null ? v.getUsuario().getNomeUsuario() : "N/A",
+                    v.getCliente() != null ? v.getCliente().getNome() : I18n.getString("general.notAvailable"), // ALTERADO
+                    v.getUsuario() != null ? v.getUsuario().getNomeUsuario() : I18n.getString("general.notAvailable"), // ALTERADO
                     CURRENCY_FORMAT.format(v.getValorTotal()),
                     v.getStatus().getDescricao()
             });

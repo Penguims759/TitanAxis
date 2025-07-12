@@ -8,6 +8,7 @@ import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Fornecedor;
 import com.titanaxis.presenter.FornecedorPresenter;
 import com.titanaxis.service.FornecedorService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.FornecedorView;
@@ -46,8 +47,14 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
         enderecoField = new JTextField();
         searchField = new JTextField(25);
 
-        // Table
-        String[] columnNames = {"ID", "Nome", "CNPJ", "Contato", "Telefone"};
+        // Table - ALTERADO
+        String[] columnNames = {
+                I18n.getString("supplier.table.header.id"),
+                I18n.getString("supplier.table.header.name"),
+                I18n.getString("supplier.table.header.cnpj"),
+                I18n.getString("supplier.table.header.contact"),
+                I18n.getString("supplier.table.header.phone")
+        };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -85,33 +92,33 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Detalhes do Fornecedor"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("supplier.border.details"))); // ALTERADO
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Linha 0
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; panel.add(new JLabel("ID:"), gbc);
+        // Linha 0 - ALTERADO
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.id")), gbc);
         gbc.gridx = 1; gbc.weightx = 0.2; panel.add(idField, gbc);
-        gbc.gridx = 2; gbc.weightx = 0; panel.add(new JLabel("CNPJ:"), gbc);
+        gbc.gridx = 2; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.cnpj")), gbc);
         gbc.gridx = 3; gbc.weightx = 0.8; panel.add(cnpjField, gbc);
 
-        // Linha 1
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; panel.add(new JLabel("Nome*:"), gbc);
+        // Linha 1 - ALTERADO
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.name")), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; panel.add(nomeField, gbc);
 
-        // Linha 2
-        gbc.gridy = 2; gbc.gridx = 0; gbc.gridwidth = 1; gbc.weightx = 0; panel.add(new JLabel("Contato:"), gbc);
+        // Linha 2 - ALTERADO
+        gbc.gridy = 2; gbc.gridx = 0; gbc.gridwidth = 1; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.contactName")), gbc);
         gbc.gridx = 1; gbc.weightx = 1.0; panel.add(contatoNomeField, gbc);
-        gbc.gridx = 2; gbc.weightx = 0; panel.add(new JLabel("Telefone:"), gbc);
+        gbc.gridx = 2; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.phone")), gbc);
         gbc.gridx = 3; gbc.weightx = 1.0; panel.add(contatoTelefoneField, gbc);
 
-        // Linha 3
-        gbc.gridy = 3; gbc.gridx = 0; gbc.weightx = 0; panel.add(new JLabel("Email:"), gbc);
+        // Linha 3 - ALTERADO
+        gbc.gridy = 3; gbc.gridx = 0; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.email")), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; panel.add(contatoEmailField, gbc);
 
-        // Linha 4
-        gbc.gridy = 4; gbc.gridx = 0; gbc.gridwidth = 1; gbc.weightx = 0; panel.add(new JLabel("Endereço:"), gbc);
+        // Linha 4 - ALTERADO
+        gbc.gridy = 4; gbc.gridx = 0; gbc.gridwidth = 1; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.address")), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; panel.add(enderecoField, gbc);
 
         return panel;
@@ -119,9 +126,9 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton saveButton = new JButton("Salvar");
-        JButton deleteButton = new JButton("Eliminar");
-        JButton clearButton = new JButton("Limpar Campos");
+        JButton saveButton = new JButton(I18n.getString("supplier.button.save")); // ALTERADO
+        JButton deleteButton = new JButton(I18n.getString("supplier.button.delete")); // ALTERADO
+        JButton clearButton = new JButton(I18n.getString("supplier.button.clear")); // ALTERADO
 
         saveButton.addActionListener(e -> salvar());
         deleteButton.addActionListener(e -> deletar());
@@ -135,10 +142,10 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton("Buscar");
-        JButton clearSearchButton = new JButton("Limpar Busca");
+        JButton searchButton = new JButton(I18n.getString("supplier.button.search")); // ALTERADO
+        JButton clearSearchButton = new JButton(I18n.getString("supplier.button.clearSearch")); // ALTERADO
 
-        searchPanel.add(new JLabel("Buscar por Nome:"));
+        searchPanel.add(new JLabel(I18n.getString("supplier.label.searchByName"))); // ALTERADO
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);
@@ -157,7 +164,7 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private void salvar() {
         if (nomeField.getText().trim().isEmpty()) {
-            UIMessageUtil.showErrorMessage(this, "O nome do fornecedor é obrigatório.", "Erro de Validação");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.nameRequired"), I18n.getString("error.validation.title")); // ALTERADO
             return;
         }
         Fornecedor f = new Fornecedor();
@@ -173,7 +180,7 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private void deletar() {
         if (idField.getText().isEmpty()) {
-            UIMessageUtil.showErrorMessage(this, "Selecione um fornecedor para eliminar.", "Erro");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.selectToDelete"), I18n.getString("error.title")); // ALTERADO
             return;
         }
         listener.aoApagar(Integer.parseInt(idField.getText()));
@@ -192,7 +199,7 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
                         enderecoField.setText(f.getEndereco());
                     });
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro ao buscar detalhes do fornecedor: " + e.getMessage(), "Erro");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.fetchDetails", e.getMessage()), I18n.getString("error.title")); // ALTERADO
         }
     }
 

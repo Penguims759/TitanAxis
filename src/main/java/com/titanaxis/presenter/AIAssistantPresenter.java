@@ -1,9 +1,10 @@
-// src/main/java/com/titanaxis/presenter/AIAssistantPresenter.java
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/AIAssistantPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AIAssistantService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.view.interfaces.AIAssistantView;
 
 import javax.swing.SwingWorker;
@@ -53,7 +54,7 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
                     }
                 } catch (Exception e) {
                     view.showThinkingIndicator(false);
-                    view.appendMessage("Ocorreu um erro: " + e.getMessage(), false);
+                    view.appendMessage(I18n.getString("presenter.assistant.error.generic", e.getMessage()), false); // ALTERADO
                 } finally {
                     view.setSendButtonEnabled(true);
                     view.requestInputFieldFocus();
@@ -72,9 +73,8 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             String nomeProduto = (String) params.get("nome");
             if (nomeProduto != null) {
                 Timer timer = new Timer(1500, e -> {
-                    // Prepara a sugestão como uma ação pendente
                     service.getContext().setPendingProactiveAction(Action.PROACTIVE_SUGGEST_ADD_LOTE, params);
-                    view.appendMessage("Produto '" + nomeProduto + "' criado. Gostaria de adicionar o primeiro lote de estoque agora?", false);
+                    view.appendMessage(I18n.getString("presenter.assistant.proactive.addProduct", nomeProduto), false); // ALTERADO
                 });
                 timer.setRepeats(false);
                 timer.start();
@@ -84,21 +84,19 @@ public class AIAssistantPresenter implements AIAssistantView.AIAssistantViewList
             String nomeCliente = (String) params.get("nome");
             if (nomeCliente != null) {
                 Timer timer = new Timer(1500, e -> {
-                    // Prepara a sugestão como uma ação pendente
                     service.getContext().setPendingProactiveAction(Action.PROACTIVE_SUGGEST_START_SALE, params);
-                    view.appendMessage("Cliente '" + nomeCliente + "' criado. Quer iniciar uma nova venda para ele?", false);
+                    view.appendMessage(I18n.getString("presenter.assistant.proactive.addClient", nomeCliente), false); // ALTERADO
                 });
                 timer.setRepeats(false);
                 timer.start();
             }
         }
-        // NOVO BLOCO: Sugere criar pedido de compra após criar fornecedor
         else if (completedAction == Action.DIRECT_CREATE_FORNECEDOR && params != null) {
             String nomeFornecedor = (String) params.get("nome");
             if (nomeFornecedor != null) {
                 Timer timer = new Timer(1500, e -> {
                     service.getContext().setPendingProactiveAction(Action.PROACTIVE_SUGGEST_CREATE_PURCHASE_ORDER, params);
-                    view.appendMessage("Fornecedor '" + nomeFornecedor + "' criado. Gostaria de criar um pedido de compra para ele agora?", false);
+                    view.appendMessage(I18n.getString("presenter.assistant.proactive.addSupplier", nomeFornecedor), false); // ALTERADO
                 });
                 timer.setRepeats(false);
                 timer.start();

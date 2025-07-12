@@ -1,5 +1,7 @@
 package com.titanaxis.view.panels.dashboard;
 
+import com.titanaxis.util.I18n;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -37,14 +39,13 @@ public class SalesChartPanel extends JPanel {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        titleLabel = new JLabel("Últimos 7 Dias", SwingConstants.CENTER);
+        titleLabel = new JLabel(I18n.getString("home.chart.period.7d"), SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
         topPanel.add(titleLabel, BorderLayout.CENTER);
         topPanel.add(createPeriodSelectionPanel(), BorderLayout.EAST);
 
         add(topPanel, BorderLayout.NORTH);
 
-        // ADICIONADO: Listeners para interatividade
         addChartMouseListeners();
     }
 
@@ -66,7 +67,7 @@ public class SalesChartPanel extends JPanel {
                 int barIndex = getBarIndexAt(e.getX());
                 if (barIndex != hoveredBarIndex) {
                     hoveredBarIndex = barIndex;
-                    repaint(); // Redesenha para mostrar o efeito hover
+                    repaint();
                 }
             }
         });
@@ -88,9 +89,6 @@ public class SalesChartPanel extends JPanel {
     }
 
     private void showSalesDetailsForPeriod(Object periodKey) {
-        // NOTA: Uma implementação completa aqui faria uma nova chamada de serviço
-        // para buscar as vendas detalhadas do período e as exibiria num JDialog.
-        // Para este exemplo, mostramos uma mensagem simples.
         String periodString = "";
         if (periodKey instanceof LocalDate) {
             periodString = ((LocalDate) periodKey).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -99,8 +97,8 @@ public class SalesChartPanel extends JPanel {
         }
 
         JOptionPane.showMessageDialog(this,
-                "A mostrar detalhes de vendas para: " + periodString,
-                "Detalhes de Vendas",
+                I18n.getString("home.chart.details.message", periodString),
+                I18n.getString("home.chart.details.title"),
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -141,18 +139,10 @@ public class SalesChartPanel extends JPanel {
 
     private void updateTitle(String period) {
         switch (period) {
-            case "1M":
-                titleLabel.setText("Vendas do Mês Atual");
-                break;
-            case "3M":
-                titleLabel.setText("Vendas nos Últimos 3 Meses");
-                break;
-            case "1A":
-                titleLabel.setText("Vendas no Ano Atual");
-                break;
-            default:
-                titleLabel.setText("Vendas nos Últimos 7 Dias");
-                break;
+            case "1M" -> titleLabel.setText(I18n.getString("home.chart.period.1m"));
+            case "3M" -> titleLabel.setText(I18n.getString("home.chart.period.3m"));
+            case "1A" -> titleLabel.setText(I18n.getString("home.chart.period.1y"));
+            default -> titleLabel.setText(I18n.getString("home.chart.period.7d"));
         }
     }
 
@@ -164,7 +154,7 @@ public class SalesChartPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if (salesData == null || salesData.isEmpty()) {
-            String msg = "Sem dados de vendas para o período.";
+            String msg = I18n.getString("home.chart.noData");
             FontMetrics fm = g2.getFontMetrics();
             int x = (getWidth() - fm.stringWidth(msg)) / 2;
             int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();

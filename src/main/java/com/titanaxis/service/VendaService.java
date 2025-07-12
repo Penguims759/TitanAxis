@@ -5,13 +5,15 @@ import com.google.inject.Inject;
 import com.titanaxis.exception.CarrinhoVazioException;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
-import com.titanaxis.model.Cliente; // NOVO
+import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
 import com.titanaxis.model.VendaStatus;
 import com.titanaxis.repository.VendaRepository;
+import com.titanaxis.util.I18n; // Importado
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -50,7 +52,6 @@ public class VendaService {
     public Venda salvarOrcamento(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
         validarVenda(venda, ator);
         venda.setStatus(VendaStatus.ORCAMENTO);
-        // Não mexe no estoque ao salvar orçamento
         return transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.save(venda, ator, em)
         );
@@ -64,12 +65,11 @@ public class VendaService {
             for (VendaItem item : venda.getItens()) {
                 Lote lote = em.find(Lote.class, item.getLote().getId());
                 if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
-                    throw new RuntimeException("Estoque insuficiente para o produto: " + item.getLote().getProduto().getNome());
+                    throw new RuntimeException(I18n.getString("service.sale.error.insufficientStock", item.getLote().getProduto().getNome())); // ALTERADO
                 }
                 lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
             }
 
-            // Lógica para debitar o crédito do cliente (NOVO)
             if (venda.getCliente() != null && venda.getCreditoUtilizado() > 0) {
                 Cliente cliente = em.find(Cliente.class, venda.getCliente().getId());
                 cliente.debitarCredito(venda.getCreditoUtilizado());
@@ -82,36 +82,33 @@ public class VendaService {
 
     public Venda converterOrcamentoEmVenda(int orcamentoId, Usuario ator) throws PersistenciaException, UtilizadorNaoAutenticadoException, CarrinhoVazioException {
         Venda orcamento = buscarVendaCompletaPorId(orcamentoId)
-                .orElseThrow(() -> new PersistenciaException("Orçamento não encontrado.", null));
+                .orElseThrow(() -> new PersistenciaException(I18n.getString("service.sale.error.quoteNotFound"), null)); // ALTERADO
 
         if (orcamento.getStatus() != VendaStatus.ORCAMENTO) {
-            throw new IllegalStateException("Apenas orçamentos podem ser convertidos em venda.");
+            throw new IllegalStateException(I18n.getString("service.sale.error.onlyQuotesCanBeConverted")); // ALTERADO
         }
-        // Re-finaliza a venda, agora com o status FINALIZADA, o que fará o abatimento do estoque
         return finalizarVenda(orcamento, ator);
     }
 
     public void cancelarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar esta operação.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
         }
 
         if (venda.getItens() != null && !venda.getItens().isEmpty()) {
             venda.setStatus(VendaStatus.CANCELADA);
             transactionService.executeInTransaction(em -> {
-                // Apenas salva a venda para registar o cancelamento
                 vendaRepository.save(venda, ator, em);
             });
         }
-        // Se a venda não tiver itens, não há necessidade de a persistir.
     }
 
     private void validarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException("Nenhum utilizador autenticado para realizar a venda.");
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.sale.error.notAuthenticatedForSale")); // ALTERADO
         }
         if (venda.getItens() == null || venda.getItens().isEmpty()) {
-            throw new CarrinhoVazioException("O carrinho está vazio.");
+            throw new CarrinhoVazioException(I18n.getString("service.sale.error.emptyCart")); // ALTERADO
         }
     }
 }

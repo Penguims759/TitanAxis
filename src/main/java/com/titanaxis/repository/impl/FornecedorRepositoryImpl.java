@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/FornecedorRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -5,6 +6,7 @@ import com.titanaxis.model.Fornecedor;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.FornecedorRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -27,8 +29,9 @@ public class FornecedorRepositoryImpl implements FornecedorRepository {
 
         if (usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            String detalhes = String.format("Fornecedor '%s' (ID: %d) foi %s.",
-                    fornecedorSalvo.getNome(), fornecedorSalvo.getId(), isUpdate ? "atualizado" : "criado");
+            // ALTERADO
+            String acaoDesc = isUpdate ? I18n.getString("log.action.updated") : I18n.getString("log.action.created");
+            String detalhes = I18n.getString("log.supplier.saved", fornecedorSalvo.getNome(), fornecedorSalvo.getId(), acaoDesc);
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Fornecedor", fornecedorSalvo.getId(), detalhes, em);
         }
         return fornecedorSalvo;
@@ -38,7 +41,8 @@ public class FornecedorRepositoryImpl implements FornecedorRepository {
     public void deleteById(Integer id, Usuario usuarioLogado, EntityManager em) {
         findById(id, em).ifPresent(fornecedor -> {
             if (usuarioLogado != null) {
-                String detalhes = String.format("Fornecedor '%s' (ID: %d) foi eliminado.", fornecedor.getNome(), id);
+                // ALTERADO
+                String detalhes = I18n.getString("log.supplier.deleted", fornecedor.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Fornecedor", id, detalhes, em);
             }
             em.remove(fornecedor);

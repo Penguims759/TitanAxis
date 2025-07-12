@@ -32,14 +32,21 @@ public class PdfReportGenerator {
         PdfWriter.getInstance(document, baos);
         document.open();
 
-        addHeader(document, "Relatório de Inventário");
+        addHeader(document, I18n.getString("report.pdf.inventory.title")); // ALTERADO
 
         PdfPTable table = new PdfPTable(5);
         table.setWidthPercentage(100);
         table.setWidths(new float[]{1, 4, 2, 2, 2});
         table.setSpacingBefore(10);
 
-        addTableHeader(table, "ID", "Nome", "Qtd. Total", "Preço Unit.", "Valor Total");
+        // ALTERADO
+        addTableHeader(table,
+                I18n.getString("report.inventory.header.id"),
+                I18n.getString("report.inventory.header.name"),
+                I18n.getString("report.inventory.header.totalQty"),
+                I18n.getString("report.inventory.header.unitPrice"),
+                I18n.getString("report.inventory.header.totalValue")
+        );
 
         double valorTotalInventario = 0.0;
         for (Produto produto : produtos) {
@@ -54,7 +61,7 @@ public class PdfReportGenerator {
         }
 
         document.add(table);
-        addFooter(document, "Valor Total do Inventário: " + CURRENCY_FORMAT.format(valorTotalInventario));
+        addFooter(document, I18n.getString("report.pdf.inventory.footer", CURRENCY_FORMAT.format(valorTotalInventario))); // ALTERADO
         document.close();
         return baos;
     }
@@ -65,14 +72,20 @@ public class PdfReportGenerator {
         PdfWriter.getInstance(document, baos);
         document.open();
 
-        addHeader(document, "Relatório de Vendas");
+        addHeader(document, I18n.getString("report.pdf.sales.title")); // ALTERADO
 
         PdfPTable table = new PdfPTable(4);
         table.setWidthPercentage(100);
         table.setWidths(new float[]{1.5f, 3, 3, 2});
         table.setSpacingBefore(10);
 
-        addTableHeader(table, "ID Venda", "Data", "Cliente", "Valor Total");
+        // ALTERADO
+        addTableHeader(table,
+                I18n.getString("report.sales.header.id"),
+                I18n.getString("report.sales.header.date"),
+                I18n.getString("report.sales.header.client"),
+                I18n.getString("report.sales.header.totalValue")
+        );
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         double valorTotalGeral = 0.0;
@@ -85,7 +98,7 @@ public class PdfReportGenerator {
         }
 
         document.add(table);
-        addFooter(document, "Valor Total de Vendas: " + CURRENCY_FORMAT.format(valorTotalGeral));
+        addFooter(document, I18n.getString("report.pdf.sales.footer", CURRENCY_FORMAT.format(valorTotalGeral))); // ALTERADO
         document.close();
         return baos;
     }
@@ -112,7 +125,7 @@ public class PdfReportGenerator {
 
         document.add(table);
 
-        Paragraph date = new Paragraph("Relatório gerado em: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), FONT_BODY);
+        Paragraph date = new Paragraph(I18n.getString("report.pdf.generatedOn", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))), FONT_BODY); // ALTERADO
         date.setAlignment(Element.ALIGN_RIGHT);
         date.setSpacingBefore(10);
         document.add(date);
@@ -121,25 +134,25 @@ public class PdfReportGenerator {
         return baos;
     }
 
-    // NOVO MÉTODO
     public static ByteArrayOutputStream generateReciboVendaPdf(Venda venda) throws DocumentException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document, baos);
         document.open();
 
-        Paragraph title = new Paragraph("Recibo da Venda #" + venda.getId(), FONT_TITLE);
+        Paragraph title = new Paragraph(I18n.getString("receipt.pdf.title", venda.getId()), FONT_TITLE); // ALTERADO
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
         document.add(Chunk.NEWLINE);
 
         PdfPTable infoTable = new PdfPTable(2);
         infoTable.setWidthPercentage(100);
-        infoTable.addCell(createSimpleCell("Cliente:", FONT_TOTAL_BOLD));
-        infoTable.addCell(createSimpleCell(venda.getCliente() != null ? venda.getCliente().getNome() : "Não especificado", FONT_BODY));
-        infoTable.addCell(createSimpleCell("Data:", FONT_TOTAL_BOLD));
+        // ALTERADO
+        infoTable.addCell(createSimpleCell(I18n.getString("receipt.header.client"), FONT_TOTAL_BOLD));
+        infoTable.addCell(createSimpleCell(venda.getCliente() != null ? venda.getCliente().getNome() : I18n.getString("general.notSpecified"), FONT_BODY));
+        infoTable.addCell(createSimpleCell(I18n.getString("receipt.header.date"), FONT_TOTAL_BOLD));
         infoTable.addCell(createSimpleCell(venda.getDataVenda().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), FONT_BODY));
-        infoTable.addCell(createSimpleCell("Vendedor:", FONT_TOTAL_BOLD));
+        infoTable.addCell(createSimpleCell(I18n.getString("receipt.header.seller"), FONT_TOTAL_BOLD));
         infoTable.addCell(createSimpleCell(venda.getUsuario().getNomeUsuario(), FONT_BODY));
         document.add(infoTable);
         document.add(Chunk.NEWLINE);
@@ -147,7 +160,13 @@ public class PdfReportGenerator {
         PdfPTable itemsTable = new PdfPTable(4);
         itemsTable.setWidthPercentage(100);
         itemsTable.setWidths(new float[]{4, 2, 2, 2});
-        addTableHeader(itemsTable, "Produto", "Quantidade", "Preço Unit.", "Subtotal");
+        // ALTERADO
+        addTableHeader(itemsTable,
+                I18n.getString("receipt.items.header.product"),
+                I18n.getString("receipt.items.header.quantity"),
+                I18n.getString("receipt.items.header.unitPrice"),
+                I18n.getString("receipt.items.header.subtotal")
+        );
 
         for (VendaItem item : venda.getItens()) {
             itemsTable.addCell(createCell(item.getProduto().getNome()));
@@ -157,7 +176,7 @@ public class PdfReportGenerator {
         }
         document.add(itemsTable);
 
-        Paragraph total = new Paragraph("Valor Total: " + CURRENCY_FORMAT.format(venda.getValorTotal()), FONT_TITLE);
+        Paragraph total = new Paragraph(I18n.getString("receipt.pdf.totalValue", CURRENCY_FORMAT.format(venda.getValorTotal())), FONT_TITLE); // ALTERADO
         total.setAlignment(Element.ALIGN_RIGHT);
         total.setSpacingBefore(20);
         document.add(total);
@@ -179,7 +198,7 @@ public class PdfReportGenerator {
         total.setSpacingBefore(10);
         document.add(total);
 
-        Paragraph date = new Paragraph("Relatório gerado em: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), FONT_BODY);
+        Paragraph date = new Paragraph(I18n.getString("report.pdf.generatedOn", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))), FONT_BODY); // ALTERADO
         date.setAlignment(Element.ALIGN_RIGHT);
         document.add(date);
     }
@@ -205,7 +224,6 @@ public class PdfReportGenerator {
         return cell;
     }
 
-    // NOVO MÉTODO
     private static PdfPCell createSimpleCell(String text, Font font) {
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
         cell.setBorder(Rectangle.NO_BORDER);

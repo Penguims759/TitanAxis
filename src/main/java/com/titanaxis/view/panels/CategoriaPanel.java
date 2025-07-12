@@ -1,11 +1,11 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/view/panels/CategoriaPanel.java
+// File: penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/CategoriaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Categoria;
 import com.titanaxis.presenter.CategoriaPresenter;
-import com.titanaxis.util.UIMessageUtil; // Importado
-import com.titanaxis.view.interfaces.CategoriaView;
+import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,25 +15,29 @@ import java.util.List;
 public class CategoriaPanel extends JPanel implements CategoriaView {
 
     private CategoriaViewListener listener;
-    private final DefaultTableModel tableModel; // Adicionado final
-    private final JTable table; // Adicionado final
-    private final JTextField idField; // Adicionado final
-    private final JTextField nomeField; // Adicionado final
-    private final JTextField searchField; // Adicionado final
+    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final JTextField idField;
+    private final JTextField nomeField;
+    private final JTextField searchField;
 
     public CategoriaPanel(AppContext appContext) {
-        // ALTERADO: Inicialização de campos 'final' movida para o construtor.
         idField = new JTextField();
         idField.setEditable(false);
         nomeField = new JTextField();
         searchField = new JTextField(25);
 
-        tableModel = new DefaultTableModel(new String[]{"ID", "Nome da Categoria", "Nº de Produtos"}, 0) {
+        // ALTERADO
+        tableModel = new DefaultTableModel(new String[]{
+                I18n.getString("category.table.header.id"),
+                I18n.getString("category.table.header.name"),
+                I18n.getString("category.table.header.productCount")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
 
-        initComponents(); // Chama o método para construir o layout com os componentes já inicializados
+        initComponents();
         new CategoriaPresenter(this, appContext.getCategoriaService(), appContext.getAuthService());
     }
 
@@ -46,12 +50,8 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
         add(northPanel, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
-        // searchField já inicializado no construtor
         centerPanel.add(createSearchPanel(searchField), BorderLayout.NORTH);
-
-        // tableModel e table já inicializados no construtor
         centerPanel.add(new JScrollPane(table), BorderLayout.CENTER);
-
         add(centerPanel, BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -67,20 +67,19 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Detalhes da Categoria"));
-        // idField e nomeField já inicializados no construtor
-        panel.add(new JLabel("ID:"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("category.border.details"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("category.label.id"))); // ALTERADO
         panel.add(idField);
-        panel.add(new JLabel("Nome:"));
+        panel.add(new JLabel(I18n.getString("category.label.name"))); // ALTERADO
         panel.add(nomeField);
         return panel;
     }
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton saveButton = new JButton("Salvar");
-        JButton deleteButton = new JButton("Eliminar");
-        JButton clearButton = new JButton("Limpar Campos");
+        JButton saveButton = new JButton(I18n.getString("category.button.save")); // ALTERADO
+        JButton deleteButton = new JButton(I18n.getString("category.button.delete")); // ALTERADO
+        JButton clearButton = new JButton(I18n.getString("category.button.clear")); // ALTERADO
 
         saveButton.addActionListener(e -> listener.aoSalvar());
         deleteButton.addActionListener(e -> listener.aoApagar());
@@ -94,11 +93,10 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
 
     private JPanel createSearchPanel(JTextField searchField) {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton("Buscar");
-        JButton clearSearchButton = new JButton("Limpar Busca");
+        JButton searchButton = new JButton(I18n.getString("category.button.search")); // ALTERADO
+        JButton clearSearchButton = new JButton(I18n.getString("category.button.clearSearch")); // ALTERADO
 
-        searchPanel.add(new JLabel("Buscar por Nome:"));
-        // searchField já inicializado no construtor
+        searchPanel.add(new JLabel(I18n.getString("category.label.searchByName"))); // ALTERADO
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);
@@ -125,7 +123,7 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
     public void setCategoriasNaTabela(List<Categoria> categorias) {
         tableModel.setRowCount(0);
         categorias.forEach(c -> tableModel.addRow(new Object[]{c.getId(), c.getNome(), c.getTotalProdutos()}));
-        table.clearSelection(); // NOVO: Limpa a seleção da tabela
+        table.clearSelection();
     }
 
     @Override
@@ -151,11 +149,10 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
     @Override
     public void clearTableSelection() { table.clearSelection(); }
 
-    // NOVO MÉTODO: Para ser chamado externamente (e.g., pelo DashboardFrame) para recarregar os dados
     public void refreshData() {
-        if (listener != null) { // Garante que o listener foi setado
-            listener.aoCarregarDadosIniciais(); // ALTERADO: Chama o método da interface do listener
-            table.clearSelection(); // NOVO: Limpa a seleção da tabela
+        if (listener != null) {
+            listener.aoCarregarDadosIniciais();
+            table.clearSelection();
         }
     }
 

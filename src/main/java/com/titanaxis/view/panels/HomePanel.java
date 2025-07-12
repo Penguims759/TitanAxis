@@ -1,13 +1,14 @@
-// src/main/java/com/titanaxis/view/panels/HomePanel.java
 package com.titanaxis.view.panels.dashboard;
 
 import com.titanaxis.app.AppContext;
+import com.titanaxis.model.Usuario;
+import com.titanaxis.model.auditoria.Habito;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n;
 import com.titanaxis.view.DashboardFrame;
-import com.titanaxis.view.panels.dashboard.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,10 +17,12 @@ import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +47,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     public HomePanel(AppContext appContext) {
         this.appContext = appContext;
-        this.personalizationService = new UIPersonalizationService(appContext.getAuthService().getUsuarioLogado().map(com.titanaxis.model.Usuario::getNomeUsuario).orElse("default"));
+        this.personalizationService = new UIPersonalizationService(appContext.getAuthService().getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("default"));
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         rebuildUI();
@@ -76,7 +79,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     @Override
     public void refreshData() {
-        logger.info("A iniciar a atualização de dados do HomePanel...");
+        logger.info(I18n.getString("home.log.refreshing"));
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         setLoadingState(true);
 
@@ -108,10 +111,10 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
                 setLoadingState(false);
                 try {
                     DashboardData data = get();
-                    logger.info("Dados do dashboard carregados com sucesso. A atualizar a UI...");
+                    logger.info(I18n.getString("home.log.dataLoaded"));
                     updateUICards(data);
                 } catch (InterruptedException | ExecutionException e) {
-                    logger.log(Level.SEVERE, "Erro ao carregar dados para o dashboard.", e.getCause());
+                    logger.log(Level.SEVERE, I18n.getString("home.log.dataError"), e.getCause());
                     handleDataLoadError(e.getCause());
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
@@ -155,7 +158,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         if (chartVisible) {
             salesChart = new SalesChartPanel(this::onChartPeriodChange);
             JPanel chartWrapperPanel = new JPanel(new BorderLayout());
-            chartWrapperPanel.setBorder(BorderFactory.createTitledBorder("Gráfico de Vendas"));
+            chartWrapperPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("home.chart.title")));
             chartWrapperPanel.add(salesChart, BorderLayout.CENTER);
             panel.add(chartWrapperPanel, BorderLayout.CENTER);
         }
@@ -171,18 +174,17 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     private JPanel createKpiPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 0, 15, 15));
-        vendasHojeCard = new KPICardPanel("VENDAS DO DIA", "Ver histórico de vendas");
-        novosClientesCard = new KPICardPanel("NOVOS CLIENTES (MÊS)", "Ir para o cadastro de clientes");
-        alertasCard = new KPICardPanel("ALERTAS DE STOCK", "Ir para o painel de alertas de stock");
+        vendasHojeCard = new KPICardPanel(I18n.getString("home.kpi.salesToday"), I18n.getString("home.kpi.salesToday.tooltip"));
+        novosClientesCard = new KPICardPanel(I18n.getString("home.kpi.newClients"), I18n.getString("home.kpi.newClients.tooltip"));
+        alertasCard = new KPICardPanel(I18n.getString("home.kpi.stockAlerts"), I18n.getString("home.kpi.stockAlerts.tooltip"));
 
         panel.add(vendasHojeCard);
         panel.add(novosClientesCard);
         panel.add(alertasCard);
 
-        // A lógica de navegação foi simplificada
-        vendasHojeCard.addMouseListener(createNavigationMouseAdapter("Histórico"));
-        novosClientesCard.addMouseListener(createNavigationMouseAdapter("Clientes"));
-        alertasCard.addMouseListener(createNavigationMouseAdapter("Alertas de Estoque"));
+        vendasHojeCard.addMouseListener(createNavigationMouseAdapter(I18n.getString("dashboard.tab.history")));
+        novosClientesCard.addMouseListener(createNavigationMouseAdapter(I18n.getString("dashboard.tab.clients")));
+        alertasCard.addMouseListener(createNavigationMouseAdapter(I18n.getString("dashboard.tab.stockAlerts")));
 
         return panel;
     }
@@ -191,9 +193,9 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         QuickActionsPanel panel = new QuickActionsPanel();
         DashboardFrame parentFrame = (DashboardFrame) SwingUtilities.getWindowAncestor(this);
         if (parentFrame != null) {
-            panel.newSaleButton.addActionListener(e -> parentFrame.navigateTo("Nova Venda"));
-            panel.newProductButton.addActionListener(e -> parentFrame.navigateTo("Gestão de Produtos e Lotes"));
-            panel.newClientButton.addActionListener(e -> parentFrame.navigateTo("Clientes"));
+            panel.newSaleButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.newSale")));
+            panel.newProductButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.productsAndBatches")));
+            panel.newClientButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.clients")));
         }
         return panel;
     }
@@ -242,7 +244,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     private void setLoadingState(boolean isLoading) {
-        String status = isLoading ? "A carregar..." : "N/A";
+        String status = isLoading ? I18n.getString("general.loading") : I18n.getString("general.notAvailable");
         if (vendasHojeCard != null) vendasHojeCard.setValue(status);
         if (novosClientesCard != null) novosClientesCard.setValue(status);
         if (alertasCard != null) alertasCard.setValue(status);
@@ -271,7 +273,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     private void handleDataLoadError(Throwable error) {
-        String errorMsg = "Erro";
+        String errorMsg = I18n.getString("error.title");
         Color errorColor = Color.RED.darker();
         if (vendasHojeCard != null) {
             vendasHojeCard.setValue(errorMsg);

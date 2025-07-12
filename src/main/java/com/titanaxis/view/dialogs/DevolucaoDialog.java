@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/dialogs/DevolucaoDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.app.AppContext;
@@ -9,6 +10,7 @@ import com.titanaxis.model.Usuario;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
 import com.titanaxis.service.DevolucaoService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
@@ -30,7 +32,7 @@ public class DevolucaoDialog extends JDialog {
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public DevolucaoDialog(Frame owner, AppContext appContext, Venda venda) {
-        super(owner, "Registrar Devolução da Venda #" + venda.getId(), true);
+        super(owner, I18n.getString("returnDialog.title", venda.getId()), true); // ALTERADO
         this.devolucaoService = appContext.getDevolucaoService();
         this.venda = venda;
         this.ator = appContext.getAuthService().getUsuarioLogado().orElse(null);
@@ -39,7 +41,13 @@ public class DevolucaoDialog extends JDialog {
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout(10, 10));
 
-        String[] columnNames = {"Produto", "Qtd. Vendida", "Preço Unit.", "Qtd. a Devolver"};
+        // ALTERADO
+        String[] columnNames = {
+                I18n.getString("returnDialog.table.header.product"),
+                I18n.getString("returnDialog.table.header.soldQty"),
+                I18n.getString("returnDialog.table.header.unitPrice"),
+                I18n.getString("returnDialog.table.header.returnQty")
+        };
         tableModel = new DefaultTableModel(columnNames, 0);
         itensTable = new JTable(tableModel);
         motivoArea = new JTextArea(3, 30);
@@ -51,20 +59,20 @@ public class DevolucaoDialog extends JDialog {
     private void initComponents() {
         // Painel com a tabela de itens
         JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.setBorder(BorderFactory.createTitledBorder("Itens da Venda"));
+        tablePanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("returnDialog.border.items"))); // ALTERADO
         tablePanel.add(new JScrollPane(itensTable), BorderLayout.CENTER);
 
         // Painel para o motivo
         JPanel motivoPanel = new JPanel(new BorderLayout(5,5));
-        motivoPanel.setBorder(BorderFactory.createTitledBorder("Motivo da Devolução"));
+        motivoPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("returnDialog.border.reason"))); // ALTERADO
         motivoPanel.add(new JScrollPane(motivoArea), BorderLayout.CENTER);
 
         // Painel inferior com botões
         JPanel bottomPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton("Confirmar Devolução");
+        JButton saveButton = new JButton(I18n.getString("returnDialog.button.confirm")); // ALTERADO
         saveButton.addActionListener(e -> registrarDevolucao());
-        JButton cancelButton = new JButton("Cancelar");
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
         cancelButton.addActionListener(e -> dispose());
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
@@ -103,7 +111,7 @@ public class DevolucaoDialog extends JDialog {
                     int qtdVendida = vendaItemOriginal.getQuantidade();
 
                     if (qtdDevolver > qtdVendida) {
-                        UIMessageUtil.showErrorMessage(this, "A quantidade a devolver do produto '" + vendaItemOriginal.getProduto().getNome() + "' não pode ser maior que a quantidade vendida.", "Erro de Validação");
+                        UIMessageUtil.showErrorMessage(this, I18n.getString("returnDialog.error.quantityExceeded", vendaItemOriginal.getProduto().getNome()), I18n.getString("error.validation.title")); // ALTERADO
                         return;
                     }
 
@@ -117,13 +125,13 @@ public class DevolucaoDialog extends JDialog {
                     valorTotalEstornado += precoUnitario * qtdDevolver;
                 }
             } catch (NumberFormatException e) {
-                UIMessageUtil.showErrorMessage(this, "A quantidade a devolver deve ser um número inteiro válido.", "Erro de Formato");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("returnDialog.error.invalidQuantity"), I18n.getString("error.format.title")); // ALTERADO
                 return;
             }
         }
 
         if (itensDevolvidos.isEmpty()) {
-            UIMessageUtil.showWarningMessage(this, "Nenhum item foi marcado para devolução.", "Aviso");
+            UIMessageUtil.showWarningMessage(this, I18n.getString("returnDialog.warning.noItems"), I18n.getString("warning.title")); // ALTERADO
             return;
         }
 
@@ -132,10 +140,10 @@ public class DevolucaoDialog extends JDialog {
 
         try {
             devolucaoService.registrarDevolucao(devolucao, ator);
-            UIMessageUtil.showInfoMessage(this, "Devolução registrada com sucesso!", "Sucesso");
+            UIMessageUtil.showInfoMessage(this, I18n.getString("returnDialog.success.message"), I18n.getString("success.title")); // ALTERADO
             dispose();
         } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro ao registrar devolução: " + e.getMessage(), "Erro Crítico");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("returnDialog.error.generic", e.getMessage()), I18n.getString("error.critical.title")); // ALTERADO
         }
     }
 }

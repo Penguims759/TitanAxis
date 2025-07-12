@@ -1,6 +1,8 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/service/TransactionService.java
 package com.titanaxis.service;
 
 import com.titanaxis.exception.PersistenciaException;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.JpaUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
@@ -29,12 +31,12 @@ public class TransactionService {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw new PersistenciaException("Ocorreu um erro na comunicação com a base de dados.", e);
-        } catch (Exception e) { // ALTERADO: Agora encapsula qualquer Exception em PersistenciaException
+            throw new PersistenciaException(I18n.getString("service.transaction.error.communication"), e); // ALTERADO
+        } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw new PersistenciaException("Falha na transação: " + e.getMessage(), e);
+            throw new PersistenciaException(I18n.getString("service.transaction.error.generic", e.getMessage()), e); // ALTERADO
         } finally {
             if (em.isOpen()) {
                 em.close();

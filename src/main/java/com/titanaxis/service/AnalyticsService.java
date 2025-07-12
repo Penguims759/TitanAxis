@@ -10,6 +10,7 @@ import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.repository.VendaRepository;
+import com.titanaxis.util.I18n; // Importado
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -33,22 +34,20 @@ public class AnalyticsService {
     private final ClienteRepository clienteRepository;
     private final AuditoriaRepository auditoriaRepository;
     private final ProdutoRepository produtoRepository;
-    private final AlertaService alertaService; // NOVO
+    private final AlertaService alertaService;
     private final TransactionService transactionService;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     @Inject
-    public AnalyticsService(VendaRepository vendaRepository, ClienteRepository clienteRepository, AuditoriaRepository auditoriaRepository, ProdutoRepository produtoRepository, AlertaService alertaService, TransactionService transactionService) { // NOVO
+    public AnalyticsService(VendaRepository vendaRepository, ClienteRepository clienteRepository, AuditoriaRepository auditoriaRepository, ProdutoRepository produtoRepository, AlertaService alertaService, TransactionService transactionService) {
         this.vendaRepository = vendaRepository;
         this.clienteRepository = clienteRepository;
         this.auditoriaRepository = auditoriaRepository;
         this.produtoRepository = produtoRepository;
-        this.alertaService = alertaService; // NOVO
+        this.alertaService = alertaService;
         this.transactionService = transactionService;
     }
-
-    // ... (restante dos métodos existentes) ...
 
     public double getVendas(LocalDate start, LocalDate end) throws PersistenciaException {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
@@ -148,7 +147,7 @@ public class AnalyticsService {
 
             vendas.forEach(venda -> dailyData.merge(venda.getDataVenda().toLocalDate(), venda.getValorTotal(), Double::sum));
             return dailyData;
-        } else { // Agrupar por mês
+        } else {
             Map<YearMonth, Double> monthlyData = Stream.iterate(YearMonth.from(start), ym -> ym.plusMonths(1))
                     .limit(ChronoUnit.MONTHS.between(YearMonth.from(start), YearMonth.from(today)) + 1)
                     .collect(Collectors.toMap(ym -> ym, ym -> 0.0, (v1, v2) -> v1, LinkedHashMap::new));
@@ -163,7 +162,7 @@ public class AnalyticsService {
             List<VendaItem> recentItems = vendaRepository.findAllItems(em);
 
             if (recentItems.isEmpty()) {
-                return "Nenhuma venda registrada ainda.";
+                return I18n.getString("service.analytics.noSalesYet"); // ALTERADO
             }
 
             return recentItems.stream()
@@ -174,43 +173,38 @@ public class AnalyticsService {
                     .entrySet().stream()
                     .max(Comparator.comparingInt(Map.Entry::getValue))
                     .map(Map.Entry::getKey)
-                    .orElse("Não foi possível determinar o produto mais vendido.");
+                    .orElse(I18n.getString("service.analytics.topProductError")); // ALTERADO
         });
     }
 
     public String getProactiveInsightsSummary() {
         try {
             String topProduct = getTopSellingProduct();
-            if (topProduct.contains("Nenhuma venda")) {
+            if (topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) { // ALTERADO
                 return "";
             }
-            return "Só para você saber, o produto mais vendido até agora é a(o) '" + topProduct + "'. Mantenha o estoque em dia!";
+            return I18n.getString("service.analytics.proactiveInsight", topProduct); // ALTERADO
         } catch (PersistenciaException e) {
-            return "Não consegui carregar os insights diários devido a um erro no banco de dados.";
+            return I18n.getString("service.analytics.proactiveInsightError"); // ALTERADO
         }
     }
 
-    // NOVO MÉTODO
     public List<String> getSystemInsightsSummary() throws PersistenciaException {
         List<String> insights = new ArrayList<>();
 
-        // 1. Produtos com Estoque Baixo
         alertaService.getProdutosComEstoqueBaixo().stream()
                 .findFirst()
-                .ifPresent(p -> insights.add(String.format("* **Alerta de Stock Baixo:** O produto '%s' está com apenas %d unidades.", p.getNome(), p.getQuantidadeTotal())));
+                .ifPresent(p -> insights.add(I18n.getString("service.analytics.insight.lowStock", p.getNome(), p.getQuantidadeTotal()))); // ALTERADO
 
-        // 2. Lotes Próximos do Vencimento
         alertaService.getLotesProximosDoVencimento().stream()
                 .min(Comparator.comparing(lote -> lote.getDataValidade()))
-                .ifPresent(l -> insights.add(String.format("* **Lote a Vencer:** O lote '%s' do produto '%s' vence em %s.", l.getNumeroLote(), l.getProduto().getNome(), l.getDataValidade().format(DATE_FORMATTER))));
+                .ifPresent(l -> insights.add(I18n.getString("service.analytics.insight.expiringBatch", l.getNumeroLote(), l.getProduto().getNome(), l.getDataValidade().format(DATE_FORMATTER)))); // ALTERADO
 
-        // 3. Produto Mais Vendido
         String topProduct = getTopSellingProduct();
-        if (!topProduct.contains("Nenhuma venda")) {
-            insights.add(String.format("* **Destaque de Vendas:** O produto '%s' é o mais vendido do momento.", topProduct));
+        if (!topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) { // ALTERADO
+            insights.add(I18n.getString("service.analytics.insight.topProduct", topProduct)); // ALTERADO
         }
 
-        // 4. Clientes Inativos (exemplo: não compram há 45 dias)
         transactionService.executeInTransactionWithResult(vendaRepository::findAll).stream()
                 .filter(v -> v.getCliente() != null)
                 .collect(Collectors.groupingBy(Venda::getCliente, Collectors.maxBy(Comparator.comparing(Venda::getDataVenda))))
@@ -218,7 +212,7 @@ public class AnalyticsService {
                 .filter(entry -> entry.getValue().isPresent() && ChronoUnit.DAYS.between(entry.getValue().get().getDataVenda(), LocalDateTime.now()) > 45)
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .ifPresent(c -> insights.add(String.format("* **Oportunidade:** O cliente '%s' não compra há mais de um mês. Que tal contactá-lo?", c.getNome())));
+                .ifPresent(c -> insights.add(I18n.getString("service.analytics.insight.inactiveClient", c.getNome()))); // ALTERADO
 
         return insights;
     }
@@ -229,21 +223,14 @@ public class AnalyticsService {
         );
 
         if (vendas.isEmpty()) {
-            return "Este cliente ainda não realizou nenhuma compra.";
+            return I18n.getString("service.analytics.history.noPurchases"); // ALTERADO
         }
 
-        StringBuilder history = new StringBuilder("Histórico de compras:\n");
+        StringBuilder history = new StringBuilder(I18n.getString("service.analytics.history.header") + "\n"); // ALTERADO
         for (Venda venda : vendas) {
-            history.append(String.format("  Venda #%d (%s) - Total: %s\n",
-                    venda.getId(),
-                    venda.getDataVenda().format(DATE_FORMATTER),
-                    CURRENCY_FORMAT.format(venda.getValorTotal())
-            ));
+            history.append(I18n.getString("service.analytics.history.saleLine", venda.getId(), venda.getDataVenda().format(DATE_FORMATTER), CURRENCY_FORMAT.format(venda.getValorTotal()))).append("\n"); // ALTERADO
             for (VendaItem item : venda.getItens()) {
-                history.append(String.format("    - %dx %s\n",
-                        item.getQuantidade(),
-                        item.getProduto().getNome()
-                ));
+                history.append(I18n.getString("service.analytics.history.itemLine", item.getQuantidade(), item.getProduto().getNome())).append("\n"); // ALTERADO
             }
         }
         return history.toString();

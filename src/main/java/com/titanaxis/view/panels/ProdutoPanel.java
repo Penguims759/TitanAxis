@@ -5,6 +5,7 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
 import com.titanaxis.presenter.ProdutoPresenter;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.LoteDialog;
 import com.titanaxis.view.dialogs.ProdutoDialog;
@@ -46,25 +47,36 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     public ProdutoPanel(AppContext appContext) {
         this.appContext = appContext;
 
-        produtoTableModel = new DefaultTableModel(new String[]{"ID", "Nome", "Categoria", "Qtd. Total", "Estado"}, 0) {
+        produtoTableModel = new DefaultTableModel(new String[]{
+                I18n.getString("product.table.header.id"),
+                I18n.getString("product.table.header.name"),
+                I18n.getString("product.table.header.category"),
+                I18n.getString("product.table.header.quantity"),
+                I18n.getString("product.table.header.status")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         produtoTable = new JTable(produtoTableModel);
 
-        loteTableModel = new DefaultTableModel(new String[]{"ID Lote", "Nº Lote", "Quantidade", "Data de Validade"}, 0) {
+        loteTableModel = new DefaultTableModel(new String[]{
+                I18n.getString("batch.table.header.id"),
+                I18n.getString("batch.table.header.number"),
+                I18n.getString("batch.table.header.quantity"),
+                I18n.getString("batch.table.header.expiry")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         loteTable = new JTable(loteTableModel);
 
-        editProdutoButton = new JButton("Editar Produto");
-        addLoteButton = new JButton("Adicionar Lote");
-        editLoteButton = new JButton("Editar Lote");
-        deleteLoteButton = new JButton("Remover Lote");
-        toggleStatusButton = new JButton("Inativar/Reativar");
-        showInactiveButton = new JToggleButton("Mostrar Inativos");
-        novoProdutoButton = new JButton("Novo Produto");
-        importarCsvButton = new JButton("Importar de CSV");
-        importarPdfButton = new JButton("Importar de PDF");
+        editProdutoButton = new JButton(I18n.getString("product.button.edit"));
+        addLoteButton = new JButton(I18n.getString("product.button.addBatch"));
+        editLoteButton = new JButton(I18n.getString("product.button.editBatch"));
+        deleteLoteButton = new JButton(I18n.getString("product.button.removeBatch"));
+        toggleStatusButton = new JButton(I18n.getString("product.button.toggleStatus"));
+        showInactiveButton = new JToggleButton(I18n.getString("product.button.showInactive"));
+        novoProdutoButton = new JButton(I18n.getString("product.button.new"));
+        importarCsvButton = new JButton(I18n.getString("product.button.importCsv"));
+        importarPdfButton = new JButton(I18n.getString("product.button.importPdf"));
 
         addTooltips();
         initComponents();
@@ -73,15 +85,15 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     }
 
     private void addTooltips() {
-        novoProdutoButton.setToolTipText("Criar um novo produto no sistema.");
-        importarCsvButton.setToolTipText("Importar uma lista de produtos a partir de um ficheiro CSV.");
-        importarPdfButton.setToolTipText("Importar uma lista de produtos a partir de um ficheiro PDF (funcionalidade futura).");
-        editProdutoButton.setToolTipText("Editar os detalhes do produto selecionado.");
-        toggleStatusButton.setToolTipText("Alternar o estado do produto entre Ativo e Inativo.");
-        showInactiveButton.setToolTipText("Exibir ou ocultar os produtos inativos na lista.");
-        addLoteButton.setToolTipText("Adicionar um novo lote de estoque para o produto selecionado.");
-        editLoteButton.setToolTipText("Editar o lote selecionado na tabela de lotes.");
-        deleteLoteButton.setToolTipText("Remover permanentemente o lote selecionado.");
+        novoProdutoButton.setToolTipText(I18n.getString("product.tooltip.new"));
+        importarCsvButton.setToolTipText(I18n.getString("product.tooltip.importCsv"));
+        importarPdfButton.setToolTipText(I18n.getString("product.tooltip.importPdf"));
+        editProdutoButton.setToolTipText(I18n.getString("product.tooltip.edit"));
+        toggleStatusButton.setToolTipText(I18n.getString("product.tooltip.toggleStatus"));
+        showInactiveButton.setToolTipText(I18n.getString("product.tooltip.showInactive"));
+        addLoteButton.setToolTipText(I18n.getString("product.tooltip.addBatch"));
+        editLoteButton.setToolTipText(I18n.getString("product.tooltip.editBatch"));
+        deleteLoteButton.setToolTipText(I18n.getString("product.tooltip.removeBatch"));
     }
 
     private void initComponents() {
@@ -102,11 +114,11 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
             public void removeUpdate(javax.swing.event.DocumentEvent e) { listener.aoFiltrarTexto(filtroTexto.getText()); }
             public void insertUpdate(javax.swing.event.DocumentEvent e) { listener.aoFiltrarTexto(filtroTexto.getText()); }
         });
-        filterPanel.add(new JLabel("Filtrar por Nome:"));
+        filterPanel.add(new JLabel(I18n.getString("product.label.filterByName")));
         filterPanel.add(filtroTexto);
 
         JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton refreshButton = new JButton("Atualizar");
+        JButton refreshButton = new JButton(I18n.getString("product.button.refresh"));
         refreshButton.addActionListener(e -> listener.aoCarregarProdutos());
 
         importarCsvButton.addActionListener(e -> listener.aoClicarImportarCsv());
@@ -124,7 +136,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     private JPanel createProdutoListPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Produtos Cadastrados"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("product.border.registeredProducts")));
 
         panel.add(createFilterAndActionsPanel(), BorderLayout.NORTH);
 
@@ -177,8 +189,8 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     @Override
     public File mostrarSeletorDeFicheiroCsv() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecionar Ficheiro CSV para Importação");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Ficheiros CSV", "csv"));
+        fileChooser.setDialogTitle(I18n.getString("product.dialog.importCsv.title"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter(I18n.getString("product.dialog.importCsv.filter"), "csv"));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             return fileChooser.getSelectedFile();
@@ -189,8 +201,8 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     @Override
     public File mostrarSeletorDeFicheiroPdf() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecionar Ficheiro PDF para Importação");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Ficheiros PDF", "pdf"));
+        fileChooser.setDialogTitle(I18n.getString("product.dialog.importPdf.title"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter(I18n.getString("product.dialog.importPdf.filter"), "pdf"));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             return fileChooser.getSelectedFile();
@@ -218,13 +230,13 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     private JPopupMenu createProdutoContextMenu() {
         JPopupMenu contextMenu = new JPopupMenu();
 
-        JMenuItem editarItem = new JMenuItem("Editar Produto");
+        JMenuItem editarItem = new JMenuItem(I18n.getString("product.contextMenu.edit"));
         editarItem.addActionListener(e -> listener.aoClicarEditarProduto());
 
-        JMenuItem statusItem = new JMenuItem("Inativar/Reativar");
+        JMenuItem statusItem = new JMenuItem(I18n.getString("product.contextMenu.toggleStatus"));
         statusItem.addActionListener(e -> listener.aoAlternarStatusDoProduto());
 
-        JMenuItem loteItem = new JMenuItem("Adicionar Lote");
+        JMenuItem loteItem = new JMenuItem(I18n.getString("product.contextMenu.addBatch"));
         loteItem.addActionListener(e -> listener.aoClicarAdicionarLote());
 
         contextMenu.add(editarItem);
@@ -237,7 +249,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     private JPanel createDetalhesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Estoque e Lotes do Produto"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("product.border.stockAndBatches")));
         panel.add(new JScrollPane(loteTable), BorderLayout.CENTER);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -256,9 +268,11 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     @Override
     public void setProdutosNaTabela(List<Produto> produtos) {
         produtoTableModel.setRowCount(0);
+        String active = I18n.getString("product.status.active");
+        String inactive = I18n.getString("product.status.inactive");
         for (Produto p : produtos) {
             produtoTableModel.addRow(new Object[]{
-                    p.getId(), p.getNome(), p.getNomeCategoria(), p.getQuantidadeTotal(), p.isAtivo() ? "Ativo" : "Inativo"
+                    p.getId(), p.getNome(), p.getNomeCategoria(), p.getQuantidadeTotal(), p.isAtivo() ? active : inactive
             });
         }
     }
@@ -266,10 +280,11 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     @Override
     public void setLotesNaTabela(List<Lote> lotes) {
         loteTableModel.setRowCount(0);
+        String notAvailable = I18n.getString("general.notAvailable");
         for (Lote lote : lotes) {
             loteTableModel.addRow(new Object[]{
                     lote.getId(), lote.getNumeroLote(), lote.getQuantidade(),
-                    lote.getDataValidade() != null ? lote.getDataValidade().format(DATE_FORMATTER) : "N/A"
+                    lote.getDataValidade() != null ? lote.getDataValidade().format(DATE_FORMATTER) : notAvailable
             });
         }
     }
@@ -292,7 +307,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
     public void limparPainelDeDetalhes() {
         loteTableModel.setRowCount(0);
         setBotoesDeAcaoEnabled(false);
-        toggleStatusButton.setText("Inativar/Reativar");
+        toggleStatusButton.setText(I18n.getString("product.button.toggleStatus"));
     }
 
     @Override
@@ -327,12 +342,11 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     @Override
     public ProdutoDialog mostrarDialogoDeProduto(Produto produto) {
-        // LINHA CORRIGIDA: Adicionado appContext.getFornecedorService()
         return new ProdutoDialog(
                 (JFrame) SwingUtilities.getWindowAncestor(this),
                 appContext.getProdutoService(),
                 appContext.getCategoriaService(),
-                appContext.getFornecedorService(), // <-- Argumento que faltava
+                appContext.getFornecedorService(),
                 produto,
                 appContext.getAuthService().getUsuarioLogado().orElse(null)
         );

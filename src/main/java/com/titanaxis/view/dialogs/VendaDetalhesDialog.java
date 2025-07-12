@@ -1,9 +1,11 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/dialogs/VendaDetalhesDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.lowagie.text.DocumentException;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
 import com.titanaxis.service.RelatorioService;
+import com.titanaxis.util.I18n; // Importado
 import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
@@ -27,11 +29,11 @@ public class VendaDetalhesDialog extends JDialog {
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public VendaDetalhesDialog(Frame owner, Venda venda, RelatorioService relatorioService) {
-        super(owner, "Detalhes da Venda #" + venda.getId(), true);
+        super(owner, I18n.getString("saleDetailDialog.title", venda.getId()), true); // ALTERADO
         this.venda = venda;
         this.relatorioService = relatorioService;
 
-        setSize(650, 450); // Ligeiramente mais largo para acomodar os botões
+        setSize(650, 450);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout(10, 10));
 
@@ -40,39 +42,38 @@ public class VendaDetalhesDialog extends JDialog {
         add(createFooterPanel(), BorderLayout.SOUTH);
     }
 
-    // MÉTODO ALTERADO: Usa GridBagLayout para um alinhamento perfeito
     private JPanel createHeaderPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Informações da Venda"));
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("saleDetailDialog.border.info"))); // ALTERADO
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 8, 4, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Labels (coluna 0)
+        // Labels (coluna 0) - ALTERADO
         gbc.gridx = 0;
         gbc.weightx = 0;
         gbc.gridy = 0;
-        panel.add(new JLabel("Cliente:"), gbc);
+        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.client")), gbc);
         gbc.gridy = 1;
-        panel.add(new JLabel("Vendedor:"), gbc);
+        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.seller")), gbc);
 
-        // Valores (coluna 1)
+        // Valores (coluna 1) - ALTERADO
         gbc.gridx = 1;
-        gbc.weightx = 1.0; // Ocupa o espaço horizontal
+        gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridy = 0;
-        panel.add(new JLabel(venda.getCliente() != null ? venda.getCliente().getNome() : "Não especificado"), gbc);
+        panel.add(new JLabel(venda.getCliente() != null ? venda.getCliente().getNome() : I18n.getString("general.notSpecified")), gbc);
         gbc.gridy = 1;
-        panel.add(new JLabel(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : "N/A"), gbc);
+        panel.add(new JLabel(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : I18n.getString("general.notAvailable")), gbc);
 
-        // Labels (coluna 2)
+        // Labels (coluna 2) - ALTERADO
         gbc.gridx = 2;
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridy = 0;
-        panel.add(new JLabel("Data da Venda:"), gbc);
+        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.date")), gbc);
         gbc.gridy = 1;
-        panel.add(new JLabel("ID da Venda:"), gbc);
+        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.id")), gbc);
 
         // Valores (coluna 3)
         gbc.gridx = 3;
@@ -88,7 +89,14 @@ public class VendaDetalhesDialog extends JDialog {
     }
 
     private JScrollPane createItemsPanel() {
-        String[] columnNames = {"Produto", "Lote", "Quantidade", "Preço Unit.", "Subtotal"};
+        // ALTERADO
+        String[] columnNames = {
+                I18n.getString("saleDetailDialog.table.header.product"),
+                I18n.getString("saleDetailDialog.table.header.batch"),
+                I18n.getString("saleDetailDialog.table.header.quantity"),
+                I18n.getString("saleDetailDialog.table.header.unitPrice"),
+                I18n.getString("saleDetailDialog.table.header.subtotal")
+        };
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -108,20 +116,18 @@ public class VendaDetalhesDialog extends JDialog {
         return new JScrollPane(table);
     }
 
-    // MÉTODO ALTERADO: Adicionado botão de CSV e painel de botões
     private JPanel createFooterPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        JLabel totalLabel = new JLabel("Total da Venda: " + currencyFormat.format(venda.getValorTotal()));
+        JLabel totalLabel = new JLabel(I18n.getString("saleDetailDialog.label.totalValue", currencyFormat.format(venda.getValorTotal()))); // ALTERADO
         totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(totalLabel, BorderLayout.WEST);
 
-        // Painel para os botões de exportação
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        JButton exportCsvButton = new JButton("Exportar para CSV");
+        JButton exportCsvButton = new JButton(I18n.getString("saleDetailDialog.button.exportCsv")); // ALTERADO
         exportCsvButton.addActionListener(e -> exportarVendaParaCsv());
 
-        JButton exportPdfButton = new JButton("Exportar para PDF");
+        JButton exportPdfButton = new JButton(I18n.getString("saleDetailDialog.button.exportPdf")); // ALTERADO
         exportPdfButton.addActionListener(e -> exportarVendaParaPdf());
 
         buttonsPanel.add(exportCsvButton);
@@ -132,7 +138,6 @@ public class VendaDetalhesDialog extends JDialog {
         return panel;
     }
 
-    // NOVO MÉTODO
     private void exportarVendaParaCsv() {
         JFileChooser fileChooser = createFileChooser("csv");
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -141,10 +146,10 @@ public class VendaDetalhesDialog extends JDialog {
                 String csvContent = relatorioService.gerarReciboVendaCsv(venda);
                 try (PrintWriter out = new PrintWriter(fileToSave, StandardCharsets.UTF_8)) {
                     out.print(csvContent);
-                    UIMessageUtil.showInfoMessage(this, "Recibo da venda exportado com sucesso!", "Sucesso");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("saleDetailDialog.export.success"), I18n.getString("success.title")); // ALTERADO
                 }
             } catch (IOException ex) {
-                UIMessageUtil.showErrorMessage(this, "Erro ao salvar o ficheiro CSV: " + ex.getMessage(), "Erro de Exportação");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("saleDetailDialog.export.error.csv", ex.getMessage()), I18n.getString("saleDetailDialog.export.error.title")); // ALTERADO
             }
         }
     }
@@ -157,20 +162,19 @@ public class VendaDetalhesDialog extends JDialog {
                 ByteArrayOutputStream baos = relatorioService.gerarReciboVendaPdf(venda);
                 try (FileOutputStream fos = new FileOutputStream(fileToSave)) {
                     baos.writeTo(fos);
-                    UIMessageUtil.showInfoMessage(this, "Recibo da venda exportado com sucesso!", "Sucesso");
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("saleDetailDialog.export.success"), I18n.getString("success.title")); // ALTERADO
                 }
             } catch (DocumentException | IOException ex) {
-                UIMessageUtil.showErrorMessage(this, "Erro ao gerar ou salvar o PDF: " + ex.getMessage(), "Erro de Exportação");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("saleDetailDialog.export.error.pdf", ex.getMessage()), I18n.getString("saleDetailDialog.export.error.title")); // ALTERADO
             }
         }
     }
 
-    // NOVO MÉTODO: Auxiliar para criar o JFileChooser
     private JFileChooser createFileChooser(String extension) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Salvar Recibo da Venda");
-        fileChooser.setSelectedFile(new File("Venda_" + venda.getId() + "." + extension));
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Arquivo " + extension.toUpperCase() + " (*." + extension + ")", extension));
+        fileChooser.setDialogTitle(I18n.getString("saleDetailDialog.dialog.save.title")); // ALTERADO
+        fileChooser.setSelectedFile(new File(I18n.getString("saleDetailDialog.dialog.save.fileName", venda.getId()) + "." + extension)); // ALTERADO
+        fileChooser.setFileFilter(new FileNameExtensionFilter(I18n.getString("saleDetailDialog.dialog.save.filter", extension.toUpperCase(), extension), extension)); // ALTERADO
         return fileChooser;
     }
 }

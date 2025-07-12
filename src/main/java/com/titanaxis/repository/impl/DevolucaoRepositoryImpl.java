@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/DevolucaoRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -5,6 +6,7 @@ import com.titanaxis.model.Devolucao;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.DevolucaoRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,8 @@ public class DevolucaoRepositoryImpl implements DevolucaoRepository {
     public Devolucao save(Devolucao devolucao, Usuario usuarioLogado, EntityManager em) {
         Devolucao devolucaoSalva = em.merge(devolucao);
         if (usuarioLogado != null) {
-            String detalhes = String.format("Devolução #%d registrada para a Venda #%d. Valor: %.2f",
+            // ALTERADO
+            String detalhes = I18n.getString("log.return.registered",
                     devolucaoSalva.getId(), devolucao.getVenda().getId(), devolucao.getValorEstornado());
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "REGISTRO DE DEVOLUÇÃO", "Venda", devolucao.getVenda().getId(), detalhes, em);
         }

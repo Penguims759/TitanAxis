@@ -1,6 +1,8 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/dialogs/DashboardCustomizationDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.service.UIPersonalizationService;
+import com.titanaxis.util.I18n; // Importado
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ public class DashboardCustomizationDialog extends JDialog {
     private final Runnable onSaveCallback;
 
     public DashboardCustomizationDialog(Frame owner, UIPersonalizationService personalizationService, Runnable onSaveCallback) {
-        super(owner, "Personalizar Dashboard", true);
+        super(owner, I18n.getString("dashboardCustomization.title"), true); // ALTERADO
         this.personalizationService = personalizationService;
         this.onSaveCallback = onSaveCallback;
 
@@ -23,22 +25,22 @@ public class DashboardCustomizationDialog extends JDialog {
 
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
-        checkPanel.setBorder(BorderFactory.createTitledBorder("Selecione os Componentes para Exibir"));
+        checkPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("dashboardCustomization.border.selectComponents"))); // ALTERADO
         checkPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        // NOVOS CARTÕES ADICIONADOS
-        addCheckBox(checkPanel, "kpi_cards", "Mostrar Cartões de Indicadores (KPIs)");
-        addCheckBox(checkPanel, "financial_summary", "Mostrar Resumo Financeiro");
-        addCheckBox(checkPanel, "inventory_snapshot", "Mostrar Fotografia do Inventário");
-        addCheckBox(checkPanel, "sales_chart", "Mostrar Gráfico de Vendas");
-        addCheckBox(checkPanel, "performance_rankings", "Mostrar Rankings de Desempenho");
-        addCheckBox(checkPanel, "recent_activity", "Mostrar Atividade Recente");
-        addCheckBox(checkPanel, "quick_actions", "Mostrar Botões de Ação Rápida");
+        // Checkboxes - ALTERADO
+        addCheckBox(checkPanel, "kpi_cards", I18n.getString("dashboardCustomization.checkbox.kpi"));
+        addCheckBox(checkPanel, "financial_summary", I18n.getString("dashboardCustomization.checkbox.financialSummary"));
+        addCheckBox(checkPanel, "inventory_snapshot", I18n.getString("dashboardCustomization.checkbox.inventorySnapshot"));
+        addCheckBox(checkPanel, "sales_chart", I18n.getString("dashboardCustomization.checkbox.salesChart"));
+        addCheckBox(checkPanel, "performance_rankings", I18n.getString("dashboardCustomization.checkbox.performanceRankings"));
+        addCheckBox(checkPanel, "recent_activity", I18n.getString("dashboardCustomization.checkbox.recentActivity"));
+        addCheckBox(checkPanel, "quick_actions", I18n.getString("dashboardCustomization.checkbox.quickActions"));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton("Salvar");
+        JButton saveButton = new JButton(I18n.getString("button.save")); // ALTERADO
         saveButton.addActionListener(e -> savePreferences());
-        JButton cancelButton = new JButton("Cancelar");
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
         cancelButton.addActionListener(e -> dispose());
 
         buttonPanel.add(saveButton);

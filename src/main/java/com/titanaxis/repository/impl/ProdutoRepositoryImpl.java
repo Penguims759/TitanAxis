@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/ProdutoRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -6,6 +7,7 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
+import com.titanaxis.util.I18n; // Importado
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
@@ -24,7 +26,9 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Produto produtoSalvo = em.merge(produto);
         if (ator != null) {
             String acao = produto.getId() != 0 ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produtoSalvo.getId(), "Produto " + produtoSalvo.getNome() + " salvo.", em);
+            // ALTERADO
+            String detalhes = I18n.getString("log.product.saved", produtoSalvo.getNome());
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produtoSalvo.getId(), detalhes, em);
         }
         return produtoSalvo;
     }
@@ -34,7 +38,9 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Lote loteSalvo = em.merge(lote);
         if (ator != null) {
             String acao = lote.getId() != 0 ? "ATUALIZAÇÃO DE LOTE" : "ENTRADA DE LOTE";
-            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", loteSalvo.getProdutoId(), "Lote " + loteSalvo.getNumeroLote() + " salvo para o produto '" + lote.getProduto().getNome() + "'.", em);
+            // ALTERADO
+            String detalhes = I18n.getString("log.batch.saved", loteSalvo.getNumeroLote(), lote.getProduto().getNome());
+            auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", loteSalvo.getProdutoId(), detalhes, em);
         }
         return loteSalvo;
     }
@@ -46,7 +52,9 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
             produto.setAtivo(ativo);
             if (ator != null) {
                 String acao = ativo ? "REATIVAÇÃO" : "INATIVAÇÃO";
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produto.getId(), "Status do produto " + produto.getNome() + " alterado.", em);
+                // ALTERADO
+                String detalhes = I18n.getString("log.product.statusChanged", produto.getNome());
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produto.getId(), detalhes, em);
             }
         });
     }
@@ -56,7 +64,9 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Produto> produtoOpt = findById(id, em);
         produtoOpt.ifPresent(produto -> {
             if (ator != null) {
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", produto.getId(), "Produto " + produto.getNome() + " eliminado.", em);
+                // ALTERADO
+                String detalhes = I18n.getString("log.product.deleted", produto.getNome());
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", produto.getId(), detalhes, em);
             }
             em.remove(produto);
         });
@@ -67,7 +77,9 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Lote> loteOpt = findLoteById(loteId, em);
         loteOpt.ifPresent(lote -> {
             if (ator != null) {
-                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", lote.getProdutoId(), "Lote " + lote.getNumeroLote() + " removido.", em);
+                // ALTERADO
+                String detalhes = I18n.getString("log.batch.removed", lote.getNumeroLote());
+                auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", lote.getProdutoId(), detalhes, em);
             }
             em.remove(lote);
         });

@@ -1,5 +1,7 @@
 package com.titanaxis.view.panels.dashboard;
 
+import com.titanaxis.util.I18n;
+
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Timestamp;
@@ -12,7 +14,7 @@ public class ActivityCardPanel extends JPanel {
 
     public ActivityCardPanel() {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createTitledBorder("Atividade Recente"));
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("home.activity.title")));
 
         listModel = new DefaultListModel<>();
         JList<String> activityList = new JList<>(listModel);
@@ -24,7 +26,7 @@ public class ActivityCardPanel extends JPanel {
     public void setActivities(List<Object[]> activities) {
         listModel.clear();
         if (activities.isEmpty()) {
-            listModel.addElement("<html><i>Nenhuma atividade recente.</i></html>");
+            listModel.addElement("<html><i>" + I18n.getString("home.activity.noActivity") + "</i></html>");
         } else {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM HH:mm");
             for (Object[] activity : activities) {
@@ -33,7 +35,7 @@ public class ActivityCardPanel extends JPanel {
                 String entity = (String) activity[2];
                 String details = (String) activity[3];
                 String formattedTime = timestamp.toLocalDateTime().format(formatter);
-                listModel.addElement(String.format("<html><b>%s</b> - %s<br><small><i>por %s em %s</i></small></html>", entity, details, user, formattedTime));
+                listModel.addElement(I18n.getString("home.activity.format", entity, details, user, formattedTime));
             }
         }
     }

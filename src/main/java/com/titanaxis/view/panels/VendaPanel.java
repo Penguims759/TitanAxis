@@ -7,8 +7,10 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.*;
 import com.titanaxis.service.*;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
+import com.titanaxis.view.renderer.LoteCellRenderer; // Importado
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -36,7 +38,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private final JLabel totalLabel;
     private final JButton finalizarButton;
     private final JButton orcamentoButton;
-    private final JButton usarCreditoButton; // NOVO
+    private final JButton usarCreditoButton;
 
     private Carrinho carrinho;
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
@@ -48,18 +50,26 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         this.clienteService = appContext.getClienteService();
         this.produtoService = appContext.getProdutoService();
 
-        carrinhoTableModel = new DefaultTableModel(new String[]{"Produto", "Lote", "Qtd", "Preço Unit.", "Desconto", "Subtotal"}, 0) {
+        carrinhoTableModel = new DefaultTableModel(new String[]{
+                I18n.getString("sale.cart.header.product"),
+                I18n.getString("sale.cart.header.batch"),
+                I18n.getString("sale.cart.header.quantity"),
+                I18n.getString("sale.cart.header.unitPrice"),
+                I18n.getString("sale.cart.header.discount"),
+                I18n.getString("sale.cart.header.subtotal")
+        }, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         carrinhoTable = new JTable(carrinhoTableModel);
         clienteComboBox = new JComboBox<>();
         produtoComboBox = new JComboBox<>();
         loteComboBox = new JComboBox<>();
+        loteComboBox.setRenderer(new LoteCellRenderer()); // ALTERADO
         quantidadeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
-        totalLabel = new JLabel("Total: " + currencyFormat.format(0.0));
-        finalizarButton = new JButton("Finalizar Venda");
-        orcamentoButton = new JButton("Salvar Orçamento");
-        usarCreditoButton = new JButton("Usar Crédito"); // NOVO
+        totalLabel = new JLabel(I18n.getString("sale.label.total", currencyFormat.format(0.0)));
+        finalizarButton = new JButton(I18n.getString("sale.button.finalize"));
+        orcamentoButton = new JButton(I18n.getString("sale.button.saveQuote"));
+        usarCreditoButton = new JButton(I18n.getString("sale.button.useCredit"));
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -79,7 +89,6 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     private void addEventListeners() {
-        // Adiciona um listener para o clique duplo na tabela, para aplicar descontos
         carrinhoTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -91,8 +100,6 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
                 }
             }
         });
-
-        // NOVO: Listener para o ComboBox de clientes para atualizar o botão de crédito
         clienteComboBox.addActionListener(e -> atualizarEstadoBotaoCredito());
     }
 
@@ -115,7 +122,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             atualizarLotesDisponiveis();
 
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro ao carregar dados iniciais: " + e.getMessage(), "Erro de Base de Dados");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("error.loadInitialData", e.getMessage()), I18n.getString("error.db.title"));
         }
     }
 
@@ -126,7 +133,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             try {
                 produtoService.buscarLotesDisponiveis(produtoSelecionado.getId()).forEach(loteComboBox::addItem);
             } catch (PersistenciaException e) {
-                UIMessageUtil.showErrorMessage(this, "Erro ao carregar lotes: " + e.getMessage(), "Erro de Base de Dados");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("error.loadBatches", e.getMessage()), I18n.getString("error.db.title"));
             }
         }
     }
@@ -136,7 +143,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             carrinho.adicionarItem((Lote) loteComboBox.getSelectedItem(), (Integer) quantidadeSpinner.getValue());
             atualizarCarrinhoETotal();
         } catch (IllegalArgumentException e) {
-            UIMessageUtil.showWarningMessage(this, e.getMessage(), "Aviso");
+            UIMessageUtil.showWarningMessage(this, e.getMessage(), I18n.getString("warning.title"));
         }
     }
 
@@ -147,11 +154,11 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             carrinhoTableModel.addRow(new Object[]{
                     item.getLote().getProduto().getNome(), item.getLote().getNumeroLote(),
                     item.getQuantidade(), currencyFormat.format(item.getPrecoUnitario()),
-                    currencyFormat.format(item.getDesconto()), // Coluna de desconto
+                    currencyFormat.format(item.getDesconto()),
                     currencyFormat.format(subtotal)
             });
         }
-        totalLabel.setText("Total: " + currencyFormat.format(carrinho.getValorTotal()));
+        totalLabel.setText(I18n.getString("sale.label.total", currencyFormat.format(carrinho.getValorTotal())));
         boolean hasItems = !carrinho.getItens().isEmpty();
         finalizarButton.setEnabled(hasItems);
         orcamentoButton.setEnabled(hasItems);
@@ -159,13 +166,12 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
 
     private void acaoLimparVenda() {
         try {
-            // Apenas cancela se a venda tiver itens. Se estiver vazia, apenas limpa a tela.
             if (!carrinho.getItens().isEmpty()) {
                 vendaService.cancelarVenda(carrinho.getVenda(), authService.getUsuarioLogado().orElse(null));
             }
-            refreshData(); // Cria um novo carrinho e reinicia a tela
+            refreshData();
         } catch (PersistenciaException | UtilizadorNaoAutenticadoException e) {
-            UIMessageUtil.showErrorMessage(this, "Erro ao cancelar a venda: " + e.getMessage(), "Erro");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("error.cancelSale", e.getMessage()), I18n.getString("error.title"));
         }
     }
 
@@ -173,14 +179,14 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         carrinho.setCliente((Cliente) clienteComboBox.getSelectedItem());
         try {
             Venda orcamentoSalvo = vendaService.salvarOrcamento(carrinho.getVenda(), authService.getUsuarioLogado().orElse(null));
-            UIMessageUtil.showInfoMessage(this, "Orçamento #" + orcamentoSalvo.getId() + " salvo com sucesso!", "Sucesso");
+            UIMessageUtil.showInfoMessage(this, I18n.getString("sale.quote.saveSuccess", orcamentoSalvo.getId()), I18n.getString("success.title"));
             refreshData();
         } catch (CarrinhoVazioException e) {
-            UIMessageUtil.showWarningMessage(this, e.getMessage(), "Aviso");
+            UIMessageUtil.showWarningMessage(this, e.getMessage(), I18n.getString("warning.title"));
         } catch (UtilizadorNaoAutenticadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.auth.title"));
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro de base de dados: " + e.getMessage(), "Erro de Persistência");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("error.db.generic", e.getMessage()), I18n.getString("error.persistence.title"));
         }
     }
 
@@ -188,48 +194,53 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         carrinho.setCliente((Cliente) clienteComboBox.getSelectedItem());
         try {
             Venda vendaSalva = vendaService.finalizarVenda(carrinho.getVenda(), authService.getUsuarioLogado().orElse(null));
-            UIMessageUtil.showInfoMessage(this, "Venda #" + vendaSalva.getId() + " finalizada com sucesso!", "Sucesso");
+            UIMessageUtil.showInfoMessage(this, I18n.getString("sale.finalizeSuccess", vendaSalva.getId()), I18n.getString("success.title"));
             refreshData();
         } catch (CarrinhoVazioException e) {
-            UIMessageUtil.showWarningMessage(this, e.getMessage(), "Aviso");
+            UIMessageUtil.showWarningMessage(this, e.getMessage(), I18n.getString("warning.title"));
         } catch (UtilizadorNaoAutenticadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Autenticação");
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.auth.title"));
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, "Ocorreu um erro de base de dados: " + e.getMessage(), "Erro de Persistência");
+            UIMessageUtil.showErrorMessage(this, I18n.getString("error.db.generic", e.getMessage()), I18n.getString("error.persistence.title"));
         }
     }
 
     private void aplicarDescontoItem(int rowIndex) {
-        String descontoStr = JOptionPane.showInputDialog(this, "Digite o valor do desconto para este item:", "Aplicar Desconto no Item", JOptionPane.PLAIN_MESSAGE);
+        String descontoStr = JOptionPane.showInputDialog(this,
+                I18n.getString("sale.dialog.discount.itemMessage"),
+                I18n.getString("sale.dialog.discount.itemTitle"),
+                JOptionPane.PLAIN_MESSAGE);
         if (descontoStr != null) {
             try {
                 double desconto = Double.parseDouble(descontoStr.replace(",", "."));
                 carrinho.aplicarDescontoItem(rowIndex, desconto);
                 atualizarCarrinhoETotal();
             } catch (NumberFormatException e) {
-                UIMessageUtil.showErrorMessage(this, "Valor de desconto inválido.", "Erro de Formato");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("error.format.invalidDiscount"), I18n.getString("error.format.title"));
             } catch (IllegalArgumentException e) {
-                UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Validação");
+                UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.validation.title"));
             }
         }
     }
 
     private void aplicarDescontoTotal() {
-        String descontoStr = JOptionPane.showInputDialog(this, "Digite o valor do desconto total da venda:", "Aplicar Desconto Total", JOptionPane.PLAIN_MESSAGE);
+        String descontoStr = JOptionPane.showInputDialog(this,
+                I18n.getString("sale.dialog.discount.totalMessage"),
+                I18n.getString("sale.dialog.discount.totalTitle"),
+                JOptionPane.PLAIN_MESSAGE);
         if (descontoStr != null) {
             try {
                 double desconto = Double.parseDouble(descontoStr.replace(",", "."));
                 carrinho.aplicarDescontoTotal(desconto);
                 atualizarCarrinhoETotal();
             } catch (NumberFormatException e) {
-                UIMessageUtil.showErrorMessage(this, "Valor de desconto inválido.", "Erro de Formato");
+                UIMessageUtil.showErrorMessage(this, I18n.getString("error.format.invalidDiscount"), I18n.getString("error.format.title"));
             } catch (IllegalArgumentException e) {
-                UIMessageUtil.showErrorMessage(this, e.getMessage(), "Erro de Validação");
+                UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.validation.title"));
             }
         }
     }
 
-    // NOVO MÉTODO
     private void usarCreditoCliente() {
         Cliente cliente = (Cliente) clienteComboBox.getSelectedItem();
         if (cliente == null || cliente.getCredito() <= 0) return;
@@ -238,48 +249,46 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         double creditoDisponivel = cliente.getCredito();
         double valorParaUsar = Math.min(totalVenda, creditoDisponivel);
 
-        String msg = String.format("O cliente %s tem %s de crédito.\nDeseja usar %s para abater nesta venda?",
-                cliente.getNome(), currencyFormat.format(creditoDisponivel), currencyFormat.format(valorParaUsar));
+        String msg = I18n.getString("sale.dialog.credit.message", cliente.getNome(), currencyFormat.format(creditoDisponivel), currencyFormat.format(valorParaUsar));
 
-        if (UIMessageUtil.showConfirmDialog(this, msg, "Usar Crédito do Cliente")) {
+        if (UIMessageUtil.showConfirmDialog(this, msg, I18n.getString("sale.dialog.credit.title"))) {
             carrinho.aplicarCredito(valorParaUsar);
             atualizarCarrinhoETotal();
-            usarCreditoButton.setEnabled(false); // Desativa o botão após o uso
+            usarCreditoButton.setEnabled(false);
         }
     }
 
-    // NOVO MÉTODO
     private void atualizarEstadoBotaoCredito() {
         Cliente cliente = (Cliente) clienteComboBox.getSelectedItem();
         if (cliente != null && cliente.getCredito() > 0) {
             usarCreditoButton.setEnabled(true);
-            usarCreditoButton.setText(String.format("Usar Crédito (%s)", currencyFormat.format(cliente.getCredito())));
+            usarCreditoButton.setText(I18n.getString("sale.button.useCreditWithAmount", currencyFormat.format(cliente.getCredito())));
         } else {
             usarCreditoButton.setEnabled(false);
-            usarCreditoButton.setText("Usar Crédito");
+            usarCreditoButton.setText(I18n.getString("sale.button.useCredit"));
         }
     }
 
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
-        topPanel.setBorder(BorderFactory.createTitledBorder("Nova Venda"));
+        topPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("sale.border.newSale")));
         JPanel selectionPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JButton addButton = new JButton("Adicionar ao Carrinho");
+        JButton addButton = new JButton(I18n.getString("sale.button.addToCart"));
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; selectionPanel.add(new JLabel("Cliente:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; selectionPanel.add(new JLabel(I18n.getString("sale.label.client")), gbc);
         gbc.gridx = 1; gbc.weightx = 1; gbc.gridwidth = 3; selectionPanel.add(clienteComboBox, gbc);
 
         gbc.gridy = 1; gbc.gridwidth = 1;
-        gbc.gridx = 0; gbc.weightx = 0; selectionPanel.add(new JLabel("Produto:"), gbc);
+        gbc.gridx = 0; gbc.weightx = 0; selectionPanel.add(new JLabel(I18n.getString("sale.label.product")), gbc);
         gbc.gridx = 1; gbc.weightx = 1; selectionPanel.add(produtoComboBox, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; selectionPanel.add(new JLabel("Lote Disponível:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; selectionPanel.add(new JLabel(I18n.getString("sale.label.availableBatch")), gbc);
         gbc.gridx = 1; gbc.weightx = 1; selectionPanel.add(loteComboBox, gbc);
 
-        gbc.gridx = 2; gbc.gridy = 2; gbc.weightx = 0; selectionPanel.add(new JLabel("Qtd:"), gbc);
+        gbc.gridx = 2; gbc.gridy = 2; gbc.weightx = 0; selectionPanel.add(new JLabel(I18n.getString("sale.label.quantity")), gbc);
         gbc.gridx = 3; gbc.weightx = 0.2; selectionPanel.add(quantidadeSpinner, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 4;
@@ -298,20 +307,20 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         totalLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
         JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton descontoTotalButton = new JButton("Aplicar Desconto Total");
+        JButton descontoTotalButton = new JButton(I18n.getString("sale.button.applyTotalDiscount"));
         descontoTotalButton.addActionListener(e -> aplicarDescontoTotal());
 
-        usarCreditoButton.addActionListener(e -> usarCreditoCliente()); // NOVO
-        usarCreditoButton.setEnabled(false); // NOVO
+        usarCreditoButton.addActionListener(e -> usarCreditoCliente());
+        usarCreditoButton.setEnabled(false);
 
-        totalPanel.add(usarCreditoButton); // NOVO
+        totalPanel.add(usarCreditoButton);
         totalPanel.add(descontoTotalButton);
         totalPanel.add(totalLabel);
 
         bottomPanel.add(totalPanel, BorderLayout.WEST);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton cancelarButton = new JButton("Cancelar Venda");
+        JButton cancelarButton = new JButton(I18n.getString("sale.button.cancelSale"));
         cancelarButton.addActionListener(e -> acaoLimparVenda());
 
         orcamentoButton.addActionListener(e -> salvarOrcamento());
