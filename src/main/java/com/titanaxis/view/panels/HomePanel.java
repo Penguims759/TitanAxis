@@ -1,4 +1,4 @@
-package com.titanaxis.view.panels; // <<< PACOTE CORRETO
+package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Usuario;
@@ -9,7 +9,6 @@ import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.I18n;
 import com.titanaxis.view.DashboardFrame;
-// IMPORTAÇÕES CORRIGIDAS PARA O SUBPACOTE 'dashboard'
 import com.titanaxis.view.panels.dashboard.ActivityCardPanel;
 import com.titanaxis.view.panels.dashboard.FinancialSummaryCard;
 import com.titanaxis.view.panels.dashboard.KPICardPanel;
@@ -40,6 +39,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     private final UIPersonalizationService personalizationService;
     private static final Logger logger = AppLogger.getLogger();
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+    private final DashboardFrame parentFrame; // CORRIGIDO: Adicionada referência ao frame principal
 
     // --- Componentes da UI ---
     private KPICardPanel vendasHojeCard;
@@ -52,8 +52,10 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     private String selectedChartPeriod = "7D";
 
-    public HomePanel(AppContext appContext) {
+    // CORRIGIDO: Construtor agora aceita o DashboardFrame
+    public HomePanel(AppContext appContext, DashboardFrame parentFrame) {
         this.appContext = appContext;
+        this.parentFrame = parentFrame;
         this.personalizationService = new UIPersonalizationService(appContext.getAuthService().getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("default"));
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -198,8 +200,8 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     private QuickActionsPanel createQuickActionsPanel() {
         QuickActionsPanel panel = new QuickActionsPanel();
-        DashboardFrame parentFrame = (DashboardFrame) SwingUtilities.getWindowAncestor(this);
 
+        // CORRIGIDO: A referência 'parentFrame' agora é um membro da classe, garantindo que não seja nula.
         if (parentFrame != null) {
             panel.newSaleButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.newSale")));
             panel.newProductButton.addActionListener(e -> {
@@ -218,7 +220,6 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         return new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                DashboardFrame parentFrame = (DashboardFrame) SwingUtilities.getWindowAncestor(HomePanel.this);
                 if (parentFrame != null) {
                     parentFrame.navigateTo(destination);
                 }

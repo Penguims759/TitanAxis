@@ -21,7 +21,6 @@ public class KPICardPanel extends JPanel {
         setToolTipText(tooltip);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // A inicialização das cores é feita no updateUI para garantir que são atualizadas com o tema.
         updateColors();
 
         titleLabel = new JLabel(title);
@@ -48,12 +47,10 @@ public class KPICardPanel extends JPanel {
     @Override
     public void updateUI() {
         super.updateUI();
-        // Garante que as cores são atualizadas quando o tema muda
         updateColors();
     }
 
     private void updateColors() {
-        // CORRIGIDO: Usa a cor 'control' para um fundo subtil que se adapta aos temas.
         defaultBackgroundColor = UIManager.getColor("control");
         hoverBackgroundColor = defaultBackgroundColor.darker();
         setBackground(defaultBackgroundColor);

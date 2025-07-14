@@ -15,8 +15,6 @@ import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
 import com.titanaxis.view.panels.*;
-// IMPORTAÇÃO CORRIGIDA: HomePanel agora é importado do pacote correto.
-import com.titanaxis.view.panels.HomePanel;
 import com.titanaxis.view.panels.dashboard.KPICardPanel;
 import com.titanaxis.view.panels.dashboard.SalesChartPanel;
 import com.titanaxis.view.panels.dashboard.ActivityCardPanel;
@@ -197,7 +195,7 @@ public class DashboardFrame extends JFrame {
             // Verifica se está a correr a partir de um JAR
             if (!currentJar.getName().endsWith(".jar")) {
                 // Se não estiver num JAR (ex: a correr a partir da IDE), apenas fecha.
-                // O utilizador da IDE pode reiniciar manualmente.
+                // O utilizador da IDE pode reiniciar manually.
                 System.exit(0);
                 return;
             }
@@ -227,8 +225,8 @@ public class DashboardFrame extends JFrame {
     private void rebuildAndShowHomePanel() {
         int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home"));
         if (homeTabIndex != -1) {
-            homePanel = new HomePanel(appContext);
-            mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
+            // CORRIGIDO: Passa a referência 'this' do DashboardFrame para o HomePanel
+            mainTabbedPane.setComponentAt(homeTabIndex, new HomePanel(appContext, this));
             mainTabbedPane.revalidate();
             mainTabbedPane.repaint();
             logger.info("Painel de início reconstruído com sucesso.");
@@ -239,7 +237,8 @@ public class DashboardFrame extends JFrame {
         mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        homePanel = new HomePanel(appContext);
+        // CORRIGIDO: Passa a referência 'this' do DashboardFrame para o HomePanel
+        homePanel = new HomePanel(appContext, this);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
         mainTabbedPane.addChangeListener(createRefreshListener(homePanel));
 
@@ -447,12 +446,11 @@ public class DashboardFrame extends JFrame {
                     if (insights.isEmpty()) {
                         aiAssistantPanel.appendMessage(greeting + I18n.getString("dashboard.assistant.howCanIHelp"), false);
                     } else {
-                        // CORRIGIDO: Lógica para escolher a cor da notificação com base no tema.
                         Color notificationColor;
                         if ("light".equals(personalizationService.getPreference("theme", "dark"))) {
                             notificationColor = new Color(0, 150, 136); // Verde Esmeralda
                         } else {
-                            notificationColor = Color.CYAN; // Ciano para tema escuro
+                            notificationColor = Color.CYAN;
                         }
 
                         mainTabbedPane.setForegroundAt(aiAssistantTabIndex, notificationColor);
