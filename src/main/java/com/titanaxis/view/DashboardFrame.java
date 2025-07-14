@@ -15,7 +15,15 @@ import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
 import com.titanaxis.view.panels.*;
-import com.titanaxis.view.panels.dashboard.HomePanel;
+// IMPORTAÇÃO CORRIGIDA: HomePanel agora é importado do pacote correto.
+import com.titanaxis.view.panels.HomePanel;
+import com.titanaxis.view.panels.dashboard.KPICardPanel;
+import com.titanaxis.view.panels.dashboard.SalesChartPanel;
+import com.titanaxis.view.panels.dashboard.ActivityCardPanel;
+import com.titanaxis.view.panels.dashboard.FinancialSummaryCard;
+import com.titanaxis.view.panels.dashboard.PerformanceRankingsCard;
+import com.titanaxis.view.panels.dashboard.QuickActionsPanel;
+
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -91,7 +99,7 @@ public class DashboardFrame extends JFrame {
 
         mainTabbedPane.addChangeListener(e -> {
             if (aiAssistantTabIndex != -1 && mainTabbedPane.getSelectedIndex() == aiAssistantTabIndex) {
-                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, UIManager.getColor("Button.foreground"));
+                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, UIManager.getColor("TabbedPane.foreground"));
             }
         });
 
@@ -439,7 +447,15 @@ public class DashboardFrame extends JFrame {
                     if (insights.isEmpty()) {
                         aiAssistantPanel.appendMessage(greeting + I18n.getString("dashboard.assistant.howCanIHelp"), false);
                     } else {
-                        mainTabbedPane.setForegroundAt(aiAssistantTabIndex, Color.CYAN);
+                        // CORRIGIDO: Lógica para escolher a cor da notificação com base no tema.
+                        Color notificationColor;
+                        if ("light".equals(personalizationService.getPreference("theme", "dark"))) {
+                            notificationColor = new Color(0, 150, 136); // Verde Esmeralda
+                        } else {
+                            notificationColor = Color.CYAN; // Ciano para tema escuro
+                        }
+
+                        mainTabbedPane.setForegroundAt(aiAssistantTabIndex, notificationColor);
                         String insightsMessage = greeting + I18n.getString("dashboard.assistant.insightsFound") + "\n" + String.join("\n", insights);
                         aiAssistantPanel.appendMessage(insightsMessage, false);
                     }
@@ -466,6 +482,11 @@ public class DashboardFrame extends JFrame {
         try {
             UIManager.setLookAndFeel("light".equals(themeName) ? new FlatLightLaf() : new FlatDarkLaf());
             SwingUtilities.updateComponentTreeUI(this);
+
+            if (aiAssistantTabIndex != -1) {
+                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, UIManager.getColor("TabbedPane.foreground"));
+            }
+
             personalizationService.savePreference("theme", themeName);
             logger.info("Tema alterado para: " + themeName);
         } catch (Exception ex) {

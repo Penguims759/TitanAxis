@@ -1,4 +1,4 @@
-package com.titanaxis.view.panels.dashboard;
+package com.titanaxis.view.panels; // <<< PACOTE CORRETO
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Usuario;
@@ -9,6 +9,13 @@ import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.I18n;
 import com.titanaxis.view.DashboardFrame;
+// IMPORTAÇÕES CORRIGIDAS PARA O SUBPACOTE 'dashboard'
+import com.titanaxis.view.panels.dashboard.ActivityCardPanel;
+import com.titanaxis.view.panels.dashboard.FinancialSummaryCard;
+import com.titanaxis.view.panels.dashboard.KPICardPanel;
+import com.titanaxis.view.panels.dashboard.PerformanceRankingsCard;
+import com.titanaxis.view.panels.dashboard.QuickActionsPanel;
+import com.titanaxis.view.panels.dashboard.SalesChartPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -192,10 +199,17 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     private QuickActionsPanel createQuickActionsPanel() {
         QuickActionsPanel panel = new QuickActionsPanel();
         DashboardFrame parentFrame = (DashboardFrame) SwingUtilities.getWindowAncestor(this);
+
         if (parentFrame != null) {
             panel.newSaleButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.newSale")));
-            panel.newProductButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.productsAndBatches")));
-            panel.newClientButton.addActionListener(e -> parentFrame.navigateTo(I18n.getString("dashboard.tab.clients")));
+            panel.newProductButton.addActionListener(e -> {
+                parentFrame.navigateTo(I18n.getString("dashboard.tab.productsAndStock"));
+                parentFrame.navigateTo(I18n.getString("dashboard.tab.productsAndBatches"));
+            });
+            panel.newClientButton.addActionListener(e -> {
+                parentFrame.navigateTo(I18n.getString("dashboard.tab.registrations"));
+                parentFrame.navigateTo(I18n.getString("dashboard.tab.clients"));
+            });
         }
         return panel;
     }
