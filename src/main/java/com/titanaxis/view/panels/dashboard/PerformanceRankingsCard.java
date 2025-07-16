@@ -36,6 +36,11 @@ public class PerformanceRankingsCard extends JPanel {
 
     public void setTopProducts(Map<String, Integer> products) {
         topProductsModel.clear();
+        if (products == null) {
+            topProductsModel.addElement(I18n.getString("general.loading"));
+            return;
+        }
+
         if (products.isEmpty()) {
             topProductsModel.addElement(I18n.getString("home.rankings.noProducts"));
         } else {
@@ -45,6 +50,11 @@ public class PerformanceRankingsCard extends JPanel {
 
     public void setTopClients(Map<String, Double> clients) {
         topClientsModel.clear();
+        if (clients == null) {
+            topClientsModel.addElement(I18n.getString("general.loading"));
+            return;
+        }
+
         if (clients.isEmpty()) {
             topClientsModel.addElement(I18n.getString("home.rankings.noClients"));
         } else {

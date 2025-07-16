@@ -6,38 +6,25 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.app.MainApp;
 import com.titanaxis.model.*;
 import com.titanaxis.model.ai.Action;
-import com.titanaxis.model.auditoria.Habito;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.UIPersonalizationService;
 import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIGuide;
 import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.view.dialogs.CommandBarDialog;
 import com.titanaxis.view.dialogs.DashboardCustomizationDialog;
 import com.titanaxis.view.panels.*;
-import com.titanaxis.view.panels.dashboard.KPICardPanel;
-import com.titanaxis.view.panels.dashboard.SalesChartPanel;
-import com.titanaxis.view.panels.dashboard.ActivityCardPanel;
-import com.titanaxis.view.panels.dashboard.FinancialSummaryCard;
-import com.titanaxis.view.panels.dashboard.PerformanceRankingsCard;
-import com.titanaxis.view.panels.dashboard.QuickActionsPanel;
-
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,7 +34,6 @@ public class DashboardFrame extends JFrame {
     private final UIPersonalizationService personalizationService;
     private static final Logger logger = AppLogger.getLogger();
 
-    // Painéis de Abas
     private JTabbedPane mainTabbedPane;
     private JTabbedPane produtosEstoqueTabbedPane;
     private JTabbedPane cadastrosTabbedPane;
@@ -55,7 +41,6 @@ public class DashboardFrame extends JFrame {
     private JTabbedPane vendasTabbedPane;
     private JTabbedPane financeiroTabbedPane;
 
-    // Painéis Individuais
     private HomePanel homePanel;
     private ProdutoPanel produtoPanel;
     private ClientePanel clientePanel;
@@ -66,11 +51,9 @@ public class DashboardFrame extends JFrame {
     private RelatorioPanel relatorioPanel;
     private UsuarioPanel usuarioPanel;
     private AuditoriaPanel auditoriaPanel;
-    private AIAssistantPanel aiAssistantPanel;
     private VendaPanel vendaPanel;
     private HistoricoVendasPanel historicoVendasPanel;
     private FinanceiroPanel financeiroPanel;
-    private int aiAssistantTabIndex = -1;
 
     public DashboardFrame(AppContext appContext) {
         super(I18n.getString("dashboard.title"));
@@ -79,31 +62,33 @@ public class DashboardFrame extends JFrame {
         this.personalizationService = new UIPersonalizationService(
                 authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("default")
         );
-
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 confirmarSaida();
             }
         });
-
         setupMenuBar();
         setupNestedTabs();
+        setupCommandBarShortcut();
+        SwingUtilities.invokeLater(() -> setTheme(personalizationService.getPreference("theme", "dark")));
+    }
 
-        mainTabbedPane.addChangeListener(e -> {
-            if (aiAssistantTabIndex != -1 && mainTabbedPane.getSelectedIndex() == aiAssistantTabIndex) {
-                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, UIManager.getColor("TabbedPane.foreground"));
+    private void setupCommandBarShortcut() {
+        JRootPane rootPane = getRootPane();
+        InputMap inputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = rootPane.getActionMap();
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK), "openCommandBar");
+        actionMap.put("openCommandBar", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CommandBarDialog commandBar = new CommandBarDialog(DashboardFrame.this, appContext);
+                commandBar.setVisible(true);
             }
-        });
-
-        SwingUtilities.invokeLater(() -> {
-            setTheme(personalizationService.getPreference("theme", "dark"));
-            showProactiveInsights();
         });
     }
 
@@ -120,7 +105,6 @@ public class DashboardFrame extends JFrame {
         customizeDashboardItem.addActionListener(e -> openCustomizationDialog());
         menuView.add(customizeDashboardItem);
 
-        // Itens de menu para TEMA
         final JRadioButtonMenuItem lightThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.lightTheme"));
         lightThemeItem.addActionListener(e -> setTheme("light"));
         final JRadioButtonMenuItem darkThemeItem = new JRadioButtonMenuItem(I18n.getString("dashboard.menu.darkTheme"));
@@ -130,7 +114,6 @@ public class DashboardFrame extends JFrame {
         menuTema.add(lightThemeItem);
         menuTema.add(darkThemeItem);
 
-        // Itens de menu para IDIOMA
         JRadioButtonMenuItem ptBrItem = new JRadioButtonMenuItem("Português (Brasil)");
         ptBrItem.addActionListener(e -> switchLanguage("pt", "BR"));
         JRadioButtonMenuItem enUsItem = new JRadioButtonMenuItem("English (US)");
@@ -140,14 +123,12 @@ public class DashboardFrame extends JFrame {
         menuIdioma.add(ptBrItem);
         menuIdioma.add(enUsItem);
 
-        // Define o botão de idioma selecionado com base no Locale atual
         if ("pt".equals(I18n.getCurrentLocale().getLanguage())) {
             ptBrItem.setSelected(true);
         } else {
             enUsItem.setSelected(true);
         }
 
-        // Define o tema selecionado
         if ("light".equals(personalizationService.getPreference("theme", "dark"))) {
             lightThemeItem.setSelected(true);
         } else {
@@ -176,44 +157,30 @@ public class DashboardFrame extends JFrame {
     private void switchLanguage(String language, String country) {
         try {
             Locale newLocale = new Locale(language, country);
-            // Salva a preferência de idioma para o utilizador atual E para o utilizador "padrão"
             personalizationService.savePreference("locale", newLocale.toLanguageTag());
             new UIPersonalizationService("default_user").savePreference("locale", newLocale.toLanguageTag());
-
-            // Define o locale para que o JOptionPane apareça no idioma correto
             I18n.setLocale(newLocale);
-
             JOptionPane.showMessageDialog(this,
                     I18n.getString("dashboard.language.restartMessage"),
                     I18n.getString("dashboard.language.restartTitle"),
                     JOptionPane.INFORMATION_MESSAGE);
-
-            // Código para reiniciar a aplicação
             final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
             final File currentJar = new File(MainApp.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-
-            // Verifica se está a correr a partir de um JAR
             if (!currentJar.getName().endsWith(".jar")) {
-                // Se não estiver num JAR (ex: a correr a partir da IDE), apenas fecha.
-                // O utilizador da IDE pode reiniciar manually.
                 System.exit(0);
                 return;
             }
-
-            // Constrói o comando para reiniciar
             final ArrayList<String> command = new ArrayList<>();
             command.add(javaBin);
             command.add("-jar");
             command.add(currentJar.getPath());
-
             final ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();
             System.exit(0);
-
         } catch (java.net.URISyntaxException | IOException e) {
             logger.log(Level.SEVERE, "Falha ao tentar reiniciar a aplicação.", e);
             UIMessageUtil.showErrorMessage(this, "Não foi possível reiniciar a aplicação automaticamente. Por favor, reinicie manualmente.", "Erro de Reinicialização");
-            System.exit(0); // Fecha mesmo que não consiga reiniciar.
+            System.exit(0);
         }
     }
 
@@ -225,11 +192,9 @@ public class DashboardFrame extends JFrame {
     private void rebuildAndShowHomePanel() {
         int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home"));
         if (homeTabIndex != -1) {
-            // CORRIGIDO: Passa a referência 'this' do DashboardFrame para o HomePanel
             mainTabbedPane.setComponentAt(homeTabIndex, new HomePanel(appContext, this));
             mainTabbedPane.revalidate();
             mainTabbedPane.repaint();
-            logger.info("Painel de início reconstruído com sucesso.");
         }
     }
 
@@ -237,17 +202,9 @@ public class DashboardFrame extends JFrame {
         mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        // CORRIGIDO: Passa a referência 'this' do DashboardFrame para o HomePanel
         homePanel = new HomePanel(appContext, this);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
         mainTabbedPane.addChangeListener(createRefreshListener(homePanel));
-
-        if (authService.isGerente()) {
-            aiAssistantPanel = new AIAssistantPanel(appContext);
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.assistant"), aiAssistantPanel);
-            aiAssistantTabIndex = mainTabbedPane.getTabCount() - 1;
-            mainTabbedPane.addChangeListener(createRefreshListener(aiAssistantPanel));
-        }
 
         vendasTabbedPane = new JTabbedPane();
         vendaPanel = new VendaPanel(appContext);
@@ -307,7 +264,6 @@ public class DashboardFrame extends JFrame {
                 return;
             }
         }
-
         if (navigateToSubTab(vendasTabbedPane, destination)) return;
         if (navigateToSubTab(produtosEstoqueTabbedPane, destination)) return;
         if (navigateToSubTab(cadastrosTabbedPane, destination)) return;
@@ -418,73 +374,10 @@ public class DashboardFrame extends JFrame {
         };
     }
 
-    private void showProactiveInsights() {
-        if (aiAssistantPanel == null) return;
-
-        new SwingWorker<List<String>, Void>() {
-            @Override
-            protected List<String> doInBackground() throws Exception {
-                List<String> combinedInsights = new ArrayList<>(appContext.getAnalyticsService().getSystemInsightsSummary());
-                int userId = authService.getUsuarioLogadoId();
-                if (userId != 0) {
-                    List<Habito> habits = appContext.getUserHabitService().findHabitsForToday(userId);
-                    habits.stream()
-                            .map(Habito::getSugestao)
-                            .filter(Objects::nonNull)
-                            .forEach(combinedInsights::add);
-                }
-                return combinedInsights;
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    List<String> insights = get();
-                    String userName = authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
-                    String greeting = getGreetingByTimeOfDay() + " " + userName + "!";
-
-                    if (insights.isEmpty()) {
-                        aiAssistantPanel.appendMessage(greeting + I18n.getString("dashboard.assistant.howCanIHelp"), false);
-                    } else {
-                        Color notificationColor;
-                        if ("light".equals(personalizationService.getPreference("theme", "dark"))) {
-                            notificationColor = new Color(0, 150, 136); // Verde Esmeralda
-                        } else {
-                            notificationColor = Color.CYAN;
-                        }
-
-                        mainTabbedPane.setForegroundAt(aiAssistantTabIndex, notificationColor);
-                        String insightsMessage = greeting + I18n.getString("dashboard.assistant.insightsFound") + "\n" + String.join("\n", insights);
-                        aiAssistantPanel.appendMessage(insightsMessage, false);
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Falha ao obter insights proativos.", e);
-                    aiAssistantPanel.appendMessage(getGreetingByTimeOfDay() + I18n.getString("dashboard.assistant.insightsError"), false);
-                }
-            }
-        }.execute();
-    }
-
-    private String getGreetingByTimeOfDay() {
-        LocalTime now = LocalTime.now();
-        if (now.isBefore(LocalTime.NOON)) {
-            return I18n.getString("dashboard.greeting.morning");
-        } else if (now.isBefore(LocalTime.of(18, 0))) {
-            return I18n.getString("dashboard.greeting.afternoon");
-        } else {
-            return I18n.getString("dashboard.greeting.evening");
-        }
-    }
-
     private void setTheme(String themeName) {
         try {
             UIManager.setLookAndFeel("light".equals(themeName) ? new FlatLightLaf() : new FlatDarkLaf());
             SwingUtilities.updateComponentTreeUI(this);
-
-            if (aiAssistantTabIndex != -1) {
-                mainTabbedPane.setForegroundAt(aiAssistantTabIndex, UIManager.getColor("TabbedPane.foreground"));
-            }
-
             personalizationService.savePreference("theme", themeName);
             logger.info("Tema alterado para: " + themeName);
         } catch (Exception ex) {

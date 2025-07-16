@@ -1,21 +1,25 @@
 package com.titanaxis.view.panels.dashboard;
 
 import com.titanaxis.util.I18n;
-
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class QuickActionsPanel extends JPanel {
 
     public final JButton newSaleButton, newProductButton, newClientButton;
 
-    public QuickActionsPanel() {
+    public QuickActionsPanel(Consumer<String> navigator) {
         setBorder(BorderFactory.createTitledBorder(I18n.getString("quickActions.title")));
         setLayout(new GridLayout(1, 3, 10, 10));
 
         newSaleButton = createActionButton(I18n.getString("quickActions.newSale"));
         newProductButton = createActionButton(I18n.getString("quickActions.newProduct"));
         newClientButton = createActionButton(I18n.getString("quickActions.newClient"));
+
+        newSaleButton.addActionListener(e -> navigator.accept(I18n.getString("dashboard.tab.newSale")));
+        newProductButton.addActionListener(e -> navigator.accept(I18n.getString("dashboard.tab.productsAndBatches")));
+        newClientButton.addActionListener(e -> navigator.accept(I18n.getString("dashboard.tab.clients")));
 
         add(newSaleButton);
         add(newProductButton);
