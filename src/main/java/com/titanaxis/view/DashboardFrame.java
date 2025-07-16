@@ -192,7 +192,8 @@ public class DashboardFrame extends JFrame {
     private void rebuildAndShowHomePanel() {
         int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home"));
         if (homeTabIndex != -1) {
-            mainTabbedPane.setComponentAt(homeTabIndex, new HomePanel(appContext, this));
+            homePanel = new HomePanel(appContext, this); // Recria o painel
+            mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
             mainTabbedPane.revalidate();
             mainTabbedPane.repaint();
         }

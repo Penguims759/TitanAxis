@@ -1,17 +1,18 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3548b4fb921518903cda130d6ede827719ea5192/src/main/java/com/titanaxis/service/AnalyticsService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
-import com.titanaxis.model.Produto;
-import com.titanaxis.model.Venda;
-import com.titanaxis.model.VendaItem;
+import com.titanaxis.model.*;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.repository.VendaRepository;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
+import com.titanaxis.view.DashboardFrame;
 
+import javax.swing.Icon;
+import javax.swing.UIManager;
+import java.awt.Color;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,12 +20,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -162,7 +158,7 @@ public class AnalyticsService {
             List<VendaItem> recentItems = vendaRepository.findAllItems(em);
 
             if (recentItems.isEmpty()) {
-                return I18n.getString("service.analytics.noSalesYet"); // ALTERADO
+                return I18n.getString("service.analytics.noSalesYet");
             }
 
             return recentItems.stream()
@@ -173,36 +169,156 @@ public class AnalyticsService {
                     .entrySet().stream()
                     .max(Comparator.comparingInt(Map.Entry::getValue))
                     .map(Map.Entry::getKey)
-                    .orElse(I18n.getString("service.analytics.topProductError")); // ALTERADO
+                    .orElse(I18n.getString("service.analytics.topProductError"));
         });
     }
 
     public String getProactiveInsightsSummary() {
         try {
             String topProduct = getTopSellingProduct();
-            if (topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) { // ALTERADO
+            if (topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) {
                 return "";
             }
-            return I18n.getString("service.analytics.proactiveInsight", topProduct); // ALTERADO
+            return I18n.getString("service.analytics.proactiveInsight", topProduct);
         } catch (PersistenciaException e) {
-            return I18n.getString("service.analytics.proactiveInsightError"); // ALTERADO
+            return I18n.getString("service.analytics.proactiveInsightError");
         }
     }
 
-    public List<String> getSystemInsightsSummary() throws PersistenciaException {
-        List<String> insights = new ArrayList<>();
+    public List<CategoryTrend> getTopCategoriesWithTrend(int limit, int days) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em -> {
+            LocalDateTime end = LocalDateTime.now();
+            LocalDateTime mid = end.minusDays(days / 2);
+            LocalDateTime start = end.minusDays(days);
 
+            String topCategoriesQueryStr =
+                    "SELECT p.categoria_id FROM venda_itens vi " +
+                            "JOIN produtos p ON vi.produto_id = p.id " +
+                            "JOIN vendas v ON vi.venda_id = v.id " +
+                            "WHERE v.data_venda BETWEEN :start AND :end AND p.categoria_id IS NOT NULL " +
+                            "GROUP BY p.categoria_id " +
+                            "ORDER BY SUM(vi.preco_unitario * vi.quantidade) DESC";
+
+            List<Integer> topCategoryIds = em.createNativeQuery(topCategoriesQueryStr, Integer.class)
+                    .setParameter("start", start)
+                    .setParameter("end", end)
+                    .setMaxResults(limit)
+                    .getResultList();
+
+            if (topCategoryIds.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            String trendQueryStr =
+                    "SELECT c.nome, " +
+                            "SUM(CASE WHEN v.data_venda BETWEEN :start AND :mid THEN vi.preco_unitario * vi.quantidade ELSE 0 END) as previous_sales, " +
+                            "SUM(CASE WHEN v.data_venda BETWEEN :mid AND :end THEN vi.preco_unitario * vi.quantidade ELSE 0 END) as current_sales " +
+                            "FROM venda_itens vi " +
+                            "JOIN produtos p ON vi.produto_id = p.id " +
+                            "JOIN categorias c ON p.categoria_id = c.id " +
+                            "JOIN vendas v ON vi.venda_id = v.id " +
+                            "WHERE c.id IN (:categoryIds) AND v.data_venda BETWEEN :start AND :end " +
+                            "GROUP BY c.nome";
+
+            List<Object[]> results = em.createNativeQuery(trendQueryStr)
+                    .setParameter("start", start)
+                    .setParameter("mid", mid)
+                    .setParameter("end", end)
+                    .setParameter("categoryIds", topCategoryIds)
+                    .getResultList();
+
+            List<CategoryTrend> trends = new ArrayList<>();
+            for (Object[] row : results) {
+                String name = (String) row[0];
+                double previousSales = ((Number) row[1]).doubleValue();
+                double currentSales = ((Number) row[2]).doubleValue();
+
+                double percentageChange = 0.0;
+                if (previousSales > 0) {
+                    percentageChange = ((currentSales - previousSales) / previousSales) * 100;
+                } else if (currentSales > 0) {
+                    percentageChange = 100.0;
+                }
+                trends.add(new CategoryTrend(name, percentageChange));
+            }
+            return trends;
+        });
+    }
+
+    public Map<String, Map<LocalDate, Double>> getSalesEvolutionForTopCategories(int limit, int days) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em -> {
+            LocalDateTime end = LocalDateTime.now();
+            LocalDateTime start = end.minusDays(days);
+
+            String topCategoriesQueryStr =
+                    "SELECT p.categoria_id FROM venda_itens vi " +
+                            "JOIN produtos p ON vi.produto_id = p.id " +
+                            "JOIN vendas v ON vi.venda_id = v.id " +
+                            "WHERE v.data_venda BETWEEN :start AND :end AND p.categoria_id IS NOT NULL " +
+                            "GROUP BY p.categoria_id " +
+                            "ORDER BY SUM(vi.preco_unitario * vi.quantidade) DESC";
+
+            List<Integer> topCategoryIds = em.createNativeQuery(topCategoriesQueryStr, Integer.class)
+                    .setParameter("start", start)
+                    .setParameter("end", end)
+                    .setMaxResults(limit)
+                    .getResultList();
+
+            if (topCategoryIds.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            String salesEvolutionQueryStr =
+                    "SELECT c.nome, CAST(v.data_venda AS DATE) as dia, SUM(vi.preco_unitario * vi.quantidade) as total " +
+                            "FROM venda_itens vi " +
+                            "JOIN produtos p ON vi.produto_id = p.id " +
+                            "JOIN categorias c ON p.categoria_id = c.id " +
+                            "JOIN vendas v ON vi.venda_id = v.id " +
+                            "WHERE v.data_venda BETWEEN :start AND :end AND c.id IN (:categoryIds) " +
+                            "GROUP BY c.nome, dia " +
+                            "ORDER BY dia";
+
+            List<Object[]> results = em.createNativeQuery(salesEvolutionQueryStr)
+                    .setParameter("start", start)
+                    .setParameter("end", end)
+                    .setParameter("categoryIds", topCategoryIds)
+                    .getResultList();
+
+            Map<String, Map<LocalDate, Double>> evolutionData = new LinkedHashMap<>();
+            for (Object[] row : results) {
+                String categoryName = (String) row[0];
+                LocalDate day = ((java.sql.Date) row[1]).toLocalDate();
+                Double total = ((Number) row[2]).doubleValue();
+
+                evolutionData.computeIfAbsent(categoryName, k -> new LinkedHashMap<>()).put(day, total);
+            }
+
+            LocalDate startDate = start.toLocalDate();
+            LocalDate endDate = end.toLocalDate();
+            for (Map.Entry<String, Map<LocalDate, Double>> entry : evolutionData.entrySet()) {
+                Map<LocalDate, Double> dailySales = entry.getValue();
+                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                    dailySales.putIfAbsent(date, 0.0);
+                }
+            }
+
+            return evolutionData;
+        });
+    }
+
+    public List<String> getSystemInsightsSummaryText() throws PersistenciaException {
+        List<String> insightsText = new ArrayList<>();
         alertaService.getProdutosComEstoqueBaixo().stream()
                 .findFirst()
-                .ifPresent(p -> insights.add(I18n.getString("service.analytics.insight.lowStock", p.getNome(), p.getQuantidadeTotal()))); // ALTERADO
+                .ifPresent(p -> insightsText.add(I18n.getString("service.analytics.insight.lowStock", p.getNome(), p.getQuantidadeTotal())));
 
         alertaService.getLotesProximosDoVencimento().stream()
-                .min(Comparator.comparing(lote -> lote.getDataValidade()))
-                .ifPresent(l -> insights.add(I18n.getString("service.analytics.insight.expiringBatch", l.getNumeroLote(), l.getProduto().getNome(), l.getDataValidade().format(DATE_FORMATTER)))); // ALTERADO
+                .min(Comparator.comparing(Lote::getDataValidade))
+                .ifPresent(l -> insightsText.add(I18n.getString("service.analytics.insight.expiringBatch", l.getNumeroLote(), l.getProduto().getNome(), l.getDataValidade().format(DATE_FORMATTER))));
 
         String topProduct = getTopSellingProduct();
-        if (!topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) { // ALTERADO
-            insights.add(I18n.getString("service.analytics.insight.topProduct", topProduct)); // ALTERADO
+        if (!topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) {
+            insightsText.add(I18n.getString("service.analytics.insight.topProduct", topProduct));
         }
 
         transactionService.executeInTransactionWithResult(vendaRepository::findAll).stream()
@@ -212,7 +328,50 @@ public class AnalyticsService {
                 .filter(entry -> entry.getValue().isPresent() && ChronoUnit.DAYS.between(entry.getValue().get().getDataVenda(), LocalDateTime.now()) > 45)
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .ifPresent(c -> insights.add(I18n.getString("service.analytics.insight.inactiveClient", c.getNome()))); // ALTERADO
+                .ifPresent(c -> insightsText.add(I18n.getString("service.analytics.insight.inactiveClient", c.getNome())));
+
+        return insightsText;
+    }
+
+    public List<Insight> getSystemInsightsSummary(DashboardFrame frame) throws PersistenciaException {
+        List<Insight> insights = new ArrayList<>();
+        Icon alertIcon = UIManager.getIcon("OptionPane.warningIcon");
+        Icon opportunityIcon = UIManager.getIcon("OptionPane.informationIcon");
+
+        alertaService.getProdutosComEstoqueBaixo().stream()
+                .findFirst()
+                .ifPresent(p -> {
+                    String text = I18n.getString("service.analytics.insight.lowStock", p.getNome(), p.getQuantidadeTotal());
+                    Runnable action = () -> frame.navigateTo("Produtos & Estoque");
+                    insights.add(new Insight(text, Insight.InsightType.STOCK_ALERT, alertIcon, Color.ORANGE, action));
+                });
+
+        alertaService.getLotesProximosDoVencimento().stream()
+                .min(Comparator.comparing(Lote::getDataValidade))
+                .ifPresent(l -> {
+                    String text = I18n.getString("service.analytics.insight.expiringBatch", l.getNumeroLote(), l.getProduto().getNome(), l.getDataValidade().format(DATE_FORMATTER));
+                    Runnable action = () -> frame.navigateTo("Produtos & Estoque");
+                    insights.add(new Insight(text, Insight.InsightType.STOCK_ALERT, alertIcon, Color.ORANGE, action));
+                });
+
+        String topProduct = getTopSellingProduct();
+        if (!topProduct.contains(I18n.getString("service.analytics.noSalesYet"))) {
+            insights.add(new Insight(I18n.getString("service.analytics.insight.topProduct", topProduct),
+                    Insight.InsightType.OPPORTUNITY, opportunityIcon, UIManager.getColor("Label.foreground"), null));
+        }
+
+        transactionService.executeInTransactionWithResult(vendaRepository::findAll).stream()
+                .filter(v -> v.getCliente() != null)
+                .collect(Collectors.groupingBy(Venda::getCliente, Collectors.maxBy(Comparator.comparing(Venda::getDataVenda))))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue().isPresent() && ChronoUnit.DAYS.between(entry.getValue().get().getDataVenda(), LocalDateTime.now()) > 45)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .ifPresent(c -> {
+                    String text = I18n.getString("service.analytics.insight.inactiveClient", c.getNome());
+                    Runnable action = () -> frame.navigateTo("Clientes");
+                    insights.add(new Insight(text, Insight.InsightType.OPPORTUNITY, opportunityIcon, new Color(70, 130, 180), action));
+                });
 
         return insights;
     }
@@ -223,14 +382,14 @@ public class AnalyticsService {
         );
 
         if (vendas.isEmpty()) {
-            return I18n.getString("service.analytics.history.noPurchases"); // ALTERADO
+            return I18n.getString("service.analytics.history.noPurchases");
         }
 
-        StringBuilder history = new StringBuilder(I18n.getString("service.analytics.history.header") + "\n"); // ALTERADO
+        StringBuilder history = new StringBuilder(I18n.getString("service.analytics.history.header") + "\n");
         for (Venda venda : vendas) {
-            history.append(I18n.getString("service.analytics.history.saleLine", venda.getId(), venda.getDataVenda().format(DATE_FORMATTER), CURRENCY_FORMAT.format(venda.getValorTotal()))).append("\n"); // ALTERADO
+            history.append(I18n.getString("service.analytics.history.saleLine", venda.getId(), venda.getDataVenda().format(DATE_FORMATTER), CURRENCY_FORMAT.format(venda.getValorTotal()))).append("\n");
             for (VendaItem item : venda.getItens()) {
-                history.append(I18n.getString("service.analytics.history.itemLine", item.getQuantidade(), item.getProduto().getNome())).append("\n"); // ALTERADO
+                history.append(I18n.getString("service.analytics.history.itemLine", item.getQuantidade(), item.getProduto().getNome())).append("\n");
             }
         }
         return history.toString();

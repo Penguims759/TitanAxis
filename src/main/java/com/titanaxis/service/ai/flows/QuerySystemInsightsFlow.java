@@ -28,7 +28,7 @@ public class QuerySystemInsightsFlow implements ConversationFlow {
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
         try {
-            List<String> insights = analyticsService.getSystemInsightsSummary();
+            List<String> insights = analyticsService.getSystemInsightsSummaryText();
 
             if (insights.isEmpty()) {
                 return new AssistantResponse("Analisei o sistema e não encontrei nenhum ponto de atenção imediato. Está tudo em ordem!");

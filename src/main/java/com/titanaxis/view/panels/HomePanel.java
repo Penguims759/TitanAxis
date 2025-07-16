@@ -2,6 +2,7 @@ package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.DashboardData;
+import com.titanaxis.model.Insight;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.presenter.DashboardDataWorker;
 import com.titanaxis.util.I18n;
@@ -11,9 +12,12 @@ import com.titanaxis.view.panels.dashboard.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.text.NumberFormat;
 import java.time.LocalTime;
 import java.util.Locale;
+import java.util.Map;
 
 public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
@@ -21,15 +25,13 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     private final DashboardFrame parentFrame;
 
     // --- Componentes do Dashboard ---
-    private FinancialSummaryCard comparisonPanel;
-    private MetasPanel goalsPanel;
-    private JPanel kpiPanel; // Declarado aqui para ser acessível em toda a classe
-    private AIAssistantPanel aiAssistantPanel;
-    private JTextArea assistantReportArea;
+    private KPICardPanel kpiSalesCard, kpiClientsCard, kpiAlertsCard;
+    private FinancialSummaryCard financialSummaryCard;
+    private QuickActionsPanel quickActionsPanel;
+    private SimpleGoalsCard goalsCard;
+    private AssistantInsightsPanel assistantInsightsPanel;
     private SalesChartPanel salesChartPanel;
-    private JPanel chartDisplayPanel;
-    private PerformanceRankingsCard topProductsCard;
-    private PerformanceRankingsCard topClientsCard;
+    private CategoryPerformancePanel categoryPerformancePanel;
 
     private String selectedChartPeriod = "7D";
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
@@ -47,117 +49,140 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         setBorder(BorderFactory.createEmptyBorder(10, 15, 15, 15));
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 3; gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL; gbc.insets = new Insets(0, 0, 15, 0);
+        // --- Linha 0: Cabeçalho ---
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 15, 0);
         add(createHeaderPanel(), gbc);
 
-        gbc.gridy = 1; gbc.gridwidth = 1; gbc.weighty = 1.0; gbc.fill = GridBagConstraints.BOTH;
+        // --- Linha 1 ---
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.weighty = 0.4; // **ALTURA REDUZIDA** para a linha de cima
+        gbc.fill = GridBagConstraints.BOTH;
 
-        gbc.gridx = 0; gbc.weightx = 0.25; gbc.insets = new Insets(0, 0, 15, 15);
-        add(createCommandColumn(), gbc);
+        // Coluna 0: Relatório do Assistente
+        gbc.gridx = 0;
+        gbc.weightx = 0.25;
+        gbc.insets = new Insets(0, 0, 15, 15);
+        add(createAssistantReportPanel(), gbc);
 
-        gbc.gridx = 1; gbc.weightx = 0.45;
-        add(createMainChartColumn(), gbc);
+        // Coluna 1: Gráfico de Barras (com o wrapper)
+        gbc.gridx = 1;
+        gbc.weightx = 0.65;
+        add(createStableChartPanel(), gbc);
 
-        gbc.gridx = 2; gbc.weightx = 0.30; gbc.insets = new Insets(0, 0, 15, 0);
-        add(createObjectivesColumn(), gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 3; gbc.weightx = 1.0; gbc.weighty = 0.5;
+        // Coluna 2: Ações, Metas e Comparações
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.weightx = 0.10;
+        gbc.gridheight = 2;
         gbc.insets = new Insets(0, 0, 0, 0);
-        add(createInteractiveAnalysisPanel(), gbc);
+        add(createRightColumn(), gbc);
 
-        revalidate(); repaint();
+        // --- Linha 2 ---
+        gbc.gridy = 2;
+        gbc.gridheight = 1;
+        gbc.weighty = 0.6; // **ALTURA AUMENTADA** para a linha de baixo
+
+        // Coluna 0 e 1: Novo Painel de Performance de Categorias
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 0, 0, 15);
+        categoryPerformancePanel = new CategoryPerformancePanel();
+        add(categoryPerformancePanel, gbc);
+
+        revalidate();
+        repaint();
     }
 
     private JComponent createHeaderPanel() {
-        JPanel header = new JPanel(new BorderLayout(15, 0));
-        header.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+        JPanel header = new JPanel(new BorderLayout(20, 0));
+        header.setOpaque(false);
+
+        JPanel greetingPanel = new JPanel();
+        greetingPanel.setLayout(new BoxLayout(greetingPanel, BoxLayout.Y_AXIS));
+        greetingPanel.setOpaque(false);
+
         String username = appContext.getAuthService().getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
-        JLabel greetingLabel = new JLabel(getGreetingByTimeOfDay() + " " + username + "!");
-        greetingLabel.setFont(new Font("Arial", Font.BOLD, 22));
-        header.add(greetingLabel, BorderLayout.CENTER);
-        header.add(new QuickActionsPanel(parentFrame::navigateTo), BorderLayout.EAST);
+        JLabel mainGreetingLabel = new JLabel(getGreetingByTimeOfDay() + " " + username + "!");
+        mainGreetingLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        greetingPanel.add(mainGreetingLabel);
+
+        JLabel subGreetingLabel = new JLabel("- O assistente");
+        subGreetingLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        subGreetingLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        greetingPanel.add(subGreetingLabel);
+
+        JPanel westPanel = new JPanel(new BorderLayout());
+        westPanel.setOpaque(false);
+        westPanel.add(greetingPanel, BorderLayout.CENTER);
+
+        kpiSalesCard = new KPICardPanel(I18n.getString("home.kpi.salesToday"), I18n.getString("home.kpi.salesToday.tooltip"));
+        kpiClientsCard = new KPICardPanel(I18n.getString("home.kpi.newClients"), I18n.getString("home.kpi.newClients.tooltip"));
+        kpiAlertsCard = new KPICardPanel(I18n.getString("home.kpi.stockAlerts"), I18n.getString("home.kpi.stockAlerts.tooltip"));
+
+        JPanel kpiContainer = new JPanel(new GridLayout(1, 3, 10, 0));
+        kpiContainer.setOpaque(false);
+        kpiContainer.add(kpiSalesCard);
+        kpiContainer.add(kpiClientsCard);
+        kpiContainer.add(kpiAlertsCard);
+
+        header.add(westPanel, BorderLayout.WEST);
+        header.add(kpiContainer, BorderLayout.CENTER);
         return header;
     }
 
-    private JComponent createCommandColumn() {
-        JPanel column = new JPanel(new BorderLayout(0, 15));
-        aiAssistantPanel = new AIAssistantPanel(appContext);
-
-        JPanel assistantReportPanel = new JPanel(new BorderLayout());
-        assistantReportPanel.setBorder(BorderFactory.createTitledBorder("Relatório do Assistente"));
-        assistantReportArea = new JTextArea("A carregar insights...");
-        assistantReportArea.setEditable(false);
-        assistantReportArea.setLineWrap(true);
-        assistantReportArea.setWrapStyleWord(true);
-        assistantReportPanel.add(new JScrollPane(assistantReportArea));
-
-        column.add(aiAssistantPanel, BorderLayout.CENTER);
-        column.add(assistantReportPanel, BorderLayout.SOUTH);
-        assistantReportPanel.setPreferredSize(new Dimension(0, (int)(aiAssistantPanel.getPreferredSize().getHeight() * 0.4)));
-        return column;
+    private JComponent createAssistantReportPanel() {
+        assistantInsightsPanel = new AssistantInsightsPanel();
+        return assistantInsightsPanel;
     }
 
-    private JComponent createMainChartColumn() {
+    private JComponent createStableChartPanel() {
+        JPanel chartWrapperPanel = new JPanel(new BorderLayout());
+        chartWrapperPanel.setBorder(BorderFactory.createTitledBorder("Evolução de Vendas"));
+
         salesChartPanel = new SalesChartPanel(this::onChartPeriodChange);
-        salesChartPanel.setBorder(BorderFactory.createTitledBorder("Evolução de Vendas"));
-        return salesChartPanel;
-    }
+        chartWrapperPanel.add(salesChartPanel, BorderLayout.CENTER);
 
-    private JComponent createObjectivesColumn() {
-        JPanel column = new JPanel();
-        column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
-        comparisonPanel = new FinancialSummaryCard();
-        comparisonPanel.setBorder(BorderFactory.createTitledBorder("Comparações Mês a Mês"));
-        goalsPanel = new MetasPanel(appContext);
-        goalsPanel.setBorder(BorderFactory.createTitledBorder("Metas de Venda"));
-
-        // --- CORREÇÃO AQUI: Inicializa o kpiPanel como membro da classe ---
-        kpiPanel = new JPanel();
-        kpiPanel.setBorder(BorderFactory.createTitledBorder("Resumo do Dia"));
-        kpiPanel.setLayout(new GridLayout(3,1,0,5));
-
-        column.add(comparisonPanel);
-        column.add(Box.createVerticalStrut(15));
-        column.add(goalsPanel);
-        column.add(Box.createVerticalStrut(15));
-        column.add(kpiPanel);
-        column.add(Box.createVerticalGlue());
-
-        return column;
-    }
-
-    private JComponent createInteractiveAnalysisPanel() {
-        JPanel panel = new JPanel(new BorderLayout(15, 0));
-        panel.setBorder(BorderFactory.createTitledBorder("Análise Detalhada Interativa"));
-
-        DefaultListModel<String> analysisListModel = new DefaultListModel<>();
-        analysisListModel.addElement("Top 5 Produtos");
-        analysisListModel.addElement("Top 5 Clientes");
-        JList<String> analysisList = new JList<>(analysisListModel);
-        analysisList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        analysisList.setSelectedIndex(0);
-        analysisList.setPreferredSize(new Dimension(180, 0));
-
-        chartDisplayPanel = new JPanel(new CardLayout());
-        topProductsCard = new PerformanceRankingsCard();
-        topClientsCard = new PerformanceRankingsCard();
-        chartDisplayPanel.add(topProductsCard, "Top 5 Produtos");
-        chartDisplayPanel.add(topClientsCard, "Top 5 Clientes");
-
-        analysisList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                String selected = analysisList.getSelectedValue();
-                CardLayout cl = (CardLayout)(chartDisplayPanel.getLayout());
-                cl.show(chartDisplayPanel, selected);
+        chartWrapperPanel.addComponentListener(new ComponentAdapter() {
+            private boolean sizeHasBeenSet = false;
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (!sizeHasBeenSet) {
+                    chartWrapperPanel.setPreferredSize(chartWrapperPanel.getSize());
+                    sizeHasBeenSet = true;
+                }
             }
         });
 
-        panel.add(new JScrollPane(analysisList), BorderLayout.WEST);
-        panel.add(chartDisplayPanel, BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(0, 240));
+        return chartWrapperPanel;
+    }
 
-        return panel;
+
+    private JComponent createRightColumn() {
+        JPanel column = new JPanel(new BorderLayout(0, 15));
+        column.setOpaque(false);
+
+        quickActionsPanel = new QuickActionsPanel(parentFrame::navigateTo);
+        financialSummaryCard = new FinancialSummaryCard();
+
+        JPanel topOfRightColumn = new JPanel();
+        topOfRightColumn.setOpaque(false);
+        topOfRightColumn.setLayout(new BoxLayout(topOfRightColumn, BoxLayout.Y_AXIS));
+        topOfRightColumn.add(quickActionsPanel);
+        topOfRightColumn.add(Box.createVerticalStrut(15));
+        topOfRightColumn.add(financialSummaryCard);
+
+        goalsCard = new SimpleGoalsCard(appContext);
+
+        column.add(topOfRightColumn, BorderLayout.NORTH);
+        column.add(goalsCard, BorderLayout.CENTER);
+
+        return column;
     }
 
     private void onChartPeriodChange(String newPeriod) {
@@ -168,28 +193,25 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     @Override
     public void refreshData() {
         setLoadingState(true);
-        new DashboardDataWorker(this, appContext, selectedChartPeriod).execute();
+        new DashboardDataWorker(this, appContext, selectedChartPeriod, parentFrame).execute();
     }
 
     public void setLoadingState(boolean isLoading) {
         setCursor(isLoading ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
         String status = isLoading ? I18n.getString("general.loading") : "---";
 
-        if (kpiPanel != null) {
-            kpiPanel.removeAll();
-            kpiPanel.add(new JLabel(status));
-            kpiPanel.revalidate();
-            kpiPanel.repaint();
-        }
-        if (comparisonPanel != null) {
-            comparisonPanel.setRevenue(status);
-            comparisonPanel.setAvgTicket(status);
-            comparisonPanel.setComparison(Double.NaN);
+        if (kpiSalesCard != null) kpiSalesCard.setValue(status);
+        if (kpiClientsCard != null) kpiClientsCard.setValue(status);
+        if (kpiAlertsCard != null) kpiAlertsCard.setValue(status);
+
+        if (financialSummaryCard != null) {
+            financialSummaryCard.setRevenue(status);
+            financialSummaryCard.setAvgTicket(status);
+            financialSummaryCard.setComparison(Double.NaN);
         }
         if (salesChartPanel != null) salesChartPanel.setData(null, selectedChartPeriod);
-        if (assistantReportArea != null) assistantReportArea.setText(I18n.getString("general.loading"));
-        if (topProductsCard != null) topProductsCard.setTopProducts(null);
-        if (topClientsCard != null) topClientsCard.setTopClients(null);
+        if (assistantInsightsPanel != null) assistantInsightsPanel.setInsights(null);
+        if (categoryPerformancePanel != null) categoryPerformancePanel.setData(null, null);
     }
 
     public void showErrorState(String errorMessage) {
@@ -197,33 +219,29 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     public void updateUI(DashboardData data) {
-        kpiPanel.removeAll();
-        kpiPanel.add(new JLabel("Vendas Hoje: " + currencyFormat.format(data.vendasHoje)));
-        kpiPanel.add(new JLabel("Novos Clientes: " + data.novosClientes));
-        kpiPanel.add(new JLabel("Alertas Ativos: " + data.numAlertas));
+        kpiSalesCard.setValue(currencyFormat.format(data.vendasHoje));
+        kpiClientsCard.setValue(String.valueOf(data.novosClientes));
+        kpiAlertsCard.setValue(String.valueOf(data.numAlertas));
+        kpiAlertsCard.setValueColor(data.numAlertas > 0 ? Color.RED : UIManager.getColor("Label.foreground"));
 
-        if(salesChartPanel != null) salesChartPanel.setData(data.salesChartData, selectedChartPeriod);
+        salesChartPanel.setData(data.salesChartData, selectedChartPeriod);
 
-        if (comparisonPanel != null) {
-            comparisonPanel.setRevenue(currencyFormat.format(data.receitaMes));
-            comparisonPanel.setAvgTicket(currencyFormat.format(data.ticketMedio));
-            double comparison = (data.receitaMesAnterior == 0 && data.receitaMes > 0) ? 100.0 :
-                    (data.receitaMesAnterior == 0) ? Double.NaN :
-                            ((data.receitaMes - data.receitaMesAnterior) / data.receitaMesAnterior) * 100;
-            comparisonPanel.setComparison(comparison);
+        financialSummaryCard.setRevenue(currencyFormat.format(data.receitaMes));
+        financialSummaryCard.setAvgTicket(currencyFormat.format(data.ticketMedio));
+        double comparison = (data.receitaMesAnterior == 0 && data.receitaMes > 0) ? 100.0 :
+                (data.receitaMesAnterior == 0) ? Double.NaN :
+                        ((data.receitaMes - data.receitaMesAnterior) / data.receitaMesAnterior) * 100;
+        financialSummaryCard.setComparison(comparison);
+
+        if (assistantInsightsPanel != null) {
+            assistantInsightsPanel.setInsights(data.assistantInsights);
         }
 
-        if (assistantReportArea != null) {
-            if (data.assistantInsights.isEmpty()) {
-                assistantReportArea.setText("Nenhum insight ou alerta importante no momento.");
-            } else {
-                assistantReportArea.setText(String.join("\n", data.assistantInsights));
-            }
+        if (categoryPerformancePanel != null) {
+            categoryPerformancePanel.setData(data.categorySalesEvolution, data.categoryTrends);
         }
 
-        if(topProductsCard != null) topProductsCard.setTopProducts(data.topProducts);
-        if(topClientsCard != null) topClientsCard.setTopClients(data.topClients);
-        if(goalsPanel != null) goalsPanel.refreshData();
+        if(goalsCard != null) goalsCard.refreshData();
 
         revalidate();
         repaint();
