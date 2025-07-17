@@ -200,18 +200,20 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         setCursor(isLoading ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
         String status = isLoading ? I18n.getString("general.loading") : "---";
 
-        if (kpiSalesCard != null) kpiSalesCard.setValue(status);
-        if (kpiClientsCard != null) kpiClientsCard.setValue(status);
-        if (kpiAlertsCard != null) kpiAlertsCard.setValue(status);
+        if(isLoading) {
+            if (kpiSalesCard != null) kpiSalesCard.setValue(status);
+            if (kpiClientsCard != null) kpiClientsCard.setValue(status);
+            if (kpiAlertsCard != null) kpiAlertsCard.setValue(status);
 
-        if (financialSummaryCard != null) {
-            financialSummaryCard.setRevenue(status);
-            financialSummaryCard.setAvgTicket(status);
-            financialSummaryCard.setComparison(Double.NaN);
+            if (financialSummaryCard != null) {
+                financialSummaryCard.setRevenue(status);
+                financialSummaryCard.setAvgTicket(status);
+                financialSummaryCard.setComparison(Double.NaN);
+            }
+            if (salesChartPanel != null) salesChartPanel.setData(null, selectedChartPeriod);
+            if (assistantInsightsPanel != null) assistantInsightsPanel.setInsights(null);
+            if (categoryPerformancePanel != null) categoryPerformancePanel.setData(null, null);
         }
-        if (salesChartPanel != null) salesChartPanel.setData(null, selectedChartPeriod);
-        if (assistantInsightsPanel != null) assistantInsightsPanel.setInsights(null);
-        if (categoryPerformancePanel != null) categoryPerformancePanel.setData(null, null);
     }
 
     public void showErrorState(String errorMessage) {
