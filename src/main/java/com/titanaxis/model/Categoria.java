@@ -1,3 +1,4 @@
+// src/main/java/com/titanaxis/model/Categoria.java
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
@@ -15,10 +16,6 @@ public class Categoria {
     @Column(name = "nome", nullable = false, unique = true)
     private String nome;
 
-    // Relação Um-para-Muitos: Uma categoria pode ter muitos produtos.
-    // 'mappedBy = "categoria"' diz ao Hibernate que a relação já está mapeada pelo campo 'categoria' na classe Produto.
-    // CascadeType.ALL significa que as operações (salvar, apagar) na Categoria se propagam para os Produtos associados.
-    // orphanRemoval = true garante que, se um produto for removido desta lista, ele será apagado da base de dados.
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Produto> produtos = new ArrayList<>();
 
@@ -51,14 +48,13 @@ public class Categoria {
     public List<Produto> getProdutos() { return produtos; }
     public void setProdutos(List<Produto> produtos) { this.produtos = produtos; }
 
-    // Agora podemos calcular o total de produtos diretamente da lista
+    // CORREÇÃO APLICADA AQUI
+    // Agora o método retorna diretamente o valor pré-calculado pela query,
+    // que é a forma mais eficiente e correta neste contexto.
     public int getTotalProdutos() {
-        if (this.produtos != null) {
-            return this.produtos.size();
-        }
-        // Se a lista não foi carregada, retorna o valor que foi calculado pela query
         return this.totalProdutos;
     }
+
     public void setTotalProdutos(int totalProdutos) { this.totalProdutos = totalProdutos; }
 
     @Override
