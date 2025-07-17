@@ -61,18 +61,18 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         // --- Linha 1 ---
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.weighty = 0.4; // **ALTURA REDUZIDA** para a linha de cima
+        gbc.weighty = 0.4; // Linha de cima fica com 40% da altura
         gbc.fill = GridBagConstraints.BOTH;
 
         // Coluna 0: Relatório do Assistente
         gbc.gridx = 0;
-        gbc.weightx = 0.25;
+        gbc.weightx = 0.35;
         gbc.insets = new Insets(0, 0, 15, 15);
         add(createAssistantReportPanel(), gbc);
 
         // Coluna 1: Gráfico de Barras (com o wrapper)
         gbc.gridx = 1;
-        gbc.weightx = 0.65;
+        gbc.weightx = 0.55;
         add(createStableChartPanel(), gbc);
 
         // Coluna 2: Ações, Metas e Comparações
@@ -86,7 +86,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         // --- Linha 2 ---
         gbc.gridy = 2;
         gbc.gridheight = 1;
-        gbc.weighty = 0.6; // **ALTURA AUMENTADA** para a linha de baixo
+        gbc.weighty = 0.6; // Linha de baixo (gráfico de linhas) fica com 60% da altura
 
         // Coluna 0 e 1: Novo Painel de Performance de Categorias
         gbc.gridx = 0;
@@ -145,7 +145,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         JPanel chartWrapperPanel = new JPanel(new BorderLayout());
         chartWrapperPanel.setBorder(BorderFactory.createTitledBorder("Evolução de Vendas"));
 
-        salesChartPanel = new SalesChartPanel(this::onChartPeriodChange);
+        salesChartPanel = new SalesChartPanel(this::onPeriodChange);
         chartWrapperPanel.add(salesChartPanel, BorderLayout.CENTER);
 
         chartWrapperPanel.addComponentListener(new ComponentAdapter() {
@@ -185,7 +185,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         return column;
     }
 
-    private void onChartPeriodChange(String newPeriod) {
+    private void onPeriodChange(String newPeriod) {
         this.selectedChartPeriod = newPeriod;
         refreshData();
     }
