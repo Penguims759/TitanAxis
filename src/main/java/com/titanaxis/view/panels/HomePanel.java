@@ -98,48 +98,50 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     private JComponent createHeaderPanel() {
-        JPanel header = new JPanel(new BorderLayout(20, 0));
+        JPanel header = new JPanel(new GridLayout(1, 4, 10, 0));
         header.setOpaque(false);
 
-        JPanel greetingPanel = new JPanel();
-        greetingPanel.setLayout(new BoxLayout(greetingPanel, BoxLayout.Y_AXIS));
+        // Painel de saudação
+        JPanel greetingPanel = new JPanel(new BorderLayout());
         greetingPanel.setOpaque(false);
+        greetingPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 5, 0, 0, new Color(70, 130, 180)),
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)
+        ));
+
+        JPanel textContainer = new JPanel();
+        textContainer.setLayout(new BoxLayout(textContainer, BoxLayout.Y_AXIS));
+        textContainer.setOpaque(false);
 
         String username = appContext.getAuthService().getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
-        JLabel mainGreetingLabel = new JLabel(getGreetingByTimeOfDay() + " " + username + "!");
-        mainGreetingLabel.setFont(new Font("Arial", Font.BOLD, 22));
-        greetingPanel.add(mainGreetingLabel);
+        JLabel mainGreetingLabel = new JLabel("<html>" + getGreetingByTimeOfDay() + " " + username + "!</html>");
+        mainGreetingLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        textContainer.add(mainGreetingLabel);
 
         JLabel subGreetingLabel = new JLabel("- O assistente");
         subGreetingLabel.setFont(new Font("Arial", Font.ITALIC, 12));
-        subGreetingLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        greetingPanel.add(subGreetingLabel);
+        textContainer.add(subGreetingLabel);
 
-        JPanel westPanel = new JPanel(new BorderLayout());
-        westPanel.setOpaque(false);
-        westPanel.add(greetingPanel, BorderLayout.CENTER);
+        greetingPanel.add(textContainer, BorderLayout.CENTER);
 
+        // KPIs
         kpiSalesCard = new KPICardPanel(I18n.getString("home.kpi.salesToday"), I18n.getString("home.kpi.salesToday.tooltip"));
         kpiClientsCard = new KPICardPanel(I18n.getString("home.kpi.newClients"), I18n.getString("home.kpi.newClients.tooltip"));
         kpiAlertsCard = new KPICardPanel(I18n.getString("home.kpi.stockAlerts"), I18n.getString("home.kpi.stockAlerts.tooltip"));
 
-        JPanel kpiContainer = new JPanel(new GridLayout(1, 3, 10, 0));
-        kpiContainer.setOpaque(false);
-        kpiContainer.add(kpiSalesCard);
-        kpiContainer.add(kpiClientsCard);
-        kpiContainer.add(kpiAlertsCard);
+        header.add(greetingPanel);
+        header.add(kpiSalesCard);
+        header.add(kpiClientsCard);
+        header.add(kpiAlertsCard);
 
-        header.add(westPanel, BorderLayout.WEST);
-        header.add(kpiContainer, BorderLayout.CENTER);
         return header;
     }
 
     private JComponent createAssistantReportPanel() {
         assistantInsightsPanel = new AssistantInsightsPanel();
-        // ALTERAÇÃO: Envolve o painel para definir um tamanho preferencial
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.add(assistantInsightsPanel, BorderLayout.CENTER);
-        wrapper.setPreferredSize(new Dimension(350, 0)); // Altura é ignorada pelo layout
+        wrapper.setPreferredSize(new Dimension(350, 0));
         return wrapper;
     }
 
