@@ -2,9 +2,9 @@ package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.DashboardData;
-import com.titanaxis.model.Insight;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.presenter.DashboardDataWorker;
+import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
@@ -12,8 +12,6 @@ import com.titanaxis.view.panels.dashboard.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.text.NumberFormat;
 import java.time.LocalTime;
 import java.util.Locale;
@@ -61,24 +59,24 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         // --- Linha 1 ---
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.weighty = 0.4; // Linha de cima fica com 40% da altura
+        gbc.weighty = 0.75; // Linha de cima fica com 40% da altura
         gbc.fill = GridBagConstraints.BOTH;
 
         // Coluna 0: Relatório do Assistente
         gbc.gridx = 0;
-        gbc.weightx = 0.35;
+        gbc.weightx = 0; // Não estica
         gbc.insets = new Insets(0, 0, 15, 15);
         add(createAssistantReportPanel(), gbc);
 
         // Coluna 1: Gráfico de Barras (com o wrapper)
         gbc.gridx = 1;
-        gbc.weightx = 0.55;
+        gbc.weightx = 1.0; // Ocupa todo o resto
         add(createStableChartPanel(), gbc);
 
         // Coluna 2: Ações, Metas e Comparações
         gbc.gridx = 2;
         gbc.gridy = 1;
-        gbc.weightx = 0.10;
+        gbc.weightx = 0; // Não estica
         gbc.gridheight = 2;
         gbc.insets = new Insets(0, 0, 0, 0);
         add(createRightColumn(), gbc);
@@ -86,7 +84,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
         // --- Linha 2 ---
         gbc.gridy = 2;
         gbc.gridheight = 1;
-        gbc.weighty = 0.6; // Linha de baixo (gráfico de linhas) fica com 60% da altura
+        gbc.weighty = 0.25; // Linha de baixo (gráfico de linhas) fica com 60% da altura
 
         // Coluna 0 e 1: Novo Painel de Performance de Categorias
         gbc.gridx = 0;
@@ -138,7 +136,11 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     private JComponent createAssistantReportPanel() {
         assistantInsightsPanel = new AssistantInsightsPanel();
-        return assistantInsightsPanel;
+        // ALTERAÇÃO: Envolve o painel para definir um tamanho preferencial
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.add(assistantInsightsPanel, BorderLayout.CENTER);
+        wrapper.setPreferredSize(new Dimension(350, 0)); // Altura é ignorada pelo layout
+        return wrapper;
     }
 
     private JComponent createStableChartPanel() {
@@ -147,17 +149,6 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
         salesChartPanel = new SalesChartPanel(this::onPeriodChange);
         chartWrapperPanel.add(salesChartPanel, BorderLayout.CENTER);
-
-        chartWrapperPanel.addComponentListener(new ComponentAdapter() {
-            private boolean sizeHasBeenSet = false;
-            @Override
-            public void componentResized(ComponentEvent e) {
-                if (!sizeHasBeenSet) {
-                    chartWrapperPanel.setPreferredSize(chartWrapperPanel.getSize());
-                    sizeHasBeenSet = true;
-                }
-            }
-        });
 
         return chartWrapperPanel;
     }
@@ -187,7 +178,8 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
     private void onPeriodChange(String newPeriod) {
         this.selectedChartPeriod = newPeriod;
-        refreshData();
+        salesChartPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        new ChartDataWorker(appContext.getAnalyticsService(), newPeriod).execute();
     }
 
     @Override
@@ -219,6 +211,40 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
     public void showErrorState(String errorMessage) {
         UIMessageUtil.showErrorMessage(this, "Erro ao carregar dados do dashboard: " + errorMessage, "Erro de Carregamento");
     }
+
+    private class ChartDataWorker extends SwingWorker<Map<?, Double>, Void> {
+        private final AnalyticsService analyticsService;
+        private final String period;
+
+        public ChartDataWorker(AnalyticsService analyticsService, String period) {
+            this.analyticsService = analyticsService;
+            this.period = period;
+        }
+
+        @Override
+        protected Map<?, Double> doInBackground() throws Exception {
+            return analyticsService.getVendasAgrupadas(period);
+        }
+
+        @Override
+        protected void done() {
+            try {
+                Map<?, Double> data = get();
+                updateChartData(data);
+            } catch (Exception e) {
+                showErrorState(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            } finally {
+                salesChartPanel.setCursor(Cursor.getDefaultCursor());
+            }
+        }
+    }
+
+    public void updateChartData(Map<?, Double> chartData) {
+        if (salesChartPanel != null) {
+            salesChartPanel.setData(chartData, selectedChartPeriod);
+        }
+    }
+
 
     public void updateUI(DashboardData data) {
         kpiSalesCard.setValue(currencyFormat.format(data.vendasHoje));
