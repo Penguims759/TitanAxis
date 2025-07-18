@@ -16,6 +16,8 @@ public class RankingListPanel extends JPanel {
         container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setOpaque(false);
+        // ALTERAÇÃO: Adiciona uma margem interna de 10 pixels em todos os lados.
+        container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(container, BorderLayout.NORTH);
     }
 

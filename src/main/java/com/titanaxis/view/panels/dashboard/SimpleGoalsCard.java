@@ -12,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class SimpleGoalsCard extends JPanel implements DashboardFrame.Refreshable {
@@ -45,6 +47,10 @@ public class SimpleGoalsCard extends JPanel implements DashboardFrame.Refreshabl
             List<MetaVenda> metas = financeiroService.listarMetas();
             boolean hasGoals = false;
 
+            // Estrutura para armazenar a meta com seu progresso calculado
+            record MetaComProgresso(MetaVenda meta, double progresso) {}
+            List<MetaComProgresso> metasProcessadas = new ArrayList<>();
+
             for (MetaVenda meta : metas) {
                 YearMonth periodo = YearMonth.parse(meta.getAnoMes());
                 if(periodo.isBefore(YearMonth.now())) continue;
@@ -54,14 +60,22 @@ public class SimpleGoalsCard extends JPanel implements DashboardFrame.Refreshabl
                 LocalDate fimPeriodo = periodo.atEndOfMonth();
 
                 double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), inicioPeriodo, fimPeriodo);
-                int progresso = (int) (meta.getValorMeta() > 0 ? (valorVendido / meta.getValorMeta()) * 100 : 0);
+                double progresso = (meta.getValorMeta() > 0) ? (valorVendido / meta.getValorMeta()) * 100 : 0;
 
-                goalsContainer.add(createGoalEntry(meta.getUsuario().getNomeUsuario(), progresso));
-                goalsContainer.add(Box.createVerticalStrut(5));
+                metasProcessadas.add(new MetaComProgresso(meta, progresso));
             }
+
+            // ALTERAÇÃO: Ordena a lista pelo progresso em ordem decrescente
+            metasProcessadas.sort(Comparator.comparingDouble(MetaComProgresso::progresso).reversed());
 
             if (!hasGoals) {
                 goalsContainer.add(new JLabel("Nenhuma meta ativa para o período."));
+            } else {
+                // Popula a UI com os dados já ordenados
+                for(MetaComProgresso metaProcessada : metasProcessadas) {
+                    goalsContainer.add(createGoalEntry(metaProcessada.meta().getUsuario().getNomeUsuario(), (int) metaProcessada.progresso()));
+                    goalsContainer.add(Box.createVerticalStrut(5));
+                }
             }
 
         } catch (PersistenciaException e) {
@@ -70,6 +84,7 @@ public class SimpleGoalsCard extends JPanel implements DashboardFrame.Refreshabl
         goalsContainer.revalidate();
         goalsContainer.repaint();
     }
+
 
     private JComponent createGoalEntry(String userName, int progress) {
         JPanel panel = new JPanel(new GridBagLayout());
