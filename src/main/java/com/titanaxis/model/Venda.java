@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/Venda.java
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
@@ -30,12 +29,19 @@ public class Venda {
     @Column(name = "desconto_total", nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double descontoTotal;
 
-    @Column(name = "credito_utilizado", nullable = false, columnDefinition = "DECIMAL(10,2)") // NOVO
-    private double creditoUtilizado; // NOVO
+    @Column(name = "credito_utilizado", nullable = false, columnDefinition = "DECIMAL(10,2)")
+    private double creditoUtilizado;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private VendaStatus status;
+
+    // NOVOS CAMPOS
+    @Column(name = "forma_pagamento", nullable = false)
+    private String formaPagamento;
+
+    @Column(name = "numero_parcelas", nullable = false)
+    private int numeroParcelas;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<VendaItem> itens = new ArrayList<>();
@@ -47,12 +53,14 @@ public class Venda {
         this.dataVenda = LocalDateTime.now();
         this.status = VendaStatus.EM_ANDAMENTO;
         this.descontoTotal = 0.0;
-        this.creditoUtilizado = 0.0; // NOVO
+        this.creditoUtilizado = 0.0;
+        this.formaPagamento = "À Vista"; // Valor padrão
+        this.numeroParcelas = 1; // Valor padrão
     }
 
     // Getters e Setters
-    public double getCreditoUtilizado() { return creditoUtilizado; } // NOVO
-    public void setCreditoUtilizado(double creditoUtilizado) { this.creditoUtilizado = creditoUtilizado; } // NOVO
+    public double getCreditoUtilizado() { return creditoUtilizado; }
+    public void setCreditoUtilizado(double creditoUtilizado) { this.creditoUtilizado = creditoUtilizado; }
     public double getDescontoTotal() { return descontoTotal; }
     public void setDescontoTotal(double descontoTotal) { this.descontoTotal = descontoTotal; }
     public VendaStatus getStatus() { return status; }
@@ -71,6 +79,13 @@ public class Venda {
     public void setItens(List<VendaItem> itens) { this.itens = itens; }
     public String getNomeCliente() { return (cliente != null) ? cliente.getNome() : "N/A"; }
     public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
+
+    // NOVOS GETTERS E SETTERS
+    public String getFormaPagamento() { return formaPagamento; }
+    public void setFormaPagamento(String formaPagamento) { this.formaPagamento = formaPagamento; }
+    public int getNumeroParcelas() { return numeroParcelas; }
+    public void setNumeroParcelas(int numeroParcelas) { this.numeroParcelas = numeroParcelas; }
+
 
     public void adicionarItem(VendaItem item) {
         itens.add(item);

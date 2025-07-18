@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/ClienteRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -6,7 +5,7 @@ import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
@@ -31,7 +30,6 @@ public class ClienteRepositoryImpl implements ClienteRepository {
 
         if (usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            // ALTERADO
             String acaoDesc = isUpdate ? I18n.getString("log.action.updated") : I18n.getString("log.action.created");
             String detalhes = I18n.getString("log.client.saved", clienteSalvo.getNome(), clienteSalvo.getId(), acaoDesc);
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Cliente", clienteSalvo.getId(), detalhes, em);
@@ -44,7 +42,6 @@ public class ClienteRepositoryImpl implements ClienteRepository {
         Optional<Cliente> clienteOpt = findById(id, em);
         clienteOpt.ifPresent(cliente -> {
             if (usuarioLogado != null) {
-                // ALTERADO
                 String detalhes = I18n.getString("log.client.deleted", cliente.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Cliente", id, detalhes, em);
             }
@@ -82,11 +79,11 @@ public class ClienteRepositoryImpl implements ClienteRepository {
 
     @Override
     public long countNewClientesBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
-        Query query = em.createNativeQuery(
-                "SELECT COUNT(DISTINCT entidade_id) FROM auditoria_logs WHERE acao = 'CRIAÇÃO' AND entidade = 'Cliente' AND data_evento BETWEEN ? AND ?");
-        query.setParameter(1, start);
-        query.setParameter(2, end);
-        Object result = query.getSingleResult();
-        return (result instanceof Number) ? ((Number) result).longValue() : 0L;
+        // LÓGICA ALTERADA
+        TypedQuery<Long> query = em.createQuery(
+                "SELECT COUNT(c) FROM Cliente c WHERE c.dataCriacao BETWEEN :start AND :end", Long.class);
+        query.setParameter("start", start);
+        query.setParameter("end", end);
+        return query.getSingleResult();
     }
 }

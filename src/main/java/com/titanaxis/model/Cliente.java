@@ -1,6 +1,7 @@
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime; // IMPORT ADICIONADO
 
 @Entity
 @Table(name = "clientes")
@@ -19,9 +20,15 @@ public class Cliente {
     @Column(nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double credito;
 
+    // NOVO CAMPO
+    @Column(name = "data_criacao", nullable = false)
+    private LocalDateTime dataCriacao;
+
+
     // Construtor vazio para o JPA
     public Cliente() {
         this.credito = 0.0;
+        this.dataCriacao = LocalDateTime.now(); // VALOR PADRÃO
     }
 
     public Cliente(int id, String nome, String contato, String endereco) {
@@ -30,6 +37,7 @@ public class Cliente {
         this.contato = contato;
         this.endereco = endereco;
         this.credito = 0.0;
+        this.dataCriacao = LocalDateTime.now(); // VALOR PADRÃO
     }
 
     // Construtor para novo cliente
@@ -38,6 +46,7 @@ public class Cliente {
         this.contato = contato;
         this.endereco = endereco;
         this.credito = 0.0;
+        this.dataCriacao = LocalDateTime.now(); // VALOR PADRÃO
     }
 
     // Getters e Setters
@@ -46,15 +55,16 @@ public class Cliente {
     public String getContato() { return contato; }
     public String getEndereco() { return endereco; }
     public double getCredito() { return credito; }
+    public LocalDateTime getDataCriacao() { return dataCriacao; } // NOVO GETTER
 
     public void setId(int id) { this.id = id; }
     public void setNome(String nome) { this.nome = nome; }
     public void setContato(String contato) { this.contato = contato; }
     public void setEndereco(String endereco) { this.endereco = endereco; }
     public void setCredito(double credito) { this.credito = credito; }
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; } // NOVO SETTER
     public void adicionarCredito(double valor) { this.credito += valor; }
 
-    // NOVO MÉTODO
     public void debitarCredito(double valor) {
         if (valor > this.credito) {
             throw new IllegalArgumentException("O valor a debitar é maior que o crédito disponível.");

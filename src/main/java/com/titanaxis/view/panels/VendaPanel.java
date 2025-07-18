@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/panels/VendaPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -10,7 +9,7 @@ import com.titanaxis.service.*;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
-import com.titanaxis.view.renderer.LoteCellRenderer; // Importado
+import com.titanaxis.view.renderer.LoteCellRenderer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -40,6 +39,11 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private final JButton orcamentoButton;
     private final JButton usarCreditoButton;
 
+    // NOVOS COMPONENTES
+    private final JComboBox<String> formaPagamentoComboBox;
+    private final JSpinner parcelasSpinner;
+    private final JLabel parcelasLabel;
+
     private Carrinho carrinho;
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
@@ -64,12 +68,18 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         clienteComboBox = new JComboBox<>();
         produtoComboBox = new JComboBox<>();
         loteComboBox = new JComboBox<>();
-        loteComboBox.setRenderer(new LoteCellRenderer()); // ALTERADO
+        loteComboBox.setRenderer(new LoteCellRenderer());
         quantidadeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
         totalLabel = new JLabel(I18n.getString("sale.label.total", currencyFormat.format(0.0)));
         finalizarButton = new JButton(I18n.getString("sale.button.finalize"));
         orcamentoButton = new JButton(I18n.getString("sale.button.saveQuote"));
         usarCreditoButton = new JButton(I18n.getString("sale.button.useCredit"));
+
+        // INICIALIZAÇÃO DOS NOVOS COMPONENTES
+        formaPagamentoComboBox = new JComboBox<>(new String[]{"À Vista", "Cartão de Crédito", "A Prazo"});
+        parcelasLabel = new JLabel("Parcelas:");
+        parcelasSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 12, 1));
+
 
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -79,6 +89,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         add(createBottomPanel(), BorderLayout.SOUTH);
 
         addEventListeners();
+        toggleParcelasVisibility(); // Estado inicial
     }
 
     @Override
@@ -101,6 +112,16 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
             }
         });
         clienteComboBox.addActionListener(e -> atualizarEstadoBotaoCredito());
+
+        // NOVO LISTENER
+        formaPagamentoComboBox.addActionListener(e -> toggleParcelasVisibility());
+    }
+
+    // NOVO MÉTODO
+    private void toggleParcelasVisibility() {
+        boolean isAPrazo = "A Prazo".equals(formaPagamentoComboBox.getSelectedItem());
+        parcelasLabel.setVisible(isAPrazo);
+        parcelasSpinner.setVisible(isAPrazo);
     }
 
     public void selecionarCliente(Cliente clienteParaSelecionar) {
@@ -175,8 +196,19 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         }
     }
 
-    private void salvarOrcamento() {
+    private void prepararVenda() {
         carrinho.setCliente((Cliente) clienteComboBox.getSelectedItem());
+        carrinho.getVenda().setFormaPagamento((String) formaPagamentoComboBox.getSelectedItem());
+        if ("A Prazo".equals(carrinho.getVenda().getFormaPagamento())) {
+            carrinho.getVenda().setNumeroParcelas((Integer) parcelasSpinner.getValue());
+        } else {
+            carrinho.getVenda().setNumeroParcelas(1);
+        }
+    }
+
+
+    private void salvarOrcamento() {
+        prepararVenda();
         try {
             Venda orcamentoSalvo = vendaService.salvarOrcamento(carrinho.getVenda(), authService.getUsuarioLogado().orElse(null));
             UIMessageUtil.showInfoMessage(this, I18n.getString("sale.quote.saveSuccess", orcamentoSalvo.getId()), I18n.getString("success.title"));
@@ -191,7 +223,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     }
 
     private void finalizarVenda() {
-        carrinho.setCliente((Cliente) clienteComboBox.getSelectedItem());
+        prepararVenda();
         try {
             Venda vendaSalva = vendaService.finalizarVenda(carrinho.getVenda(), authService.getUsuarioLogado().orElse(null));
             UIMessageUtil.showInfoMessage(this, I18n.getString("sale.finalizeSuccess", vendaSalva.getId()), I18n.getString("success.title"));
@@ -306,18 +338,28 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         totalLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
-        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton descontoTotalButton = new JButton(I18n.getString("sale.button.applyTotalDiscount"));
         descontoTotalButton.addActionListener(e -> aplicarDescontoTotal());
 
         usarCreditoButton.addActionListener(e -> usarCreditoCliente());
         usarCreditoButton.setEnabled(false);
 
-        totalPanel.add(usarCreditoButton);
-        totalPanel.add(descontoTotalButton);
-        totalPanel.add(totalLabel);
+        leftPanel.add(usarCreditoButton);
+        leftPanel.add(descontoTotalButton);
 
-        bottomPanel.add(totalPanel, BorderLayout.WEST);
+        // Painel de pagamento
+        JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        paymentPanel.add(new JLabel("Pagamento:"));
+        paymentPanel.add(formaPagamentoComboBox);
+        paymentPanel.add(parcelasLabel);
+        paymentPanel.add(parcelasSpinner);
+        leftPanel.add(paymentPanel);
+
+
+        leftPanel.add(totalLabel);
+
+        bottomPanel.add(leftPanel, BorderLayout.WEST);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelarButton = new JButton(I18n.getString("sale.button.cancelSale"));

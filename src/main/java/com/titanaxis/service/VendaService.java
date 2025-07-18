@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/VendaService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -12,7 +11,7 @@ import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaItem;
 import com.titanaxis.model.VendaStatus;
 import com.titanaxis.repository.VendaRepository;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,11 +23,13 @@ public class VendaService {
 
     private final VendaRepository vendaRepository;
     private final TransactionService transactionService;
+    private final FinanceiroService financeiroService; // NOVA DEPENDÊNCIA
 
     @Inject
-    public VendaService(VendaRepository vendaRepository, TransactionService transactionService) {
+    public VendaService(VendaRepository vendaRepository, TransactionService transactionService, FinanceiroService financeiroService) { // ATUALIZADO
         this.vendaRepository = vendaRepository;
         this.transactionService = transactionService;
+        this.financeiroService = financeiroService; // ATUALIZADO
     }
 
     public List<Venda> listarTodasAsVendas() throws PersistenciaException {
@@ -65,7 +66,7 @@ public class VendaService {
             for (VendaItem item : venda.getItens()) {
                 Lote lote = em.find(Lote.class, item.getLote().getId());
                 if (lote == null || lote.getQuantidade() < item.getQuantidade()) {
-                    throw new RuntimeException(I18n.getString("service.sale.error.insufficientStock", item.getLote().getProduto().getNome())); // ALTERADO
+                    throw new RuntimeException(I18n.getString("service.sale.error.insufficientStock", item.getLote().getProduto().getNome()));
                 }
                 lote.setQuantidade(lote.getQuantidade() - item.getQuantidade());
             }
@@ -76,23 +77,30 @@ public class VendaService {
                 em.merge(cliente);
             }
 
-            return vendaRepository.save(venda, ator, em);
+            // Salva a venda primeiro para obter o ID
+            Venda vendaSalva = vendaRepository.save(venda, ator, em);
+
+            // Gera as contas a receber se necessário
+            financeiroService.gerarContasAReceberParaVenda(vendaSalva, em);
+
+            return vendaSalva;
         });
     }
 
+
     public Venda converterOrcamentoEmVenda(int orcamentoId, Usuario ator) throws PersistenciaException, UtilizadorNaoAutenticadoException, CarrinhoVazioException {
         Venda orcamento = buscarVendaCompletaPorId(orcamentoId)
-                .orElseThrow(() -> new PersistenciaException(I18n.getString("service.sale.error.quoteNotFound"), null)); // ALTERADO
+                .orElseThrow(() -> new PersistenciaException(I18n.getString("service.sale.error.quoteNotFound"), null));
 
         if (orcamento.getStatus() != VendaStatus.ORCAMENTO) {
-            throw new IllegalStateException(I18n.getString("service.sale.error.onlyQuotesCanBeConverted")); // ALTERADO
+            throw new IllegalStateException(I18n.getString("service.sale.error.onlyQuotesCanBeConverted"));
         }
         return finalizarVenda(orcamento, ator);
     }
 
     public void cancelarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated"));
         }
 
         if (venda.getItens() != null && !venda.getItens().isEmpty()) {
@@ -105,10 +113,10 @@ public class VendaService {
 
     private void validarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.sale.error.notAuthenticatedForSale")); // ALTERADO
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.sale.error.notAuthenticatedForSale"));
         }
         if (venda.getItens() == null || venda.getItens().isEmpty()) {
-            throw new CarrinhoVazioException(I18n.getString("service.sale.error.emptyCart")); // ALTERADO
+            throw new CarrinhoVazioException(I18n.getString("service.sale.error.emptyCart"));
         }
     }
 }

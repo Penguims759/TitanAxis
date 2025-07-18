@@ -37,6 +37,30 @@ public class FinanceiroService {
         });
     }
 
+    // NOVO MÉTODO
+    public void gerarContasAReceberParaVenda(Venda venda, jakarta.persistence.EntityManager em) {
+        if (!"A Prazo".equalsIgnoreCase(venda.getFormaPagamento()) || venda.getNumeroParcelas() <= 0) {
+            return;
+        }
+
+        double valorParcela = venda.getValorTotal() / venda.getNumeroParcelas();
+        LocalDate dataVencimento = LocalDate.now();
+
+        for (int i = 1; i <= venda.getNumeroParcelas(); i++) {
+            dataVencimento = dataVencimento.plusMonths(1);
+
+            ContasAReceber conta = new ContasAReceber();
+            conta.setVenda(venda);
+            conta.setNumeroParcela(i);
+            conta.setValorParcela(valorParcela);
+            conta.setDataVencimento(dataVencimento);
+            conta.setStatus("Pendente");
+
+            financeiroRepository.saveContaAReceber(conta, em);
+        }
+    }
+
+
     // --- Metas ---
     public List<MetaVenda> listarMetas() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(financeiroRepository::findAllMetas);
