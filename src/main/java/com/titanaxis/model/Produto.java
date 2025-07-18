@@ -4,6 +4,7 @@ package com.titanaxis.model;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "produtos")
@@ -73,4 +74,22 @@ public class Produto {
     public void setLotes(List<Lote> lotes) { this.lotes = lotes; }
     public int getQuantidadeTotal() { return this.lotes.stream().mapToInt(Lote::getQuantidade).sum(); }
     public String getNomeCategoria() { return (categoria != null) ? categoria.getNome() : null; }
+
+    @Override
+    public String toString() {
+        return this.nome;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Produto produto = (Produto) o;
+        return id == produto.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

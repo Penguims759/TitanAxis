@@ -12,6 +12,7 @@ import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.dialogs.DevolucaoDialog;
 import com.titanaxis.view.dialogs.VendaDetalhesDialog;
 import com.titanaxis.view.interfaces.HistoricoVendasView;
+import com.titanaxis.view.renderer.HistoricoVendasTableCellRenderer;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
@@ -89,6 +90,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
 
         table.setRowSorter(new TableRowSorter<>(tableModel));
         table.getSelectionModel().addListSelectionListener(e -> updateActionButtons());
+        table.setDefaultRenderer(Object.class, new HistoricoVendasTableCellRenderer());
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

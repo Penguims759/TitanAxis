@@ -45,6 +45,21 @@ public class Carrinho {
         recalcularTotal();
     }
 
+    public void alterarQuantidadeItem(int index, int novaQuantidade) {
+        if (index >= 0 && index < this.itens.size()) {
+            VendaItem item = this.itens.get(index);
+            if (novaQuantidade > 0) {
+                if (novaQuantidade > item.getLote().getQuantidade()) {
+                    throw new IllegalArgumentException("Quantidade solicitada (" + novaQuantidade + ") excede o estoque do lote (" + item.getLote().getQuantidade() + ").");
+                }
+                item.setQuantidade(novaQuantidade);
+            } else {
+                this.itens.remove(index);
+            }
+            recalcularTotal();
+        }
+    }
+
     public void aplicarDescontoItem(int index, double desconto) {
         if (index >= 0 && index < this.itens.size()) {
             VendaItem item = this.itens.get(index);

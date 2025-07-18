@@ -83,15 +83,11 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(createTopPanel(), BorderLayout.NORTH);
-        add(new JScrollPane(carrinhoTable), BorderLayout.CENTER);
+        add(createCenterPanel(), BorderLayout.CENTER);
         add(createBottomPanel(), BorderLayout.SOUTH);
 
         addEventListeners();
         toggleParcelasVisibility();
-
-        // ** CORREÇÃO APLICADA AQUI **
-        // Garante que os dados sejam carregados na primeira vez que o painel é criado.
-        refreshData();
     }
 
     @Override
@@ -108,7 +104,7 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
                 if (e.getClickCount() == 2) {
                     int selectedRow = carrinhoTable.getSelectedRow();
                     if (selectedRow != -1) {
-                        aplicarDescontoItem(selectedRow);
+                        abrirOpcoesItem(selectedRow);
                     }
                 }
             }
@@ -237,6 +233,38 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         }
     }
 
+    private void abrirOpcoesItem(int rowIndex) {
+        String[] options = {I18n.getString("sale.item.options.changeQuantity"), I18n.getString("sale.item.options.applyDiscount"), I18n.getString("button.cancel")};
+        int choice = JOptionPane.showOptionDialog(this,
+                I18n.getString("sale.item.options.message"),
+                I18n.getString("sale.item.options.title"),
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (choice == 0) {
+            alterarQuantidadeItem(rowIndex);
+        } else if (choice == 1) {
+            aplicarDescontoItem(rowIndex);
+        }
+    }
+
+    private void alterarQuantidadeItem(int rowIndex) {
+        String novaQtdStr = JOptionPane.showInputDialog(this,
+                I18n.getString("sale.dialog.quantity.message"),
+                I18n.getString("sale.dialog.quantity.title"),
+                JOptionPane.PLAIN_MESSAGE);
+        if (novaQtdStr != null) {
+            try {
+                int novaQuantidade = Integer.parseInt(novaQtdStr);
+                carrinho.alterarQuantidadeItem(rowIndex, novaQuantidade);
+                atualizarCarrinhoETotal();
+            } catch (NumberFormatException e) {
+                UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidQuantity"), I18n.getString("error.format.title"));
+            } catch (IllegalArgumentException e) {
+                UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.validation.title"));
+            }
+        }
+    }
+
     private void aplicarDescontoItem(int rowIndex) {
         String descontoStr = JOptionPane.showInputDialog(this,
                 I18n.getString("sale.dialog.discount.itemMessage"),
@@ -332,6 +360,30 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         topPanel.add(selectionPanel, BorderLayout.CENTER);
 
         return topPanel;
+    }
+
+    private JComponent createCenterPanel() {
+        JPanel centerPanel = new JPanel(new BorderLayout(0, 5));
+
+        JScrollPane scrollPane = new JScrollPane(carrinhoTable);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel itemActionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton removeItemButton = new JButton(I18n.getString("sale.button.removeItem"));
+        removeItemButton.addActionListener(e -> {
+            int selectedRow = carrinhoTable.getSelectedRow();
+            if (selectedRow != -1) {
+                carrinho.removerItem(selectedRow);
+                atualizarCarrinhoETotal();
+            } else {
+                UIMessageUtil.showWarningMessage(this, I18n.getString("sale.error.noItemSelected"), I18n.getString("warning.title"));
+            }
+        });
+        itemActionsPanel.add(removeItemButton);
+
+        centerPanel.add(itemActionsPanel, BorderLayout.SOUTH);
+
+        return centerPanel;
     }
 
     private JPanel createBottomPanel() {

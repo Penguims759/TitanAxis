@@ -53,6 +53,9 @@ public class VendaService {
     public Venda salvarOrcamento(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
         validarVenda(venda, ator);
         venda.setStatus(VendaStatus.ORCAMENTO);
+        for (VendaItem item : venda.getItens()) {
+            item.setVenda(venda);
+        }
         return transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.save(venda, ator, em)
         );
@@ -61,6 +64,9 @@ public class VendaService {
     public Venda finalizarVenda(Venda venda, Usuario ator) throws UtilizadorNaoAutenticadoException, CarrinhoVazioException, PersistenciaException {
         validarVenda(venda, ator);
         venda.setStatus(VendaStatus.FINALIZADA);
+        for (VendaItem item : venda.getItens()) {
+            item.setVenda(venda);
+        }
 
         return transactionService.executeInTransactionWithResult(em -> {
             for (VendaItem item : venda.getItens()) {
@@ -105,6 +111,9 @@ public class VendaService {
 
         if (venda.getItens() != null && !venda.getItens().isEmpty()) {
             venda.setStatus(VendaStatus.CANCELADA);
+            for (VendaItem item : venda.getItens()) {
+                item.setVenda(venda);
+            }
             transactionService.executeInTransaction(em -> {
                 vendaRepository.save(venda, ator, em);
             });

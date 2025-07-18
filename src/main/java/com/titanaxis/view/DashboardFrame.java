@@ -205,7 +205,7 @@ public class DashboardFrame extends JFrame {
 
         homePanel = new HomePanel(appContext, this);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
-        mainTabbedPane.addChangeListener(createRefreshListener(homePanel));
+        mainTabbedPane.addChangeListener(createRefreshListener());
 
         vendasTabbedPane = new JTabbedPane();
         vendaPanel = new VendaPanel(appContext);
@@ -213,12 +213,12 @@ public class DashboardFrame extends JFrame {
         vendasTabbedPane.addTab(I18n.getString("dashboard.tab.newSale"), vendaPanel);
         vendasTabbedPane.addTab(I18n.getString("dashboard.tab.history"), historicoVendasPanel);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.sales"), vendasTabbedPane);
-        vendasTabbedPane.addChangeListener(createRefreshListener(null));
+        vendasTabbedPane.addChangeListener(createRefreshListener());
 
         if (authService.isGerente()) {
             financeiroPanel = new FinanceiroPanel(appContext);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.financial"), financeiroPanel);
-            mainTabbedPane.addChangeListener(createRefreshListener(financeiroPanel));
+            mainTabbedPane.addChangeListener(createRefreshListener());
 
             produtosEstoqueTabbedPane = new JTabbedPane();
             produtoPanel = new ProdutoPanel(appContext);
@@ -230,7 +230,7 @@ public class DashboardFrame extends JFrame {
             produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel);
             produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), produtosEstoqueTabbedPane);
-            produtosEstoqueTabbedPane.addChangeListener(createRefreshListener(null));
+            produtosEstoqueTabbedPane.addChangeListener(createRefreshListener());
 
             cadastrosTabbedPane = new JTabbedPane();
             clientePanel = new ClientePanel(appContext);
@@ -238,11 +238,11 @@ public class DashboardFrame extends JFrame {
             cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.clients"), clientePanel);
             cadastrosTabbedPane.addTab(I18n.getString("dashboard.tab.suppliers"), fornecedorPanel);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.registrations"), cadastrosTabbedPane);
-            cadastrosTabbedPane.addChangeListener(createRefreshListener(null));
+            cadastrosTabbedPane.addChangeListener(createRefreshListener());
 
             relatorioPanel = new RelatorioPanel(appContext);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.reports"), relatorioPanel);
-            mainTabbedPane.addChangeListener(createRefreshListener(relatorioPanel));
+            mainTabbedPane.addChangeListener(createRefreshListener());
         }
 
         if (authService.isAdmin()) {
@@ -252,7 +252,7 @@ public class DashboardFrame extends JFrame {
             adminTabbedPane.addTab(I18n.getString("dashboard.tab.userManagement"), usuarioPanel);
             adminTabbedPane.addTab(I18n.getString("dashboard.tab.auditLogs"), auditoriaPanel);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.administration"), adminTabbedPane);
-            adminTabbedPane.addChangeListener(createRefreshListener(null));
+            adminTabbedPane.addChangeListener(createRefreshListener());
         }
 
         add(mainTabbedPane);
@@ -359,18 +359,21 @@ public class DashboardFrame extends JFrame {
         }
     }
 
-    private ChangeListener createRefreshListener(Component panel) {
+    private ChangeListener createRefreshListener() {
         return e -> {
-            Object source = e.getSource();
-            Component selected = null;
-            if (source instanceof JTabbedPane) {
-                selected = ((JTabbedPane) source).getSelectedComponent();
-            } else if (panel != null) {
-                selected = panel;
-            }
+            if (e.getSource() instanceof JTabbedPane) {
+                JTabbedPane sourceTabbedPane = (JTabbedPane) e.getSource();
+                Component selectedComponent = sourceTabbedPane.getSelectedComponent();
 
-            if (selected instanceof Refreshable) {
-                ((Refreshable) selected).refreshData();
+                // Trata abas aninhadas
+                if (selectedComponent instanceof JTabbedPane) {
+                    JTabbedPane nestedTabbedPane = (JTabbedPane) selectedComponent;
+                    selectedComponent = nestedTabbedPane.getSelectedComponent();
+                }
+
+                if (selectedComponent instanceof Refreshable) {
+                    ((Refreshable) selectedComponent).refreshData();
+                }
             }
         };
     }
