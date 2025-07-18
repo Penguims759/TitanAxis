@@ -13,7 +13,10 @@ public class FinancialSummaryCard extends JPanel {
 
     public FinancialSummaryCard() {
         setLayout(new GridLayout(3, 1, 5, 5));
-        setBorder(BorderFactory.createTitledBorder(I18n.getString("home.financial.title")));
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(I18n.getString("home.financial.title")),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5) // Adiciona o padding
+        ));
 
         revenueValue = createValueLabel();
         comparisonLabel = createComparisonLabel();

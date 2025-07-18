@@ -30,7 +30,8 @@ public class SimpleGoalsCard extends JPanel implements DashboardFrame.Refreshabl
 
         goalsContainer = new JPanel();
         goalsContainer.setLayout(new BoxLayout(goalsContainer, BoxLayout.Y_AXIS));
-        goalsContainer.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        // Adiciona o padding aqui
+        goalsContainer.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
 
         JScrollPane scrollPane = new JScrollPane(goalsContainer);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
