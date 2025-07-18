@@ -39,7 +39,6 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
     private final JButton orcamentoButton;
     private final JButton usarCreditoButton;
 
-    // NOVOS COMPONENTES
     private final JComboBox<String> formaPagamentoComboBox;
     private final JSpinner parcelasSpinner;
     private final JLabel parcelasLabel;
@@ -75,7 +74,6 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         orcamentoButton = new JButton(I18n.getString("sale.button.saveQuote"));
         usarCreditoButton = new JButton(I18n.getString("sale.button.useCredit"));
 
-        // INICIALIZAÇÃO DOS NOVOS COMPONENTES
         formaPagamentoComboBox = new JComboBox<>(new String[]{"À Vista", "Cartão de Crédito", "A Prazo"});
         parcelasLabel = new JLabel("Parcelas:");
         parcelasSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 12, 1));
@@ -89,7 +87,11 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         add(createBottomPanel(), BorderLayout.SOUTH);
 
         addEventListeners();
-        toggleParcelasVisibility(); // Estado inicial
+        toggleParcelasVisibility();
+
+        // ** CORREÇÃO APLICADA AQUI **
+        // Garante que os dados sejam carregados na primeira vez que o painel é criado.
+        refreshData();
     }
 
     @Override
@@ -113,11 +115,9 @@ public class VendaPanel extends JPanel implements DashboardFrame.Refreshable {
         });
         clienteComboBox.addActionListener(e -> atualizarEstadoBotaoCredito());
 
-        // NOVO LISTENER
         formaPagamentoComboBox.addActionListener(e -> toggleParcelasVisibility());
     }
 
-    // NOVO MÉTODO
     private void toggleParcelasVisibility() {
         boolean isAPrazo = "A Prazo".equals(formaPagamentoComboBox.getSelectedItem());
         parcelasLabel.setVisible(isAPrazo);
