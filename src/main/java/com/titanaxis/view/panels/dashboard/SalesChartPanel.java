@@ -20,20 +20,13 @@ import java.util.function.Consumer;
 
 public class SalesChartPanel extends JPanel {
 
-    private Map<?, Double> salesData = Collections.emptyMap();
     private final Consumer<String> onPeriodChange;
     private final JLabel titleLabel;
-
-    private static final int PADDING = 20;
-    private static final int LEFT_PADDING = 50;
-    private static final int BOTTOM_PADDING = 30;
-    private static final Color CHART_COLOR = new Color(70, 130, 180);
-    private static final Color CHART_HOVER_COLOR = new Color(100, 160, 210);
-    private static final NumberFormat COMPACT_CURRENCY_FORMAT = NumberFormat.getCompactNumberInstance(new Locale("pt", "BR"), NumberFormat.Style.SHORT);
-    private int hoveredBarIndex = -1;
+    private final ChartDrawingPanel chartDrawingPanel;
 
     public SalesChartPanel(Consumer<String> onPeriodChange) {
         this.onPeriodChange = onPeriodChange;
+        this.chartDrawingPanel = new ChartDrawingPanel();
         setLayout(new BorderLayout());
         setOpaque(false);
 
@@ -44,49 +37,146 @@ public class SalesChartPanel extends JPanel {
         topPanel.add(titleLabel, BorderLayout.CENTER);
         topPanel.add(createPeriodSelectionPanel(), BorderLayout.EAST);
 
+        // ALTERAÇÃO: Reduz a margem inferior de 10 para 5 pixels.
+        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+
         add(topPanel, BorderLayout.NORTH);
-
-        addChartMouseListeners();
+        add(chartDrawingPanel, BorderLayout.CENTER);
     }
 
-    private void addChartMouseListeners() {
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int barIndex = getBarIndexAt(e.getX());
-                if (barIndex != -1) {
-                    Object periodKey = new ArrayList<>(salesData.keySet()).get(barIndex);
-                    showSalesDetailsForPeriod(periodKey);
-                }
-            }
-        });
+    // Classe interna dedicada apenas para desenhar o gráfico
+    private class ChartDrawingPanel extends JPanel {
+        private Map<?, Double> salesData = Collections.emptyMap();
+        private int hoveredBarIndex = -1;
 
-        this.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                int barIndex = getBarIndexAt(e.getX());
-                if (barIndex != hoveredBarIndex) {
-                    hoveredBarIndex = barIndex;
-                    repaint();
-                }
-            }
-        });
-    }
+        private static final int PADDING = 20;
+        private static final int LEFT_PADDING = 50;
+        private static final int BOTTOM_PADDING = 30;
+        private static final Color CHART_COLOR = new Color(70, 130, 180);
+        private static final Color CHART_HOVER_COLOR = new Color(100, 160, 210);
+        private static final NumberFormat COMPACT_CURRENCY_FORMAT = NumberFormat.getCompactNumberInstance(new Locale("pt", "BR"), NumberFormat.Style.SHORT);
 
-    private int getBarIndexAt(int mouseX) {
-        if (salesData == null || salesData.isEmpty()) {
-            return -1;
+        ChartDrawingPanel() {
+            setOpaque(false);
+            addChartMouseListeners();
         }
-        int barCount = salesData.size();
-        int chartWidth = getWidth() - PADDING - LEFT_PADDING;
-        int barWidth = chartWidth / barCount;
 
-        int relativeX = mouseX - LEFT_PADDING;
-        if (relativeX < 0) return -1;
+        public void setData(Map<?, Double> salesData) {
+            this.salesData = salesData;
+            revalidate();
+            repaint();
+        }
 
-        int index = relativeX / barWidth;
-        return (index < barCount) ? index : -1;
+        private void addChartMouseListeners() {
+            this.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    int barIndex = getBarIndexAt(e.getX());
+                    if (barIndex != -1) {
+                        Object periodKey = new ArrayList<>(salesData.keySet()).get(barIndex);
+                        showSalesDetailsForPeriod(periodKey);
+                    }
+                }
+            });
+
+            this.addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    int barIndex = getBarIndexAt(e.getX());
+                    if (barIndex != hoveredBarIndex) {
+                        hoveredBarIndex = barIndex;
+                        repaint();
+                    }
+                }
+            });
+        }
+
+        private int getBarIndexAt(int mouseX) {
+            if (salesData == null || salesData.isEmpty()) {
+                return -1;
+            }
+            int barCount = salesData.size();
+            int chartWidth = getWidth() - PADDING - LEFT_PADDING;
+            int barWidth = chartWidth / barCount;
+
+            int relativeX = mouseX - LEFT_PADDING;
+            if (relativeX < 0) return -1;
+
+            int index = relativeX / barWidth;
+            return (index < barCount) ? index : -1;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            if (salesData == null || salesData.isEmpty()) {
+                String msg = I18n.getString("home.chart.noData");
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(msg)) / 2;
+                int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+                g2.drawString(msg, x, y);
+                return;
+            }
+
+            double maxValue = salesData.values().stream().max(Double::compare).orElse(1.0);
+            if (maxValue == 0) maxValue = 1.0;
+
+            drawYAxis(g2, maxValue);
+            drawXAxisAndBars(g2, maxValue);
+        }
+
+        private void drawYAxis(Graphics2D g2, double maxValue) {
+            int numberYDivisions = 5;
+            int chartHeight = getHeight() - PADDING - BOTTOM_PADDING;
+
+            for (int i = 0; i <= numberYDivisions; i++) {
+                int y = getHeight() - BOTTOM_PADDING - (i * chartHeight) / numberYDivisions;
+                g2.setStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{3.0f}, 0.0f));
+                g2.setColor(Color.LIGHT_GRAY);
+                g2.drawLine(LEFT_PADDING, y, getWidth() - PADDING, y);
+
+                g2.setStroke(new BasicStroke());
+                g2.setColor(UIManager.getColor("Label.foreground"));
+                String yLabel = COMPACT_CURRENCY_FORMAT.format((maxValue * i) / numberYDivisions);
+                FontMetrics fm = g2.getFontMetrics();
+                int labelWidth = fm.stringWidth(yLabel);
+                g2.drawString(yLabel, LEFT_PADDING - labelWidth - 8, y + 4);
+            }
+        }
+
+        private void drawXAxisAndBars(Graphics2D g2, double maxValue) {
+            List<?> keys = new ArrayList<>(salesData.keySet());
+            int barCount = keys.size();
+            if (barCount == 0) return;
+
+            int chartWidth = getWidth() - PADDING - LEFT_PADDING;
+            int chartHeight = getHeight() - PADDING - BOTTOM_PADDING;
+            int barWidth = chartWidth / barCount;
+            int barGap = (int) (barWidth * 0.2);
+
+            for (int i = 0; i < barCount; i++) {
+                Object key = keys.get(i);
+                double value = salesData.getOrDefault(key, 0.0);
+                int barHeightValue = (int) ((value / maxValue) * chartHeight);
+                int x = LEFT_PADDING + i * barWidth;
+                int y = getHeight() - BOTTOM_PADDING - barHeightValue;
+
+                g2.setColor(i == hoveredBarIndex ? CHART_HOVER_COLOR : CHART_COLOR);
+                g2.fillRect(x + barGap, y, barWidth - (2 * barGap), barHeightValue);
+
+                g2.setColor(UIManager.getColor("Label.foreground"));
+                String xLabel = formatXAxisLabel(key);
+                FontMetrics fm = g2.getFontMetrics();
+                int labelWidth = fm.stringWidth(xLabel);
+                g2.drawString(xLabel, x + (barWidth - labelWidth) / 2, getHeight() - BOTTOM_PADDING + fm.getAscent() + 5);
+            }
+        }
     }
+
 
     private void showSalesDetailsForPeriod(Object periodKey) {
         String periodString = "";
@@ -131,10 +221,8 @@ public class SalesChartPanel extends JPanel {
     }
 
     public void setData(Map<?, Double> salesData, String period) {
-        this.salesData = salesData;
+        this.chartDrawingPanel.setData(salesData);
         updateTitle(period);
-        revalidate();
-        repaint();
     }
 
     private void updateTitle(String period) {
@@ -143,76 +231,6 @@ public class SalesChartPanel extends JPanel {
             case "3M" -> titleLabel.setText(I18n.getString("home.chart.period.3m"));
             case "1A" -> titleLabel.setText(I18n.getString("home.chart.period.1y"));
             default -> titleLabel.setText(I18n.getString("home.chart.period.7d"));
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        if (salesData == null || salesData.isEmpty()) {
-            String msg = I18n.getString("home.chart.noData");
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (getWidth() - fm.stringWidth(msg)) / 2;
-            int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
-            g2.drawString(msg, x, y);
-            return;
-        }
-
-        double maxValue = salesData.values().stream().max(Double::compare).orElse(1.0);
-        if (maxValue == 0) maxValue = 1.0;
-
-        drawYAxis(g2, maxValue);
-        drawXAxisAndBars(g2, maxValue);
-    }
-
-    private void drawYAxis(Graphics2D g2, double maxValue) {
-        int numberYDivisions = 5;
-        int chartHeight = getHeight() - PADDING - BOTTOM_PADDING;
-
-        for (int i = 0; i <= numberYDivisions; i++) {
-            int y = getHeight() - BOTTOM_PADDING - (i * chartHeight) / numberYDivisions;
-            g2.setStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{3.0f}, 0.0f));
-            g2.setColor(Color.LIGHT_GRAY);
-            g2.drawLine(LEFT_PADDING, y, getWidth() - PADDING, y);
-
-            g2.setStroke(new BasicStroke());
-            g2.setColor(UIManager.getColor("Label.foreground"));
-            String yLabel = COMPACT_CURRENCY_FORMAT.format((maxValue * i) / numberYDivisions);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(yLabel);
-            g2.drawString(yLabel, LEFT_PADDING - labelWidth - 8, y + 4);
-        }
-    }
-
-    private void drawXAxisAndBars(Graphics2D g2, double maxValue) {
-        List<?> keys = new ArrayList<>(salesData.keySet());
-        int barCount = keys.size();
-        if (barCount == 0) return;
-
-        int chartWidth = getWidth() - PADDING - LEFT_PADDING;
-        int chartHeight = getHeight() - PADDING - BOTTOM_PADDING;
-        int barWidth = chartWidth / barCount;
-        int barGap = (int) (barWidth * 0.2);
-
-        for (int i = 0; i < barCount; i++) {
-            Object key = keys.get(i);
-            double value = salesData.getOrDefault(key, 0.0);
-            int barHeightValue = (int) ((value / maxValue) * chartHeight);
-            int x = LEFT_PADDING + i * barWidth;
-            int y = getHeight() - BOTTOM_PADDING - barHeightValue;
-
-            g2.setColor(i == hoveredBarIndex ? CHART_HOVER_COLOR : CHART_COLOR);
-            g2.fillRect(x + barGap, y, barWidth - (2 * barGap), barHeightValue);
-
-            g2.setColor(UIManager.getColor("Label.foreground"));
-            String xLabel = formatXAxisLabel(key);
-            FontMetrics fm = g2.getFontMetrics();
-            int labelWidth = fm.stringWidth(xLabel);
-            g2.drawString(xLabel, x + (barWidth - labelWidth) / 2, getHeight() - BOTTOM_PADDING + fm.getAscent() + 5);
         }
     }
 
