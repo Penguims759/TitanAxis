@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4b6255a0-d200-4045-ac81-4eabf4f6facf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/OrcamentoDetalhesDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/MetaDialog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/renderer/MetasTableCellRenderer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prefs_admin.properties" beforeDir="false" afterPath="$PROJECT_DIR$/prefs_admin.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/model/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/model/Usuario.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/VendaDetalhesDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/VendaDetalhesDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/HistoricoVendasPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/HistoricoVendasPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/renderer/HistoricoVendasTableCellRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/renderer/HistoricoVendasTableCellRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/repository/FinanceiroRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/repository/FinanceiroRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/repository/impl/FinanceiroRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/repository/impl/FinanceiroRepositoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/FinanceiroService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/FinanceiroService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/MetasPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/MetasPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/i18n/messages_en_US.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/i18n/messages_en_US.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/i18n/messages_pt_BR.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/i18n/messages_pt_BR.properties" afterDir="false" />
     </list>

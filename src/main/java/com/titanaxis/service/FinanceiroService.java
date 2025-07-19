@@ -73,4 +73,8 @@ public class FinanceiroService {
             financeiroRepository.saveMeta(meta, em);
         });
     }
+
+    public void deletarMeta(int metaId) throws PersistenciaException {
+        transactionService.executeInTransaction(em -> financeiroRepository.deleteMetaById(metaId, em));
+    }
 }

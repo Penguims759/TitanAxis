@@ -53,4 +53,12 @@ public class FinanceiroRepositoryImpl implements FinanceiroRepository {
     public List<MetaVenda> findAllMetas(EntityManager em) {
         return em.createQuery("SELECT m FROM MetaVenda m JOIN FETCH m.usuario ORDER BY m.anoMes DESC, m.usuario.nomeUsuario ASC", MetaVenda.class).getResultList();
     }
+
+    @Override
+    public void deleteMetaById(int id, EntityManager em) {
+        MetaVenda meta = em.find(MetaVenda.class, id);
+        if (meta != null) {
+            em.remove(meta);
+        }
+    }
 }

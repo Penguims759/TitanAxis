@@ -16,4 +16,5 @@ public interface FinanceiroRepository {
     MetaVenda saveMeta(MetaVenda meta, EntityManager em);
     Optional<MetaVenda> findMetaByUsuarioAndPeriodo(int usuarioId, String anoMes, EntityManager em);
     List<MetaVenda> findAllMetas(EntityManager em);
+    void deleteMetaById(int id, EntityManager em); // NOVO MÉTODO
 }
