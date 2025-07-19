@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/repository/impl/VendaRepositoryImpl.java
 package com.titanaxis.repository.impl;
 
 import com.google.inject.Inject;
@@ -144,7 +143,7 @@ public class VendaRepositoryImpl implements VendaRepository {
         }
         if (status != null) {
             jpql.append(" AND v.status = :status");
-            params.put("status", status);
+            params.put("status", status); // <<== LINHA CORRIGIDA
         }
         if (clienteNome != null && !clienteNome.isEmpty()) {
             jpql.append(" AND LOWER(c.nome) LIKE LOWER(:clienteNome)");

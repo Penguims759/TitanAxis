@@ -33,7 +33,7 @@ public class VendaDetalhesDialog extends JDialog {
         this.venda = venda;
         this.relatorioService = relatorioService;
 
-        setSize(650, 450);
+        setSize(750, 500);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout(10, 10));
 
@@ -44,57 +44,56 @@ public class VendaDetalhesDialog extends JDialog {
 
     private JPanel createHeaderPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("saleDetailDialog.border.info"))); // ALTERADO
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("saleDetailDialog.border.info")));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 8, 4, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Labels (coluna 0) - ALTERADO
+        // --- Coluna 0: Labels ---
         gbc.gridx = 0;
         gbc.weightx = 0;
-        gbc.gridy = 0;
-        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.client")), gbc);
-        gbc.gridy = 1;
-        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.seller")), gbc);
+        gbc.gridy = 0; panel.add(new JLabel(I18n.getString("saleDetailDialog.label.client")), gbc);
+        gbc.gridy = 1; panel.add(new JLabel(I18n.getString("saleDetailDialog.label.seller")), gbc);
+        gbc.gridy = 2; panel.add(new JLabel(I18n.getString("saleDetailDialog.label.totalDiscount")), gbc);
 
-        // Valores (coluna 1) - ALTERADO
+        // --- Coluna 1: Valores ---
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridy = 0;
-        panel.add(new JLabel(venda.getCliente() != null ? venda.getCliente().getNome() : I18n.getString("general.notSpecified")), gbc);
-        gbc.gridy = 1;
-        panel.add(new JLabel(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : I18n.getString("general.notAvailable")), gbc);
+        gbc.gridy = 0; panel.add(new JLabel(venda.getCliente() != null ? venda.getCliente().getNome() : I18n.getString("general.notSpecified")), gbc);
+        gbc.gridy = 1; panel.add(new JLabel(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : I18n.getString("general.notAvailable")), gbc);
+        gbc.gridy = 2; panel.add(new JLabel(currencyFormat.format(venda.getDescontoTotal())), gbc);
 
-        // Labels (coluna 2) - ALTERADO
+
+        // --- Coluna 2: Labels ---
         gbc.gridx = 2;
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.gridy = 0;
-        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.date")), gbc);
-        gbc.gridy = 1;
-        panel.add(new JLabel(I18n.getString("saleDetailDialog.label.id")), gbc);
+        gbc.gridy = 0; panel.add(new JLabel(I18n.getString("saleDetailDialog.label.date")), gbc);
+        gbc.gridy = 1; panel.add(new JLabel(I18n.getString("saleDetailDialog.label.id")), gbc);
+        gbc.gridy = 2; panel.add(new JLabel(I18n.getString("saleDetailDialog.label.creditUsed")), gbc);
 
-        // Valores (coluna 3)
+
+        // --- Coluna 3: Valores ---
         gbc.gridx = 3;
         gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridy = 0;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         panel.add(new JLabel(venda.getDataVenda().format(formatter)), gbc);
-        gbc.gridy = 1;
-        panel.add(new JLabel(String.valueOf(venda.getId())), gbc);
+        gbc.gridy = 1; panel.add(new JLabel(String.valueOf(venda.getId())), gbc);
+        gbc.gridy = 2; panel.add(new JLabel(currencyFormat.format(venda.getCreditoUtilizado())), gbc);
 
         return panel;
     }
 
     private JScrollPane createItemsPanel() {
-        // ALTERADO
         String[] columnNames = {
                 I18n.getString("saleDetailDialog.table.header.product"),
                 I18n.getString("saleDetailDialog.table.header.batch"),
                 I18n.getString("saleDetailDialog.table.header.quantity"),
                 I18n.getString("saleDetailDialog.table.header.unitPrice"),
+                I18n.getString("saleDetailDialog.table.header.discount"),
                 I18n.getString("saleDetailDialog.table.header.subtotal")
         };
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
@@ -107,7 +106,8 @@ public class VendaDetalhesDialog extends JDialog {
                     item.getLote().getNumeroLote(),
                     item.getQuantidade(),
                     currencyFormat.format(item.getPrecoUnitario()),
-                    currencyFormat.format(item.getQuantidade() * item.getPrecoUnitario())
+                    currencyFormat.format(item.getDesconto()),
+                    currencyFormat.format(item.getSubtotal())
             });
         }
 

@@ -9,16 +9,16 @@ import java.awt.*;
 
 public class HistoricoVendasTableCellRenderer extends DefaultTableCellRenderer {
 
-    // Cores para tema claro
-    private final Color FINALIZADA_LIGHT = new Color(220, 255, 220); // Verde
-    private final Color ORCAMENTO_LIGHT = new Color(255, 248, 220); // Amarelo
-    private final Color CANCELADA_LIGHT = new Color(255, 220, 220); // Vermelho
+    // Cores para tema claro (Tons pastel mais suaves)
+    private final Color FINALIZADA_LIGHT = new Color(230, 245, 230); // Verde pastel
+    private final Color ORCAMENTO_LIGHT = new Color(255, 250, 225); // Amarelo pastel
+    private final Color CANCELADA_LIGHT = new Color(255, 230, 230); // Vermelho/Rosa pastel
     private final Color PADRAO_LIGHT = UIManager.getColor("Table.background");
 
-    // Cores para tema escuro
-    private final Color FINALIZADA_DARK = new Color(10, 45, 10);
-    private final Color ORCAMENTO_DARK = new Color(50, 40, 10);
-    private final Color CANCELADA_DARK = new Color(60, 10, 10);
+    // Cores para tema escuro (Cores mais visíveis e distintas)
+    private final Color FINALIZADA_DARK = new Color(22, 80, 48);   // Verde escuro, mas visível
+    private final Color ORCAMENTO_DARK = new Color(85, 65, 20);   // Laranja escuro
+    private final Color CANCELADA_DARK = new Color(90, 30, 35);   // Vermelho escuro/Vinho
     private final Color PADRAO_DARK = UIManager.getColor("Table.background");
 
     @Override
@@ -27,7 +27,7 @@ public class HistoricoVendasTableCellRenderer extends DefaultTableCellRenderer {
 
         if (!isSelected) {
             int modelRow = table.convertRowIndexToModel(row);
-            String status = (String) table.getModel().getValueAt(modelRow, 5); // Coluna 5 é o Status
+            String status = (String) table.getModel().getValueAt(modelRow, 6); // CORREÇÃO: Coluna 6 é o Status
             boolean isDarkTheme = isDark(table.getBackground());
 
             if (status.equalsIgnoreCase(I18n.getString("status.finalized"))) {

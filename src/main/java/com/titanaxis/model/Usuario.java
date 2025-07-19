@@ -1,6 +1,7 @@
 package com.titanaxis.model;
 
 import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "usuarios")
@@ -52,4 +53,22 @@ public class Usuario {
     public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
     public void setNivelAcesso(NivelAcesso nivelAcesso) { this.nivelAcesso = nivelAcesso; }
     public void setPercentualComissao(double percentualComissao) { this.percentualComissao = percentualComissao; } // NOVO
+
+    @Override
+    public String toString() {
+        return this.nomeUsuario;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return id == usuario.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
