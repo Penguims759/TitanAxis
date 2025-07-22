@@ -4,7 +4,6 @@ import com.titanaxis.model.ContasAReceber;
 import com.titanaxis.model.MetaVenda;
 import com.titanaxis.repository.FinanceiroRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
@@ -37,28 +36,17 @@ public class FinanceiroRepositoryImpl implements FinanceiroRepository {
     }
 
     @Override
-    public Optional<MetaVenda> findMetaByUsuarioAndPeriodo(int usuarioId, String anoMes, EntityManager em) {
-        try {
-            TypedQuery<MetaVenda> query = em.createQuery(
-                    "SELECT m FROM MetaVenda m WHERE m.usuario.id = :usuarioId AND m.anoMes = :anoMes", MetaVenda.class);
-            query.setParameter("usuarioId", usuarioId);
-            query.setParameter("anoMes", anoMes);
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
+    public List<MetaVenda> findAllMetas(EntityManager em) {
+        return em.createQuery("SELECT m FROM MetaVenda m JOIN FETCH m.usuario ORDER BY m.dataInicio DESC, m.usuario.nomeUsuario ASC", MetaVenda.class).getResultList();
     }
 
     @Override
-    public List<MetaVenda> findAllMetas(EntityManager em) {
-        return em.createQuery("SELECT m FROM MetaVenda m JOIN FETCH m.usuario ORDER BY m.anoMes DESC, m.usuario.nomeUsuario ASC", MetaVenda.class).getResultList();
+    public Optional<MetaVenda> findById(int id, EntityManager em) {
+        return Optional.ofNullable(em.find(MetaVenda.class, id));
     }
 
     @Override
     public void deleteMetaById(int id, EntityManager em) {
-        MetaVenda meta = em.find(MetaVenda.class, id);
-        if (meta != null) {
-            em.remove(meta);
-        }
+        findById(id, em).ifPresent(em::remove);
     }
 }

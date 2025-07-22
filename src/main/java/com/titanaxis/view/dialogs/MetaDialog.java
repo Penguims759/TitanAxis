@@ -11,7 +11,10 @@ import com.titanaxis.util.UIMessageUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.YearMonth;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -20,8 +23,8 @@ public class MetaDialog extends JDialog {
     private final FinanceiroService financeiroService;
     private final AuthService authService;
     private final JComboBox<Usuario> usuarioComboBox;
-    private final JSpinner mesSpinner;
-    private final JSpinner anoSpinner;
+    private final JSpinner dataInicioSpinner;
+    private final JSpinner dataFimSpinner;
     private final JTextField valorMetaField;
     private boolean salvo = false;
     private final Optional<MetaVenda> metaExistente;
@@ -33,13 +36,16 @@ public class MetaDialog extends JDialog {
         this.metaExistente = Optional.ofNullable(meta);
 
         usuarioComboBox = new JComboBox<>();
-        mesSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getMonthValue(), 1, 12, 1));
-        anoSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getYear(), 2020, 2100, 1));
+        dataInicioSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH));
+        dataInicioSpinner.setEditor(new JSpinner.DateEditor(dataInicioSpinner, "dd/MM/yyyy"));
+        dataFimSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH));
+        dataFimSpinner.setEditor(new JSpinner.DateEditor(dataFimSpinner, "dd/MM/yyyy"));
         valorMetaField = new JTextField(10);
 
         initComponents();
         loadInitialData();
         pack();
+        setMinimumSize(getSize());
         setLocationRelativeTo(owner);
     }
 
@@ -50,10 +56,10 @@ public class MetaDialog extends JDialog {
 
         formPanel.add(new JLabel(I18n.getString("goals.label.user")));
         formPanel.add(usuarioComboBox);
-        formPanel.add(new JLabel(I18n.getString("goals.label.month")));
-        formPanel.add(mesSpinner);
-        formPanel.add(new JLabel(I18n.getString("goals.label.year")));
-        formPanel.add(anoSpinner);
+        formPanel.add(new JLabel(I18n.getString("commissionDialog.label.startDate"))); // Reutilizando
+        formPanel.add(dataInicioSpinner);
+        formPanel.add(new JLabel(I18n.getString("commissionDialog.label.endDate"))); // Reutilizando
+        formPanel.add(dataFimSpinner);
         formPanel.add(new JLabel(I18n.getString("goals.label.goalValue")));
         formPanel.add(valorMetaField);
 
@@ -74,13 +80,10 @@ public class MetaDialog extends JDialog {
             authService.listarUsuarios().forEach(usuarioComboBox::addItem);
             metaExistente.ifPresent(meta -> {
                 usuarioComboBox.setSelectedItem(meta.getUsuario());
-                YearMonth ym = YearMonth.parse(meta.getAnoMes());
-                mesSpinner.setValue(ym.getMonthValue());
-                anoSpinner.setValue(ym.getYear());
+                dataInicioSpinner.setValue(Date.from(meta.getDataInicio().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                dataFimSpinner.setValue(Date.from(meta.getDataFim().atStartOfDay(ZoneId.systemDefault()).toInstant()));
                 valorMetaField.setText(String.format(Locale.US, "%.2f", meta.getValorMeta()));
                 usuarioComboBox.setEnabled(false);
-                mesSpinner.setEnabled(false);
-                anoSpinner.setEnabled(false);
             });
         } catch (PersistenciaException e) {
             UIMessageUtil.showErrorMessage(this, I18n.getString("goals.error.loadInitialData", e.getMessage()), I18n.getString("error.db.title"));
@@ -91,14 +94,19 @@ public class MetaDialog extends JDialog {
     private void salvarMeta() {
         try {
             Usuario usuario = (Usuario) usuarioComboBox.getSelectedItem();
-            int mes = (int) mesSpinner.getValue();
-            int ano = (int) anoSpinner.getValue();
+            LocalDate dataInicio = ((Date) dataInicioSpinner.getValue()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate dataFim = ((Date) dataFimSpinner.getValue()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             double valor = Double.parseDouble(valorMetaField.getText().replace(",", "."));
-            String anoMes = String.format("%d-%02d", ano, mes);
+
+            if (dataInicio.isAfter(dataFim)) {
+                UIMessageUtil.showWarningMessage(this, I18n.getString("goals.error.invalidDateRange"), I18n.getString("error.validation.title"));
+                return;
+            }
 
             MetaVenda meta = metaExistente.orElse(new MetaVenda());
             meta.setUsuario(usuario);
-            meta.setAnoMes(anoMes);
+            meta.setDataInicio(dataInicio);
+            meta.setDataFim(dataFim);
             meta.setValorMeta(valor);
 
             financeiroService.salvarMeta(meta);

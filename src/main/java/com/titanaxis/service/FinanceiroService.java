@@ -37,7 +37,6 @@ public class FinanceiroService {
         });
     }
 
-    // NOVO MÉTODO
     public void gerarContasAReceberParaVenda(Venda venda, jakarta.persistence.EntityManager em) {
         if (!"A Prazo".equalsIgnoreCase(venda.getFormaPagamento()) || venda.getNumeroParcelas() <= 0) {
             return;
@@ -66,10 +65,12 @@ public class FinanceiroService {
         return transactionService.executeInTransactionWithResult(financeiroRepository::findAllMetas);
     }
 
+    public Optional<MetaVenda> findMetaById(int id) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em -> financeiroRepository.findById(id, em));
+    }
+
     public void salvarMeta(MetaVenda meta) throws PersistenciaException {
         transactionService.executeInTransaction(em -> {
-            Optional<MetaVenda> existente = financeiroRepository.findMetaByUsuarioAndPeriodo(meta.getUsuario().getId(), meta.getAnoMes(), em);
-            existente.ifPresent(m -> meta.setId(m.getId()));
             financeiroRepository.saveMeta(meta, em);
         });
     }

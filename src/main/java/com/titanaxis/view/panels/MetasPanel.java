@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/panels/MetasPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -22,7 +21,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -38,8 +36,7 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JComboBox<Usuario> usuarioFiltroComboBox;
-    private final JSpinner anoFiltroSpinner;
-    private final TableRowSorter<DefaultTableModel> sorter;
+    private final JComboBox<String> statusFiltroComboBox;
     private List<MetaVenda> listaDeMetas;
 
 
@@ -65,11 +62,10 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
             }
         };
         table = new JTable(tableModel);
-        sorter = new TableRowSorter<>(tableModel);
-        table.setRowSorter(sorter);
+        table.setRowSorter(new TableRowSorter<>(tableModel));
 
         usuarioFiltroComboBox = new JComboBox<>();
-        anoFiltroSpinner = new JSpinner(new SpinnerNumberModel(YearMonth.now().getYear(), 2020, 2100, 1));
+        statusFiltroComboBox = new JComboBox<>(new String[]{"Todas", "Ativas", "Passadas"});
 
         initComponents();
         loadInitialData();
@@ -107,19 +103,19 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.add(new JLabel(I18n.getString("goals.label.user")));
         panel.add(usuarioFiltroComboBox);
-        panel.add(new JLabel(I18n.getString("goals.label.year")));
-        panel.add(anoFiltroSpinner);
+        panel.add(new JLabel(I18n.getString("history.label.status"))); // Reutilizando
+        panel.add(statusFiltroComboBox);
 
         JButton clearFiltersButton = new JButton(I18n.getString("button.clearFilters"));
         clearFiltersButton.addActionListener(e -> {
             usuarioFiltroComboBox.setSelectedIndex(0);
-            anoFiltroSpinner.setValue(YearMonth.now().getYear());
+            statusFiltroComboBox.setSelectedIndex(0);
             filtrarTabela();
         });
         panel.add(clearFiltersButton);
 
         usuarioFiltroComboBox.addActionListener(e -> filtrarTabela());
-        anoFiltroSpinner.addChangeListener(e -> filtrarTabela());
+        statusFiltroComboBox.addActionListener(e -> filtrarTabela());
 
         return panel;
     }
@@ -163,11 +159,19 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
         if (listaDeMetas == null) return;
 
         Usuario usuarioFiltro = (Usuario) usuarioFiltroComboBox.getSelectedItem();
-        int anoFiltro = (int) anoFiltroSpinner.getValue();
+        String statusFiltro = (String) statusFiltroComboBox.getSelectedItem();
 
         List<MetaVenda> metasFiltradas = listaDeMetas.stream()
                 .filter(meta -> (usuarioFiltro == null || meta.getUsuario().equals(usuarioFiltro)))
-                .filter(meta -> YearMonth.parse(meta.getAnoMes()).getYear() == anoFiltro)
+                .filter(meta -> {
+                    if ("Ativas".equals(statusFiltro)) {
+                        return !LocalDate.now().isAfter(meta.getDataFim());
+                    }
+                    if ("Passadas".equals(statusFiltro)) {
+                        return LocalDate.now().isAfter(meta.getDataFim());
+                    }
+                    return true; // "Todas"
+                })
                 .collect(Collectors.toList());
 
         popularTabela(metasFiltradas);
@@ -176,27 +180,24 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
     private void popularTabela(List<MetaVenda> metas) {
         tableModel.setRowCount(0);
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-        DateTimeFormatter periodFormatter = DateTimeFormatter.ofPattern("MMMM 'de' yyyy", new Locale("pt", "BR"));
+        DateTimeFormatter periodFormatter = DateTimeFormatter.ofPattern("dd/MM/yy");
 
         for (MetaVenda meta : metas) {
             try {
-                YearMonth periodo = YearMonth.parse(meta.getAnoMes());
-                LocalDate inicioPeriodo = periodo.atDay(1);
-                LocalDate fimPeriodo = periodo.atEndOfMonth();
-
-                double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), inicioPeriodo, fimPeriodo);
+                double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), meta.getDataInicio(), meta.getDataFim());
                 double progresso = meta.getValorMeta() > 0 ? (valorVendido / meta.getValorMeta()) * 100 : 0;
+
+                String periodoFormatado = meta.getDataInicio().format(periodFormatter) + " - " + meta.getDataFim().format(periodFormatter);
 
                 tableModel.addRow(new Object[]{
                         meta.getId(),
                         meta.getUsuario().getNomeUsuario(),
-                        periodo.format(periodFormatter),
+                        periodoFormatado,
                         currencyFormat.format(meta.getValorMeta()),
                         currencyFormat.format(valorVendido),
                         (int) Math.round(progresso)
                 });
             } catch (PersistenciaException e) {
-                // Loga o erro mas continua o loop para não quebrar a UI
                 System.err.println("Erro ao calcular vendas para a meta ID " + meta.getId() + ": " + e.getMessage());
             }
         }
@@ -220,7 +221,12 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
         int modelRow = table.convertRowIndexToModel(selectedRow);
         int metaId = (int) tableModel.getValueAt(modelRow, 0);
 
-        return listaDeMetas.stream().filter(m -> m.getId() == metaId).findFirst();
+        try {
+            return financeiroService.findMetaById(metaId);
+        } catch (PersistenciaException e) {
+            UIMessageUtil.showErrorMessage(this, "Erro ao buscar detalhes da meta.", "Erro");
+            return Optional.empty();
+        }
     }
 
     private void editarMeta() {
@@ -236,7 +242,9 @@ public class MetasPanel extends JPanel implements DashboardFrame.Refreshable {
 
     private void eliminarMeta() {
         getMetaSelecionada().ifPresent(meta -> {
-            if (UIMessageUtil.showConfirmDialog(this, I18n.getString("goals.confirm.delete", meta.getAnoMes(), meta.getUsuario().getNomeUsuario()), I18n.getString("goals.confirm.delete.title"))) {
+            DateTimeFormatter periodFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String periodoFormatado = meta.getDataInicio().format(periodFormatter) + " a " + meta.getDataFim().format(periodFormatter);
+            if (UIMessageUtil.showConfirmDialog(this, I18n.getString("goals.confirm.delete", periodoFormatado, meta.getUsuario().getNomeUsuario()), I18n.getString("goals.confirm.delete.title"))) {
                 try {
                     financeiroService.deletarMeta(meta.getId());
                     UIMessageUtil.showInfoMessage(this, I18n.getString("goals.success.delete"), I18n.getString("success.title"));

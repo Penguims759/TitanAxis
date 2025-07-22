@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MetaVenda;
 import com.titanaxis.model.Usuario;
-import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.AuthService;
@@ -16,7 +15,6 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -71,30 +69,39 @@ public class QuerySalespersonPerformanceFlow extends AbstractConversationFlow {
             }
 
             Usuario user = userOpt.get();
-            YearMonth currentMonth = YearMonth.now();
+            LocalDate today = LocalDate.now();
+            YearMonth currentMonth = YearMonth.from(today);
             LocalDate startOfMonth = currentMonth.atDay(1);
             LocalDate endOfMonth = currentMonth.atEndOfMonth();
 
             double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(user.getId(), startOfMonth, endOfMonth);
 
             // Buscar a meta do utilizador para o mês corrente
-            String anoMes = currentMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"));
             Optional<MetaVenda> metaOpt = financeiroService.listarMetas().stream()
-                    .filter(m -> m.getUsuario().getId() == user.getId() && m.getAnoMes().equals(anoMes))
+                    .filter(m -> m.getUsuario().getId() == user.getId() &&
+                            !today.isBefore(m.getDataInicio()) &&
+                            !today.isAfter(m.getDataFim()))
                     .findFirst();
+
 
             StringBuilder response = new StringBuilder();
             response.append(String.format("Desempenho de '%s' para %s:\n", user.getNomeUsuario(), currentMonth.format(DateTimeFormatter.ofPattern("MMMM 'de' yyyy", new Locale("pt", "BR")))));
-            response.append(String.format("- Total Vendido: %s", currencyFormat.format(valorVendido)));
+            response.append(String.format("- Total Vendido no Mês: %s", currencyFormat.format(valorVendido)));
 
             if (metaOpt.isPresent()) {
                 MetaVenda meta = metaOpt.get();
                 double metaValue = meta.getValorMeta();
-                double progresso = (metaValue > 0) ? (valorVendido / metaValue) * 100 : 0;
-                response.append(String.format("\n- Meta do Mês: %s", currencyFormat.format(metaValue)));
+                // Calcula o progresso com base no período da meta, não apenas no mês atual
+                double valorVendidoNoPeriodoDaMeta = analyticsService.getVendasPorVendedorNoPeriodo(user.getId(), meta.getDataInicio(), meta.getDataFim());
+                double progresso = (metaValue > 0) ? (valorVendidoNoPeriodoDaMeta / metaValue) * 100 : 0;
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String periodoMeta = meta.getDataInicio().format(formatter) + " a " + meta.getDataFim().format(formatter);
+
+                response.append(String.format("\n- Meta Ativa (%s): %s", periodoMeta, currencyFormat.format(metaValue)));
                 response.append(String.format("\n- Progresso da Meta: %.1f%%", progresso));
             } else {
-                response.append("\n- Nenhuma meta de vendas foi definida para este utilizador no período.");
+                response.append("\n- Nenhuma meta de vendas ativa foi encontrada para este utilizador no período atual.");
             }
 
             return new AssistantResponse(response.toString());

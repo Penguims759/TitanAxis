@@ -11,7 +11,6 @@ import com.titanaxis.view.DashboardFrame;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -53,14 +52,11 @@ public class SimpleGoalsCard extends JPanel implements DashboardFrame.Refreshabl
             List<MetaComProgresso> metasProcessadas = new ArrayList<>();
 
             for (MetaVenda meta : metas) {
-                YearMonth periodo = YearMonth.parse(meta.getAnoMes());
-                if(periodo.isBefore(YearMonth.now())) continue;
+                // Lógica de filtro para metas ativas
+                if (LocalDate.now().isAfter(meta.getDataFim())) continue;
 
                 hasGoals = true;
-                LocalDate inicioPeriodo = periodo.atDay(1);
-                LocalDate fimPeriodo = periodo.atEndOfMonth();
-
-                double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), inicioPeriodo, fimPeriodo);
+                double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(meta.getUsuario().getId(), meta.getDataInicio(), meta.getDataFim());
                 double progresso = (meta.getValorMeta() > 0) ? (valorVendido / meta.getValorMeta()) * 100 : 0;
 
                 metasProcessadas.add(new MetaComProgresso(meta, progresso));
