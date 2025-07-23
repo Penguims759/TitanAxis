@@ -10,9 +10,7 @@ import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.model.ModelUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -27,36 +25,41 @@ public class NerService {
     private static final Logger logger = AppLogger.getLogger();
     private TokenNameFinderModel nerModel;
     private static final String TRAINING_FILE = "/ai/ner-train.txt";
-    private static final String MODEL_FILE = "ner-model.bin"; // NOVO: Ficheiro para guardar o modelo
+    // ALTERADO: O modelo agora é procurado dentro do classpath.
+    private static final String MODEL_RESOURCE_PATH = "/ai/ner-model.bin";
 
     public NerService() {
-        loadOrTrainModel(); // ALTERADO: Chama o novo método
+        loadOrTrainModel();
     }
 
-    // NOVO MÉTODO: Carrega o modelo se existir, senão, treina e guarda.
     private void loadOrTrainModel() {
-        try {
-            File modelFile = new File(MODEL_FILE);
-            if (modelFile.exists()) {
-                logger.info("A carregar modelo NER pré-treinado do ficheiro...");
-                try (InputStream modelIn = new FileInputStream(modelFile)) {
-                    nerModel = new TokenNameFinderModel(modelIn);
-                    logger.info("Modelo NER carregado com sucesso.");
-                }
+        try (InputStream modelIn = getClass().getResourceAsStream(MODEL_RESOURCE_PATH)) {
+            if (modelIn != null) {
+                logger.info("A carregar modelo NER pré-treinado do classpath...");
+                nerModel = new TokenNameFinderModel(modelIn);
+                logger.info("Modelo NER carregado com sucesso.");
             } else {
-                logger.info("Nenhum modelo NER pré-treinado encontrado. A iniciar treino...");
-                trainAndSaveModel(modelFile);
+                logger.warning("Modelo NER não encontrado no classpath: " + MODEL_RESOURCE_PATH + ". A tentar treinar um novo modelo...");
+                trainAndLog();
             }
-        } catch (java.io.IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo NER.", e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Falha crítica ao carregar o modelo NER. A tentar treinar um novo.", e);
+            trainAndLog();
         }
     }
 
-    // ALTERADO: Método agora guarda o modelo após o treino.
-    private void trainAndSaveModel(File modelFile) throws java.io.IOException {
+    private void trainAndLog() {
+        try {
+            trainModel();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Falha crítica ao treinar o modelo NER. O serviço de extração de entidades pode não funcionar.", e);
+        }
+    }
+
+    private void trainModel() throws IOException {
         try (InputStream dataIn = getClass().getResourceAsStream(TRAINING_FILE)) {
             if (dataIn == null) {
-                throw new java.io.IOException("Ficheiro de treino NER não encontrado: " + TRAINING_FILE);
+                throw new IOException("Ficheiro de treino NER não encontrado: " + TRAINING_FILE);
             }
 
             InputStreamFactory inputStreamFactory = () -> dataIn;
@@ -67,13 +70,7 @@ public class NerService {
             params.put(TrainingParameters.CUTOFF_PARAM, 1);
 
             nerModel = NameFinderME.train("pt", null, sampleStream, params, TokenNameFinderFactory.create(null, null, Collections.emptyMap(), new BioCodec()));
-            logger.info("Modelo de Reconhecimento de Entidades (NER) treinado com sucesso.");
-
-            // Salva o modelo treinado no ficheiro
-            try (FileOutputStream modelOut = new FileOutputStream(modelFile)) {
-                nerModel.serialize(modelOut);
-                logger.info("Modelo NER guardado em: " + modelFile.getAbsolutePath());
-            }
+            logger.info("Modelo de Reconhecimento de Entidades (NER) treinado com sucesso a partir dos dados de treino.");
         }
     }
 

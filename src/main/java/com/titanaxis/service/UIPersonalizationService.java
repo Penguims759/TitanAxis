@@ -15,7 +15,15 @@ public class UIPersonalizationService {
     public UIPersonalizationService(String username) {
         this.username = username;
         String safeUsername = username.replaceAll("[^a-zA-Z0-9.-]", "_");
-        this.configFile = new File("prefs_" + safeUsername + ".properties");
+
+        // ALTERADO: Define um diretório para as preferências
+        File prefsDir = new File("user_prefs");
+        // Cria o diretório se ele não existir
+        if (!prefsDir.exists()) {
+            prefsDir.mkdir();
+        }
+
+        this.configFile = new File(prefsDir, "prefs_" + safeUsername + ".properties");
         loadPreferences();
     }
 
