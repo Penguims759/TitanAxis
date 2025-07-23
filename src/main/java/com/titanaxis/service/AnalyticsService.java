@@ -3,6 +3,8 @@ package com.titanaxis.service;
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.*;
+import com.titanaxis.model.dashboard.CategoryTrend;
+import com.titanaxis.model.dashboard.Insight;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.repository.ProdutoRepository;

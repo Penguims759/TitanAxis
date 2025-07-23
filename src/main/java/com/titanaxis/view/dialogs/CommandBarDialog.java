@@ -2,7 +2,7 @@
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.model.ChatMessage;
+import com.titanaxis.model.ai.ChatMessage;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.presenter.AIAssistantPresenter;
 import com.titanaxis.service.VoiceRecognitionService;
@@ -11,7 +11,6 @@ import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
 import com.titanaxis.view.panels.ChatBubbleRenderer;
-import com.titanaxis.view.panels.components.ChatBubble;
 
 import javax.swing.*;
 import java.awt.*;

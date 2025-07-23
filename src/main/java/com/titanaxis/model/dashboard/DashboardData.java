@@ -1,4 +1,4 @@
-package com.titanaxis.model;
+package com.titanaxis.model.dashboard;
 
 import java.time.LocalDate;
 import java.util.List;

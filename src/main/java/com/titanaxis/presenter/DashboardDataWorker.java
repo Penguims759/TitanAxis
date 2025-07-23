@@ -1,9 +1,9 @@
 package com.titanaxis.presenter;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.model.CategoryTrend;
-import com.titanaxis.model.DashboardData;
-import com.titanaxis.model.Insight;
+import com.titanaxis.model.dashboard.CategoryTrend;
+import com.titanaxis.model.dashboard.DashboardData;
+import com.titanaxis.model.dashboard.Insight;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.UserHabitService;

@@ -2,7 +2,7 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.model.ChatMessage;
+import com.titanaxis.model.ai.ChatMessage;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.presenter.AIAssistantPresenter;
 import com.titanaxis.service.VoiceRecognitionService;

@@ -1,4 +1,4 @@
-package com.titanaxis.model;
+package com.titanaxis.model.dashboard;
 
 import javax.swing.Icon;
 import java.awt.Color;

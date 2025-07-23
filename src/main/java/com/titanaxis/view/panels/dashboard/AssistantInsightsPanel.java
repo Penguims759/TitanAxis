@@ -1,6 +1,6 @@
 package com.titanaxis.view.panels.dashboard;
 
-import com.titanaxis.model.Insight;
+import com.titanaxis.model.dashboard.Insight;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;

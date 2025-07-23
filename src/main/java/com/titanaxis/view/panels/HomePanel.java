@@ -2,7 +2,7 @@
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.model.DashboardData;
+import com.titanaxis.model.dashboard.DashboardData;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.presenter.DashboardDataWorker;
 import com.titanaxis.service.AnalyticsService;

@@ -1,6 +1,6 @@
 package com.titanaxis.view.panels.dashboard;
 
-import com.titanaxis.model.CategoryTrend;
+import com.titanaxis.model.dashboard.CategoryTrend;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;

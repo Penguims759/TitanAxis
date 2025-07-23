@@ -1,4 +1,4 @@
-package com.titanaxis.model;
+package com.titanaxis.model.dashboard;
 
 public class CategoryTrend {
     private final String categoryName;

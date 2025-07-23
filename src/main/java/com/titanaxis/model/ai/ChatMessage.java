@@ -1,4 +1,4 @@
-package com.titanaxis.model;
+package com.titanaxis.model.ai;
 
 public class ChatMessage {
     public enum MessageType {
