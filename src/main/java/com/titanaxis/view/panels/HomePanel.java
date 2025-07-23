@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-89442e18c0bde108be6f07bfed961a2a7a562e37/src/main/java/com/titanaxis/view/panels/HomePanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
@@ -12,6 +13,8 @@ import com.titanaxis.view.panels.dashboard.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.time.LocalTime;
 import java.util.Locale;
@@ -103,11 +106,28 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
         // Painel de saudação
         JPanel greetingPanel = new JPanel(new BorderLayout());
-        greetingPanel.setOpaque(false);
+        greetingPanel.setOpaque(true); // ALTERADO para que a cor de fundo seja visível
         greetingPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 5, 0, 0, new Color(70, 130, 180)),
+                BorderFactory.createMatteBorder(0, 5, 0, 0, new Color(34, 139, 34)),
                 BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
+
+        // Lógica do Efeito Hover
+        Color defaultColor = UIManager.getColor("control");
+        Color hoverColor = defaultColor.darker();
+        greetingPanel.setBackground(defaultColor);
+        greetingPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                greetingPanel.setBackground(hoverColor);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                greetingPanel.setBackground(defaultColor);
+            }
+        });
+
 
         JPanel textContainer = new JPanel();
         textContainer.setLayout(new BoxLayout(textContainer, BoxLayout.Y_AXIS));

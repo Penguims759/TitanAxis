@@ -35,7 +35,7 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
 
 
     public CommandBarDialog(Frame owner, AppContext appContext) {
-        super(owner, true);
+        super(owner, false);
         this.appContext = appContext;
         this.ownerFrame = (DashboardFrame) owner;
         initComponents();
@@ -109,6 +109,13 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
                     ownerFrame.setOverlayVisible(false);
                 }
                 appContext.getAIAssistantService().getContext().fullReset();
+            }
+        });
+
+        addWindowFocusListener(new WindowAdapter() {
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                dispose();
             }
         });
 
