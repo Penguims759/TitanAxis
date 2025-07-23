@@ -11,6 +11,7 @@ import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
 import com.titanaxis.view.panels.ChatBubbleRenderer;
+import com.titanaxis.view.panels.components.ChatBubble;
 
 import javax.swing.*;
 import java.awt.*;
@@ -68,7 +69,8 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         commandField = new JTextField();
-        commandField.setFont(new Font("Arial", Font.PLAIN, 18));
+        // *** ALTERAÇÃO VISUAL APLICADA AQUI ***
+        commandField.setFont(new Font("Arial", Font.PLAIN, 14)); // Tamanho da fonte reduzido de 18 para 14
         commandField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -103,7 +105,6 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
 
             @Override
             public void windowClosed(WindowEvent e) {
-                // ALTERAÇÃO: Garante que o overlay é removido quando o diálogo fecha
                 if (ownerFrame != null) {
                     ownerFrame.setOverlayVisible(false);
                 }
