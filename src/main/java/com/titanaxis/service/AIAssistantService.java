@@ -1,6 +1,8 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/service/AIAssistantService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
+import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
@@ -10,9 +12,11 @@ import com.titanaxis.model.ai.ConversationContext;
 import com.titanaxis.service.ai.ConversationFlow;
 import com.titanaxis.service.ai.NLPIntentService;
 import com.titanaxis.service.ai.NerService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -24,6 +28,7 @@ public class AIAssistantService {
     private final NLPIntentService nlpIntentService;
     private final NerService nerService;
     private final AuthService authService;
+    private final AnalyticsService analyticsService;
 
     private static final Pattern QUERY_STOCK_PATTERN = Pattern.compile("^(qual o estoque do produto|ver o stock de|estoque de|qual o estoque de)\\s*", Pattern.CASE_INSENSITIVE);
     private static final Pattern QUERY_PRODUCT_LOTS_PATTERN = Pattern.compile("^(quais os lotes da|ver lotes do produto|lotes do produto)\\s*", Pattern.CASE_INSENSITIVE);
@@ -31,11 +36,12 @@ public class AIAssistantService {
     private static final Pattern EXECUTE_SALE_PATTERN = Pattern.compile("vender\\s+(\\d+)\\s+(?:unidades de|de)?\\s*'?([^']*)'?\\s*(?:do lote\\s*'([^']*)')?\\s*(?:para o cliente\\s*'([^']*)')?", Pattern.CASE_INSENSITIVE);
 
     @Inject
-    public AIAssistantService(Set<ConversationFlow> conversationFlows, NLPIntentService nlpIntentService, NerService nerService, AuthService authService) {
+    public AIAssistantService(Set<ConversationFlow> conversationFlows, NLPIntentService nlpIntentService, NerService nerService, AuthService authService, AnalyticsService analyticsService) {
         this.conversationFlows = conversationFlows;
         this.nlpIntentService = nlpIntentService;
         this.nerService = nerService;
         this.authService = authService;
+        this.analyticsService = analyticsService;
     }
 
     public ConversationContext getContext() {
@@ -86,7 +92,7 @@ public class AIAssistantService {
         context.resetFlow();
 
         if (userIntent == Intent.CONFIRM) {
-            String entityName = (String) params.get("nome"); // O nome da entidade (produto, cliente, fornecedor)
+            String entityName = (String) params.get("nome");
             switch (proactiveAction) {
                 case PROACTIVE_SUGGEST_ADD_LOTE:
                     return startConversationFlow(Intent.MANAGE_STOCK, entityName);
@@ -112,8 +118,7 @@ public class AIAssistantService {
 
         switch (intent) {
             case GREETING:
-                String userName = authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
-                return new AssistantResponse(getGreetingByTimeOfDay() + " " + userName + "! Em que posso ajudar?");
+                return new AssistantResponse(I18n.getString("dashboard.assistant.howCanIHelp"));
             case CHANGE_THEME:
                 return handleChangeTheme(normalizedQuery);
             case NAVIGATE_TO:
@@ -123,20 +128,39 @@ public class AIAssistantService {
             case GUIDE_ADD_PRODUCT:
                 return new AssistantResponse("Com certeza. Vou mostrar-lhe como adicionar um novo produto.", Action.GUIDE_NAVIGATE_TO_ADD_PRODUCT, null);
             case UNKNOWN:
-                return new AssistantResponse("Desculpe, não consegui entender o seu pedido. Pode tentar reformular?");
+                // ALTERAÇÃO: Adiciona a Action AWAITING_INFO para manter o diálogo aberto.
+                return new AssistantResponse("Desculpe, não consegui entender o seu pedido. Pode tentar reformular?", Action.AWAITING_INFO, null);
             default:
                 return startConversationFlow(intent, originalQuery);
         }
     }
 
+    public AssistantResponse getInitialGreetingWithInsights() {
+        String userName = authService.getUsuarioLogado().map(Usuario::getNomeUsuario).orElse("");
+        String greeting = getGreetingByTimeOfDay() + " " + userName + "!";
+
+        try {
+            List<String> insights = analyticsService.getSystemInsightsSummaryText();
+            if (insights.isEmpty()) {
+                return new AssistantResponse(greeting + " " + I18n.getString("dashboard.assistant.howCanIHelp"));
+            } else {
+                String insightsText = String.join("\n", insights);
+                return new AssistantResponse(greeting + "\n" + I18n.getString("dashboard.assistant.insightsFound") + "\n" + insightsText);
+            }
+        } catch (PersistenciaException e) {
+            return new AssistantResponse(greeting + " " + I18n.getString("dashboard.assistant.insightsError"));
+        }
+    }
+
+
     private String getGreetingByTimeOfDay() {
         LocalTime now = LocalTime.now();
         if (now.isBefore(LocalTime.NOON)) {
-            return "Bom dia,";
+            return I18n.getString("dashboard.greeting.morning");
         } else if (now.isBefore(LocalTime.of(18, 0))) {
-            return "Boa tarde,";
+            return I18n.getString("dashboard.greeting.afternoon");
         } else {
-            return "Boa noite,";
+            return I18n.getString("dashboard.greeting.evening");
         }
     }
 
@@ -181,10 +205,6 @@ public class AIAssistantService {
 
             AssistantResponse response = handler.process(originalQuery, context.getCollectedData());
 
-            // *** INÍCIO DA CORREÇÃO ***
-            // Se a resposta do primeiro passo de um fluxo não estiver a aguardar
-            // mais informações, significa que o fluxo já terminou (é um "one-shot flow").
-            // Portanto, o contexto deve ser resetado.
             if (response.getAction() != Action.AWAITING_INFO) {
                 Optional.ofNullable(context.getCollectedData().get("foundEntity")).ifPresent(entity -> {
                     context.setLastEntity(entity);
@@ -192,7 +212,6 @@ public class AIAssistantService {
                 });
                 context.resetFlow();
             }
-            // *** FIM DA CORREÇÃO ***
 
             return response;
         }

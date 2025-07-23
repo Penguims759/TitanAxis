@@ -1,3 +1,4 @@
+// penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/view/panels/ChatBubbleRenderer.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.model.ChatMessage;
@@ -27,23 +28,39 @@ public class ChatBubbleRenderer implements ListCellRenderer<ChatMessage> {
             bubble = new ChatBubble(message.getText(), isUser ? userBubbleColor : botBubbleColor, isUser ? userTextColor : botTextColor);
         }
 
+        // ALTERAÇÃO: A lógica do painel wrapper foi reescrita para alinhar corretamente.
         JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(list.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        wrapper.add(Box.createGlue(), gbc);
-
         gbc.gridy = 0;
-        gbc.weightx = 0;
+        gbc.insets = new Insets(5, 10, 5, 10);
         gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = isUser ? GridBagConstraints.LINE_END : GridBagConstraints.LINE_START;
 
-        int maxWidth = (int) (list.getWidth() * 0.45);
+        // Define uma largura máxima para a bolha de chat para que o texto quebre a linha.
+        int maxWidth = (int) (list.getWidth() * 0.7);
         bubble.setMaximumSize(new Dimension(maxWidth, Integer.MAX_VALUE));
 
-        wrapper.add(bubble, gbc);
-        wrapper.setBackground(list.getBackground());
+        if (isUser) {
+            // Utilizador: [Espaçador Flexível] [Bolha de Chat]
+            gbc.gridx = 0;
+            gbc.weightx = 1.0; // O espaçador ocupa todo o espaço à esquerda.
+            wrapper.add(Box.createHorizontalGlue(), gbc);
+
+            gbc.gridx = 1;
+            gbc.weightx = 0; // A bolha ocupa apenas o seu espaço.
+            gbc.anchor = GridBagConstraints.EAST;
+            wrapper.add(bubble, gbc);
+        } else {
+            // Assistente: [Bolha de Chat] [Espaçador Flexível]
+            gbc.gridx = 0;
+            gbc.weightx = 0; // A bolha ocupa apenas o seu espaço.
+            gbc.anchor = GridBagConstraints.WEST;
+            wrapper.add(bubble, gbc);
+
+            gbc.gridx = 1;
+            gbc.weightx = 1.0; // O espaçador ocupa todo o espaço à direita.
+            wrapper.add(Box.createHorizontalGlue(), gbc);
+        }
 
         return wrapper;
     }
