@@ -24,42 +24,32 @@ public class ChatBubbleRenderer implements ListCellRenderer<ChatMessage> {
         if (message.getType() == ChatMessage.MessageType.THINKING) {
             String thinkingText = "A pensar" + ".".repeat((index % 3) + 1);
             bubble = new ChatBubble(thinkingText, botBubbleColor, botTextColor);
+            bubble.setBackground(botBubbleColor);
         } else {
-            bubble = new ChatBubble(message.getText(), isUser ? userBubbleColor : botBubbleColor, isUser ? userTextColor : botTextColor);
+            bubble = new ChatBubble(message.getText(), isUser ? userBubbleColor : botTextColor, isUser ? userTextColor : botTextColor);
+            bubble.setBackground(isUser ? userBubbleColor : botBubbleColor);
         }
 
-        // ALTERAÇÃO: A lógica do painel wrapper foi reescrita para alinhar corretamente.
-        JPanel wrapper = new JPanel(new GridBagLayout());
+        // O painel principal (wrapper) usa BoxLayout para alinhar na horizontal.
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.LINE_AXIS));
         wrapper.setBackground(list.getBackground());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
-        gbc.insets = new Insets(5, 10, 5, 10);
-        gbc.fill = GridBagConstraints.NONE;
+        wrapper.setBorder(BorderFactory.createEmptyBorder(2, 10, 2, 10));
 
-        // Define uma largura máxima para a bolha de chat para que o texto quebre a linha.
+        // Define uma largura máxima para o balão para que textos longos quebrem a linha.
         int maxWidth = (int) (list.getWidth() * 0.7);
-        bubble.setMaximumSize(new Dimension(maxWidth, Integer.MAX_VALUE));
+        if (maxWidth > 0) {
+            bubble.setMaximumSize(new Dimension(maxWidth, Integer.MAX_VALUE));
+        }
 
         if (isUser) {
-            // Utilizador: [Espaçador Flexível] [Bolha de Chat]
-            gbc.gridx = 0;
-            gbc.weightx = 1.0; // O espaçador ocupa todo o espaço à esquerda.
-            wrapper.add(Box.createHorizontalGlue(), gbc);
-
-            gbc.gridx = 1;
-            gbc.weightx = 0; // A bolha ocupa apenas o seu espaço.
-            gbc.anchor = GridBagConstraints.EAST;
-            wrapper.add(bubble, gbc);
+            // Adiciona um "espaçador" flexível (glue) que ocupa todo o espaço vazio à esquerda.
+            wrapper.add(Box.createHorizontalGlue());
+            wrapper.add(bubble);
         } else {
-            // Assistente: [Bolha de Chat] [Espaçador Flexível]
-            gbc.gridx = 0;
-            gbc.weightx = 0; // A bolha ocupa apenas o seu espaço.
-            gbc.anchor = GridBagConstraints.WEST;
-            wrapper.add(bubble, gbc);
-
-            gbc.gridx = 1;
-            gbc.weightx = 1.0; // O espaçador ocupa todo o espaço à direita.
-            wrapper.add(Box.createHorizontalGlue(), gbc);
+            // Adiciona o balão primeiro, e depois o espaçador, empurrando o balão para a esquerda.
+            wrapper.add(bubble);
+            wrapper.add(Box.createHorizontalGlue());
         }
 
         return wrapper;
