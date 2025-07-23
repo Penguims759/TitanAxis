@@ -202,10 +202,25 @@ public class DashboardFrame extends JFrame {
     private void setupNestedTabs() {
         mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
+        mainTabbedPane.addChangeListener(createRefreshListener());
 
+        // Ordem: inicio, produtos e estoque, vendas, financeiro, cadastro, relatorio, administração
         homePanel = new HomePanel(appContext, this);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
-        mainTabbedPane.addChangeListener(createRefreshListener());
+
+        if (authService.isGerente()) {
+            produtosEstoqueTabbedPane = new JTabbedPane();
+            produtoPanel = new ProdutoPanel(appContext);
+            categoriaPanel = new CategoriaPanel(appContext);
+            alertaPanel = new AlertaPanel(appContext);
+            movimentosPanel = new MovimentosPanel(this, appContext);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndBatches"), produtoPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel);
+            mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), produtosEstoqueTabbedPane);
+            produtosEstoqueTabbedPane.addChangeListener(createRefreshListener());
+        }
 
         vendasTabbedPane = new JTabbedPane();
         vendaPanel = new VendaPanel(appContext);
@@ -218,19 +233,6 @@ public class DashboardFrame extends JFrame {
         if (authService.isGerente()) {
             financeiroPanel = new FinanceiroPanel(appContext);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.financial"), financeiroPanel);
-            mainTabbedPane.addChangeListener(createRefreshListener());
-
-            produtosEstoqueTabbedPane = new JTabbedPane();
-            produtoPanel = new ProdutoPanel(appContext);
-            categoriaPanel = new CategoriaPanel(appContext);
-            alertaPanel = new AlertaPanel(appContext);
-            movimentosPanel = new MovimentosPanel(this, appContext);
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndBatches"), produtoPanel);
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel);
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel);
-            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel);
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), produtosEstoqueTabbedPane);
-            produtosEstoqueTabbedPane.addChangeListener(createRefreshListener());
 
             cadastrosTabbedPane = new JTabbedPane();
             clientePanel = new ClientePanel(appContext);
@@ -242,7 +244,6 @@ public class DashboardFrame extends JFrame {
 
             relatorioPanel = new RelatorioPanel(appContext);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.reports"), relatorioPanel);
-            mainTabbedPane.addChangeListener(createRefreshListener());
         }
 
         if (authService.isAdmin()) {
@@ -257,6 +258,7 @@ public class DashboardFrame extends JFrame {
 
         add(mainTabbedPane);
     }
+
 
     public void navigateTo(String destination) {
         for (int i = 0; i < mainTabbedPane.getTabCount(); i++) {
