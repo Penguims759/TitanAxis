@@ -32,11 +32,22 @@ public class ChatBubble extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g.create();
+        Graphics2D g2d = (Graphics2D) g;
+
+        // **INÍCIO DA CORREÇÃO**
+        // Aplicar hints de renderização para suavizar tanto as formas (anti-aliasing)
+        // quanto o texto (text anti-aliasing). Isto fará com que a fonte pareça
+        // muito mais suave e menos serrilhada.
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        // **FIM DA CORREÇÃO**
+
+        // Desenha o fundo arredondado do balão
         g2d.setColor(getBackground());
         g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-        g2d.dispose();
+
+        // Chama o método da superclasse para que os componentes filhos (o JLabel com o texto)
+        // sejam desenhados. Eles usarão o objeto Graphics (g2d) que já tem os hints configurados.
         super.paintComponent(g);
     }
 
