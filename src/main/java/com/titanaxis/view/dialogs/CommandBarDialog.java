@@ -28,7 +28,6 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
     private AIAssistantViewListener listener;
     private Timer thinkingTimer;
 
-    // NOVOS COMPONENTES
     private JButton voiceButton;
     private JButton copyButton;
     private VoiceRecognitionService voiceService;
@@ -85,7 +84,7 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         scrollPane.setBorder(null);
 
         contentPanel.add(scrollPane, BorderLayout.CENTER);
-        contentPanel.add(createSouthPanel(), BorderLayout.SOUTH); // PAINEL INFERIOR MODIFICADO
+        contentPanel.add(createSouthPanel(), BorderLayout.SOUTH);
 
         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         javax.swing.Action escapeAction = new AbstractAction() {
@@ -104,6 +103,10 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
 
             @Override
             public void windowClosed(WindowEvent e) {
+                // ALTERAÇÃO: Garante que o overlay é removido quando o diálogo fecha
+                if (ownerFrame != null) {
+                    ownerFrame.setOverlayVisible(false);
+                }
                 appContext.getAIAssistantService().getContext().fullReset();
             }
         });
@@ -113,7 +116,6 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         add(contentPanel);
     }
 
-    // NOVO MÉTODO PARA CRIAR O PAINEL INFERIOR COM BOTÕES
     private JPanel createSouthPanel() {
         JPanel southPanel = new JPanel(new BorderLayout(5, 5));
         southPanel.setOpaque(false);
@@ -141,7 +143,6 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         return southPanel;
     }
 
-    // LÓGICA DOS BOTÕES ADICIONADA
     private void sendMessage() {
         String text = getUserInput();
         if (listener != null && !text.isEmpty()) {
@@ -201,9 +202,9 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
     @Override
     public void setSendButtonEnabled(boolean enabled) {
         commandField.setEnabled(enabled);
-        copyButton.setEnabled(enabled); // Controla o botão de copiar
+        copyButton.setEnabled(enabled);
         if (voiceService.isAvailable()) {
-            voiceButton.setEnabled(enabled); // Controla o botão de voz
+            voiceButton.setEnabled(enabled);
         }
     }
 

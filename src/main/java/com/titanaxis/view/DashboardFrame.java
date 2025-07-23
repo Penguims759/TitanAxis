@@ -55,6 +55,7 @@ public class DashboardFrame extends JFrame {
     private VendaPanel vendaPanel;
     private HistoricoVendasPanel historicoVendasPanel;
     private FinanceiroPanel financeiroPanel;
+    private JPanel overlayPanel;
 
     public DashboardFrame(AppContext appContext) {
         super(I18n.getString("dashboard.title"));
@@ -73,10 +74,32 @@ public class DashboardFrame extends JFrame {
                 confirmarSaida();
             }
         });
+        setupOverlay();
         setupMenuBar();
         setupNestedTabs();
         setupCommandBarShortcut();
         SwingUtilities.invokeLater(() -> setTheme(personalizationService.getPreference("theme", "dark")));
+    }
+
+    // *** MÉTODO ATUALIZADO COM A LÓGICA DE PINTURA CORRETA ***
+    private void setupOverlay() {
+        overlayPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Pinta a cor de fundo translúcida por cima de tudo
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        overlayPanel.setOpaque(false); // O painel em si é transparente para não interferir
+        overlayPanel.setBackground(new Color(0, 0, 0, 100)); // Cor preta com opacidade
+        overlayPanel.setVisible(false);
+        setGlassPane(overlayPanel);
+    }
+
+    public void setOverlayVisible(boolean visible) {
+        overlayPanel.setVisible(visible);
     }
 
     private void setupCommandBarShortcut() {
@@ -88,6 +111,7 @@ public class DashboardFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 CommandBarDialog commandBar = new CommandBarDialog(DashboardFrame.this, appContext);
+                setOverlayVisible(true);
                 commandBar.setVisible(true);
             }
         });
@@ -193,7 +217,7 @@ public class DashboardFrame extends JFrame {
     private void rebuildAndShowHomePanel() {
         int homeTabIndex = mainTabbedPane.indexOfTab(I18n.getString("dashboard.tab.home"));
         if (homeTabIndex != -1) {
-            homePanel = new HomePanel(appContext, this); // Recria o painel
+            homePanel = new HomePanel(appContext, this);
             mainTabbedPane.setComponentAt(homeTabIndex, homePanel);
             mainTabbedPane.revalidate();
             mainTabbedPane.repaint();
@@ -205,7 +229,6 @@ public class DashboardFrame extends JFrame {
         mainTabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
         mainTabbedPane.addChangeListener(createRefreshListener());
 
-        // Ordem: inicio, produtos e estoque, vendas, financeiro, cadastro, relatorio, administração
         homePanel = new HomePanel(appContext, this);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
 
@@ -368,7 +391,6 @@ public class DashboardFrame extends JFrame {
                 JTabbedPane sourceTabbedPane = (JTabbedPane) e.getSource();
                 Component selectedComponent = sourceTabbedPane.getSelectedComponent();
 
-                // Trata abas aninhadas
                 if (selectedComponent instanceof JTabbedPane) {
                     JTabbedPane nestedTabbedPane = (JTabbedPane) selectedComponent;
                     selectedComponent = nestedTabbedPane.getSelectedComponent();

@@ -7,14 +7,8 @@
     <list default="true" id="4b6255a0-d200-4045-ac81-4eabf4f6facf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prefs_admin.properties" beforeDir="false" afterPath="$PROJECT_DIR$/prefs_admin.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prefs_default_user.properties" beforeDir="false" afterPath="$PROJECT_DIR$/prefs_default_user.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/AIAssistantPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/AIAssistantPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/AIAssistantService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/AIAssistantService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/VoiceRecognitionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/VoiceRecognitionService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/DashboardFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/DashboardFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/CommandBarDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/CommandBarDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/interfaces/AIAssistantView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/interfaces/AIAssistantView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ChatBubbleRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ChatBubbleRenderer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
