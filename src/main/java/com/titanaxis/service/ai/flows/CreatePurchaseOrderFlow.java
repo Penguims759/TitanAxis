@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.util.Map;
@@ -25,29 +26,28 @@ public class CreatePurchaseOrderFlow extends AbstractConversationFlow {
     @Override
     protected void defineSteps() {
         steps.put("fornecedor", new Step(
-                "Claro, vamos criar uma ordem de compra. Para qual fornecedor?",
+                I18n.getString("flow.createOrder.askSupplier"),
                 (input, data) -> validationService.isFornecedorValido(input),
-                "Fornecedor não encontrado. Por favor, verifique o nome."
+                I18n.getString("flow.createOrder.validation.supplierNotFound")
         ));
         steps.put("produto", new Step(
-                "Qual produto você deseja pedir?",
+                I18n.getString("flow.createOrder.askProduct"),
                 (input, data) -> validationService.isProdutoValido(input),
-                "Produto não encontrado. Por favor, verifique o nome."
+                I18n.getString("flow.manageStock.validation.productNotFound")
         ));
         steps.put("quantidade", new Step(
-                "Qual a quantidade a ser pedida?",
+                I18n.getString("flow.createOrder.askQuantity"),
                 StringUtil::isNumeric,
-                "A quantidade deve ser um número."
+                I18n.getString("flow.validation.invalidNumber")
         ));
     }
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
-        String responseText = String.format("Ok, registei um rascunho de pedido de compra de %s unidades de '%s' para o fornecedor '%s'.",
+        return new AssistantResponse(I18n.getString("flow.createOrder.success",
                 conversationData.get("quantidade"),
                 conversationData.get("produto"),
                 conversationData.get("fornecedor")
-        );
-        return new AssistantResponse(responseText);
+        ));
     }
 }

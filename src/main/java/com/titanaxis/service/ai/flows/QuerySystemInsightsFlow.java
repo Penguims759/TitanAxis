@@ -6,10 +6,10 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class QuerySystemInsightsFlow implements ConversationFlow {
 
@@ -31,16 +31,16 @@ public class QuerySystemInsightsFlow implements ConversationFlow {
             List<String> insights = analyticsService.getSystemInsightsSummaryText();
 
             if (insights.isEmpty()) {
-                return new AssistantResponse("Analisei o sistema e não encontrei nenhum ponto de atenção imediato. Está tudo em ordem!");
+                return new AssistantResponse(I18n.getString("flow.queryInsights.noInsights"));
             }
 
-            String responseText = "Claro, aqui estão os insights e recomendações que encontrei:\n" +
+            String responseText = I18n.getString("flow.queryInsights.header") + "\n" +
                     String.join("\n", insights);
 
             return new AssistantResponse(responseText);
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao tentar gerar os insights. Por favor, tente novamente.");
+            return new AssistantResponse(I18n.getString("flow.queryInsights.error.generic"));
         }
     }
 }

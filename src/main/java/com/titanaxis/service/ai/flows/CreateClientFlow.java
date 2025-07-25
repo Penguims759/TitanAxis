@@ -1,10 +1,11 @@
-// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/service/ai/flows/CreateClientFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
+import com.titanaxis.util.I18n;
+
 import java.util.Map;
 
 public class CreateClientFlow extends AbstractConversationFlow {
@@ -16,8 +17,8 @@ public class CreateClientFlow extends AbstractConversationFlow {
 
     @Override
     protected void defineSteps() {
-        steps.put("nome", new Step("Vamos criar um novo cliente. Qual é o nome dele?"));
-        steps.put("contato", new Step(data -> "Ok, o nome é '" + data.get("nome") + "'. Qual o contato (email/telefone)?"));
+        steps.put("nome", new Step(I18n.getString("flow.createClient.askName")));
+        steps.put("contato", new Step(data -> I18n.getString("flow.createClient.askContact", data.get("nome"))));
     }
 
     @Override
@@ -26,11 +27,10 @@ public class CreateClientFlow extends AbstractConversationFlow {
         String contato = (String) conversationData.get("contato");
 
         Cliente novoCliente = new Cliente(nome, contato, "");
-        // Coloca a entidade criada nos dados para ser guardada no contexto pelo serviço
         conversationData.put("foundEntity", novoCliente);
 
         return new AssistantResponse(
-                "Entendido! A criar o cliente '" + nome + "'.",
+                I18n.getString("flow.createClient.creating", nome),
                 Action.DIRECT_CREATE_CLIENT,
                 Map.of("nome", nome, "contato", contato)
         );

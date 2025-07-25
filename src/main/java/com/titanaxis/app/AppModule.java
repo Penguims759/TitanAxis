@@ -7,7 +7,7 @@ import com.titanaxis.repository.*;
 import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
-import com.titanaxis.service.ai.FlowValidationService; // NOVO IMPORT
+import com.titanaxis.service.ai.FlowValidationService;
 import com.titanaxis.service.ai.NLPIntentService;
 import com.titanaxis.service.ai.NerService;
 import com.titanaxis.service.ai.flows.*;
@@ -43,12 +43,13 @@ public class AppModule extends AbstractModule {
         bind(DevolucaoService.class).in(Singleton.class);
         bind(FinanceiroService.class).in(Singleton.class);
         bind(UserHabitService.class).in(Singleton.class);
+        bind(VoiceRecognitionService.class).in(Singleton.class); // <-- ADICIONADO
 
         // --- Configuração da IA ---
         bind(NLPIntentService.class).in(Singleton.class);
         bind(NerService.class).in(Singleton.class);
         bind(AIAssistantService.class).in(Singleton.class);
-        bind(FlowValidationService.class).in(Singleton.class); // NOVO BIND
+        bind(FlowValidationService.class).in(Singleton.class);
 
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
         flowBinder.addBinding().to(StartSaleFlow.class);

@@ -1,9 +1,9 @@
-// src/main/java/com/titanaxis/service/ai/flows/AbstractConversationFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,12 +17,10 @@ public abstract class AbstractConversationFlow implements ConversationFlow {
 
     protected static class Step {
         final String question;
-        // CORREÇÃO: O validador agora recebe o input do utilizador E o mapa de dados da conversa.
         final BiPredicate<String, Map<String, Object>> validator;
         final String validationErrorMessage;
         final Function<Map<String, Object>, String> dynamicQuestion;
 
-        // Construtor para validadores complexos que precisam do contexto
         public Step(String question, BiPredicate<String, Map<String, Object>> validator, String validationErrorMessage) {
             this.question = question;
             this.validator = validator;
@@ -30,16 +28,14 @@ public abstract class AbstractConversationFlow implements ConversationFlow {
             this.dynamicQuestion = null;
         }
 
-        // Construtor para validadores simples
         public Step(String question, Predicate<String> validator, String validationErrorMessage) {
             this(question, (input, data) -> validator.test(input), validationErrorMessage);
         }
 
         public Step(String question) {
-            this(question, (input, data) -> !input.isEmpty(), "A entrada não pode ser vazia.");
+            this(question, (input, data) -> !input.isEmpty(), I18n.getString("flow.validation.requiredField"));
         }
 
-        // Construtor para perguntas dinâmicas com validadores complexos
         public Step(Function<Map<String, Object>, String> dynamicQuestion, BiPredicate<String, Map<String, Object>> validator, String validationErrorMessage) {
             this.question = null;
             this.validator = validator;
@@ -47,13 +43,12 @@ public abstract class AbstractConversationFlow implements ConversationFlow {
             this.dynamicQuestion = dynamicQuestion;
         }
 
-        // Construtor para perguntas dinâmicas com validadores simples
         public Step(Function<Map<String, Object>, String> dynamicQuestion, Predicate<String> validator, String validationErrorMessage) {
             this(dynamicQuestion, (input, data) -> validator.test(input), validationErrorMessage);
         }
 
         public Step(Function<Map<String, Object>, String> dynamicQuestion) {
-            this(dynamicQuestion, (input, data) -> !input.isEmpty(), "A entrada não pode ser vazia.");
+            this(dynamicQuestion, (input, data) -> !input.isEmpty(), I18n.getString("flow.validation.requiredField"));
         }
     }
 
@@ -71,7 +66,6 @@ public abstract class AbstractConversationFlow implements ConversationFlow {
 
         if (lastAskedStepKey != null && !userInput.isEmpty()) {
             Step lastStep = steps.get(lastAskedStepKey);
-            // CORREÇÃO: Passa o userInput e o conversationData para o validador.
             if (lastStep != null && !lastStep.validator.test(userInput, conversationData)) {
                 return new AssistantResponse(lastStep.validationErrorMessage, Action.AWAITING_INFO, null);
             }

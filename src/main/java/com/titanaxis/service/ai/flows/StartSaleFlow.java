@@ -1,15 +1,15 @@
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
+
 import java.util.Map;
-import java.util.Optional;
 
 public class StartSaleFlow extends AbstractConversationFlow {
 
@@ -39,9 +39,9 @@ public class StartSaleFlow extends AbstractConversationFlow {
     @Override
     protected void defineSteps() {
         steps.put("clientName", new Step(
-                "Para qual cliente é a venda? (Opcional, pode deixar em branco)",
+                I18n.getString("flow.startSale.askClientName"),
                 (input, data) -> isClientNameValidOrEmpty(input),
-                "Cliente não encontrado. Verifique o nome ou deixe em branco para continuar."
+                I18n.getString("flow.startSale.validation.clientNotFound")
         ));
     }
 
@@ -49,21 +49,25 @@ public class StartSaleFlow extends AbstractConversationFlow {
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         String clientName = (String) conversationData.get("clientName");
         if (clientName == null || clientName.trim().isEmpty() || isClientless(clientName)) {
-            return new AssistantResponse("Ok, a abrir o painel de vendas.", Action.UI_NAVIGATE, Map.of("destination", "Vendas"));
+            return new AssistantResponse(I18n.getString("flow.startSale.openingPanel"), Action.UI_NAVIGATE, Map.of("destination", "Vendas"));
         }
         return validateAndFinish(clientName, conversationData);
     }
 
     private AssistantResponse validateAndFinish(String clientName, Map<String, Object> data) {
         if (validationService.isClienteValido(clientName)) {
-            data.put("cliente", new Cliente(clientName, "", "")); // Simples DTO por agora
+            // Criamos um objeto temporário para passar o nome do cliente
+            Cliente clienteTemp = new Cliente();
+            clienteTemp.setNome(clientName);
+            data.put("cliente", clienteTemp);
+            data.put("foundEntity", clienteTemp);
             return new AssistantResponse(
-                    "Ok, a iniciar a venda para o cliente " + clientName,
+                    I18n.getString("flow.startSale.forClient", clientName),
                     Action.START_SALE_FOR_CLIENT,
                     data
             );
         } else {
-            return new AssistantResponse("Cliente '" + clientName + "' não encontrado. Gostaria de o criar primeiro?");
+            return new AssistantResponse(I18n.getString("flow.startSale.askCreateClient", clientName));
         }
     }
 

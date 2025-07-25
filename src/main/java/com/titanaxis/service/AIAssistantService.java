@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/service/AIAssistantService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -53,7 +52,7 @@ public class AIAssistantService {
 
         if (isCancelCommand(normalizedQuery)) {
             context.fullReset();
-            return new AssistantResponse("Ok, ação cancelada e contexto limpo.");
+            return new AssistantResponse(I18n.getString("flow.generic.actionCanceled"));
         }
 
         if (context.isAwaitingInfo()) {
@@ -101,10 +100,10 @@ public class AIAssistantService {
                 case PROACTIVE_SUGGEST_CREATE_PURCHASE_ORDER:
                     return startConversationFlow(Intent.CREATE_PURCHASE_ORDER, "para o fornecedor " + entityName);
                 default:
-                    return new AssistantResponse("Ok, mas não sei como continuar a partir daqui.");
+                    return new AssistantResponse(I18n.getString("flow.proactive.error.unknown"));
             }
         } else {
-            return new AssistantResponse("Ok, deixamos para a próxima.");
+            return new AssistantResponse(I18n.getString("flow.proactive.declined"));
         }
     }
 
@@ -124,12 +123,11 @@ public class AIAssistantService {
             case NAVIGATE_TO:
                 return handleNavigation(originalQuery);
             case GUIDE_ADD_LOTE:
-                return new AssistantResponse("Claro, vou mostrar-lhe como adicionar um lote.", Action.GUIDE_NAVIGATE_TO_ADD_LOTE, null);
+                return new AssistantResponse(I18n.getString("flow.guide.addLote"), Action.GUIDE_NAVIGATE_TO_ADD_LOTE, null);
             case GUIDE_ADD_PRODUCT:
-                return new AssistantResponse("Com certeza. Vou mostrar-lhe como adicionar um novo produto.", Action.GUIDE_NAVIGATE_TO_ADD_PRODUCT, null);
+                return new AssistantResponse(I18n.getString("flow.guide.addProduct"), Action.GUIDE_NAVIGATE_TO_ADD_PRODUCT, null);
             case UNKNOWN:
-                // ALTERAÇÃO: Adiciona a Action AWAITING_INFO para manter o diálogo aberto.
-                return new AssistantResponse("Desculpe, não consegui entender o seu pedido. Pode tentar reformular?", Action.AWAITING_INFO, null);
+                return new AssistantResponse(I18n.getString("flow.error.unknownIntent"), Action.AWAITING_INFO, null);
             default:
                 return startConversationFlow(intent, originalQuery);
         }
@@ -151,7 +149,6 @@ public class AIAssistantService {
             return new AssistantResponse(greeting + " " + I18n.getString("dashboard.assistant.insightsError"));
         }
     }
-
 
     private String getGreetingByTimeOfDay() {
         LocalTime now = LocalTime.now();
@@ -216,7 +213,7 @@ public class AIAssistantService {
             return response;
         }
 
-        return new AssistantResponse("Não tenho a certeza de como processar esse pedido: " + intent.name());
+        return new AssistantResponse(I18n.getString("flow.error.unhandledIntent", intent.name()));
     }
 
     private String cleanAndExtractEntity(String query, Intent intent) {
@@ -247,16 +244,16 @@ public class AIAssistantService {
 
     private AssistantResponse handleChangeTheme(String query) {
         if (query.contains("claro"))
-            return new AssistantResponse("Mudando para o tema claro!", Action.UI_CHANGE_THEME, Map.of("theme", "light"));
+            return new AssistantResponse(I18n.getString("flow.changeTheme.toLight"), Action.UI_CHANGE_THEME, Map.of("theme", "light"));
         if (query.contains("escuro"))
-            return new AssistantResponse("Mudando para o tema escuro!", Action.UI_CHANGE_THEME, Map.of("theme", "dark"));
-        return new AssistantResponse("Não entendi qual tema prefere. Tente 'tema claro' ou 'tema escuro'.");
+            return new AssistantResponse(I18n.getString("flow.changeTheme.toDark"), Action.UI_CHANGE_THEME, Map.of("theme", "dark"));
+        return new AssistantResponse(I18n.getString("flow.changeTheme.misunderstood"));
     }
 
     private AssistantResponse handleNavigation(String query) {
         String destination = cleanAndExtractEntity(query, Intent.NAVIGATE_TO);
         if (destination == null || destination.isEmpty()) {
-            return new AssistantResponse("Não percebi para onde quer ir. Tente 'ir para vendas', por exemplo.");
+            return new AssistantResponse(I18n.getString("flow.navigate.misunderstood"));
         }
 
         String targetPanel = null;
@@ -275,8 +272,8 @@ public class AIAssistantService {
         else if (normalizedDestination.contains("financeiro")) targetPanel = "Financeiro";
 
         if (targetPanel != null) {
-            return new AssistantResponse("A navegar para " + targetPanel + "...", Action.UI_NAVIGATE, Map.of("destination", targetPanel));
+            return new AssistantResponse(I18n.getString("flow.navigate.navigatingTo", targetPanel), Action.UI_NAVIGATE, Map.of("destination", targetPanel));
         }
-        return new AssistantResponse("Não encontrei um painel chamado '" + destination + "'.");
+        return new AssistantResponse(I18n.getString("flow.navigate.panelNotFound", destination));
     }
 }

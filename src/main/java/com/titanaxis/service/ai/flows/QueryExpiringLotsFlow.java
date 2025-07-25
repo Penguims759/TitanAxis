@@ -7,6 +7,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -35,20 +36,20 @@ public class QueryExpiringLotsFlow implements ConversationFlow {
             List<Lote> lotes = alertaService.getLotesProximosDoVencimento();
 
             if (lotes.isEmpty()) {
-                return new AssistantResponse("Nenhum lote está próximo do vencimento nos próximos 30 dias.");
+                return new AssistantResponse(I18n.getString("flow.queryExpiring.noLots"));
             }
 
             String lotesList = lotes.stream()
-                    .map(lote -> String.format("- Produto: %s (Lote: %s) - Vence em: %s",
+                    .map(lote -> I18n.getString("flow.queryExpiring.lotLine",
                             lote.getProduto().getNome(),
                             lote.getNumeroLote(),
                             lote.getDataValidade().format(DATE_FORMATTER)))
                     .collect(Collectors.joining("\n"));
 
-            return new AssistantResponse("Os seguintes lotes estão próximos do vencimento:\n" + lotesList);
+            return new AssistantResponse(I18n.getString("flow.queryExpiring.header") + "\n" + lotesList);
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar os dados dos lotes.");
+            return new AssistantResponse(I18n.getString("flow.queryExpiring.error.generic"));
         }
     }
 }

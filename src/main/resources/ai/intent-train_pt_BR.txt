@@ -1,0 +1,1171 @@
+CREATE_PRODUCT quero criar um novo produto
+CREATE_PRODUCT pode me ajudar a cadastrar um item?
+CREATE_PRODUCT novo produto
+CREATE_PRODUCT como faco para adicionar um produto
+CREATE_PRODUCT criar produto
+CREATE_PRODUCT gostaria de adicionar um item novo ao meu inventário
+CREATE_PRODUCT registrar um novo artigo
+CREATE_PRODUCT como posso inserir um produto na base de dados?
+CREATE_PRODUCT adicionar item ao catálogo
+CREATE_PRODUCT incluir novo produto na lista
+CREATE_PRODUCT quero registrar um item
+CREATE_PRODUCT como adiciono um novo bem ao estoque?
+CREATE_PRODUCT preciso cadastrar um produto novo
+CREATE_PRODUCT qual o procedimento para criar um produto?
+CREATE_PRODUCT me ajude a criar um produto
+CREATE_PRODUCT adicionar um produto
+CREATE_PRODUCT inserir novo item
+CREATE_PRODUCT cadastrar artigo
+CREATE_PRODUCT incluir um item no sistema
+CREATE_PRODUCT novo artigo para o inventário
+CREATE_PRODUCT quero adicionar um novo produto
+CREATE_PRODUCT como registrar um produto novo?
+CREATE_PRODUCT vamos criar um produto
+CREATE_PRODUCT cadastrar um item novo
+CREATE_PRODUCT adicionar produto ao inventário
+CREATE_PRODUCT incluir produto
+CREATE_PRODUCT inserir produto
+CREATE_PRODUCT registrar produto
+CREATE_PRODUCT adicionar novo produto
+CREATE_PRODUCT cadastrar novo produto
+CREATE_PRODUCT criar item
+CREATE_PRODUCT novo item
+CREATE_PRODUCT ajuda para criar item
+CREATE_PRODUCT como criar um item
+CREATE_PRODUCT quero cadastrar um novo item
+CREATE_PRODUCT adicionar um item por favor
+CREATE_PRODUCT colocar um novo produto
+CREATE_PRODUCT registrar um novo produto no sistema
+CREATE_PRODUCT adicionar item ao meu inventário
+CREATE_PRODUCT como colocar um produto no sistema
+CREATE_PRODUCT preciso de um novo produto
+CREATE_PRODUCT criar novo registro de produto
+CREATE_PRODUCT vamos adicionar um produto
+CREATE_PRODUCT como eu cadastro um produto
+CREATE_PRODUCT preciso incluir um item
+CREATE_PRODUCT ajuda para adicionar um produto
+CREATE_PRODUCT novo produto, por favor
+CREATE_PRODUCT como faço para registrar um novo produto
+CREATE_PRODUCT quero incluir um novo item
+CREATE_PRODUCT adicionar um item ao estoque
+CREATE_PRODUCT como eu crio um produto?
+CREATE_USER criar utilizador
+CREATE_USER novo utilizador
+CREATE_USER adicionar um novo utilizador
+CREATE_USER registrar um colaborador
+CREATE_USER quero criar um novo acesso
+CREATE_USER como adicionar um novo usuário ao sistema?
+CREATE_USER criar uma conta para um funcionário
+CREATE_USER novo colaborador
+CREATE_USER registrar usuário
+CREATE_USER pode criar um login para uma pessoa nova?
+CREATE_USER adicionar um membro à equipa
+CREATE_USER criar credenciais de acesso
+CREATE_USER como crio um perfil de utilizador?
+CREATE_USER quero dar acesso a uma pessoa nova
+CREATE_USER registrar novo utilizador
+CREATE_USER adicionar conta de usuário
+CREATE_USER novo acesso ao sistema
+CREATE_USER criar perfil para colaborador
+CREATE_USER como registrar um novo membro?
+CREATE_USER adicionar um novo perfil
+CREATE_USER quero criar um utilizador
+CREATE_USER novo usuário
+CREATE_USER adicionar usuário
+CREATE_USER cadastrar funcionário
+CREATE_USER criar conta
+CREATE_USER novo login
+CREATE_USER ajuda para criar usuário
+CREATE_USER como criar um acesso
+CREATE_USER quero registrar um novo usuário
+CREATE_USER adicionar um colaborador
+CREATE_USER criar um login
+CREATE_USER como eu adiciono um usuário
+CREATE_USER preciso de um novo usuário
+CREATE_USER vamos criar um usuário
+CREATE_USER cadastrar um novo funcionário
+CREATE_USER adicionar um novo membro
+CREATE_USER quero dar acesso ao sistema
+CREATE_USER como registrar um usuário
+CREATE_USER criar acesso para um novo colaborador
+CREATE_USER novo perfil de usuário
+CREATE_USER adicionar um login
+CREATE_USER como eu crio um usuário?
+CREATE_CATEGORY criar categoria
+CREATE_CATEGORY nova categoria
+CREATE_CATEGORY adicionar uma categoria de produtos
+CREATE_CATEGORY quero criar uma nova seção para os produtos
+CREATE_CATEGORY como adicionar uma nova família de produtos?
+CREATE_CATEGORY registrar uma categoria
+CREATE_CATEGORY nova categoria de itens
+CREATE_CATEGORY pode criar uma nova classificação de produtos?
+CREATE_CATEGORY quero agrupar produtos numa nova categoria
+CREATE_CATEGORY como faço para criar uma categoria?
+CREATE_CATEGORY adicionar um novo tipo de produto
+CREATE_CATEGORY criar agrupamento de produtos
+CREATE_CATEGORY quero uma nova categoria
+CREATE_CATEGORY como organizar meus produtos em categorias?
+CREATE_CATEGORY registrar nova categoria
+CREATE_CATEGORY adicionar família de produtos
+CREATE_CATEGORY nova classificação para itens
+CREATE_CATEGORY criar uma seção de produtos
+CREATE_CATEGORY como agrupar meus itens?
+CREATE_CATEGORY quero criar uma nova categoria
+CREATE_CATEGORY nova categoria por favor
+CREATE_CATEGORY adicionar categoria
+CREATE_CATEGORY como criar um grupo de produtos
+CREATE_CATEGORY quero uma nova classificação
+CREATE_CATEGORY registrar um novo grupo
+CREATE_CATEGORY como adicionar uma nova categoria
+CREATE_CATEGORY preciso de uma nova categoria
+CREATE_CATEGORY vamos criar uma categoria
+CREATE_CATEGORY cadastrar uma nova categoria
+CREATE_CATEGORY adicionar um novo agrupamento
+CREATE_CATEGORY quero organizar meus itens
+CREATE_CATEGORY como registrar uma categoria
+CREATE_CATEGORY criar uma nova família de produtos
+CREATE_CATEGORY nova seção de itens
+CREATE_CATEGORY adicionar um tipo de item
+CREATE_CATEGORY como eu crio uma categoria
+CREATE_CATEGORY quero uma categoria nova
+CREATE_CATEGORY ajuda para criar categoria
+CREATE_CATEGORY como faço para agrupar produtos
+CREATE_CLIENT criar cliente
+CREATE_CLIENT cadastrar um novo cliente
+CREATE_CLIENT adicionar cliente
+CREATE_CLIENT quero registrar um novo comprador
+CREATE_CLIENT como adicionar um cliente à base de dados?
+CREATE_CLIENT novo cliente na lista
+CREATE_CLIENT pode criar um registo para um cliente?
+CREATE_CLIENT preciso adicionar os dados de um cliente
+CREATE_CLIENT qual o procedimento para cadastrar um cliente?
+CREATE_CLIENT me ajude a inserir um novo cliente
+CREATE_CLIENT vamos registrar um cliente
+CREATE_CLIENT cadastrar comprador
+CREATE_CLIENT incluir novo cliente
+CREATE_CLIENT adicionar um cliente novo
+CREATE_CLIENT como registrar um cliente?
+CREATE_CLIENT quero adicionar um cliente
+CREATE_CLIENT novo registo de cliente
+CREATE_CLIENT inserir dados do cliente
+CREATE_CLIENT como cadastrar um novo comprador?
+CREATE_CLIENT quero um novo cliente
+CREATE_CLIENT novo cliente
+CREATE_CLIENT ajuda para criar cliente
+CREATE_CLIENT como cadastrar um cliente
+CREATE_CLIENT quero registrar um cliente
+CREATE_CLIENT adicionar um novo cliente
+CREATE_CLIENT preciso de um novo cliente
+CREATE_CLIENT vamos criar um cliente
+CREATE_CLIENT cadastrar um cliente novo
+CREATE_CLIENT incluir um novo cliente
+CREATE_CLIENT como eu adiciono um cliente
+CREATE_CLIENT registrar um comprador novo
+CREATE_CLIENT quero incluir um novo comprador
+CREATE_CLIENT adicionar um registro de cliente
+CREATE_CLIENT como eu registro um cliente?
+CREATE_CLIENT novo comprador
+CREATE_CLIENT ajuda para adicionar cliente
+CREATE_CLIENT cadastrar o cliente
+CREATE_CLIENT incluir cliente
+CREATE_FORNECEDOR criar fornecedor
+CREATE_FORNECEDOR novo fornecedor
+CREATE_FORNECEDOR cadastrar fornecedor
+CREATE_FORNECEDOR como adicionar um novo fornecedor?
+CREATE_FORNECEDOR quero registrar um parceiro de negócio
+CREATE_FORNECEDOR novo fornecedor de produtos
+CREATE_FORNECEDOR pode me ajudar a cadastrar um fornecedor?
+CREATE_FORNECEDOR preciso inserir um novo fornecedor
+CREATE_FORNECEDOR adicionar dados do fornecedor
+CREATE_FORNECEDOR como registrar um fornecedor novo?
+CREATE_FORNECEDOR quero adicionar um novo parceiro
+CREATE_FORNECEDOR cadastrar um novo fornecedor de bens
+CREATE_FORNECEDOR inserir fornecedor
+CREATE_FORNECEDOR novo parceiro de negócios
+CREATE_FORNECEDOR registrar um fornecedor
+CREATE_FORNECEDOR como criar um novo fornecedor?
+CREATE_FORNECEDOR adicionar fornecedor ao sistema
+CREATE_FORNECEDOR quero um novo fornecedor
+CREATE_FORNECEDOR cadastrar parceiro comercial
+CREATE_FORNECEDOR como adicionar um fornecedor?
+CREATE_FORNECEDOR novo fornecedor, por favor
+CREATE_FORNECEDOR adicionar um fornecedor
+CREATE_FORNECEDOR ajuda para criar fornecedor
+CREATE_FORNECEDOR como cadastrar um novo fornecedor
+CREATE_FORNECEDOR quero registrar um fornecedor
+CREATE_FORNECEDOR incluir um novo parceiro
+CREATE_FORNECEDOR preciso de um novo fornecedor
+CREATE_FORNECEDOR vamos criar um fornecedor
+CREATE_FORNECEDOR cadastrar um fornecedor novo
+CREATE_FORNECEDOR adicionar um novo parceiro comercial
+CREATE_FORNECEDOR como eu adiciono um fornecedor
+CREATE_FORNECEDOR registrar um novo fornecedor de serviços
+CREATE_FORNECEDOR quero incluir um novo fornecedor
+CREATE_FORNECEDOR adicionar um registro de fornecedor
+CREATE_FORNECEDOR como eu registro um fornecedor?
+CREATE_FORNECEDOR novo parceiro
+CREATE_FORNECEDOR ajuda para adicionar fornecedor
+CREATE_FORNECEDOR cadastrar o fornecedor
+CREATE_FORNECEDOR incluir fornecedor
+CREATE_PURCHASE_ORDER criar um pedido de compra
+CREATE_PURCHASE_ORDER fazer pedido para fornecedor
+CREATE_PURCHASE_ORDER nova ordem de compra
+CREATE_PURCHASE_ORDER quero encomendar produtos
+CREATE_PURCHASE_ORDER registrar um pedido de compra
+CREATE_PURCHASE_ORDER como faço um pedido para um fornecedor
+CREATE_PURCHASE_ORDER preciso pedir 50 canetas para o fornecedor Penta
+CREATE_PURCHASE_ORDER criar pedido de compra de 100 borrachas
+CREATE_PURCHASE_ORDER encomendar 20 cadernos do fornecedor ABC
+CREATE_PURCHASE_ORDER quero criar uma nova ordem de compra
+CREATE_PURCHASE_ORDER gerar um pedido ao fornecedor
+CREATE_PURCHASE_ORDER nova encomenda
+CREATE_PURCHASE_ORDER fazer uma encomenda
+CREATE_PURCHASE_ORDER registrar pedido de compra
+CREATE_PURCHASE_ORDER quero pedir mais material
+CREATE_PURCHASE_ORDER nova compra para fornecedor
+CREATE_PURCHASE_ORDER gerar ordem de compra
+CREATE_PURCHASE_ORDER abrir pedido de compra
+CREATE_PURCHASE_ORDER pode fazer um pedido?
+CREATE_PURCHASE_ORDER preciso comprar mais itens
+CREATE_PURCHASE_ORDER quero solicitar uma compra
+CREATE_PURCHASE_ORDER registrar uma nova compra
+CREATE_PURCHASE_ORDER como eu peço algo para um fornecedor
+CREATE_PURCHASE_ORDER me ajuda a fazer uma ordem de compra
+CREATE_PURCHASE_ORDER vamos pedir mais produtos
+CREATE_PURCHASE_ORDER solicitação de compra
+CREATE_PURCHASE_ORDER nova solicitação de compra
+CREATE_PURCHASE_ORDER fazer uma solicitação de compra
+CREATE_PURCHASE_ORDER quero fazer uma requisição
+CREATE_PURCHASE_ORDER preciso de uma nova ordem de compra
+CREATE_MANUAL_HABIT adicionar o hábito de gerar relatórios toda segunda-feira
+CREATE_MANUAL_HABIT quero que me lembre de verificar o stock às quartas
+CREATE_MANUAL_HABIT adicione um hábito para ver os clientes devedores na sexta
+CREATE_MANUAL_HABIT registrar o hábito de analisar as vendas no sábado
+CREATE_MANUAL_HABIT quero adicionar um hábito manual
+CREATE_MANUAL_HABIT como adiciono um novo hábito?
+CREATE_MANUAL_HABIT adicionar habito
+CREATE_MANUAL_HABIT vamos adicionar um habito
+CREATE_MANUAL_HABIT criar novo habito
+CREATE_MANUAL_HABIT quero que me sugira uma ação
+CREATE_MANUAL_HABIT registrar um novo lembrete
+CREATE_MANUAL_HABIT como crio um hábito personalizado?
+CREATE_MANUAL_HABIT pode me lembrar de fazer algo?
+CREATE_MANUAL_HABIT quero definir uma sugestão
+CREATE_MANUAL_HABIT novo hábito manual
+CREATE_MANUAL_HABIT me ajude a criar um hábito
+CREATE_MANUAL_HABIT registrar hábito
+CREATE_MANUAL_HABIT como registrar um hábito
+CREATE_MANUAL_HABIT quero que me lembre de algo
+CREATE_MANUAL_HABIT criar um lembrete periódico
+CREATE_MANUAL_HABIT novo habito
+CREATE_MANUAL_HABIT quero um novo habito
+CREATE_MANUAL_HABIT definir um novo habito
+CREATE_MANUAL_HABIT cadastrar um habito
+START_SALE inicie uma venda para o cliente joao silva
+START_SALE começar uma venda para o cliente XPTO
+START_SALE abrir venda para o cliente Teste
+START_SALE nova venda
+START_SALE iniciar venda
+START_SALE vamos iniciar um novo pedido para o cliente
+START_SALE abrir uma nova ordem de venda
+START_SALE quero vender para o cliente
+START_SALE registrar uma transação de venda
+START_SALE pode começar uma nova venda?
+START_SALE preciso fazer uma venda para o cliente
+START_SALE como abro o painel de vendas?
+START_SALE quero lançar uma nova venda
+START_SALE abrir o módulo de vendas
+START_SALE vamos vender algo
+START_SALE iniciar uma nova transação
+START_SALE como registrar uma venda?
+START_SALE quero criar uma ordem de venda
+START_SALE nova venda para o cliente
+START_SALE começar a vender
+START_SALE abrir venda
+START_SALE nova venda agora
+START_SALE iniciar o processo de venda
+START_SALE quero efetuar uma venda
+START_SALE como eu começo uma venda?
+START_SALE registrar venda
+START_SALE preciso vender um produto
+START_SALE vamos fazer uma venda
+START_SALE nova transação de venda
+START_SALE abrir o caixa para venda
+START_SALE como lançar uma venda
+START_SALE quero registrar um pedido
+START_SALE iniciar um novo pedido
+START_SALE venda para o cliente
+START_SALE começar uma venda
+START_SALE como eu vendo um item?
+START_SALE nova venda, por favor
+START_SALE abrir o painel para vender
+START_SALE quero fazer um pedido de venda
+EXECUTE_FULL_SALE vender 2 canetas do lote L123 para o cliente Maria Silva
+EXECUTE_FULL_SALE quero vender 10 borrachas para o cliente Teste
+EXECUTE_FULL_SALE pode vender 5 lapis do lote ABC
+EXECUTE_FULL_SALE vender 1 unidade de caderno para joao
+EXECUTE_FULL_SALE quero vender 3 borrachas do lote XYZ para o cliente XPTO
+EXECUTE_FULL_SALE vender 1 item de teste
+EXECUTE_FULL_SALE faz a venda de 4 canetas do lote L1
+EXECUTE_FULL_SALE registrar a venda de 10 produtos X
+EXECUTE_FULL_SALE pode vender 1 borracha para mim?
+EXECUTE_FULL_SALE vender agora 20 unidades de Y para o cliente Z
+EXECUTE_FULL_SALE quero registrar a venda de 5 itens para o cliente Teste Final
+EXECUTE_FULL_SALE venda 15 unidades de agrafador
+EXECUTE_FULL_SALE preciso vender 30 borrachas do lote K10
+EXECUTE_FULL_SALE venda para o cliente ABC 3 unidades do produto X
+EXECUTE_FULL_SALE pode lançar a venda de 10 clips?
+EXECUTE_FULL_SALE registrar uma venda de 50 canetas azuis para o cliente Empresa A
+EXECUTE_FULL_SALE venda agora 2 teclados para o João
+EXECUTE_FULL_SALE quero vender 1 monitor para a Maria do lote MON-24
+EXECUTE_FULL_SALE vender 4 cadeiras
+EXECUTE_FULL_SALE registrar a venda de 2 mesas para a cliente Ana
+UPDATE_PRODUCT alterar o preço do produto caneta
+UPDATE_PRODUCT preciso mudar o status do produto borracha
+UPDATE_PRODUCT atualizar o produto lapis
+UPDATE_PRODUCT quero modificar o preço do item
+UPDATE_PRODUCT como alterar o estado de um produto?
+UPDATE_PRODUCT preciso atualizar os dados do produto
+UPDATE_PRODUCT pode mudar o preço de
+UPDATE_PRODUCT quero inativar o produto
+UPDATE_PRODUCT como faço para reativar um produto?
+UPDATE_PRODUCT modificar o status do item
+UPDATE_PRODUCT preciso ajustar o preço de
+UPDATE_PRODUCT atualizar informações do produto
+UPDATE_PRODUCT como modificar um produto existente?
+UPDATE_PRODUCT quero alterar o produto
+UPDATE_PRODUCT mudar o preço de um artigo
+UPDATE_PRODUCT como posso atualizar um produto?
+UPDATE_PRODUCT preciso alterar o estado de um item
+UPDATE_PRODUCT quero editar o produto
+UPDATE_PRODUCT atualizar o preço do artigo
+UPDATE_PRODUCT como mudar o status de um produto?
+UPDATE_PRODUCT modificar produto
+UPDATE_PRODUCT editar item
+UPDATE_PRODUCT alterar dados do produto
+UPDATE_PRODUCT preciso mudar o preço
+UPDATE_PRODUCT como atualizar o status
+UPDATE_PRODUCT quero alterar o preço de um produto
+UPDATE_PRODUCT vamos atualizar um produto
+UPDATE_PRODUCT editar as informações do produto
+UPDATE_PRODUCT como eu altero um produto
+UPDATE_PRODUCT preciso modificar o status
+UPDATE_PRODUCT ajuda para atualizar produto
+UPDATE_PRODUCT quero editar o preço de um item
+UPDATE_PRODUCT como mudar o estado do produto
+UPDATE_PRODUCT preciso de ajuda para alterar um produto
+UPDATE_PRODUCT modificar o registro do produto
+UPDATE_PRODUCT quero atualizar o status de um produto
+UPDATE_PRODUCT como editar um item do catálogo
+UPDATE_LOTE alterar lote
+UPDATE_LOTE modificar lote
+UPDATE_LOTE quero alterar um lote
+UPDATE_LOTE como posso ajustar um lote de estoque?
+UPDATE_LOTE preciso modificar os dados de um lote
+UPDATE_LOTE pode me ajudar a alterar um lote?
+UPDATE_LOTE quero atualizar as informações de um lote
+UPDATE_LOTE como editar um lote existente?
+UPDATE_LOTE preciso ajustar a quantidade de um lote
+UPDATE_LOTE modificar um lote de produtos
+UPDATE_LOTE como alterar os detalhes de um lote?
+UPDATE_LOTE quero fazer uma correção num lote
+UPDATE_LOTE pode alterar a data de validade de um lote?
+UPDATE_LOTE preciso editar um lote
+UPDATE_LOTE como ajustar um lote?
+UPDATE_LOTE quero modificar um lote
+UPDATE_LOTE alterar os dados de um lote
+UPDATE_LOTE como faço para alterar um lote?
+UPDATE_LOTE preciso corrigir um lote
+UPDATE_LOTE pode ajustar as informações de um lote?
+UPDATE_LOTE editar lote
+UPDATE_LOTE ajustar dados do lote
+UPDATE_LOTE modificar informações do lote
+UPDATE_LOTE quero corrigir a quantidade de um lote
+UPDATE_LOTE como alterar um lote de produtos
+UPDATE_LOTE preciso de ajuda para editar um lote
+UPDATE_LOTE vamos alterar as informações do lote
+UPDATE_LOTE como eu edito um lote?
+UPDATE_LOTE preciso ajustar a data de validade
+UPDATE_LOTE ajuda para modificar lote
+UPDATE_LOTE quero editar a quantidade do lote
+UPDATE_LOTE como mudar os dados de um lote
+UPDATE_LOTE preciso alterar um lote de estoque
+UPDATE_LOTE modificar os detalhes de um lote
+UPDATE_LOTE quero atualizar um lote
+UPDATE_LOTE como ajustar as informações de um lote
+MANAGE_STOCK adicionar estoque de caneta
+MANAGE_STOCK entrada de 10 unidades do lote 123
+MANAGE_STOCK quero dar entrada no estoque
+MANAGE_STOCK preciso adicionar mais unidades do produto
+MANAGE_STOCK como faço para registrar uma entrada de estoque?
+MANAGE_STOCK quero aumentar o estoque do lote
+MANAGE_STOCK pode me ajudar a dar entrada de mercadoria?
+MANAGE_STOCK como registrar o recebimento de um lote?
+MANAGE_STOCK preciso adicionar itens ao inventário
+MANAGE_STOCK quero registrar a chegada de produtos
+MANAGE_STOCK como lanço uma entrada de estoque?
+MANAGE_STOCK adicionar mais produtos ao lote
+MANAGE_STOCK entrada de mercadoria
+MANAGE_STOCK como adicionar ao estoque?
+MANAGE_STOCK quero registrar uma nova entrada
+MANAGE_STOCK preciso aumentar a quantidade em estoque
+MANAGE_STOCK como dar entrada em produtos?
+MANAGE_STOCK quero adicionar unidades ao lote
+MANAGE_STOCK como registrar uma entrada?
+MANAGE_STOCK entrada de estoque
+MANAGE_STOCK adicionar produtos ao estoque
+MANAGE_STOCK registrar recebimento de produtos
+MANAGE_STOCK aumentar a quantidade do lote
+MANAGE_STOCK como adicionar mais itens
+MANAGE_STOCK quero fazer uma entrada de estoque
+MANAGE_STOCK preciso registrar uma compra de fornecedor
+MANAGE_STOCK vamos dar entrada em mercadorias
+MANAGE_STOCK como eu adiciono estoque
+MANAGE_STOCK preciso de ajuda para dar entrada
+MANAGE_STOCK adicionar ao inventário
+MANAGE_STOCK quero aumentar meu estoque
+MANAGE_STOCK como registrar a chegada de um lote
+MANAGE_STOCK entrada de novos produtos
+MANAGE_STOCK aumentar o número de itens em estoque
+MANAGE_STOCK como lançar o recebimento de um pedido
+MANAGE_STOCK quero adicionar mais estoque
+MANAGE_STOCK como eu registro uma entrada de produtos
+ADJUST_STOCK alterar estoque
+ADJUST_STOCK ajustar o estoque do lote abc para 50
+ADJUST_STOCK corrigir a quantidade do produto caneta
+ADJUST_STOCK ajustar estoque
+ADJUST_STOCK quero fazer um ajuste de inventário
+ADJUST_STOCK como corrigir o número de itens em estoque?
+ADJUST_STOCK preciso acertar a contagem do lote
+ADJUST_STOCK pode me ajudar a ajustar o estoque?
+ADJUST_STOCK como faço para corrigir o estoque?
+ADJUST_STOCK quero definir o estoque do produto para
+ADJUST_STOCK preciso alterar a quantidade total de um lote
+ADJUST_STOCK como ajustar a quantidade de um item?
+ADJUST_STOCK fazer uma correção de estoque
+ADJUST_STOCK quero acertar o inventário
+ADJUST_STOCK como posso ajustar o estoque de um produto?
+ADJUST_STOCK preciso corrigir a quantidade em estoque
+ADJUST_STOCK quero ajustar o número de unidades
+ADJUST_STOCK como fazer um ajuste de estoque?
+ADJUST_STOCK preciso acertar o estoque do lote
+ADJUST_STOCK ajuste de inventário
+ADJUST_STOCK corrigir o estoque
+ADJUST_STOCK acertar a quantidade de um produto
+ADJUST_STOCK quero corrigir meu inventário
+ADJUST_STOCK como eu ajusto o estoque
+ADJUST_STOCK preciso fazer uma correção no estoque
+ADJUST_STOCK vamos ajustar o estoque
+ADJUST_STOCK como alterar a quantidade em estoque
+ADJUST_STOCK preciso de ajuda para ajustar o estoque
+ADJUST_STOCK quero definir a quantidade do lote
+ADJUST_STOCK como eu corrijo a quantidade de um item
+ADJUST_STOCK ajuste de estoque manual
+ADJUST_STOCK preciso acertar a contagem de um produto
+ADJUST_STOCK como fazer a correção do inventário
+ADJUST_STOCK quero acertar o número de itens
+ADJUST_STOCK como ajustar meu estoque
+ADJUST_STOCK_PERCENTAGE aumentar o estoque de canetas em 10%
+ADJUST_STOCK_PERCENTAGE quero reduzir o inventário de borrachas em 20%
+ADJUST_STOCK_PERCENTAGE pode diminuir o estoque do produto lapis em 5%?
+ADJUST_STOCK_PERCENTAGE ajustar o estoque de cadernos em -15%
+ADJUST_STOCK_PERCENTAGE quero um aumento de 50% no estoque de borrachas
+ADJUST_STOCK_PERCENTAGE diminuir em 25% o estoque de lapis
+ADJUST_STOCK_PERCENTAGE aumentar em 10 por cento o estoque
+ADJUST_STOCK_PERCENTAGE reduzir 5 por cento do inventario de
+ADJUST_STOCK_PERCENTAGE quero aumentar 30% do estoque
+ADJUST_STOCK_PERCENTAGE ajuste percentual de estoque
+ADJUST_STOCK_PERCENTAGE como ajustar o estoque em porcentagem
+ADJUST_STOCK_PERCENTAGE preciso de um aumento de 15% no estoque
+ADJUST_STOCK_PERCENTAGE pode reduzir o inventário em 10 por cento?
+ADJUST_STOCK_PERCENTAGE aumentar o estoque percentualmente
+ADJUST_STOCK_PERCENTAGE reduzir o estoque em percentual
+ADJUST_STOCK_PERCENTAGE quero ajustar 5% para mais no estoque
+ADJUST_STOCK_PERCENTAGE ajuste de 10% no estoque de caneta
+ADJUST_STOCK_PERCENTAGE pode aumentar em 20% o produto X?
+ADJUST_STOCK_PERCENTAGE preciso diminuir 5% do estoque de Y
+ADJUST_STOCK_PERCENTAGE vamos ajustar o estoque em 10%
+QUERY_STOCK qual o estoque do produto caneta?
+QUERY_STOCK ver o stock de borracha
+QUERY_STOCK quantas unidades tem do produto lapis?
+QUERY_STOCK stock de caneta
+QUERY_STOCK qual a quantidade disponível do produto
+QUERY_STOCK verifique o inventário do item
+QUERY_STOCK quantas unidades ainda temos de
+QUERY_STOCK pode me dizer o stock atual para
+QUERY_STOCK quero saber o saldo em estoque do produto
+QUERY_STOCK como consulto o estoque de um item?
+QUERY_STOCK me diga a quantidade de
+QUERY_STOCK qual o nível de estoque para
+QUERY_STOCK verificar a disponibilidade do produto
+QUERY_STOCK quero ver o estoque de
+QUERY_STOCK qual o saldo do produto
+QUERY_STOCK quantas peças temos de
+QUERY_STOCK consultar o inventário do item
+QUERY_STOCK me informe o estoque de
+QUERY_STOCK qual a quantidade em estoque de
+QUERY_STOCK verificar o estoque do produto
+QUERY_STOCK estoque de
+QUERY_STOCK quantidade de
+QUERY_STOCK saldo do item
+QUERY_STOCK ver estoque
+QUERY_STOCK consultar estoque
+QUERY_STOCK qual a quantidade de
+QUERY_STOCK me mostre o estoque de
+QUERY_STOCK tem o produto
+QUERY_STOCK qual a disponibilidade de
+QUERY_STOCK quero saber o estoque
+QUERY_STOCK me fale o estoque de
+QUERY_STOCK pode verificar o estoque de
+QUERY_STOCK qual é o estoque de
+QUERY_STOCK quantas unidades do produto
+QUERY_STOCK estoque do item
+QUERY_STOCK ver o saldo de
+QUERY_STOCK qual a contagem de
+QUERY_CLIENT_DETAILS detalhes do cliente joao
+QUERY_CLIENT_DETAILS ver informações do cliente maria
+QUERY_CLIENT_DETAILS quais os detalhes do cliente Teste
+QUERY_CLIENT_DETAILS me mostre os dados do cliente
+QUERY_CLIENT_DETAILS quero ver as informações de
+QUERY_CLIENT_DETAILS pode me dar os detalhes de contato do cliente
+QUERY_CLIENT_DETAILS quais são os dados cadastrais do cliente
+QUERY_CLIENT_DETAILS preciso das informações do cliente
+QUERY_CLIENT_DETAILS como consulto os detalhes de um cliente?
+QUERY_CLIENT_DETAILS ver o perfil do cliente
+QUERY_CLIENT_DETAILS me diga o endereço do cliente
+QUERY_CLIENT_DETAILS quero os dados de contato de
+QUERY_CLIENT_DETAILS pode buscar as informações do cliente
+QUERY_CLIENT_DETAILS preciso do telefone do cliente
+QUERY_CLIENT_DETAILS ver os detalhes de cadastro de
+QUERY_CLIENT_DETAILS quais as informações de contato do cliente
+QUERY_CLIENT_DETAILS me mostre o cadastro do cliente
+QUERY_CLIENT_DETAILS quero ver os dados de
+QUERY_CLIENT_DETAILS pode me informar os detalhes de
+QUERY_CLIENT_DETAILS detalhes do cliente
+QUERY_CLIENT_DETAILS informações do cliente
+QUERY_CLIENT_DETAILS ver dados do cliente
+QUERY_CLIENT_DETAILS consultar cliente
+QUERY_CLIENT_DETAILS qual o contato do cliente
+QUERY_CLIENT_DETAILS me mostre as informações de
+QUERY_CLIENT_DETAILS tem o telefone do cliente
+QUERY_CLIENT_DETAILS qual o endereço de
+QUERY_CLIENT_DETAILS quero saber os detalhes de
+QUERY_CLIENT_DETAILS me fale sobre o cliente
+QUERY_CLIENT_DETAILS pode procurar o cliente
+QUERY_CLIENT_DETAILS qual o perfil de
+QUERY_CLIENT_DETAILS dados de contato do cliente
+QUERY_CLIENT_DETAILS me informe sobre o cliente
+QUERY_CLIENT_DETAILS ver cadastro do cliente
+QUERY_CLIENT_CREDIT qual o crédito do cliente Maria Silva?
+QUERY_CLIENT_CREDIT ver o crédito de joao
+QUERY_CLIENT_CREDIT quanto de crédito o cliente Teste tem?
+QUERY_CLIENT_CREDIT pode me dizer o saldo de crédito do cliente
+QUERY_CLIENT_CREDIT consultar o crédito do cliente
+QUERY_CLIENT_CREDIT o cliente XPTO tem algum crédito?
+QUERY_CLIENT_CREDIT qual o saldo do cliente
+QUERY_CLIENT_CREDIT ver saldo de crédito
+QUERY_CLIENT_CREDIT crédito do cliente
+QUERY_CLIENT_CREDIT o cliente tem crédito?
+QUERY_CLIENT_CREDIT qual o crédito disponível para o cliente?
+QUERY_CLIENT_CREDIT me informe o crédito de
+QUERY_CLIENT_CREDIT verificar o crédito de
+QUERY_CLIENT_CREDIT quanto de crédito tem o cliente
+QUERY_CLIENT_CREDIT pode ver o crédito do cliente?
+QUERY_CLIENT_CREDIT saldo de crédito do cliente
+QUERY_CLIENT_CREDIT o cliente tem algum valor de crédito?
+QUERY_CLIENT_CREDIT como vejo o crédito de um cliente?
+QUERY_CLIENT_CREDIT me mostre o crédito do cliente
+QUERY_CLIENT_CREDIT consultar saldo devedor do cliente
+QUERY_CLIENT_CREDIT qual o valor de crédito do cliente
+QUERY_PRODUCT_LOTS quais os lotes da caneta?
+QUERY_PRODUCT_LOTS ver lotes do produto borracha
+QUERY_PRODUCT_LOTS lotes do produto lapis
+QUERY_PRODUCT_LOTS me mostre todos os lotes do produto
+QUERY_PRODUCT_LOTS quero ver os lotes disponíveis para o item
+QUERY_PRODUCT_LOTS quais são os lotes em estoque de
+QUERY_PRODUCT_LOTS pode listar os lotes de
+QUERY_PRODUCT_LOTS preciso saber os lotes do produto
+QUERY_PRODUCT_LOTS como consulto os lotes de um produto?
+QUERY_PRODUCT_LOTS ver a lista de lotes para
+QUERY_PRODUCT_LOTS quais lotes temos do item
+QUERY_PRODUCT_LOTS me diga os lotes de
+QUERY_PRODUCT_LOTS quero ver todos os lotes de
+QUERY_PRODUCT_LOTS pode me mostrar os lotes do produto
+QUERY_PRODUCT_LOTS preciso da lista de lotes para
+QUERY_PRODUCT_LOTS como vejo os lotes de um item?
+QUERY_PRODUCT_LOTS me liste os lotes do produto
+QUERY_PRODUCT_LOTS quais são os lotes do artigo
+QUERY_PRODUCT_LOTS ver os lotes do artigo
+QUERY_PRODUCT_LOTS lotes de
+QUERY_PRODUCT_LOTS ver os lotes
+QUERY_PRODUCT_LOTS consultar lotes do produto
+QUERY_PRODUCT_LOTS quais os lotes do item
+QUERY_PRODUCT_LOTS me mostre os lotes para
+QUERY_PRODUCT_LOTS tem quais lotes de
+QUERY_PRODUCT_LOTS lista de lotes de
+QUERY_PRODUCT_LOTS quero saber os lotes de
+QUERY_PRODUCT_LOTS me fale os lotes do produto
+QUERY_PRODUCT_LOTS pode listar os lotes de um item
+QUERY_PRODUCT_LOTS quais lotes existem para
+QUERY_PRODUCT_LOTS detalhes dos lotes de
+QUERY_MOVEMENT_HISTORY qual o historico de movimentos da caneta?
+QUERY_MOVEMENT_HISTORY ver o historico do produto lapis
+QUERY_MOVEMENT_HISTORY historico de movimentos do produto
+QUERY_MOVEMENT_HISTORY me mostre o histórico de estoque do item
+QUERY_MOVEMENT_HISTORY quero ver as movimentações do produto
+QUERY_MOVEMENT_HISTORY qual o histórico de entradas e saídas de
+QUERY_MOVEMENT_HISTORY pode listar o histórico de movimentos para
+QUERY_MOVEMENT_HISTORY preciso do extrato de movimentações do produto
+QUERY_MOVEMENT_HISTORY como consulto o histórico de um produto?
+QUERY_MOVEMENT_HISTORY ver todas as movimentações de
+QUERY_MOVEMENT_HISTORY qual o histórico do item
+QUERY_MOVEMENT_HISTORY me diga o histórico de estoque de
+QUERY_MOVEMENT_HISTORY quero ver o log de movimentos do produto
+QUERY_MOVEMENT_HISTORY pode me mostrar o histórico de
+QUERY_MOVEMENT_HISTORY preciso do histórico de alterações de estoque para
+QUERY_MOVEMENT_HISTORY como vejo o histórico de um produto?
+QUERY_MOVEMENT_HISTORY me liste o histórico de movimentos de
+QUERY_MOVEMENT_HISTORY qual o histórico de estoque para
+QUERY_MOVEMENT_HISTORY ver o log de movimentações do produto
+QUERY_MOVEMENT_HISTORY histórico do produto
+QUERY_MOVEMENT_HISTORY movimentações do item
+QUERY_MOVEMENT_HISTORY ver histórico de estoque
+QUERY_MOVEMENT_HISTORY consultar histórico do produto
+QUERY_MOVEMENT_HISTORY qual o extrato de movimentos de
+QUERY_MOVEMENT_HISTORY me mostre o histórico para
+QUERY_MOVEMENT_HISTORY tem o histórico de
+QUERY_MOVEMENT_HISTORY log de estoque de
+QUERY_MOVEMENT_HISTORY quero saber o histórico de
+QUERY_MOVEMENT_HISTORY me fale sobre as movimentações de
+QUERY_MOVEMENT_HISTORY pode procurar o histórico de
+QUERY_MOVEMENT_HISTORY qual o log de
+QUERY_TOP_CLIENTS quais sao os meus melhores clientes?
+QUERY_TOP_CLIENTS ranking de clientes
+QUERY_TOP_CLIENTS top clientes do mes
+QUERY_TOP_CLIENTS quem são os clientes que mais compram?
+QUERY_TOP_CLIENTS me mostre o ranking de clientes por valor
+QUERY_TOP_CLIENTS quais os principais clientes deste período?
+QUERY_TOP_CLIENTS pode listar meus maiores compradores?
+QUERY_TOP_CLIENTS quero ver o top 3 clientes
+QUERY_TOP_CLIENTS como sei quais clientes são mais valiosos?
+QUERY_TOP_CLIENTS me diga os melhores clientes
+QUERY_TOP_CLIENTS qual o ranking dos meus clientes?
+QUERY_TOP_CLIENTS quero uma lista dos principais clientes
+QUERY_TOP_CLIENTS pode me dar o top 5 clientes?
+QUERY_TOP_CLIENTS quem são meus clientes mais importantes?
+QUERY_TOP_CLIENTS ver o ranking de compradores
+QUERY_TOP_CLIENTS quais clientes geram mais receita?
+QUERY_TOP_CLIENTS me mostre meus melhores clientes
+QUERY_TOP_CLIENTS quero saber quem são os top clientes
+QUERY_TOP_CLIENTS pode me dizer meus clientes principais?
+QUERY_TOP_CLIENTS melhores clientes
+QUERY_TOP_CLIENTS top clientes
+QUERY_TOP_CLIENTS ranking de compradores
+QUERY_TOP_CLIENTS quem mais compra
+QUERY_TOP_CLIENTS me mostre o top clientes
+QUERY_TOP_CLIENTS quais os clientes mais fiéis
+QUERY_TOP_CLIENTS lista de melhores clientes
+QUERY_TOP_CLIENTS quero saber os principais clientes
+QUERY_TOP_CLIENTS me fale quem são os melhores clientes
+QUERY_TOP_CLIENTS pode listar os melhores clientes
+QUERY_TOP_CLIENTS quem são os top 3 clientes
+QUERY_TOP_PRODUCT qual o produto mais vendido?
+QUERY_TOP_PRODUCT qual item sai mais?
+QUERY_TOP_PRODUCT mais vendido
+QUERY_TOP_PRODUCT qual o produto com maior saída?
+QUERY_TOP_PRODUCT me mostre o ranking de produtos
+QUERY_TOP_PRODUCT qual o item mais popular?
+QUERY_TOP_PRODUCT pode me dizer qual produto vende mais?
+QUERY_TOP_PRODUCT quero saber o campeão de vendas
+QUERY_TOP_PRODUCT como vejo o produto mais vendido?
+QUERY_TOP_PRODUCT me diga o produto estrela
+QUERY_TOP_PRODUCT qual o item com mais vendas?
+QUERY_TOP_PRODUCT quero ver o top de produtos
+QUERY_TOP_PRODUCT qual o produto de maior sucesso?
+QUERY_TOP_PRODUCT pode me informar o item mais vendido?
+QUERY_TOP_PRODUCT qual o nosso best-seller?
+QUERY_TOP_PRODUCT me mostre os produtos mais vendidos
+QUERY_TOP_PRODUCT quero saber qual o produto mais popular
+QUERY_TOP_PRODUCT qual o item que mais vende?
+QUERY_TOP_PRODUCT me diga o produto mais vendido
+QUERY_TOP_PRODUCT produto mais popular
+QUERY_TOP_PRODUCT top produtos
+QUERY_TOP_PRODUCT ranking de vendas de produtos
+QUERY_TOP_PRODUCT qual o item que tem mais saída
+QUERY_TOP_PRODUCT me mostre o produto mais vendido
+QUERY_TOP_PRODUCT qual o produto líder de vendas
+QUERY_TOP_PRODUCT lista de produtos mais vendidos
+QUERY_TOP_PRODUCT quero saber o produto mais vendido
+QUERY_TOP_PRODUCT me fale qual o produto mais vendido
+QUERY_TOP_PRODUCT pode listar os produtos mais vendidos
+QUERY_TOP_PRODUCT quem é o campeão de vendas
+QUERY_CLIENT_HISTORY qual o historico de compras do cliente joao?
+QUERY_CLIENT_HISTORY ver as compras do cliente maria
+QUERY_CLIENT_HISTORY historico de compras
+QUERY_CLIENT_HISTORY me mostre o que o cliente comprou
+QUERY_CLIENT_HISTORY quero ver o histórico de pedidos do cliente
+QUERY_CLIENT_HISTORY qual o histórico de transações de
+QUERY_CLIENT_HISTORY pode listar as compras do cliente
+QUERY_CLIENT_HISTORY preciso do histórico de vendas para o cliente
+QUERY_CLIENT_HISTORY como consulto as compras de um cliente?
+QUERY_CLIENT_HISTORY ver todo o histórico do cliente
+QUERY_CLIENT_HISTORY o que o cliente costuma comprar?
+QUERY_CLIENT_HISTORY me diga as últimas compras de
+QUERY_CLIENT_HISTORY quero ver o log de compras do cliente
+QUERY_CLIENT_HISTORY pode me mostrar o histórico de
+QUERY_CLIENT_HISTORY preciso do histórico do cliente
+QUERY_CLIENT_HISTORY como vejo o que um cliente comprou?
+QUERY_CLIENT_HISTORY me liste as compras de
+QUERY_CLIENT_HISTORY qual o histórico do cliente
+QUERY_CLIENT_HISTORY ver o que o cliente comprou
+QUERY_CLIENT_HISTORY histórico de compras do cliente
+QUERY_CLIENT_HISTORY compras do cliente
+QUERY_CLIENT_HISTORY ver histórico de cliente
+QUERY_CLIENT_HISTORY consultar histórico de compras
+QUERY_CLIENT_HISTORY qual o histórico de pedidos de
+QUERY_CLIENT_HISTORY me mostre as compras de
+QUERY_CLIENT_HISTORY tem o histórico de compras de
+QUERY_CLIENT_HISTORY log de compras do cliente
+QUERY_CLIENT_HISTORY quero saber o histórico de compras de
+QUERY_CLIENT_HISTORY me fale sobre as compras de
+QUERY_CLIENT_HISTORY pode procurar o histórico de compras de
+QUERY_CLIENT_HISTORY qual o log de compras do cliente
+QUERY_LOW_STOCK quais produtos tem baixo estoque?
+QUERY_LOW_STOCK produtos acabando
+QUERY_LOW_STOCK ver produtos com pouco stock
+QUERY_LOW_STOCK quais itens estão com estoque baixo?
+QUERY_LOW_STOCK me mostre os produtos que precisam de reposição
+QUERY_LOW_STOCK quais são os produtos em nível crítico de estoque?
+QUERY_LOW_STOCK pode listar os itens com pouca quantidade?
+QUERY_LOW_STOCK quero ver os produtos com estoque mínimo
+QUERY_LOW_STOCK como sei quais produtos estão acabando?
+QUERY_LOW_STOCK me diga os produtos com estoque baixo
+QUERY_LOW_STOCK quais itens precisam ser comprados?
+QUERY_LOW_STOCK quero uma lista de produtos em falta
+QUERY_LOW_STOCK pode me dar os produtos com baixo inventário?
+QUERY_LOW_STOCK quais produtos estão no fim?
+QUERY_LOW_STOCK ver os itens que precisam de atenção no estoque
+QUERY_LOW_STOCK me mostre os produtos com poucas unidades
+QUERY_LOW_STOCK quero saber quais produtos estão acabando
+QUERY_LOW_STOCK quais itens estão em alerta de estoque?
+QUERY_LOW_STOCK me diga quais produtos comprar
+QUERY_LOW_STOCK baixo estoque
+QUERY_LOW_STOCK produtos com estoque baixo
+QUERY_LOW_STOCK ver produtos em falta
+QUERY_LOW_STOCK consultar produtos que estão acabando
+QUERY_LOW_STOCK quais itens precisam de compra
+QUERY_LOW_STOCK me mostre o que está acabando
+QUERY_LOW_STOCK tem algum produto com estoque baixo?
+QUERY_LOW_STOCK lista de produtos com estoque baixo
+QUERY_LOW_STOCK quero saber o que está em falta
+QUERY_LOW_STOCK me fale os produtos com pouco estoque
+QUERY_LOW_STOCK pode listar os itens em falta
+QUERY_EXPIRING_LOTS quais lotes estao para vencer?
+QUERY_EXPIRING_LOTS ver lotes com validade proxima
+QUERY_EXPIRING_LOTS lotes a vencer
+QUERY_EXPIRING_LOTS quais produtos estão perto de expirar?
+QUERY_EXPIRING_LOTS me mostre os lotes com vencimento próximo
+QUERY_EXPIRING_LOTS quais são os lotes que vão vencer este mês?
+QUERY_EXPIRING_LOTS pode listar os produtos com data de validade curta?
+QUERY_EXPIRING_LOTS quero ver os lotes que estão para vencer
+QUERY_EXPIRING_LOTS como sei quais produtos vão expirar em breve?
+QUERY_EXPIRING_LOTS me diga os lotes próximos da validade
+QUERY_EXPIRING_LOTS quais itens têm data de validade chegando?
+QUERY_EXPIRING_LOTS quero uma lista de produtos a vencer
+QUERY_EXPIRING_LOTS pode me dar os lotes que expiram em 30 dias?
+QUERY_EXPIRING_LOTS quais produtos estão próximos do vencimento?
+QUERY_EXPIRING_LOTS ver os itens com validade curta
+QUERY_EXPIRING_LOTS me mostre os lotes que vão vencer
+QUERY_EXPIRING_LOTS quero saber quais lotes estão expirando
+QUERY_EXPIRING_LOTS quais itens estão perto de vencer?
+QUERY_EXPIRING_LOTS me diga os lotes que precisam de atenção
+QUERY_EXPIRING_LOTS lotes para vencer
+QUERY_EXPIRING_LOTS produtos perto de vencer
+QUERY_EXPIRING_LOTS ver lotes que vão expirar
+QUERY_EXPIRING_LOTS consultar produtos com validade próxima
+QUERY_EXPIRING_LOTS quais lotes vencem em breve?
+QUERY_EXPIRING_LOTS me mostre o que vai vencer
+QUERY_EXPIRING_LOTS tem algum produto perto de vencer?
+QUERY_EXPIRING_LOTS lista de lotes a vencer
+QUERY_EXPIRING_LOTS quero saber o que vai expirar
+QUERY_EXPIRING_LOTS me fale os lotes com validade próxima
+QUERY_EXPIRING_LOTS pode listar os itens perto de vencer
+QUERY_FINANCIAL_SUMMARY qual o resumo financeiro do mês?
+QUERY_FINANCIAL_SUMMARY como estão as finanças este mês?
+QUERY_FINANCIAL_SUMMARY me dê um resumo das vendas mensais
+QUERY_FINANCIAL_SUMMARY qual a receita e o ticket médio?
+QUERY_FINANCIAL_SUMMARY resumo financeiro
+QUERY_FINANCIAL_SUMMARY como foi a performance de vendas este mês?
+QUERY_FINANCIAL_SUMMARY me mostre o resumo financeiro
+QUERY_FINANCIAL_SUMMARY qual a receita do mês?
+QUERY_FINANCIAL_SUMMARY pode me dar um panorama financeiro?
+QUERY_FINANCIAL_SUMMARY resumo das finanças
+QUERY_FINANCIAL_SUMMARY como foram as vendas no geral?
+QUERY_FINANCIAL_SUMMARY me mostre os números de vendas
+QUERY_FINANCIAL_SUMMARY quero um resumo das vendas
+QUERY_FINANCIAL_SUMMARY como está o faturamento?
+QUERY_FINANCIAL_SUMMARY resumo de vendas
+QUERY_FINANCIAL_SUMMARY ver o resumo financeiro
+QUERY_FINANCIAL_SUMMARY me diga como estão as vendas
+QUERY_FINANCIAL_SUMMARY panorama de vendas
+QUERY_FINANCIAL_SUMMARY pode resumir as finanças?
+QUERY_FINANCIAL_SUMMARY quero ver o financeiro
+QUERY_FINANCIAL_SUMMARY como estamos de vendas?
+QUERY_SALESPERSON_PERFORMANCE como foram as vendas do joao este mês?
+QUERY_SALESPERSON_PERFORMANCE qual o desempenho do vendedor maria?
+QUERY_SALESPERSON_PERFORMANCE me mostre as vendas do utilizador admin
+QUERY_SALESPERSON_PERFORMANCE quanto o vendedor Teste vendeu?
+QUERY_SALESPERSON_PERFORMANCE desempenho de vendas do colaborador
+QUERY_SALESPERSON_PERFORMANCE analisar vendas do vendedor
+QUERY_SALESPERSON_PERFORMANCE qual a performance de vendas do funcionário
+QUERY_SALESPERSON_PERFORMANCE ver desempenho de vendas
+QUERY_SALESPERSON_PERFORMANCE como o vendedor está se saindo?
+QUERY_SALESPERSON_PERFORMANCE quero ver as vendas de um utilizador
+QUERY_SALESPERSON_PERFORMANCE pode me mostrar a performance de
+QUERY_SALESPERSON_PERFORMANCE desempenho do vendedor
+QUERY_SALESPERSON_PERFORMANCE analisar performance de vendas
+QUERY_SALESPERSON_PERFORMANCE vendas por vendedor
+QUERY_SALESPERSON_PERFORMANCE consultar vendas de um colaborador
+QUERY_SALESPERSON_PERFORMANCE me diga as vendas de um vendedor
+QUERY_SALESPERSON_PERFORMANCE como foram as vendas de um funcionário
+QUERY_SALESPERSON_PERFORMANCE qual o total de vendas do vendedor?
+QUERY_SALESPERSON_PERFORMANCE quero analisar o desempenho de vendas
+QUERY_SALESPERSON_PERFORMANCE ver as vendas de um usuário
+QUERY_SALES_COMPARISON compare as vendas de hoje com as de ontem
+QUERY_SALES_COMPARISON como estamos esta semana em comparação com a semana passada?
+QUERY_SALES_COMPARISON comparar vendas deste mês com o mês passado
+QUERY_SALES_COMPARISON vendas de hoje vs ontem
+QUERY_SALES_COMPARISON qual a diferença de vendas entre esta semana e a anterior?
+QUERY_SALES_COMPARISON comparação de vendas
+QUERY_SALES_COMPARISON compare as vendas
+QUERY_SALES_COMPARISON como foram as vendas de hoje comparadas às de ontem
+QUERY_SALES_COMPARISON quero comparar as vendas
+QUERY_SALES_COMPARISON qual a comparação de vendas?
+QUERY_SALES_COMPARISON pode comparar as vendas de dois períodos?
+QUERY_SALES_COMPARISON comparação de faturamento
+QUERY_SALES_COMPARISON comparar receita
+QUERY_SALES_COMPARISON me mostre a comparação de vendas
+QUERY_SALES_COMPARISON como comparar as vendas?
+QUERY_SALES_COMPARISON quero ver uma comparação de vendas
+QUERY_SALES_COMPARISON vendas de hoje em relação a ontem
+QUERY_SALES_COMPARISON compare as vendas do mês atual com o anterior
+QUERY_SALES_COMPARISON qual a evolução das vendas?
+QUERY_SALES_COMPARISON comparar performance de vendas
+QUERY_SYSTEM_INSIGHTS me dê os insights de hoje
+QUERY_SYSTEM_INSIGHTS quais são as recomendações para o sistema?
+QUERY_SYSTEM_INSIGHTS o que preciso saber hoje?
+QUERY_SYSTEM_INSIGHTS tem alguma recomendação para mim?
+QUERY_SYSTEM_INSIGHTS me mostre os insights do sistema
+QUERY_SYSTEM_INSIGHTS analise o sistema e me dê um resumo
+QUERY_SYSTEM_INSIGHTS insights do sistema
+QUERY_SYSTEM_INSIGHTS recomendações
+QUERY_SYSTEM_INSIGHTS insight
+QUERY_SYSTEM_INSIGHTS tem alguma dica para mim?
+QUERY_SYSTEM_INSIGHTS o que o sistema sugere?
+QUERY_SYSTEM_INSIGHTS me dê uma análise
+QUERY_SYSTEM_INSIGHTS quais os pontos de atenção?
+QUERY_SYSTEM_INSIGHTS sugestões do sistema
+QUERY_SYSTEM_INSIGHTS quero ver os insights
+QUERY_SYSTEM_INSIGHTS pode me dar um insight?
+QUERY_SYSTEM_INSIGHTS quais as sugestões do sistema?
+QUERY_SYSTEM_INSIGHTS me mostre as recomendações
+QUERY_SYSTEM_INSIGHTS análise do sistema
+QUERY_SYSTEM_INSIGHTS o que devo fazer agora?
+QUERY_USER_HABITS quais são os meus hábitos?
+QUERY_USER_HABITS ver meus hábitos
+QUERY_USER_HABITS pode me mostrar os hábitos que você aprendeu?
+QUERY_USER_HABITS quero ver meus hábitos registrados
+QUERY_USER_HABITS como vejo meus hábitos
+QUERY_USER_HABITS listar meus hábitos
+QUERY_USER_HABITS ver habitos
+QUERY_USER_HABITS quais habitos voce conhece?
+QUERY_USER_HABITS meus habitos
+QUERY_USER_HABITS meus habitos registrados
+QUERY_USER_HABITS me mostre meus habitos
+QUERY_USER_HABITS quais hábitos você aprendeu sobre mim?
+QUERY_USER_HABITS me mostre meus hábitos de uso
+QUERY_USER_HABITS quero ver as minhas rotinas
+QUERY_USER_HABITS como você aprende meus hábitos?
+QUERY_USER_HABITS quais são os meus padrões?
+QUERY_USER_HABITS me diga meus hábitos
+QUERY_USER_HABITS pode listar meus hábitos?
+QUERY_USER_HABITS quero ver meus hábitos de trabalho
+QUERY_USER_HABITS me mostre as sugestões baseadas nos meus hábitos
+QUERY_USER_HABITS quais as minhas ações mais frequentes?
+QUERY_USER_HABITS ver os hábitos aprendidos
+QUERY_USER_HABITS meus hábitos
+GENERATE_REPORT gerar relatorio de vendas em pdf
+GENERATE_REPORT quero um relatorio de inventario em csv
+GENERATE_REPORT relatorio de vendas
+GENERATE_REPORT pode criar um relatório de estoque em pdf?
+GENERATE_REPORT preciso de um relatório de vendas em formato csv
+GENERATE_REPORT como gero um relatório de inventário?
+GENERATE_REPORT quero exportar o relatório de vendas
+GENERATE_REPORT me dê o relatório de estoque em pdf
+GENERATE_REPORT como faço para gerar um relatório de vendas?
+GENERATE_REPORT preciso do relatório de inventário
+GENERATE_REPORT gerar um documento com as vendas
+GENERATE_REPORT quero um arquivo com o inventário
+GENERATE_REPORT pode me dar um relatório de vendas?
+GENERATE_REPORT preciso de um relatório de estoque
+GENERATE_REPORT como exportar os dados de vendas?
+GENERATE_REPORT me dê um relatório de inventário
+GENERATE_REPORT quero o relatório de vendas em pdf
+GENERATE_REPORT como gero um relatório?
+GENERATE_REPORT preciso de um relatório
+GENERATE_REPORT relatório
+GENERATE_REPORT gerar relatório
+GENERATE_REPORT exportar dados
+GENERATE_REPORT criar um relatório de inventário
+GENERATE_REPORT quero um relatório em pdf
+GENERATE_REPORT como exportar o inventário
+GENERATE_REPORT preciso de um arquivo de vendas
+GENERATE_REPORT vamos gerar um relatório
+GENERATE_REPORT como eu crio um relatório
+GENERATE_REPORT preciso de um documento de estoque
+GENERATE_REPORT ajuda para gerar relatório
+GENERATE_REPORT quero exportar as vendas em csv
+GUIDE_ADD_LOTE como eu adiciono um lote?
+GUIDE_ADD_LOTE me ajude a adicionar um lote
+GUIDE_ADD_LOTE ajuda para adicionar lote
+GUIDE_ADD_LOTE qual o passo a passo para adicionar um lote?
+GUIDE_ADD_LOTE me mostre como inserir um novo lote
+GUIDE_ADD_LOTE pode me guiar na adição de um lote?
+GUIDE_ADD_LOTE quero ajuda para registrar um lote
+GUIDE_ADD_LOTE como faço para adicionar estoque a um produto?
+GUIDE_ADD_LOTE preciso de um tutorial para adicionar lote
+GUIDE_ADD_LOTE me explique como adicionar um lote
+GUIDE_ADD_LOTE pode me mostrar onde adicionar um lote?
+GUIDE_ADD_LOTE como se adiciona um lote novo?
+GUIDE_ADD_LOTE quero aprender a adicionar um lote
+GUIDE_ADD_LOTE como funciona para adicionar lote?
+GUIDE_ADD_LOTE me dê um guia para adicionar lote
+GUIDE_ADD_LOTE qual a forma de adicionar um lote?
+GUIDE_ADD_LOTE como adiciono um lote a um produto?
+GUIDE_ADD_LOTE me ajude com a entrada de lote
+GUIDE_ADD_LOTE pode me ajudar a adicionar um lote?
+GUIDE_ADD_LOTE ajuda para adicionar um lote
+GUIDE_ADD_LOTE como adicionar lote
+GUIDE_ADD_LOTE me ensine a adicionar um lote
+GUIDE_ADD_LOTE mostrar como adicionar lote
+GUIDE_ADD_LOTE quero um guia para lote
+GUIDE_ADD_LOTE tutorial para adicionar lote
+GUIDE_ADD_LOTE como registrar um lote novo
+GUIDE_ADD_LOTE me mostre o caminho para adicionar lote
+GUIDE_ADD_LOTE qual o processo para adicionar um lote
+GUIDE_ADD_LOTE como adicionar um novo lote de estoque
+GUIDE_ADD_PRODUCT como criar um produto?
+GUIDE_ADD_PRODUCT me mostre como adicionar um produto novo
+GUIDE_ADD_PRODUCT ajuda para criar produto
+GUIDE_ADD_PRODUCT qual o passo a passo para criar um produto?
+GUIDE_ADD_PRODUCT me guie na criação de um produto
+GUIDE_ADD_PRODUCT pode me ajudar a cadastrar um item?
+GUIDE_ADD_PRODUCT quero ajuda para registrar um novo produto
+GUIDE_ADD_PRODUCT como faço para inserir um novo produto?
+GUIDE_ADD_PRODUCT preciso de um tutorial para criar produto
+GUIDE_ADD_PRODUCT me explique como criar um produto
+GUIDE_ADD_PRODUCT pode me mostrar onde criar um produto?
+GUIDE_ADD_PRODUCT como se cria um produto novo?
+GUIDE_ADD_PRODUCT quero aprender a criar um produto
+GUIDE_ADD_PRODUCT como funciona para criar um produto?
+GUIDE_ADD_PRODUCT me dê um guia para criar um produto
+GUIDE_ADD_PRODUCT qual a forma de criar um produto?
+GUIDE_ADD_PRODUCT como adiciono um novo item ao catálogo?
+GUIDE_ADD_PRODUCT me ajude com o cadastro de produto
+GUIDE_ADD_PRODUCT pode me ajudar a criar um novo produto?
+GUIDE_ADD_PRODUCT ajuda para criar um produto
+GUIDE_ADD_PRODUCT como criar um novo item
+GUIDE_ADD_PRODUCT me ensine a criar um produto
+GUIDE_ADD_PRODUCT mostrar como criar produto
+GUIDE_ADD_PRODUCT quero um guia para produto
+GUIDE_ADD_PRODUCT tutorial para criar produto
+GUIDE_ADD_PRODUCT como registrar um produto novo
+GUIDE_ADD_PRODUCT me mostre o caminho para criar produto
+GUIDE_ADD_PRODUCT qual o processo para criar um produto
+GUIDE_ADD_PRODUCT como adicionar um novo produto ao sistema
+NAVIGATE_TO ir para a tela de vendas
+NAVIGATE_TO navegar para clientes
+NAVIGATE_TO abrir o painel de produtos
+NAVIGATE_TO ir para relatorios
+NAVIGATE_TO me leve para o estoque
+NAVIGATE_TO quero ir para a área de usuários
+NAVIGATE_TO me mostre o painel de auditoria
+NAVIGATE_TO abrir a seção de categorias
+NAVIGATE_TO ir para o financeiro
+NAVIGATE_TO me leve para a tela de início
+NAVIGATE_TO quero acessar a gestão de fornecedores
+NAVIGATE_TO navegar para o histórico de vendas
+NAVIGATE_TO abrir os alertas de estoque
+NAVIGATE_TO ir para o histórico de movimentos
+NAVIGATE_TO me leve para a administração
+NAVIGATE_TO quero ver o dashboard
+NAVIGATE_TO acessar o painel de metas
+NAVIGATE_TO ir para contas a receber
+NAVIGATE_TO me mostre a tela de vendas
+NAVIGATE_TO abrir o cadastro de clientes
+NAVIGATE_TO ir para
+NAVIGATE_TO navegar para
+NAVIGATE_TO abrir
+NAVIGATE_TO me leve para
+NAVIGATE_TO quero ver
+NAVIGATE_TO acessar
+NAVIGATE_TO mostrar painel de
+NAVIGATE_TO tela de
+NAVIGATE_TO painel de
+NAVIGATE_TO seção de
+NAVIGATE_TO área de
+NAVIGATE_TO gestão de
+NAVIGATE_TO histórico de
+NAVIGATE_TO cadastro de
+CHANGE_THEME mudar o tema para claro
+CHANGE_THEME alterar para o tema escuro
+CHANGE_THEME tema escuro
+CHANGE_THEME quero o tema claro
+CHANGE_THEME pode colocar no modo noturno?
+CHANGE_THEME mude para o tema light
+CHANGE_THEME quero a interface escura
+CHANGE_THEME alterar o visual para claro
+CHANGE_THEME pode mudar para o tema dark?
+CHANGE_THEME quero o modo diurno
+CHANGE_THEME mudar o tema da aplicação
+CHANGE_THEME alterar para o modo escuro
+CHANGE_THEME tema claro
+CHANGE_THEME quero usar o tema escuro
+CHANGE_THEME pode alterar a cor do sistema?
+CHANGE_THEME mude para o tema de dia
+CHANGE_THEME quero o tema noturno
+CHANGE_THEME alterar o layout para escuro
+CHANGE_THEME pode colocar o tema claro?
+CHANGE_THEME mudar tema
+CHANGE_THEME alterar tema
+CHANGE_THEME modo escuro
+CHANGE_THEME modo claro
+CHANGE_THEME tema light
+CHANGE_THEME tema dark
+CHANGE_THEME interface clara
+CHANGE_THEME interface escura
+CHANGE_THEME visual claro
+CHANGE_THEME visual escuro
+CHANGE_THEME modo noturno
+CHANGE_THEME modo diurno
+GREETING ola
+GREETING oi
+GREETING bom dia
+GREETING boa tarde
+GREETING boa noite
+GREETING e aí
+GREETING tudo bem?
+GREETING olá, como vai?
+GREETING saudações
+GREETING como posso te ajudar?
+GREETING olá assistente
+GREETING oi, tudo certo?
+GREETING bom dia, como estamos?
+GREETING boa tarde, preciso de ajuda
+GREETING olá, você está aí?
+GREETING e aí, tudo bom?
+GREETING oi, pode me ajudar?
+GREETING olá, bom trabalho
+GREETING tudo em ordem?
+GREETING como vai?
+GREETING olá
+GREETING tudo bem
+GREETING como está
+GREETING oi, assistente
+GREETING bom dia, assistente
+GREETING boa tarde, assistente
+GREETING boa noite, assistente
+GREETING olá, tudo bom?
+GREETING como você está?
+GREETING oi, preciso de uma ajuda
+CONFIRM sim
+CONFIRM confirmo
+CONFIRM pode ser
+CONFIRM ok
+CONFIRM s
+CONFIRM certo
+CONFIRM positivo
+CONFIRM afirmativo
+CONFIRM concordo
+CONFIRM isso mesmo
+CONFIRM pode continuar
+CONFIRM prossiga
+CONFIRM sem problemas
+CONFIRM beleza
+CONFIRM fechado
+CONFIRM combinado
+CONFIRM claro
+CONFIRM com certeza
+CONFIRM isso
+CONFIRM correto
+CONFIRM sim, por favor
+CONFIRM pode fazer
+CONFIRM vá em frente
+CONFIRM concordo plenamente
+CONFIRM está certo
+CONFIRM é isso
+CONFIRM ok, pode ir
+CONFIRM por mim tudo bem
+CONFIRM pode mandar bala
+CONFIRM fechou
+DENY nao
+DENY cancelar
+DENY para
+DENY deixa pra la
+DENY n
+DENY negativo
+DENY não, obrigado
+DENY não quero
+DENY pode parar
+DENY esquece
+DENY não precisa
+DENY para com isso
+DENY aborte a operação
+DENY não, valeu
+DENY melhor não
+DENY não faça isso
+DENY pare
+DENY não, por favor
+DENY não continue
+DENY deixa quieto
+DENY não
+DENY não, obrigado
+DENY para, por favor
+DENY não precisa mais
+DENY pode cancelar
+DENY esquece isso
+DENY deixa pra lá
+DENY não, deixa
+DENY melhor não fazer
+DENY não é necessário
+DENY pode deixar
+UNKNOWN qual a previsao do tempo?
+UNKNOWN quem descobriu o brasil?
+UNKNOWN qual a capital da frança
+UNKNOWN você pode me contar uma piada?
+UNKNOWN que horas são?
+UNKNOWN qual o sentido da vida?
+UNKNOWN você tem sentimentos?
+UNKNOWN quem te criou?
+UNKNOWN qual o seu nome?
+UNKNOWN você gosta de música?
+UNKNOWN qual o valor de pi?
+UNKNOWN como você funciona?
+UNKNOWN pode me dar uma receita de bolo?
+UNKNOWN qual o melhor time de futebol?
+UNKNOWN você sonha?
+UNKNOWN quantos anos você tem?
+UNKNOWN qual a população da china?
+UNKNOWN me fale sobre a história do Egito
+UNKNOWN como aprender a programar?
+UNKNOWN você é uma inteligência artificial?
+UNKNOWN qual a cotação do dólar?
+UNKNOWN quem ganhou o jogo de ontem?
+UNKNOWN me recomende um filme
+UNKNOWN qual a sua cor favorita?
+UNKNOWN você pode me ajudar a fazer meu dever de casa?
+UNKNOWN qual o seu propósito?
+UNKNOWN você pode traduzir uma frase para mim?
+UNKNOWN qual a distância da Terra até a Lua?
+UNKNOWN você pode cantar uma música?
+UNKNOWN qual o seu filme favorito?

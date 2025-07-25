@@ -6,10 +6,11 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
@@ -40,17 +41,15 @@ public class QueryFinancialSummaryFlow implements ConversationFlow {
 
             String comparacao;
             if (receitaMesAnterior == 0) {
-                comparacao = (receitaMesAtual > 0) ? " (não há dados do mês anterior para comparar)" : "";
+                comparacao = (receitaMesAtual > 0) ? I18n.getString("flow.querySummary.noPreviousData") : "";
             } else {
                 double percentual = ((receitaMesAtual - receitaMesAnterior) / receitaMesAnterior) * 100;
-                comparacao = String.format(" (%.1f%% %s em relação ao mês anterior)",
-                        Math.abs(percentual),
-                        percentual >= 0 ? "de aumento" : "de queda");
+                String trend = percentual >= 0 ? I18n.getString("flow.querySummary.increase") : I18n.getString("flow.querySummary.decrease");
+                comparacao = I18n.getString("flow.querySummary.comparison", Math.abs(percentual), trend);
             }
 
-            String responseText = String.format(
-                    "Resumo do mês atual (%s):\n- Receita Total: %s%s\n- Ticket Médio: %s",
-                    currentMonth.format(java.time.format.DateTimeFormatter.ofPattern("MMMM", new Locale("pt", "BR"))),
+            String responseText = I18n.getString("flow.querySummary.summary",
+                    currentMonth.format(DateTimeFormatter.ofPattern("MMMM", new Locale("pt", "BR"))),
                     currencyFormat.format(receitaMesAtual),
                     comparacao,
                     currencyFormat.format(ticketMedio)
@@ -59,7 +58,7 @@ public class QueryFinancialSummaryFlow implements ConversationFlow {
             return new AssistantResponse(responseText);
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar os dados financeiros. Por favor, tente novamente.");
+            return new AssistantResponse(I18n.getString("flow.querySummary.error.generic"));
         }
     }
 }

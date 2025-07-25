@@ -7,6 +7,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AlertaService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.util.List;
 import java.util.Map;
@@ -31,17 +32,17 @@ public class QueryLowStockFlow implements ConversationFlow {
         try {
             List<Produto> produtos = alertaService.getProdutosComEstoqueBaixo();
             if (produtos.isEmpty()) {
-                return new AssistantResponse("Boas notícias! Nenhum produto está com o stock baixo no momento.");
+                return new AssistantResponse(I18n.getString("flow.queryLowStock.noProducts"));
             }
 
             String productList = produtos.stream()
-                    .map(p -> String.format("- %s (%d unidades)", p.getNome(), p.getQuantidadeTotal()))
+                    .map(p -> I18n.getString("flow.queryLowStock.productLine", p.getNome(), p.getQuantidadeTotal()))
                     .collect(Collectors.joining("\n"));
 
-            return new AssistantResponse("Encontrei os seguintes produtos com stock baixo:\n" + productList);
+            return new AssistantResponse(I18n.getString("flow.queryLowStock.header") + "\n" + productList);
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar os dados de stock.");
+            return new AssistantResponse(I18n.getString("flow.queryLowStock.error.generic"));
         }
     }
 }

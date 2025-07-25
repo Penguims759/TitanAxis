@@ -7,6 +7,7 @@ import com.titanaxis.service.AuthService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ProdutoService;
 import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.util.Map;
@@ -52,14 +53,14 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
     @Override
     protected void defineSteps() {
         steps.put("produto", new Step(
-                "Qual produto você deseja ajustar?",
+                I18n.getString("flow.adjustPercentage.askProduct"),
                 (input, data) -> validationService.isProdutoValido(input),
-                "Produto não encontrado. Por favor, verifique o nome."
+                I18n.getString("flow.manageStock.validation.productNotFound")
         ));
         steps.put("percentual", new Step(
-                "Qual o percentual de ajuste? (ex: 20% para aumentar, -15% para reduzir)",
+                I18n.getString("flow.adjustPercentage.askPercentage"),
                 (input, data) -> PERCENTAGE_PATTERN.matcher(input).find(),
-                "Formato de percentual inválido. Use um número seguido de '%' (ex: '20%')."
+                I18n.getString("flow.validation.invalidPercentage")
         ));
     }
 
@@ -75,7 +76,7 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
                 if(matcher.find()){
                     percentage = Double.parseDouble(matcher.group(1));
                 } else {
-                    return new AssistantResponse("Formato de percentual inválido.");
+                    return new AssistantResponse(I18n.getString("flow.validation.invalidPercentage"));
                 }
             } else {
                 percentage = (Double) percObj;
@@ -88,9 +89,9 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
             );
             return new AssistantResponse(resultMessage);
         } catch (PersistenciaException | IllegalArgumentException e) {
-            return new AssistantResponse("Não foi possível ajustar o estoque: " + e.getMessage());
+            return new AssistantResponse(I18n.getString("flow.adjustPercentage.error.adjustFailed", e.getMessage()));
         } catch (Exception e) {
-            return new AssistantResponse("Ocorreu um erro inesperado: " + e.getMessage());
+            return new AssistantResponse(I18n.getString("flow.generic.error.unexpected", e.getMessage()));
         }
     }
 }

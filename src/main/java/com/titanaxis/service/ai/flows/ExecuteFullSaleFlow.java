@@ -13,6 +13,7 @@ import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.VendaService;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -43,61 +44,53 @@ public class ExecuteFullSaleFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> data) {
-        // Extrair as entidades do mapa 'data' que foi preenchido pelo AIAssistantService
         String productName = (String) data.get("produto");
         String lotNumber = (String) data.get("lote");
         String clientName = (String) data.get("cliente");
         Integer quantity = (Integer) data.get("quantidade");
 
-        // Validações
         if (productName == null || quantity == null) {
-            return new AssistantResponse("Para realizar a venda, preciso saber pelo menos o produto e a quantidade. Ex: 'vender 2 canetas'.");
+            return new AssistantResponse(I18n.getString("flow.executeSale.error.missingInfo"));
         }
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         if (ator == null) {
-            return new AssistantResponse("Não consigo realizar a venda pois nenhum utilizador está autenticado.");
+            return new AssistantResponse(I18n.getString("flow.generic.error.authRequired"));
         }
 
         try {
-            // Valida o produto
             Optional<Produto> produtoOpt = transactionService.executeInTransactionWithResult(em -> produtoRepository.findByNome(productName, em));
             if (produtoOpt.isEmpty()) {
-                return new AssistantResponse("Produto '" + productName + "' não encontrado.");
+                return new AssistantResponse(I18n.getString("flow.generic.error.entityNotFound", productName));
             }
             Produto produto = produtoOpt.get();
 
-            // Valida o Lote
             Optional<Lote> loteOpt;
             if (lotNumber != null) {
                 loteOpt = produto.getLotes().stream().filter(l -> l.getNumeroLote().equalsIgnoreCase(lotNumber)).findFirst();
                 if (loteOpt.isEmpty()) {
-                    return new AssistantResponse(String.format("O lote '%s' não foi encontrado para o produto '%s'.", lotNumber, productName));
+                    return new AssistantResponse(I18n.getString("flow.executeSale.error.lotNotFound", lotNumber, productName));
                 }
             } else {
-                // Se nenhum lote foi especificado, pega o primeiro lote disponível com estoque
                 loteOpt = produto.getLotes().stream().filter(l -> l.getQuantidade() >= quantity).findFirst();
                 if (loteOpt.isEmpty()) {
-                    return new AssistantResponse(String.format("Não há lotes com estoque suficiente para '%s'. O estoque total é de %d unidades.", productName, produto.getQuantidadeTotal()));
+                    return new AssistantResponse(I18n.getString("flow.executeSale.error.noLotWithStock", productName, produto.getQuantidadeTotal()));
                 }
             }
             Lote lote = loteOpt.get();
 
-            // Valida a quantidade no lote
             if (lote.getQuantidade() < quantity) {
-                return new AssistantResponse(String.format("O lote '%s' do produto '%s' possui apenas %d unidades em estoque.", lote.getNumeroLote(), productName, lote.getQuantidade()));
+                return new AssistantResponse(I18n.getString("flow.executeSale.error.insufficientStock", lote.getNumeroLote(), productName, lote.getQuantidade()));
             }
 
-            // Valida o cliente (se especificado)
             Cliente cliente = null;
             if (clientName != null) {
                 Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(em -> clienteRepository.findByNome(clientName, em));
                 if (clienteOpt.isEmpty()) {
-                    return new AssistantResponse("Cliente '" + clientName + "' não encontrado.");
+                    return new AssistantResponse(I18n.getString("flow.generic.error.entityNotFound", clientName));
                 }
                 cliente = clienteOpt.get();
             }
 
-            // Cria e finaliza a venda
             Carrinho carrinho = new Carrinho(ator);
             carrinho.adicionarItem(lote, quantity);
             if (cliente != null) {
@@ -106,8 +99,8 @@ public class ExecuteFullSaleFlow implements ConversationFlow {
 
             Venda vendaFinalizada = vendaService.finalizarVenda(carrinho.getVenda(), ator);
 
-            String clienteInfo = cliente != null ? " para o cliente '" + cliente.getNome() + "'" : "";
-            String responseText = String.format("Venda #%d realizada com sucesso%s, no valor de %s.",
+            String clienteInfo = cliente != null ? " " + I18n.getString("flow.executeSale.forClient", cliente.getNome()) : "";
+            String responseText = I18n.getString("flow.executeSale.success",
                     vendaFinalizada.getId(),
                     clienteInfo,
                     NumberFormat.getCurrencyInstance(new Locale("pt", "BR")).format(vendaFinalizada.getValorTotal())
@@ -116,7 +109,7 @@ public class ExecuteFullSaleFlow implements ConversationFlow {
 
         } catch (PersistenciaException | UtilizadorNaoAutenticadoException | CarrinhoVazioException |
                  IllegalArgumentException e) {
-            return new AssistantResponse("Ocorreu um erro ao processar a venda: " + e.getMessage());
+            return new AssistantResponse(I18n.getString("flow.executeSale.error.generic", e.getMessage()));
         }
     }
 }

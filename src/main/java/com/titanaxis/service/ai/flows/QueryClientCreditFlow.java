@@ -8,6 +8,7 @@ import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.text.NumberFormat;
@@ -37,32 +38,29 @@ public class QueryClientCreditFlow implements ConversationFlow {
         String clientName = (String) conversationData.get("entity");
 
         if (clientName == null) {
-            // Tenta extrair o nome da pergunta inicial se não foi passado como entidade
             clientName = StringUtil.extractValueAfter(userInput, new String[]{"do cliente", "da cliente", "de"});
         }
 
         if (clientName == null || clientName.isEmpty()) {
-            return new AssistantResponse("De qual cliente você gostaria de ver o crédito?");
+            return new AssistantResponse(I18n.getString("flow.queryCredit.askClientName"));
         }
 
-        // *** INÍCIO DA CORREÇÃO ***
         final String finalClientName = clientName.trim();
-        // *** FIM DA CORREÇÃO ***
 
         try {
             Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(em ->
-                    clienteRepository.findByNome(finalClientName, em)); // Usa a variável final
+                    clienteRepository.findByNome(finalClientName, em));
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
                 String creditValue = currencyFormat.format(cliente.getCredito());
-                return new AssistantResponse(String.format("O cliente '%s' possui %s de crédito.", cliente.getNome(), creditValue));
+                return new AssistantResponse(I18n.getString("flow.queryCredit.clientCredit", cliente.getNome(), creditValue));
             } else {
-                return new AssistantResponse("Não consegui encontrar o cliente '" + finalClientName + "'. Por favor, verifique o nome.");
+                return new AssistantResponse(I18n.getString("flow.generic.error.entityNotFound", finalClientName));
             }
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar o crédito do cliente.");
+            return new AssistantResponse(I18n.getString("flow.queryCredit.error.generic"));
         }
     }
 }

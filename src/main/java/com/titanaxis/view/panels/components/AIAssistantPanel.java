@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/AIAssistantPanel.java
 package com.titanaxis.view.panels.components;
 
 import com.titanaxis.app.AppContext;
@@ -35,8 +34,15 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // O JSplitPane foi removido. O painel de chat agora é o componente principal.
         add(createChatPanel(appContext), BorderLayout.CENTER);
+    }
+
+    // NOVO MÉTODO: Para ser chamado externamente quando o painel fica invisível.
+    public void stopServices() {
+        if (voiceService != null && voiceService.isListening()) {
+            voiceService.stopListening();
+            voiceButton.setForeground(null);
+        }
     }
 
     private JComponent createChatPanel(AppContext appContext) {
@@ -129,6 +135,10 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         if (!voiceService.isListening()) {
             voiceButton.setForeground(Color.RED);
             voiceService.startListening(transcribedText -> {
+                if (voiceService.isListening()) {
+                    voiceService.stopListening();
+                    voiceButton.setForeground(null);
+                }
                 inputField.setText(transcribedText);
                 sendMessage();
             });

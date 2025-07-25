@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/app/MainApp.java
 package com.titanaxis.app;
 
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -38,8 +37,12 @@ public class MainApp {
             AppContext appContext = injector.getInstance(AppContext.class);
             LoginFrame loginFrame = new LoginFrame(appContext);
             loginFrame.setVisible(true);
+
+            // A lógica de shutdown foi movida para o window listener da DashboardFrame
+            // para um ciclo de vida mais controlado.
         });
 
+        // Adiciona um gancho de encerramento geral para o JpaUtil, garantindo que a conexão é fechada.
         Runtime.getRuntime().addShutdownHook(new Thread(JpaUtil::close));
     }
 }

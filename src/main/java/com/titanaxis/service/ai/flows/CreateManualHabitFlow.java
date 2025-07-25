@@ -5,6 +5,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.UserHabitService;
+import com.titanaxis.util.I18n;
 
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
@@ -30,14 +31,14 @@ public class CreateManualHabitFlow extends AbstractConversationFlow {
     @Override
     protected void defineSteps() {
         steps.put("acao", new Step(
-                "Claro. Qual ação você quer que eu sugira? (Ex: 'gerar relatório')",
+                I18n.getString("flow.createHabit.askAction"),
                 (input, data) -> !input.isEmpty(),
-                "A ação não pode ser vazia."
+                I18n.getString("flow.validation.requiredField")
         ));
         steps.put("dia", new Step(
-                "Em que dia da semana você quer que eu sugira isso?",
-                this::isDiaDaSemanaValido,
-                "Dia da semana inválido. Por favor, use um dia como 'segunda-feira', 'terça-feira', etc."
+                I18n.getString("flow.createHabit.askDay"),
+                (input, data) -> isDiaDaSemanaValido(input),
+                I18n.getString("flow.createHabit.validation.invalidDay")
         ));
     }
 
@@ -45,7 +46,7 @@ public class CreateManualHabitFlow extends AbstractConversationFlow {
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         int userId = authService.getUsuarioLogadoId();
         if (userId == 0) {
-            return new AssistantResponse("Precisa de estar autenticado para criar um hábito.");
+            return new AssistantResponse(I18n.getString("flow.generic.error.authRequired"));
         }
 
         try {
@@ -55,10 +56,10 @@ public class CreateManualHabitFlow extends AbstractConversationFlow {
             userHabitService.createManualHabit(userId, acao.toUpperCase().replace(" ", "_"), dia);
 
             String diaFormatado = dia.getDisplayName(TextStyle.FULL, new Locale("pt", "BR"));
-            return new AssistantResponse(String.format("Hábito criado! Irei sugerir a ação '%s' todas as %s.", acao, diaFormatado));
+            return new AssistantResponse(I18n.getString("flow.createHabit.success", acao, diaFormatado));
 
         } catch (Exception e) {
-            return new AssistantResponse("Ocorreu um erro ao criar o hábito: " + e.getMessage());
+            return new AssistantResponse(I18n.getString("flow.createHabit.error.generic", e.getMessage()));
         }
     }
 

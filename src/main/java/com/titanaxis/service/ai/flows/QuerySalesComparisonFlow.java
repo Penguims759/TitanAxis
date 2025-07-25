@@ -6,6 +6,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.text.NumberFormat;
@@ -39,7 +40,7 @@ public class QuerySalesComparisonFlow implements ConversationFlow {
         Optional<DateRange> period2Opt = getDateRange(normalizedInput, true);
 
         if (period1Opt.isEmpty() || period2Opt.isEmpty()) {
-            return new AssistantResponse("Não consegui entender os períodos que você deseja comparar. Tente algo como 'compare as vendas de hoje com as de ontem'.");
+            return new AssistantResponse(I18n.getString("flow.queryComparison.error.misunderstood"));
         }
 
         DateRange period1 = period1Opt.get();
@@ -51,16 +52,14 @@ public class QuerySalesComparisonFlow implements ConversationFlow {
 
             String comparison;
             if (sales2 == 0) {
-                comparison = sales1 > 0 ? " (não há vendas no período anterior para comparar)" : "";
+                comparison = sales1 > 0 ? I18n.getString("flow.querySummary.noPreviousData") : "";
             } else {
                 double percentage = ((sales1 - sales2) / sales2) * 100;
-                comparison = String.format(" (%.1f%% %s que %s)",
-                        Math.abs(percentage),
-                        percentage >= 0 ? "a mais" : "a menos",
-                        period2.name);
+                String trend = percentage >= 0 ? I18n.getString("flow.queryComparison.more") : I18n.getString("flow.queryComparison.less");
+                comparison = I18n.getString("flow.queryComparison.comparisonText", Math.abs(percentage), trend, period2.name);
             }
 
-            String responseText = String.format("Vendas para '%s': %s.\nVendas para '%s': %s.\nResultado: %s vendeu %s%s.",
+            String responseText = I18n.getString("flow.queryComparison.result",
                     period1.name, currencyFormat.format(sales1),
                     period2.name, currencyFormat.format(sales2),
                     period1.name, currencyFormat.format(sales1), comparison
@@ -69,7 +68,7 @@ public class QuerySalesComparisonFlow implements ConversationFlow {
             return new AssistantResponse(responseText);
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao buscar os dados de vendas para a comparação.");
+            return new AssistantResponse(I18n.getString("flow.queryComparison.error.generic"));
         }
     }
 
@@ -96,19 +95,19 @@ public class QuerySalesComparisonFlow implements ConversationFlow {
 
         LocalDate today = LocalDate.now();
         return switch (foundKeyword) {
-            case "hoje" -> Optional.of(new DateRange("hoje", today, today, "hoje"));
-            case "ontem" -> Optional.of(new DateRange("ontem", today.minusDays(1), today.minusDays(1), "ontem"));
-            case "esta semana" -> Optional.of(new DateRange("esta semana", today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)), "esta semana"));
+            case "hoje" -> Optional.of(new DateRange(I18n.getString("flow.period.today"), today, today, "hoje"));
+            case "ontem" -> Optional.of(new DateRange(I18n.getString("flow.period.yesterday"), today.minusDays(1), today.minusDays(1), "ontem"));
+            case "esta semana" -> Optional.of(new DateRange(I18n.getString("flow.period.thisWeek"), today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)), "esta semana"));
             case "semana passada" -> {
                 LocalDate start = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 LocalDate end = start.plusDays(6);
-                yield Optional.of(new DateRange("semana passada", start, end, "semana passada"));
+                yield Optional.of(new DateRange(I18n.getString("flow.period.lastWeek"), start, end, "semana passada"));
             }
-            case "este mes" -> Optional.of(new DateRange("este mês", today.withDayOfMonth(1), today.with(TemporalAdjusters.lastDayOfMonth()), "este mês"));
+            case "este mes" -> Optional.of(new DateRange(I18n.getString("flow.period.thisMonth"), today.withDayOfMonth(1), today.with(TemporalAdjusters.lastDayOfMonth()), "este mês"));
             case "mes passado" -> {
                 LocalDate start = today.minusMonths(1).withDayOfMonth(1);
                 LocalDate end = start.with(TemporalAdjusters.lastDayOfMonth());
-                yield Optional.of(new DateRange("mês passado", start, end, "mês passado"));
+                yield Optional.of(new DateRange(I18n.getString("flow.period.lastMonth"), start, end, "mês passado"));
             }
             default -> Optional.empty();
         };

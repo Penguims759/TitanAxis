@@ -3,6 +3,7 @@ package com.titanaxis.service.ai;
 import com.google.inject.Singleton;
 import com.titanaxis.service.Intent;
 import com.titanaxis.util.AppLogger;
+import com.titanaxis.util.I18n;
 import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
@@ -15,6 +16,7 @@ import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.model.ModelUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,44 +29,41 @@ public class NLPIntentService {
 
     private static final Logger logger = AppLogger.getLogger();
     private DocumentCategorizerME categorizer;
-    private static final String TRAINING_FILE = "/ai/intent-train.txt";
-    // ALTERADO: O modelo agora é procurado dentro do classpath.
-    private static final String MODEL_RESOURCE_PATH = "/ai/nlp-intent-model.bin";
 
     public NLPIntentService() {
         loadOrTrainModel();
     }
 
     private void loadOrTrainModel() {
-        try (InputStream modelIn = getClass().getResourceAsStream(MODEL_RESOURCE_PATH)) {
-            if (modelIn != null) {
-                logger.info("A carregar modelo de intenção pré-treinado do classpath...");
-                DoccatModel model = new DoccatModel(modelIn);
-                this.categorizer = new DocumentCategorizerME(model);
-                logger.info("Modelo de intenção carregado com sucesso.");
+        // ALTERAÇÃO: Usa o locale completo (ex: "pt_BR") para o nome do ficheiro.
+        String localeString = I18n.getCurrentLocale().toString(); // ex: "pt_BR"
+        String modelFileName = "nlp-intent-model_" + localeString + ".bin";
+        String trainingFileName = "/ai/intent-train_" + localeString + ".txt";
+
+        try {
+            File modelFile = new File(modelFileName);
+            if (modelFile.exists()) {
+                logger.info("A carregar modelo de intenção pré-treinado do ficheiro: " + modelFileName);
+                try (InputStream modelIn = new FileInputStream(modelFile)) {
+                    DoccatModel model = new DoccatModel(modelIn);
+                    this.categorizer = new DocumentCategorizerME(model);
+                    logger.info("Modelo de intenção carregado com sucesso.");
+                }
             } else {
-                logger.warning("Modelo de intenção não encontrado no classpath: " + MODEL_RESOURCE_PATH + ". A tentar treinar um novo modelo...");
-                // Se não encontrar o modelo, treina um novo a partir do ficheiro de treino
-                trainAndLog();
+                logger.info("Nenhum modelo pré-treinado encontrado para o locale '" + localeString + "'. A iniciar treino...");
+                trainAndSaveModel(modelFile, trainingFileName, I18n.getCurrentLocale().getLanguage());
             }
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao carregar o modelo de intenção. A tentar treinar um novo.", e);
-            trainAndLog();
+            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo de intenção para o locale " + localeString, e);
         }
     }
 
-    private void trainAndLog() {
-        try {
-            trainModel();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao treinar o modelo de intenção. O serviço de NLP pode não funcionar.", e);
-        }
-    }
-
-    private void trainModel() throws IOException {
-        try (InputStream dataIn = getClass().getResourceAsStream(TRAINING_FILE)) {
+    private void trainAndSaveModel(File modelFile, String trainingFile, String lang) throws IOException {
+        try (InputStream dataIn = getClass().getResourceAsStream(trainingFile)) {
             if (dataIn == null) {
-                throw new IOException("Ficheiro de treino não encontrado: " + TRAINING_FILE);
+                logger.warning("Ficheiro de treino não encontrado: " + trainingFile + ". A usar o ficheiro de treino padrão (pt_BR).");
+                trainAndSaveModel(new File("nlp-intent-model_pt_BR.bin"), "/ai/intent-train_pt_BR.txt", "pt");
+                return;
             }
 
             InputStreamFactory inputStreamFactory = () -> dataIn;
@@ -74,10 +73,14 @@ public class NLPIntentService {
             TrainingParameters params = ModelUtil.createDefaultTrainingParameters();
             params.put(TrainingParameters.CUTOFF_PARAM, 1);
 
-            DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, params, new DoccatFactory());
+            DoccatModel model = DocumentCategorizerME.train(lang, sampleStream, params, new DoccatFactory());
             this.categorizer = new DocumentCategorizerME(model);
-            logger.info("Modelo de intenção treinado com sucesso a partir dos dados de treino.");
-            // Opcional: Salvar o modelo treinado em algum lugar, se necessário, mas a boa prática é tê-lo nos resources.
+            logger.info("Modelo de intenção para o idioma '" + lang + "' treinado com sucesso.");
+
+            try (FileOutputStream modelOut = new FileOutputStream(modelFile)) {
+                model.serialize(modelOut);
+                logger.info("Modelo de intenção guardado em: " + modelFile.getAbsolutePath());
+            }
         }
     }
 

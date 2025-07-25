@@ -1,24 +1,21 @@
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
-import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.util.Map;
 
 public class UpdateProductFlow extends AbstractConversationFlow {
 
-    private final TransactionService transactionService;
     private final FlowValidationService validationService;
 
     @Inject
-    public UpdateProductFlow(TransactionService transactionService, FlowValidationService validationService) {
-        this.transactionService = transactionService;
+    public UpdateProductFlow(FlowValidationService validationService) {
         this.validationService = validationService;
     }
 
@@ -43,29 +40,28 @@ public class UpdateProductFlow extends AbstractConversationFlow {
             return handleStatusUpdate(userInput, conversationData);
         } else if ("CONFIRM_UPDATE".equals(flowStep)) {
             if (userInput.equalsIgnoreCase("sim")) {
-                return new AssistantResponse("Ok, a enviar a atualização...", Action.DIRECT_UPDATE_PRODUCT, conversationData);
+                return new AssistantResponse(I18n.getString("flow.updateProduct.updating"), Action.DIRECT_UPDATE_PRODUCT, conversationData);
             } else {
                 conversationData.clear();
-                return new AssistantResponse("Ok, ação cancelada.");
+                return new AssistantResponse(I18n.getString("flow.generic.actionCanceled"));
             }
         }
 
         return super.process(userInput, conversationData);
     }
 
-
     @Override
     protected void defineSteps() {
         steps.put("productName", new Step(
-                "Qual produto você deseja alterar?",
+                I18n.getString("flow.updateProduct.askProductName"),
                 (input, data) -> validationService.isProdutoValido(input),
-                "Não encontrei este produto. Por favor, verifique o nome."
+                I18n.getString("flow.manageStock.validation.productNotFound")
         ));
 
         steps.put("updateType", new Step(
-                data -> "O que você deseja alterar no produto '" + data.get("productName") + "'? (preço ou status)",
+                data -> I18n.getString("flow.updateProduct.askUpdateType", data.get("productName")),
                 input -> StringUtil.normalize(input).contains("preco") || StringUtil.normalize(input).contains("status"),
-                "Não entendi. Você pode alterar o 'preço' ou o 'status'."
+                I18n.getString("flow.updateProduct.validation.invalidType")
         ));
     }
 
@@ -74,21 +70,21 @@ public class UpdateProductFlow extends AbstractConversationFlow {
         String updateType = StringUtil.normalize((String) conversationData.get("updateType"));
         if(updateType.contains("preco")){
             conversationData.put("flow", "PRICE_UPDATE");
-            return new AssistantResponse("Qual o novo preço?", Action.AWAITING_INFO, null);
+            return new AssistantResponse(I18n.getString("flow.updateProduct.askNewPrice"), Action.AWAITING_INFO, null);
         } else {
             conversationData.put("flow", "STATUS_UPDATE");
-            return new AssistantResponse("Deseja 'ativar' ou 'inativar' o produto?", Action.AWAITING_INFO, null);
+            return new AssistantResponse(I18n.getString("flow.updateProduct.askNewStatus"), Action.AWAITING_INFO, null);
         }
     }
 
     private AssistantResponse handlePriceUpdate(String userInput, Map<String, Object> data) {
         if (StringUtil.isNumeric(userInput.replace(",", "."))) {
             data.put("newPrice", Double.parseDouble(userInput.replace(",", ".")));
-            String confirmationMessage = String.format("Você confirma a alteração do preço do produto %s para %.2f? (sim/não)", data.get("productName"), data.get("newPrice"));
+            String confirmationMessage = I18n.getString("flow.updateProduct.confirmPrice", data.get("productName"), data.get("newPrice"));
             data.put("flow", "CONFIRM_UPDATE");
             return new AssistantResponse(confirmationMessage, Action.AWAITING_INFO, null);
         }
-        return new AssistantResponse("Preço inválido. Por favor, digite um número.", Action.AWAITING_INFO, null);
+        return new AssistantResponse(I18n.getString("flow.validation.invalidNumber"), Action.AWAITING_INFO, null);
     }
 
     private AssistantResponse handleStatusUpdate(String userInput, Map<String, Object> data) {
@@ -96,9 +92,10 @@ public class UpdateProductFlow extends AbstractConversationFlow {
         if (normalizedInput.contains("ativar")) data.put("active", true);
         else if (normalizedInput.contains("inativar")) data.put("active", false);
         else {
-            return new AssistantResponse("Não entendi. Deseja 'ativar' ou 'inativar'?", Action.AWAITING_INFO, null);
+            return new AssistantResponse(I18n.getString("flow.updateProduct.validation.invalidStatus"), Action.AWAITING_INFO, null);
         }
-        String confirmationMessage = String.format("Você confirma a %s do produto %s? (sim/não)", ((Boolean) data.get("active") ? "ativação" : "inativação"), data.get("productName"));
+        String statusText = (Boolean) data.get("active") ? I18n.getString("flow.updateProduct.status.activation") : I18n.getString("flow.updateProduct.status.deactivation");
+        String confirmationMessage = I18n.getString("flow.updateProduct.confirmStatus", statusText, data.get("productName"));
         data.put("flow", "CONFIRM_UPDATE");
         return new AssistantResponse(confirmationMessage, Action.AWAITING_INFO, null);
     }

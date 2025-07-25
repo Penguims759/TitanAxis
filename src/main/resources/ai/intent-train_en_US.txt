@@ -1,0 +1,1206 @@
+CREATE_PRODUCT i want to create a new product
+CREATE_PRODUCT can you help me register an item?
+CREATE_PRODUCT new product
+CREATE_PRODUCT how do i add a product
+CREATE_PRODUCT create product
+CREATE_PRODUCT i would like to add a new item to my inventory
+CREATE_PRODUCT register a new article
+CREATE_PRODUCT how can I insert a product into the database?
+CREATE_PRODUCT add item to catalog
+CREATE_PRODUCT include a new product in the list
+CREATE_PRODUCT i want to register an item
+CREATE_PRODUCT how do I add a new good to the stock?
+CREATE_PRODUCT I need to register a new product
+CREATE_PRODUCT what is the procedure to create a product?
+CREATE_PRODUCT help me create a product
+CREATE_PRODUCT add a product
+CREATE_PRODUCT insert new item
+CREATE_PRODUCT register article
+CREATE_PRODUCT include an item in the system
+CREATE_PRODUCT new article for the inventory
+CREATE_PRODUCT I want to add a new product
+CREATE_PRODUCT how to register a new product?
+CREATE_PRODUCT let's create a product
+CREATE_PRODUCT register a new item
+CREATE_PRODUCT add product to inventory
+CREATE_PRODUCT include product
+CREATE_PRODUCT insert product
+CREATE_PRODUCT register product
+CREATE_PRODUCT add new product
+CREATE_PRODUCT register new product
+CREATE_PRODUCT create item
+CREATE_PRODUCT new item
+CREATE_PRODUCT help to create item
+CREATE_PRODUCT how to create an item
+CREATE_PRODUCT i want to register a new item
+CREATE_PRODUCT add an item please
+CREATE_PRODUCT put a new product
+CREATE_PRODUCT register a new product in the system
+CREATE_PRODUCT add item to my inventory
+CREATE_PRODUCT how to put a product in the system
+CREATE_PRODUCT i need a new product
+CREATE_PRODUCT create new product record
+CREATE_PRODUCT let's add a product
+CREATE_PRODUCT how do I register a product
+CREATE_PRODUCT I need to include an item
+CREATE_PRODUCT help to add a product
+CREATE_PRODUCT new product, please
+CREATE_PRODUCT how do I register a new product
+CREATE_PRODUCT I want to include a new item
+CREATE_PRODUCT add an item to the stock
+CREATE_PRODUCT how do I create a product?
+
+CREATE_USER create user
+CREATE_USER new user
+CREATE_USER add a new user
+CREATE_USER register an employee
+CREATE_USER i want to create a new access
+CREATE_USER how to add a new user to the system?
+CREATE_USER create an account for an employee
+CREATE_USER new employee
+CREATE_USER register user
+CREATE_USER can you create a login for a new person?
+CREATE_USER add a team member
+CREATE_USER create access credentials
+CREATE_USER how do I create a user profile?
+CREATE_USER I want to give access to a new person
+CREATE_USER register new user
+CREATE_USER add user account
+CREATE_USER new system access
+CREATE_USER create profile for employee
+CREATE_USER how to register a new member?
+CREATE_USER add a new profile
+CREATE_USER I want to create a user
+CREATE_USER add user
+CREATE_USER register employee
+CREATE_USER create account
+CREATE_USER new login
+CREATE_USER help to create user
+CREATE_USER how to create an access
+CREATE_USER I want to register a new user
+CREATE_USER add a collaborator
+CREATE_USER create a login
+CREATE_USER how do I add a user
+CREATE_USER I need a new user
+CREATE_USER let's create a user
+CREATE_USER register a new employee
+CREATE_USER add a new member
+CREATE_USER I want to give system access
+CREATE_USER how to register a user
+CREATE_USER create access for a new employee
+CREATE_USER new user profile
+CREATE_USER add a login
+CREATE_USER how do I create a user?
+
+CREATE_CATEGORY create category
+CREATE_CATEGORY new category
+CREATE_CATEGORY add a product category
+CREATE_CATEGORY I want to create a new section for products
+CREATE_CATEGORY how to add a new product family?
+CREATE_CATEGORY register a category
+CREATE_CATEGORY new item category
+CREATE_CATEGORY can you create a new product classification?
+CREATE_CATEGORY I want to group products in a new category
+CREATE_CATEGORY how do I create a category?
+CREATE_CATEGORY add a new product type
+CREATE_CATEGORY create product grouping
+CREATE_CATEGORY I want a new category
+CREATE_CATEGORY how to organize my products into categories?
+CREATE_CATEGORY register new category
+CREATE_CATEGORY add product family
+CREATE_CATEGORY new classification for items
+CREATE_CATEGORY create a product section
+CREATE_CATEGORY how to group my items?
+CREATE_CATEGORY I want to create a new category
+CREATE_CATEGORY new category please
+CREATE_CATEGORY add category
+CREATE_CATEGORY how to create a product group
+CREATE_CATEGORY I want a new classification
+CREATE_CATEGORY register a new group
+CREATE_CATEGORY how to add a new category
+CREATE_CATEGORY I need a new category
+CREATE_CATEGORY let's create a category
+CREATE_CATEGORY register a new category
+CREATE_CATEGORY add a new grouping
+CREATE_CATEGORY I want to organize my items
+CREATE_CATEGORY how to register a category
+CREATE_CATEGORY create a new product family
+CREATE_CATEGORY new item section
+CREATE_CATEGORY add an item type
+CREATE_CATEGORY how do I create a category
+CREATE_CATEGORY I want a new category
+CREATE_CATEGORY help to create category
+CREATE_CATEGORY how do I group products
+
+CREATE_CLIENT create client
+CREATE_CLIENT register a new client
+CREATE_CLIENT add client
+CREATE_CLIENT i want to register a new buyer
+CREATE_CLIENT how to add a client to the database?
+CREATE_CLIENT new client on the list
+CREATE_CLIENT can you create a record for a client?
+CREATE_CLIENT I need to add a client's data
+CREATE_CLIENT what is the procedure to register a client?
+CREATE_CLIENT help me insert a new client
+CREATE_CLIENT let's register a client
+CREATE_CLIENT register buyer
+CREATE_CLIENT include new client
+CREATE_CLIENT add a new client
+CREATE_CLIENT how to register a client?
+CREATE_CLIENT I want to add a client
+CREATE_CLIENT new client record
+CREATE_CLIENT insert client data
+CREATE_CLIENT how to register a new buyer?
+CREATE_CLIENT I want a new client
+CREATE_CLIENT new client
+CREATE_CLIENT help to create client
+CREATE_CLIENT how to register a client
+CREATE_CLIENT I want to register a client
+CREATE_CLIENT add a new client
+CREATE_CLIENT I need a new client
+CREATE_CLIENT let's create a client
+CREATE_CLIENT register a new client
+CREATE_CLIENT include a new client
+CREATE_CLIENT how do I add a client
+CREATE_CLIENT register a new buyer
+CREATE_CLIENT I want to include a new buyer
+CREATE_CLIENT add a client record
+CREATE_CLIENT how do I register a client?
+CREATE_CLIENT new buyer
+CREATE_CLIENT help to add client
+CREATE_CLIENT register the client
+CREATE_CLIENT include client
+
+CREATE_FORNECEDOR create supplier
+CREATE_FORNECEDOR new supplier
+CREATE_FORNECEDOR register supplier
+CREATE_FORNECEDOR how to add a new supplier?
+CREATE_FORNECEDOR I want to register a business partner
+CREATE_FORNECEDOR new product supplier
+CREATE_FORNECEDOR can you help me register a supplier?
+CREATE_FORNECEDOR I need to insert a new supplier
+CREATE_FORNECEDOR add supplier data
+CREATE_FORNECEDOR how to register a new supplier?
+CREATE_FORNECEDOR I want to add a new partner
+CREATE_FORNECEDOR register a new goods supplier
+CREATE_FORNECEDOR insert supplier
+CREATE_FORNECEDOR new business partner
+CREATE_FORNECEDOR register a supplier
+CREATE_FORNECEDOR how to create a new supplier?
+CREATE_FORNECEDOR add supplier to the system
+CREATE_FORNECEDOR I want a new supplier
+CREATE_FORNECEDOR register commercial partner
+CREATE_FORNECEDOR how to add a supplier?
+CREATE_FORNECEDOR new supplier, please
+CREATE_FORNECEDOR add a supplier
+CREATE_FORNECEDOR help to create supplier
+CREATE_FORNECEDOR how to register a new supplier
+CREATE_FORNECEDOR I want to register a supplier
+CREATE_FORNECEDOR include a new partner
+CREATE_FORNECEDOR I need a new supplier
+CREATE_FORNECEDOR let's create a supplier
+CREATE_FORNECEDOR register a new supplier
+CREATE_FORNECEDOR add a new commercial partner
+CREATE_FORNECEDOR how do I add a supplier
+CREATE_FORNECEDOR register a new service supplier
+CREATE_FORNECEDOR I want to include a new supplier
+CREATE_FORNECEDOR add a supplier record
+CREATE_FORNECEDOR how do I register a supplier?
+CREATE_FORNECEDOR new partner
+CREATE_FORNECEDOR help to add supplier
+CREATE_FORNECEDOR register the supplier
+CREATE_FORNECEDOR include supplier
+
+CREATE_PURCHASE_ORDER create a purchase order
+CREATE_PURCHASE_ORDER place an order to a supplier
+CREATE_PURCHASE_ORDER new purchase order
+CREATE_PURCHASE_ORDER I want to order products
+CREATE_PURCHASE_ORDER register a purchase order
+CREATE_PURCHASE_ORDER how do I place an order to a supplier
+CREATE_PURCHASE_ORDER I need to order 50 pens from supplier Penta
+CREATE_PURCHASE_ORDER create purchase order for 100 rubbers
+CREATE_PURCHASE_ORDER order 20 notebooks from supplier ABC
+CREATE_PURCHASE_ORDER I want to create a new purchase order
+CREATE_PURCHASE_ORDER generate an order to the supplier
+CREATE_PURCHASE_ORDER new order
+CREATE_PURCHASE_ORDER make an order
+CREATE_PURCHASE_ORDER register purchase order
+CREATE_PURCHASE_ORDER I want to order more material
+CREATE_PURCHASE_ORDER new purchase for supplier
+CREATE_PURCHASE_ORDER generate purchase order
+CREATE_PURCHASE_ORDER open purchase order
+CREATE_PURCHASE_ORDER can you make an order?
+CREATE_PURCHASE_ORDER I need to buy more items
+CREATE_PURCHASE_ORDER I want to request a purchase
+CREATE_PURCHASE_ORDER register a new purchase
+CREATE_PURCHASE_ORDER how do I order something from a supplier
+CREATE_PURCHASE_ORDER help me make a purchase order
+CREATE_PURCHASE_ORDER let's order more products
+CREATE_PURCHASE_ORDER purchase request
+CREATE_PURCHASE_ORDER new purchase request
+CREATE_PURCHASE_ORDER make a purchase request
+CREATE_PURCHASE_ORDER I want to make a requisition
+CREATE_PURCHASE_ORDER I need a new purchase order
+
+CREATE_MANUAL_HABIT add the habit of generating reports every monday
+CREATE_MANUAL_HABIT I want you to remind me to check the stock on wednesdays
+CREATE_MANUAL_HABIT add a habit to see debtor clients on friday
+CREATE_MANUAL_HABIT register the habit of analyzing sales on saturday
+CREATE_MANUAL_HABIT I want to add a manual habit
+CREATE_MANUAL_HABIT how do I add a new habit?
+CREATE_MANUAL_HABIT add habit
+CREATE_MANUAL_HABIT let's add a habit
+CREATE_MANUAL_HABIT create new habit
+CREATE_MANUAL_HABIT I want you to suggest an action
+CREATE_MANUAL_HABIT register a new reminder
+CREATE_MANUAL_HABIT how do I create a custom habit?
+CREATE_MANUAL_HABIT can you remind me to do something?
+CREATE_MANUAL_HABIT I want to set a suggestion
+CREATE_MANUAL_HABIT new manual habit
+CREATE_MANUAL_HABIT help me create a habit
+CREATE_MANUAL_HABIT register habit
+CREATE_MANUAL_HABIT how to register a habit
+CREATE_MANUAL_HABIT I want you to remind me of something
+CREATE_MANUAL_HABIT create a periodic reminder
+CREATE_MANUAL_HABIT new habit
+CREATE_MANUAL_HABIT I want a new habit
+CREATE_MANUAL_HABIT set a new habit
+CREATE_MANUAL_HABIT register a habit
+
+START_SALE start a sale for client john silva
+START_SALE begin a sale for client XYZ
+START_SALE open sale for client Test
+START_SALE new sale
+START_SALE start sale
+START_SALE let's start a new order for the client
+START_SALE open a new sales order
+START_SALE I want to sell to the client
+START_SALE register a sales transaction
+START_SALE can you start a new sale?
+START_SALE I need to make a sale to the client
+START_SALE how do I open the sales panel?
+START_SALE I want to create a new sale
+START_SALE open the sales module
+START_SALE let's sell something
+START_SALE start a new transaction
+START_SALE how to register a sale?
+START_SALE I want to create a sales order
+START_SALE new sale for the client
+START_SALE start selling
+START_SALE open sale
+START_SALE new sale now
+START_SALE start the sales process
+START_SALE I want to make a sale
+START_SALE how do I start a sale?
+START_SALE register sale
+START_SALE I need to sell a product
+START_SALE let's make a sale
+START_SALE new sales transaction
+START_SALE open the cash register for a sale
+START_SALE how to create a sale
+START_SALE I want to register an order
+START_SALE start a new order
+START_SALE sale for the client
+START_SALE begin a sale
+START_SALE how do I sell an item?
+START_SALE new sale, please
+START_SALE open the panel to sell
+START_SALE I want to make a sales order
+
+EXECUTE_FULL_SALE sell 2 pens from batch L123 to client Maria Silva
+EXECUTE_FULL_SALE i want to sell 10 rubbers to client Test
+EXECUTE_FULL_SALE can you sell 5 pencils from batch ABC
+EXECUTE_FULL_SALE sell 1 unit of notebook to john
+EXECUTE_FULL_SALE I want to sell 3 rubbers from batch XYZ to client XYZ
+EXECUTE_FULL_SALE sell 1 test item
+EXECUTE_FULL_SALE make the sale of 4 pens from batch L1
+EXECUTE_FULL_SALE register the sale of 10 X products
+EXECUTE_FULL_SALE can you sell 1 rubber for me?
+EXECUTE_FULL_SALE sell now 20 units of Y to client Z
+EXECUTE_FULL_SALE I want to register the sale of 5 items for client Final Test
+EXECUTE_FULL_SALE sell 15 units of stapler
+EXECUTE_FULL_SALE I need to sell 30 rubbers from batch K10
+EXECUTE_FULL_SALE sell to client ABC 3 units of product X
+EXECUTE_FULL_SALE can you post the sale of 10 clips?
+EXECUTE_FULL_SALE register a sale of 50 blue pens for client Company A
+EXECUTE_FULL_SALE sell 2 keyboards to John now
+EXECUTE_FULL_SALE I want to sell 1 monitor to Maria from batch MON-24
+EXECUTE_FULL_SALE sell 4 chairs
+EXECUTE_FULL_SALE register the sale of 2 tables for client Ana
+
+UPDATE_PRODUCT change the price of the product pen
+UPDATE_PRODUCT I need to change the status of the product rubber
+UPDATE_PRODUCT update the product pencil
+UPDATE_PRODUCT I want to modify the price of the item
+UPDATE_PRODUCT how to change the status of a product?
+UPDATE_PRODUCT I need to update the product data
+UPDATE_PRODUCT can you change the price of
+UPDATE_PRODUCT I want to deactivate the product
+UPDATE_PRODUCT how do I reactivate a product?
+UPDATE_PRODUCT modify the status of the item
+UPDATE_PRODUCT I need to adjust the price of
+UPDATE_PRODUCT update product information
+UPDATE_PRODUCT how to modify an existing product?
+UPDATE_PRODUCT I want to change the product
+UPDATE_PRODUCT change the price of an article
+UPDATE_PRODUCT how can I update a product?
+UPDATE_PRODUCT I need to change the status of an item
+UPDATE_PRODUCT I want to edit the product
+UPDATE_PRODUCT update the price of the article
+UPDATE_PRODUCT how to change the status of a product?
+UPDATE_PRODUCT modify product
+UPDATE_PRODUCT edit item
+UPDATE_PRODUCT change product data
+UPDATE_PRODUCT I need to change the price
+UPDATE_PRODUCT how to update the status
+UPDATE_PRODUCT I want to change the price of a product
+UPDATE_PRODUCT let's update a product
+UPDATE_PRODUCT edit the product information
+UPDATE_PRODUCT how do I change a product
+UPDATE_PRODUCT I need to modify the status
+UPDATE_PRODUCT help to update product
+UPDATE_PRODUCT I want to edit the price of an item
+UPDATE_PRODUCT how to change the state of the product
+UPDATE_PRODUCT I need help to change a product
+UPDATE_PRODUCT modify the product record
+UPDATE_PRODUCT I want to update the status of a product
+UPDATE_PRODUCT how to edit an item from the catalog
+
+UPDATE_LOTE change batch
+UPDATE_LOTE modify batch
+UPDATE_LOTE I want to change a batch
+UPDATE_LOTE how can I adjust a stock batch?
+UPDATE_LOTE I need to modify the data of a batch
+UPDATE_LOTE can you help me change a batch?
+UPDATE_LOTE I want to update the information of a batch
+UPDATE_LOTE how to edit an existing batch?
+UPDATE_LOTE I need to adjust the quantity of a batch
+UPDATE_LOTE modify a product batch
+UPDATE_LOTE how to change the details of a batch?
+UPDATE_LOTE I want to make a correction in a batch
+UPDATE_LOTE can you change the expiration date of a batch?
+UPDATE_LOTE I need to edit a batch
+UPDATE_LOTE how to adjust a batch?
+UPDATE_LOTE I want to modify a batch
+UPDATE_LOTE change the data of a batch
+UPDATE_LOTE how do I change a batch?
+UPDATE_LOTE I need to correct a batch
+UPDATE_LOTE can you adjust the information of a batch?
+UPDATE_LOTE edit batch
+UPDATE_LOTE adjust batch data
+UPDATE_LOTE modify batch information
+UPDATE_LOTE I want to correct the quantity of a batch
+UPDATE_LOTE how to change a product batch
+UPDATE_LOTE I need help to edit a batch
+UPDATE_LOTE let's change the batch information
+UPDATE_LOTE how do I edit a batch?
+UPDATE_LOTE I need to adjust the expiration date
+UPDATE_LOTE help to modify batch
+UPDATE_LOTE I want to edit the quantity of the batch
+UPDATE_LOTE how to change the data of a batch
+UPDATE_LOTE I need to change a stock batch
+UPDATE_LOTE modify the details of a batch
+UPDATE_LOTE I want to update a batch
+UPDATE_LOTE how to adjust the information of a batch
+
+MANAGE_STOCK add stock of pen
+MANAGE_STOCK entry of 10 units of batch 123
+MANAGE_STOCK I want to add to stock
+MANAGE_STOCK I need to add more units of the product
+MANAGE_STOCK how do I register a stock entry?
+MANAGE_STOCK I want to increase the stock of the batch
+MANAGE_STOCK can you help me with a goods receipt?
+MANAGE_STOCK how to register the receipt of a batch?
+MANAGE_STOCK I need to add items to the inventory
+MANAGE_STOCK I want to register the arrival of products
+MANAGE_STOCK how do I post a stock entry?
+MANAGE_STOCK add more products to the batch
+MANAGE_STOCK goods receipt
+MANAGE_STOCK how to add to stock?
+MANAGE_STOCK I want to register a new entry
+MANAGE_STOCK I need to increase the quantity in stock
+MANAGE_STOCK how to receive products?
+MANAGE_STOCK I want to add units to the batch
+MANAGE_STOCK how to register an entry?
+MANAGE_STOCK stock entry
+MANAGE_STOCK add products to stock
+MANAGE_STOCK register receipt of products
+MANAGE_STOCK increase the quantity of the batch
+MANAGE_STOCK how to add more items
+MANAGE_STOCK I want to make a stock entry
+MANAGE_STOCK I need to register a purchase from a supplier
+MANAGE_STOCK let's receive goods
+MANAGE_STOCK how do I add stock
+MANAGE_STOCK I need help with a receipt
+MANAGE_STOCK add to inventory
+MANAGE_STOCK I want to increase my stock
+MANAGE_STOCK how to register the arrival of a batch
+MANAGE_STOCK entry of new products
+MANAGE_STOCK increase the number of items in stock
+MANAGE_STOCK how to post the receipt of an order
+MANAGE_STOCK I want to add more stock
+MANAGE_STOCK how do I register a product entry
+
+ADJUST_STOCK change stock
+ADJUST_STOCK adjust the stock of batch abc to 50
+ADJUST_STOCK correct the quantity of the product pen
+ADJUST_STOCK adjust stock
+ADJUST_STOCK I want to make an inventory adjustment
+ADJUST_STOCK how to correct the number of items in stock?
+ADJUST_STOCK I need to correct the count of the batch
+ADJUST_STOCK can you help me adjust the stock?
+ADJUST_STOCK how do I correct the stock?
+ADJUST_STOCK I want to set the product stock to
+ADJUST_STOCK I need to change the total quantity of a batch
+ADJUST_STOCK how to adjust the quantity of an item?
+ADJUST_STOCK make a stock correction
+ADJUST_STOCK I want to correct the inventory
+ADJUST_STOCK how can I adjust the stock of a product?
+ADJUST_STOCK I need to correct the quantity in stock
+ADJUST_STOCK I want to adjust the number of units
+ADJUST_STOCK how to make a stock adjustment?
+ADJUST_STOCK I need to correct the stock of the batch
+ADJUST_STOCK inventory adjustment
+ADJUST_STOCK correct the stock
+ADJUST_STOCK correct the quantity of a product
+ADJUST_STOCK I want to correct my inventory
+ADJUST_STOCK how do I adjust the stock
+ADJUST_STOCK I need to make a correction in the stock
+ADJUST_STOCK let's adjust the stock
+ADJUST_STOCK how to change the quantity in stock
+ADJUST_STOCK I need help to adjust the stock
+ADJUST_STOCK I want to set the quantity of the batch
+ADJUST_STOCK how do I correct the quantity of an item
+ADJUST_STOCK manual stock adjustment
+ADJUST_STOCK I need to correct the count of a product
+ADJUST_STOCK how to make the inventory correction
+ADJUST_STOCK I want to correct the number of items
+ADJUST_STOCK how to adjust my stock
+
+ADJUST_STOCK_PERCENTAGE increase the stock of pens by 10%
+ADJUST_STOCK_PERCENTAGE I want to reduce the inventory of rubbers by 20%
+ADJUST_STOCK_PERCENTAGE can you decrease the stock of the product pencil by 5%?
+ADJUST_STOCK_PERCENTAGE adjust the stock of notebooks by -15%
+ADJUST_STOCK_PERCENTAGE I want a 50% increase in the stock of rubbers
+ADJUST_STOCK_PERCENTAGE decrease the stock of pencils by 25%
+ADJUST_STOCK_PERCENTAGE increase the stock by 10 percent
+ADJUST_STOCK_PERCENTAGE reduce the inventory by 5 percent of
+ADJUST_STOCK_PERCENTAGE I want to increase 30% of the stock
+ADJUST_STOCK_PERCENTAGE percentage stock adjustment
+ADJUST_STOCK_PERCENTAGE how to adjust the stock by percentage
+ADJUST_STOCK_PERCENTAGE I need a 15% increase in stock
+ADJUST_STOCK_PERCENTAGE can you reduce the inventory by 10 percent?
+ADJUST_STOCK_PERCENTAGE increase stock by percentage
+ADJUST_STOCK_PERCENTAGE reduce stock by percentage
+ADJUST_STOCK_PERCENTAGE I want to adjust 5% more in stock
+ADJUST_STOCK_PERCENTAGE 10% adjustment in the stock of pen
+ADJUST_STOCK_PERCENTAGE can you increase product X by 20%?
+ADJUST_STOCK_PERCENTAGE I need to decrease 5% of the stock of Y
+ADJUST_STOCK_PERCENTAGE let's adjust the stock by 10%
+
+QUERY_STOCK what is the stock of the product pen?
+QUERY_STOCK see the stock of rubber
+QUERY_STOCK how many units of the product pencil are there?
+QUERY_STOCK stock of pen
+QUERY_STOCK what is the available quantity of the product
+QUERY_STOCK check the inventory of the item
+QUERY_STOCK how many units do we still have of
+QUERY_STOCK can you tell me the current stock for
+QUERY_STOCK I want to know the stock balance of the product
+QUERY_STOCK how do I check the stock of an item?
+QUERY_STOCK tell me the quantity of
+QUERY_STOCK what is the stock level for
+QUERY_STOCK check the availability of the product
+QUERY_STOCK I want to see the stock of
+QUERY_STOCK what is the balance of the product
+QUERY_STOCK how many pieces do we have of
+QUERY_STOCK check the inventory of the item
+QUERY_STOCK inform me the stock of
+QUERY_STOCK what is the quantity in stock of
+QUERY_STOCK check the product stock
+QUERY_STOCK stock of
+QUERY_STOCK quantity of
+QUERY_STOCK item balance
+QUERY_STOCK see stock
+QUERY_STOCK check stock
+QUERY_STOCK what is the quantity of
+QUERY_STOCK show me the stock of
+QUERY_STOCK is the product available
+QUERY_STOCK what is the availability of
+QUERY_STOCK I want to know the stock
+QUERY_STOCK tell me the stock of
+QUERY_STOCK can you check the stock of
+QUERY_STOCK what is the stock of
+QUERY_STOCK how many units of the product
+QUERY_STOCK item stock
+QUERY_STOCK see the balance of
+QUERY_STOCK what is the count of
+
+QUERY_CLIENT_DETAILS details of client john
+QUERY_CLIENT_DETAILS see information of client maria
+QUERY_CLIENT_DETAILS what are the details of client Test
+QUERY_CLIENT_DETAILS show me the client's data
+QUERY_CLIENT_DETAILS I want to see the information of
+QUERY_CLIENT_DETAILS can you give me the contact details of the client
+QUERY_CLIENT_DETAILS what are the registration data of the client
+QUERY_CLIENT_DETAILS I need the client's information
+QUERY_CLIENT_DETAILS how do I check the details of a client?
+QUERY_CLIENT_DETAILS see the client's profile
+QUERY_CLIENT_DETAILS tell me the client's address
+QUERY_CLIENT_DETAILS I want the contact data of
+QUERY_CLIENT_DETAILS can you search for the client's information
+QUERY_CLIENT_DETAILS I need the client's phone number
+QUERY_CLIENT_DETAILS see the registration details of
+QUERY_CLIENT_DETAILS what is the contact information of the client
+QUERY_CLIENT_DETAILS show me the client's registration
+QUERY_CLIENT_DETAILS I want to see the data of
+QUERY_CLIENT_DETAILS can you inform me the details of
+QUERY_CLIENT_DETAILS client details
+QUERY_CLIENT_DETAILS client information
+QUERY_CLIENT_DETAILS see client data
+QUERY_CLIENT_DETAILS check client
+QUERY_CLIENT_DETAILS what is the client's contact
+QUERY_CLIENT_DETAILS show me the information of
+QUERY_CLIENT_DETAILS do you have the client's phone number
+QUERY_CLIENT_DETAILS what is the address of
+QUERY_CLIENT_DETAILS I want to know the details of
+QUERY_CLIENT_DETAILS tell me about the client
+QUERY_CLIENT_DETAILS can you look for the client
+QUERY_CLIENT_DETAILS what is the profile of
+QUERY_CLIENT_DETAILS client contact data
+QUERY_CLIENT_DETAILS inform me about the client
+QUERY_CLIENT_DETAILS see client registration
+
+QUERY_CLIENT_CREDIT what is the credit of client Maria Silva?
+QUERY_CLIENT_CREDIT see the credit of john
+QUERY_CLIENT_CREDIT how much credit does client Test have?
+QUERY_CLIENT_CREDIT can you tell me the credit balance of the client
+QUERY_CLIENT_CREDIT check the client's credit
+QUERY_CLIENT_CREDIT does client XYZ have any credit?
+QUERY_CLIENT_CREDIT what is the client's balance
+QUERY_CLIENT_CREDIT see credit balance
+QUERY_CLIENT_CREDIT client credit
+QUERY_CLIENT_CREDIT does the client have credit?
+QUERY_CLIENT_CREDIT what is the available credit for the client?
+QUERY_CLIENT_CREDIT inform me the credit of
+QUERY_CLIENT_CREDIT check the credit of
+QUERY_CLIENT_CREDIT how much credit does the client have
+QUERY_CLIENT_CREDIT can you see the client's credit?
+QUERY_CLIENT_CREDIT client credit balance
+QUERY_CLIENT_CREDIT does the client have any credit value?
+QUERY_CLIENT_CREDIT how do I see a client's credit?
+QUERY_CLIENT_CREDIT show me the client's credit
+QUERY_CLIENT_CREDIT check the client's debit balance
+QUERY_CLIENT_CREDIT what is the credit value of the client
+
+QUERY_PRODUCT_LOTS what are the batches of the pen?
+QUERY_PRODUCT_LOTS see batches of the product rubber
+QUERY_PRODUCT_LOTS batches of the product pencil
+QUERY_PRODUCT_LOTS show me all the batches of the product
+QUERY_PRODUCT_LOTS I want to see the available batches for the item
+QUERY_PRODUCT_LOTS what are the batches in stock of
+QUERY_PRODUCT_LOTS can you list the batches of
+QUERY_PRODUCT_LOTS I need to know the batches of the product
+QUERY_PRODUCT_LOTS how do I check the batches of a product?
+QUERY_PRODUCT_LOTS see the list of batches for
+QUERY_PRODUCT_LOTS what batches do we have of the item
+QUERY_PRODUCT_LOTS tell me the batches of
+QUERY_PRODUCT_LOTS I want to see all the batches of
+QUERY_PRODUCT_LOTS can you show me the batches of the product
+QUERY_PRODUCT_LOTS I need the list of batches for
+QUERY_PRODUCT_LOTS how do I see the batches of an item?
+QUERY_PRODUCT_LOTS list me the batches of the product
+QUERY_PRODUCT_LOTS what are the batches of the article
+QUERY_PRODUCT_LOTS see the batches of the article
+QUERY_PRODUCT_LOTS batches of
+QUERY_PRODUCT_LOTS see the batches
+QUERY_PRODUCT_LOTS check product batches
+QUERY_PRODUCT_LOTS what are the batches of the item
+QUERY_PRODUCT_LOTS show me the batches for
+QUERY_PRODUCT_LOTS what batches do you have of
+QUERY_PRODUCT_LOTS list of batches of
+QUERY_PRODUCT_LOTS I want to know the batches of
+QUERY_PRODUCT_LOTS tell me the batches of the product
+QUERY_PRODUCT_LOTS can you list the batches of an item
+QUERY_PRODUCT_LOTS what batches exist for
+QUERY_PRODUCT_LOTS details of the batches of
+
+QUERY_MOVEMENT_HISTORY what is the movement history of the pen?
+QUERY_MOVEMENT_HISTORY see the history of the product pencil
+QUERY_MOVEMENT_HISTORY product movement history
+QUERY_MOVEMENT_HISTORY show me the stock history of the item
+QUERY_MOVEMENT_HISTORY I want to see the movements of the product
+QUERY_MOVEMENT_HISTORY what is the history of entries and exits of
+QUERY_MOVEMENT_HISTORY can you list the movement history for
+QUERY_MOVEMENT_HISTORY I need the movement statement of the product
+QUERY_MOVEMENT_HISTORY how do I check the history of a product?
+QUERY_MOVEMENT_HISTORY see all the movements of
+QUERY_MOVEMENT_HISTORY what is the history of the item
+QUERY_MOVEMENT_HISTORY tell me the stock history of
+QUERY_MOVEMENT_HISTORY I want to see the movement log of the product
+QUERY_MOVEMENT_HISTORY can you show me the history of
+QUERY_MOVEMENT_HISTORY I need the history of stock changes for
+QUERY_MOVEMENT_HISTORY how do I see the history of a product?
+QUERY_MOVEMENT_HISTORY list me the movement history of
+QUERY_MOVEMENT_HISTORY what is the stock history for
+QUERY_MOVEMENT_HISTORY see the movement log of the product
+QUERY_MOVEMENT_HISTORY product history
+QUERY_MOVEMENT_HISTORY item movements
+QUERY_MOVEMENT_HISTORY see stock history
+QUERY_MOVEMENT_HISTORY check product history
+QUERY_MOVEMENT_HISTORY what is the movement statement of
+QUERY_MOVEMENT_HISTORY show me the history for
+QUERY_MOVEMENT_HISTORY do you have the history of
+QUERY_MOVEMENT_HISTORY stock log of
+QUERY_MOVEMENT_HISTORY I want to know the history of
+QUERY_MOVEMENT_HISTORY tell me about the movements of
+QUERY_MOVEMENT_HISTORY can you look for the history of
+QUERY_MOVEMENT_HISTORY what is the log of
+
+QUERY_TOP_CLIENTS who are my best clients?
+QUERY_TOP_CLIENTS client ranking
+QUERY_TOP_CLIENTS top clients of the month
+QUERY_TOP_CLIENTS who are the clients that buy the most?
+QUERY_TOP_CLIENTS show me the client ranking by value
+QUERY_TOP_CLIENTS what are the main clients of this period?
+QUERY_TOP_CLIENTS can you list my biggest buyers?
+QUERY_TOP_CLIENTS I want to see the top 3 clients
+QUERY_TOP_CLIENTS how do I know which clients are more valuable?
+QUERY_TOP_CLIENTS tell me the best clients
+QUERY_TOP_CLIENTS what is the ranking of my clients?
+QUERY_TOP_CLIENTS I want a list of the main clients
+QUERY_TOP_CLIENTS can you give me the top 5 clients?
+QUERY_TOP_CLIENTS who are my most important clients?
+QUERY_TOP_CLIENTS see the buyer ranking
+QUERY_TOP_CLIENTS which clients generate more revenue?
+QUERY_TOP_CLIENTS show me my best clients
+QUERY_TOP_CLIENTS I want to know who the top clients are
+QUERY_TOP_CLIENTS can you tell me my main clients?
+QUERY_TOP_CLIENTS best clients
+QUERY_TOP_CLIENTS top clients
+QUERY_TOP_CLIENTS buyer ranking
+QUERY_TOP_CLIENTS who buys the most
+QUERY_TOP_CLIENTS show me the top clients
+QUERY_TOP_CLIENTS which are the most loyal clients
+QUERY_TOP_CLIENTS list of best clients
+QUERY_TOP_CLIENTS I want to know the main clients
+QUERY_TOP_CLIENTS tell me who are the best clients
+QUERY_TOP_CLIENTS can you list the best clients
+QUERY_TOP_CLIENTS who are the top 3 clients
+
+QUERY_TOP_PRODUCT what is the best selling product?
+QUERY_TOP_PRODUCT which item sells the most?
+QUERY_TOP_PRODUCT best selling
+QUERY_TOP_PRODUCT what is the product with the highest sales?
+QUERY_TOP_PRODUCT show me the product ranking
+QUERY_TOP_PRODUCT what is the most popular item?
+QUERY_TOP_PRODUCT can you tell me which product sells the most?
+QUERY_TOP_PRODUCT I want to know the sales champion
+QUERY_TOP_PRODUCT how do I see the best selling product?
+QUERY_TOP_PRODUCT tell me the star product
+QUERY_TOP_PRODUCT which item has the most sales?
+QUERY_TOP_PRODUCT I want to see the top products
+QUERY_TOP_PRODUCT what is the most successful product?
+QUERY_TOP_PRODUCT can you inform me the best selling item?
+QUERY_TOP_PRODUCT what is our best-seller?
+QUERY_TOP_PRODUCT show me the best selling products
+QUERY_TOP_PRODUCT I want to know which product is the most popular
+QUERY_TOP_PRODUCT which item sells the most?
+QUERY_TOP_PRODUCT tell me the best selling product
+QUERY_TOP_PRODUCT most popular product
+QUERY_TOP_PRODUCT top products
+QUERY_TOP_PRODUCT product sales ranking
+QUERY_TOP_PRODUCT which item has the most sales
+QUERY_TOP_PRODUCT show me the best selling product
+QUERY_TOP_PRODUCT what is the leading sales product
+QUERY_TOP_PRODUCT list of best selling products
+QUERY_TOP_PRODUCT I want to know the best selling product
+QUERY_TOP_PRODUCT tell me which product is the best selling
+QUERY_TOP_PRODUCT can you list the best selling products
+QUERY_TOP_PRODUCT who is the sales champion
+
+QUERY_CLIENT_HISTORY what is the purchase history of client john?
+QUERY_CLIENT_HISTORY see the purchases of client maria
+QUERY_CLIENT_HISTORY purchase history
+QUERY_CLIENT_HISTORY show me what the client bought
+QUERY_CLIENT_HISTORY I want to see the client's order history
+QUERY_CLIENT_HISTORY what is the transaction history of
+QUERY_CLIENT_HISTORY can you list the client's purchases
+QUERY_CLIENT_HISTORY I need the sales history for the client
+QUERY_CLIENT_HISTORY how do I check a client's purchases?
+QUERY_CLIENT_HISTORY see the client's entire history
+QUERY_CLIENT_HISTORY what does the client usually buy?
+QUERY_CLIENT_HISTORY tell me the latest purchases of
+QUERY_CLIENT_HISTORY I want to see the client's purchase log
+QUERY_CLIENT_HISTORY can you show me the history of
+QUERY_CLIENT_HISTORY I need the client's history
+QUERY_CLIENT_HISTORY how do I see what a client bought?
+QUERY_CLIENT_HISTORY list me the purchases of
+QUERY_CLIENT_HISTORY what is the client's history
+QUERY_CLIENT_HISTORY see what the client bought
+QUERY_CLIENT_HISTORY client purchase history
+QUERY_CLIENT_HISTORY client purchases
+QUERY_CLIENT_HISTORY see client history
+QUERY_CLIENT_HISTORY check purchase history
+QUERY_CLIENT_HISTORY what is the order history of
+QUERY_CLIENT_HISTORY show me the purchases of
+QUERY_CLIENT_HISTORY do you have the purchase history of
+QUERY_CLIENT_HISTORY client purchase log
+QUERY_CLIENT_HISTORY I want to know the purchase history of
+QUERY_CLIENT_HISTORY tell me about the purchases of
+QUERY_CLIENT_HISTORY can you look for the purchase history of
+QUERY_CLIENT_HISTORY what is the client's purchase log
+
+QUERY_LOW_STOCK which products have low stock?
+QUERY_LOW_STOCK products running out
+QUERY_LOW_STOCK see products with low stock
+QUERY_LOW_STOCK which items have low stock?
+QUERY_LOW_STOCK show me the products that need to be restocked
+QUERY_LOW_STOCK what are the products in critical stock level?
+QUERY_LOW_STOCK can you list the items with low quantity?
+QUERY_LOW_STOCK I want to see the products with minimum stock
+QUERY_LOW_STOCK how do I know which products are running out?
+QUERY_LOW_STOCK tell me the products with low stock
+QUERY_LOW_STOCK which items need to be bought?
+QUERY_LOW_STOCK I want a list of out of stock products
+QUERY_LOW_STOCK can you give me the products with low inventory?
+QUERY_LOW_STOCK which products are at the end?
+QUERY_LOW_STOCK see the items that need attention in the stock
+QUERY_LOW_STOCK show me the products with few units
+QUERY_LOW_STOCK I want to know which products are running out
+QUERY_LOW_STOCK which items are on stock alert?
+QUERY_LOW_STOCK tell me which products to buy
+QUERY_LOW_STOCK low stock
+QUERY_LOW_STOCK products with low stock
+QUERY_LOW_STOCK see out of stock products
+QUERY_LOW_STOCK check products that are running out
+QUERY_LOW_STOCK which items need to be bought
+QUERY_LOW_STOCK show me what is running out
+QUERY_LOW_STOCK is there any product with low stock?
+QUERY_LOW_STOCK list of products with low stock
+QUERY_LOW_STOCK I want to know what is out of stock
+QUERY_LOW_STOCK tell me the products with low stock
+QUERY_LOW_STOCK can you list the out of stock items
+
+QUERY_EXPIRING_LOTS which batches are about to expire?
+QUERY_EXPIRING_LOTS see batches with near expiration date
+QUERY_EXPIRING_LOTS batches to expire
+QUERY_EXPIRING_LOTS which products are about to expire?
+QUERY_EXPIRING_LOTS show me the batches with near expiration
+QUERY_EXPIRING_LOTS what are the batches that will expire this month?
+QUERY_EXPIRING_LOTS can you list the products with short expiration date?
+QUERY_EXPIRING_LOTS I want to see the batches that are about to expire
+QUERY_EXPIRING_LOTS how do I know which products will expire soon?
+QUERY_EXPIRING_LOTS tell me the batches near expiration
+QUERY_EXPIRING_LOTS which items have an approaching expiration date?
+QUERY_EXPIRING_LOTS I want a list of products to expire
+QUERY_EXPIRING_LOTS can you give me the batches that expire in 30 days?
+QUERY_EXPIRING_LOTS which products are near expiration?
+QUERY_EXPIRING_LOTS see the items with short expiration date
+QUERY_EXPIRING_LOTS show me the batches that will expire
+QUERY_EXPIRING_LOTS I want to know which batches are expiring
+QUERY_EXPIRING_LOTS which items are about to expire?
+QUERY_EXPIRING_LOTS tell me the batches that need attention
+QUERY_EXPIRING_LOTS batches to expire
+QUERY_EXPIRING_LOTS products about to expire
+QUERY_EXPIRING_LOTS see batches that will expire
+QUERY_EXPIRING_LOTS check products with near expiration
+QUERY_EXPIRING_LOTS which batches expire soon?
+QUERY_EXPIRING_LOTS show me what will expire
+QUERY_EXPIRING_LOTS is there any product about to expire?
+QUERY_EXPIRING_LOTS list of batches to expire
+QUERY_EXPIRING_LOTS I want to know what will expire
+QUERY_EXPIRING_LOTS tell me the batches with near expiration
+QUERY_EXPIRING_LOTS can you list the items about to expire
+
+QUERY_FINANCIAL_SUMMARY what is the financial summary of the month?
+QUERY_FINANCIAL_SUMMARY how are the finances this month?
+QUERY_FINANCIAL_SUMMARY give me a summary of the monthly sales
+QUERY_FINANCIAL_SUMMARY what is the revenue and the average ticket?
+QUERY_FINANCIAL_SUMMARY financial summary
+QUERY_FINANCIAL_SUMMARY how was the sales performance this month?
+QUERY_FINANCIAL_SUMMARY show me the financial summary
+QUERY_FINANCIAL_SUMMARY what is the revenue of the month?
+QUERY_FINANCIAL_SUMMARY can you give me a financial overview?
+QUERY_FINANCIAL_SUMMARY finance summary
+QUERY_FINANCIAL_SUMMARY how were the sales in general?
+QUERY_FINANCIAL_SUMMARY show me the sales numbers
+QUERY_FINANCIAL_SUMMARY I want a summary of the sales
+QUERY_FINANCIAL_SUMMARY how is the billing?
+QUERY_FINANCIAL_SUMMARY sales summary
+QUERY_FINANCIAL_SUMMARY see the financial summary
+QUERY_FINANCIAL_SUMMARY tell me how the sales are
+QUERY_FINANCIAL_SUMMARY sales overview
+QUERY_FINANCIAL_SUMMARY can you summarize the finances?
+QUERY_FINANCIAL_SUMMARY I want to see the financials
+QUERY_FINANCIAL_SUMMARY how are we doing with sales?
+
+QUERY_SALESPERSON_PERFORMANCE how were john's sales this month?
+QUERY_SALESPERSON_PERFORMANCE what is the performance of salesperson maria?
+QUERY_SALESPERSON_PERFORMANCE show me the sales of user admin
+QUERY_SALESPERSON_PERFORMANCE how much did salesperson Test sell?
+QUERY_SALESPERSON_PERFORMANCE employee sales performance
+QUERY_SALESPERSON_PERFORMANCE analyze salesperson sales
+QUERY_SALESPERSON_PERFORMANCE what is the sales performance of the employee
+QUERY_SALESPERSON_PERFORMANCE see sales performance
+QUERY_SALESPERSON_PERFORMANCE how is the salesperson doing?
+QUERY_SALESPERSON_PERFORMANCE I want to see the sales of a user
+QUERY_SALESPERSON_PERFORMANCE can you show me the performance of
+QUERY_SALESPERSON_PERFORMANCE salesperson performance
+QUERY_SALESPERSON_PERFORMANCE analyze sales performance
+QUERY_SALESPERSON_PERFORMANCE sales by salesperson
+QUERY_SALESPERSON_PERFORMANCE check the sales of an employee
+QUERY_SALESPERSON_PERFORMANCE tell me the sales of a salesperson
+QUERY_SALESPERSON_PERFORMANCE how were the sales of an employee
+QUERY_SALESPERSON_PERFORMANCE what is the total sales of the salesperson?
+QUERY_SALESPERSON_PERFORMANCE I want to analyze the sales performance
+QUERY_SALESPERSON_PERFORMANCE see the sales of a user
+
+QUERY_SALES_COMPARISON compare today's sales with yesterday's
+QUERY_SALES_COMPARISON how are we doing this week compared to last week?
+QUERY_SALES_COMPARISON compare this month's sales with last month's
+QUERY_SALES_COMPARISON today's sales vs yesterday's
+QUERY_SALES_COMPARISON what is the sales difference between this week and the previous one?
+QUERY_SALES_COMPARISON sales comparison
+QUERY_SALES_COMPARISON compare the sales
+QUERY_SALES_COMPARISON how were today's sales compared to yesterday's
+QUERY_SALES_COMPARISON I want to compare the sales
+QUERY_SALES_COMPARISON what is the sales comparison?
+QUERY_SALES_COMPARISON can you compare the sales of two periods?
+QUERY_SALES_COMPARISON billing comparison
+QUERY_SALES_COMPARISON compare revenue
+QUERY_SALES_COMPARISON show me the sales comparison
+QUERY_SALES_COMPARISON how to compare the sales?
+QUERY_SALES_COMPARISON I want to see a sales comparison
+QUERY_SALES_COMPARISON today's sales in relation to yesterday's
+QUERY_SALES_COMPARISON compare the sales of the current month with the previous one
+QUERY_SALES_COMPARISON what is the sales evolution?
+QUERY_SALES_COMPARISON compare sales performance
+
+QUERY_SYSTEM_INSIGHTS give me today's insights
+QUERY_SYSTEM_INSIGHTS what are the recommendations for the system?
+QUERY_SYSTEM_INSIGHTS what do I need to know today?
+QUERY_SYSTEM_INSIGHTS do you have any recommendation for me?
+QUERY_SYSTEM_INSIGHTS show me the system insights
+QUERY_SYSTEM_INSIGHTS analyze the system and give me a summary
+QUERY_SYSTEM_INSIGHTS system insights
+QUERY_SYSTEM_INSIGHTS recommendations
+QUERY_SYSTEM_INSIGHTS insight
+QUERY_SYSTEM_INSIGHTS do you have any tip for me?
+QUERY_SYSTEM_INSIGHTS what does the system suggest?
+QUERY_SYSTEM_INSIGHTS give me an analysis
+QUERY_SYSTEM_INSIGHTS what are the points of attention?
+QUERY_SYSTEM_INSIGHTS system suggestions
+QUERY_SYSTEM_INSIGHTS I want to see the insights
+QUERY_SYSTEM_INSIGHTS can you give me an insight?
+QUERY_SYSTEM_INSIGHTS what are the system's suggestions?
+QUERY_SYSTEM_INSIGHTS show me the recommendations
+QUERY_SYSTEM_INSIGHTS system analysis
+QUERY_SYSTEM_INSIGHTS what should I do now?
+
+QUERY_USER_HABITS what are my habits?
+QUERY_USER_HABITS see my habits
+QUERY_USER_HABITS can you show me the habits you've learned?
+QUERY_USER_HABITS I want to see my registered habits
+QUERY_USER_HABITS how do I see my habits
+QUERY_USER_HABITS list my habits
+QUERY_USER_HABITS see habits
+QUERY_USER_HABITS what habits do you know?
+QUERY_USER_HABITS my habits
+QUERY_USER_HABITS my registered habits
+QUERY_USER_HABITS show me my habits
+QUERY_USER_HABITS what habits have you learned about me?
+QUERY_USER_HABITS show me my usage habits
+QUERY_USER_HABITS I want to see my routines
+QUERY_USER_HABITS how do you learn my habits?
+QUERY_USER_HABITS what are my patterns?
+QUERY_USER_HABITS tell me my habits
+QUERY_USER_HABITS can you list my habits?
+QUERY_USER_HABITS I want to see my work habits
+QUERY_USER_HABITS show me suggestions based on my habits
+QUERY_USER_HABITS what are my most frequent actions?
+QUERY_USER_HABITS see the learned habits
+
+GENERATE_REPORT generate sales report in pdf
+GENERATE_REPORT I want an inventory report in csv
+GENERATE_REPORT sales report
+GENERATE_REPORT can you create a stock report in pdf?
+GENERATE_REPORT I need a sales report in csv format
+GENERATE_REPORT how do I generate an inventory report?
+GENERATE_REPORT I want to export the sales report
+GENERATE_REPORT give me the stock report in pdf
+GENERATE_REPORT how do I generate a sales report?
+GENERATE_REPORT I need the inventory report
+GENERATE_REPORT generate a document with the sales
+GENERATE_REPORT I want a file with the inventory
+GENERATE_REPORT can you give me a sales report?
+GENERATE_REPORT I need a stock report
+GENERATE_REPORT how to export the sales data?
+GENERATE_REPORT give me an inventory report
+GENERATE_REPORT I want the sales report in pdf
+GENERATE_REPORT how do I generate a report?
+GENERATE_REPORT I need a report
+GENERATE_REPORT report
+GENERATE_REPORT generate report
+GENERATE_REPORT export data
+GENERATE_REPORT create an inventory report
+GENERATE_REPORT I want a report in pdf
+GENERATE_REPORT how to export the inventory
+GENERATE_REPORT I need a sales file
+GENERATE_REPORT let's generate a report
+GENERATE_REPORT how do I create a report
+GENERATE_REPORT I need a stock document
+GENERATE_REPORT help to generate report
+GENERATE_REPORT I want to export the sales in csv
+
+GUIDE_ADD_LOTE how do I add a batch?
+GUIDE_ADD_LOTE help me add a batch
+GUIDE_ADD_LOTE help to add batch
+GUIDE_ADD_LOTE what is the step by step to add a batch?
+GUIDE_ADD_LOTE show me how to insert a new batch
+GUIDE_ADD_LOTE can you guide me in adding a batch?
+GUIDE_ADD_LOTE I want help to register a batch
+GUIDE_ADD_LOTE how do I add stock to a product?
+GUIDE_ADD_LOTE I need a tutorial to add a batch
+GUIDE_ADD_LOTE explain to me how to add a batch
+GUIDE_ADD_LOTE can you show me where to add a batch?
+GUIDE_ADD_LOTE how to add a new batch?
+GUIDE_ADD_LOTE I want to learn how to add a batch
+GUIDE_ADD_LOTE how does it work to add a batch?
+GUIDE_ADD_LOTE give me a guide to add a batch
+GUIDE_ADD_LOTE what is the way to add a batch?
+GUIDE_ADD_LOTE how do I add a batch to a product?
+GUIDE_ADD_LOTE help me with the batch entry
+GUIDE_ADD_LOTE can you help me add a batch?
+GUIDE_ADD_LOTE help to add a batch
+GUIDE_ADD_LOTE how to add batch
+GUIDE_ADD_LOTE teach me how to add a batch
+GUIDE_ADD_LOTE show how to add batch
+GUIDE_ADD_LOTE I want a guide for a batch
+GUIDE_ADD_LOTE tutorial to add batch
+GUIDE_ADD_LOTE how to register a new batch
+GUIDE_ADD_LOTE show me the way to add a batch
+GUIDE_ADD_LOTE what is the process to add a batch
+GUIDE_ADD_LOTE how to add a new stock batch
+
+GUIDE_ADD_PRODUCT how to create a product?
+GUIDE_ADD_PRODUCT show me how to add a new product
+GUIDE_ADD_PRODUCT help to create product
+GUIDE_ADD_PRODUCT what is the step by step to create a product?
+GUIDE_ADD_PRODUCT guide me in creating a product
+GUIDE_ADD_PRODUCT can you help me register an item?
+GUIDE_ADD_PRODUCT I want help to register a new product
+GUIDE_ADD_PRODUCT how do I insert a new product?
+GUIDE_ADD_PRODUCT I need a tutorial to create a product
+GUIDE_ADD_PRODUCT explain to me how to create a product
+GUIDE_ADD_PRODUCT can you show me where to create a product?
+GUIDE_ADD_PRODUCT how to create a new product?
+GUIDE_ADD_PRODUCT I want to learn how to create a product
+GUIDE_ADD_PRODUCT how does it work to create a product?
+GUIDE_ADD_PRODUCT give me a guide to create a product
+GUIDE_ADD_PRODUCT what is the way to create a product?
+GUIDE_ADD_PRODUCT how do I add a new item to the catalog?
+GUIDE_ADD_PRODUCT help me with the product registration
+GUIDE_ADD_PRODUCT can you help me create a new product?
+GUIDE_ADD_PRODUCT help to create a product
+GUIDE_ADD_PRODUCT how to create a new item
+GUIDE_ADD_PRODUCT teach me how to create a product
+GUIDE_ADD_PRODUCT show how to create product
+GUIDE_ADD_PRODUCT I want a guide for a product
+GUIDE_ADD_PRODUCT tutorial to create product
+GUIDE_ADD_PRODUCT how to register a new product
+GUIDE_ADD_PRODUCT show me the way to create a product
+GUIDE_ADD_PRODUCT what is the process to create a product
+GUIDE_ADD_PRODUCT how to add a new product to the system
+
+NAVIGATE_TO go to the sales screen
+NAVIGATE_TO navigate to clients
+NAVIGATE_TO open the products panel
+NAVIGATE_TO go to reports
+NAVIGATE_TO take me to the stock
+NAVIGATE_TO I want to go to the users area
+NAVIGATE_TO show me the audit panel
+NAVIGATE_TO open the categories section
+NAVIGATE_TO go to financial
+NAVIGATE_TO take me to the home screen
+NAVIGATE_TO I want to access the supplier management
+NAVIGATE_TO navigate to the sales history
+NAVIGATE_TO open the stock alerts
+NAVIGATE_TO go to the movement history
+NAVIGATE_TO take me to the administration
+NAVIGATE_TO I want to see the dashboard
+NAVIGATE_TO access the goals panel
+NAVIGATE_TO go to accounts receivable
+NAVIGATE_TO show me the sales screen
+NAVIGATE_TO open the client registration
+NAVIGATE_TO go to
+NAVIGATE_TO navigate to
+NAVIGATE_TO open
+NAVIGATE_TO take me to
+NAVIGATE_TO I want to see
+NAVIGATE_TO access
+NAVIGATE_TO show panel of
+NAVIGATE_TO screen of
+NAVIGATE_TO panel of
+NAVIGATE_TO section of
+NAVIGATE_TO area of
+NAVIGATE_TO management of
+NAVIGATE_TO history of
+NAVIGATE_TO registration of
+
+CHANGE_THEME change the theme to light
+CHANGE_THEME change to the dark theme
+CHANGE_THEME dark theme
+CHANGE_THEME I want the light theme
+CHANGE_THEME can you put it in night mode?
+CHANGE_THEME change to the light theme
+CHANGE_THEME I want the dark interface
+CHANGE_THEME change the visual to light
+CHANGE_THEME can you change to the dark theme?
+CHANGE_THEME I want the day mode
+CHANGE_THEME change the application theme
+CHANGE_THEME change to the dark mode
+CHANGE_THEME light theme
+CHANGE_THEME I want to use the dark theme
+CHANGE_THEME can you change the color of the system?
+CHANGE_THEME change to the day theme
+CHANGE_THEME I want the night theme
+CHANGE_THEME change the layout to dark
+CHANGE_THEME can you put the light theme?
+CHANGE_THEME change theme
+CHANGE_THEME alter theme
+CHANGE_THEME dark mode
+CHANGE_THEME light mode
+CHANGE_THEME light theme
+CHANGE_THEME dark theme
+CHANGE_THEME light interface
+CHANGE_THEME dark interface
+CHANGE_THEME light visual
+CHANGE_THEME dark visual
+CHANGE_THEME night mode
+CHANGE_THEME day mode
+
+GREETING hello
+GREETING hi
+GREETING good morning
+GREETING good afternoon
+GREETING good evening
+GREETING what's up
+GREETING how are you?
+GREETING hello, how are you?
+GREETING greetings
+GREETING how can I help you?
+GREETING hello assistant
+GREETING hi, all good?
+GREETING good morning, how are we?
+GREETING good afternoon, I need help
+GREETING hello, are you there?
+GREETING hey, what's up?
+GREETING hi, can you help me?
+GREETING hello, good work
+GREETING everything in order?
+GREETING how's it going?
+GREETING hello
+GREETING all good
+GREETING how are you
+GREETING hi, assistant
+GREETING good morning, assistant
+GREETING good afternoon, assistant
+GREETING good evening, assistant
+GREETING hello, all good?
+GREETING how are you doing?
+GREETING hi, I need some help
+
+CONFIRM yes
+CONFIRM confirm
+CONFIRM sure
+CONFIRM ok
+CONFIRM y
+CONFIRM right
+CONFIRM positive
+CONFIRM affirmative
+CONFIRM I agree
+CONFIRM that's right
+CONFIRM you can continue
+CONFIRM proceed
+CONFIRM no problem
+CONFIRM cool
+CONFIRM deal
+CONFIRM agreed
+CONFIRM of course
+CONFIRM for sure
+CONFIRM that's it
+CONFIRM correct
+CONFIRM yes, please
+CONFIRM you can do it
+CONFIRM go ahead
+CONFIRM I fully agree
+CONFIRM that's right
+CONFIRM that's it
+CONFIRM ok, you can go
+CONFIRM it's fine by me
+CONFIRM go for it
+CONFIRM deal
+
+DENY no
+DENY cancel
+DENY stop
+DENY never mind
+DENY n
+DENY negative
+DENY no, thank you
+DENY I don't want to
+DENY you can stop
+DENY forget it
+DENY no need
+DENY stop it
+DENY abort the operation
+DENY no, thanks
+DENY better not
+DENY don't do it
+DENY stop
+DENY no, please
+DENY don't continue
+DENY leave it
+DENY no
+DENY no, thank you
+DENY stop, please
+DENY no longer needed
+DENY you can cancel
+DENY forget this
+DENY never mind
+DENY no, leave it
+DENY better not to do it
+DENY it is not necessary
+DENY you can leave it
+
+UNKNOWN what is the weather forecast?
+UNKNOWN who discovered Brazil?
+UNKNOWN what is the capital of France
+UNKNOWN can you tell me a joke?
+UNKNOWN what time is it?
+UNKNOWN what is the meaning of life?
+UNKNOWN do you have feelings?
+UNKNOWN who created you?
+UNKNOWN what is your name?
+UNKNOWN do you like music?
+UNKNOWN what is the value of pi?
+UNKNOWN how do you work?
+UNKNOWN can you give me a cake recipe?
+UNKNOWN what is the best soccer team?
+UNKNOWN do you dream?
+UNKNOWN how old are you?
+UNKNOWN what is the population of China?
+UNKNOWN tell me about the history of Egypt
+UNKNOWN how to learn to program?
+UNKNOWN are you an artificial intelligence?
+UNKNOWN what is the dollar exchange rate?
+UNKNOWN who won yesterday's game?
+UNKNOWN recommend me a movie
+UNKNOWN what is your favorite color?
+UNKNOWN can you help me with my homework?
+UNKNOWN what is your purpose?
+UNKNOWN can you translate a sentence for me?
+UNKNOWN what is the distance from Earth to the Moon?
+UNKNOWN can you sing a song?
+UNKNOWN what is your favorite movie?

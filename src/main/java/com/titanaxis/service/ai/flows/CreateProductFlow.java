@@ -10,6 +10,7 @@ import com.titanaxis.repository.CategoriaRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.util.HashMap;
@@ -35,16 +36,16 @@ public class CreateProductFlow extends AbstractConversationFlow {
 
     @Override
     protected void defineSteps() {
-        steps.put("nome", new Step("Ok, vamos criar um produto. Qual o nome dele?"));
+        steps.put("nome", new Step(I18n.getString("flow.createProduct.askName")));
         steps.put("preco", new Step(
-                data -> "Qual o preço de venda para '" + data.get("nome") + "'?",
+                data -> I18n.getString("flow.createProduct.askPrice", data.get("nome")),
                 StringUtil::isNumeric,
-                "Preço inválido. Por favor, digite um número (ex: 99.90)."
+                I18n.getString("flow.validation.invalidNumber")
         ));
         steps.put("categoria", new Step(
-                "A qual categoria este produto pertence?",
-                validationService::isCategoriaValida,
-                "Categoria não encontrada. Verifique o nome ou crie a categoria primeiro."
+                I18n.getString("flow.createProduct.askCategory"),
+                (input, data) -> validationService.isCategoriaValida(input),
+                I18n.getString("flow.createProduct.validation.categoryNotFound")
         ));
     }
 
@@ -69,12 +70,12 @@ public class CreateProductFlow extends AbstractConversationFlow {
             conversationData.put("foundEntity", novoProduto);
 
             return new AssistantResponse(
-                    "Ok, a criar o produto '" + nome + "'...",
+                    I18n.getString("flow.createProduct.creating", nome),
                     Action.DIRECT_CREATE_PRODUCT,
                     actionParams
             );
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro na base de dados ao finalizar a criação do produto.");
+            return new AssistantResponse(I18n.getString("flow.createProduct.error.finalizing"));
         }
     }
 }

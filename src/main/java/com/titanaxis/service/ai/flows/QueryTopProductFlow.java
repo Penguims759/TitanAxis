@@ -6,6 +6,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.util.Map;
 
@@ -27,9 +28,12 @@ public class QueryTopProductFlow implements ConversationFlow {
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
         try {
             String topProduct = analyticsService.getTopSellingProduct();
-            return new AssistantResponse("O produto mais vendido até agora é: " + topProduct);
+            if (topProduct.equals(I18n.getString("service.analytics.noSalesYet"))) {
+                return new AssistantResponse(I18n.getString("flow.queryTopProduct.noSales"));
+            }
+            return new AssistantResponse(I18n.getString("flow.queryTopProduct.result", topProduct));
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar os dados de vendas.");
+            return new AssistantResponse(I18n.getString("flow.queryTopProduct.error.generic"));
         }
     }
 }

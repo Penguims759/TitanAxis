@@ -1,0 +1,68 @@
+<START:venda> sell <END> <START:quantidade> 2 <END> <START:produto> pens <END> from <START:lote> batch L123 <END> to the <START:cliente> client Maria Silva <END>
+<START:venda> sell <END> <START:quantidade> 10 <END> <START:produto> rubbers <END> to the <START:cliente> client Test <END>
+<START:venda> sell <END> <START:quantidade> 5 <END> <START:produto> pencils <END> from <START:lote> batch ABC <END>
+<START:venda> sell <END> <START:quantidade> 1 <END> <START:produto> notebook <END> to the <START:cliente> client joao <END>
+<START:venda> sell <END> <START:quantidade> 3 <END> <START:produto> rubbers <END> from <START:lote> batch XYZ <END> to the <START:cliente> client XPTO <END>
+<START:venda> sell <END> <START:quantidade> 1 <END> <START:produto> test item <END>
+<START:venda> sell <END> <START:quantidade> 4 <END> <START:produto> pens <END> from <START:lote> batch L1 <END>
+<START:venda> sell <END> <START:quantidade> 20 <END> <START:produto> Y products <END> to the <START:cliente> client Z <END>
+<START:venda> sell <END> to the <START:cliente> client Maria <END> <START:quantidade> 2 <END> <START:produto> pens <END>
+<START:venda> sell <END> <START:produto> product X <END> <START:quantidade> 5 <END> units
+i need to <START:venda> sell <END> <START:quantidade> 12 <END> <START:produto> rubbers <END>
+<START:venda> sell <END> <START:produto> generic product <END> from <START:lote> batch 456 <END>
+<START:venda> sell <END> to the <START:cliente> final client <END> <START:quantidade> 1 <END> <START:produto> specific item <END>
+<START:compra> create an order of <END> <START:quantidade> 50 <END> <START:produto> pens <END> for the <START:fornecedor> supplier Penta <END>
+<START:compra> make an order of <END> <START:quantidade> 100 <END> <START:produto> rubbers <END> from the <START:fornecedor> supplier ABC <END>
+<START:compra> order <END> <START:produto> notebooks <END> <START:quantidade> 200 <END> units from the <START:fornecedor> Main supplier <END>
+<START:compra> new purchase order <END> for <START:fornecedor> supplier X <END> of <START:produto> product Y <END>
+<START:compra> order <END> <START:quantidade> 10 <END> <START:produto> pencils <END>
+<START:compra> I want to order <END> <START:produto> product Z <END>
+<START:ajuste> increase the stock of <END> <START:produto> pens <END> by <START:percentual> 10% <END>
+<START:ajuste> I want to reduce the inventory of <END> <START:produto> rubbers <END> by <START:percentual> 20% <END>
+<START:ajuste> can you decrease the stock of <END> <START:produto> product pencil <END> by <START:percentual> 5% <END>?
+<START:ajuste> adjust the stock of <END> <START:produto> notebooks <END> by <START:percentual> -15% <END>
+<START:ajuste> I want a <END> <START:percentual> 50% <END> increase in the stock of <START:produto> rubbers <END>
+<START:ajuste> decrease by <END> <START:percentual> 25% <END> the stock of <START:produto> pencils <END>
+<START:ajuste> increase by <END> <START:percentual> 10 percent <END> the stock of <START:produto> something <END>
+<START:ajuste> reduce <END> <START:percentual> 5 percent <END> of the inventory of <START:produto> another product <END>
+what is the stock of <START:produto> black cover notebook <END>?
+see the credit of the <START:cliente> client Maria Silva <END>
+what is the <START:credito> credit <END> of the <START:cliente> client José <END>?
+performance of the <START:vendedor> salesperson john <END>
+compare sales from <START:periodo> today <END> with <START:periodo> yesterday <END>
+how are we doing <START:periodo> this week <END> compared to <START:periodo> last week <END>?
+<START:venda> sell <END> to the <START:cliente> client Ana <END> <START:quantidade> 1 <END> <START:produto> digital product <END>
+<START:compra> I want to buy <END> <START:quantidade> 500 <END> <START:produto> screws <END> from the <START:fornecedor> supplier MetalLeva <END>
+<START:ajuste> adjust by <END> <START:percentual> +30% <END> the <START:produto> product Blue Ink <END>
+<START:venda> sell <END> <START:produto> 24 inch Monitor <END> <START:quantidade> 1 <END> to <START:cliente> client Ricardo <END>
+i need the current <START:credito> credit <END> of the <START:cliente> client Fátima <END>
+<START:venda> sell <END> <START:quantidade> 8 <END> <START:produto> office chairs <END>
+<START:venda> sell <END> <START:quantidade> 2 <END> <START:produto> tables <END> from <START:lote> batch M-55 <END>
+<START:compra> make a new order <END> for <START:produto> keyboards <END> to the <START:fornecedor> supplier TechDistribuidora <END>
+<START:ajuste> reduce <END> the stock of <START:produto> wireless mouses <END> by <START:percentual> 12% <END>
+<START:venda> sell <END> <START:quantidade> 6 <END> <START:produto> headphones <END> to <START:cliente> client Luísa <END> from <START:lote> batch H-01 <END>
+what is the sales performance of the <START:vendedor> salesperson carla <END>?
+<START:venda> sell <END> <START:quantidade> 15 <END> <START:produto> reams of A4 paper <END> to <START:cliente> client Central Office <END>
+<START:compra> order <END> <START:quantidade> 3 <END> <START:produto> laser printers <END> from the <START:fornecedor> supplier PrintMaster <END>
+<START:venda> sell <END> <START:produto> HD webcam <END> <START:quantidade> 10 <END>
+<START:ajuste> increase the stock of <END> <START:produto> print toners <END> by <START:percentual> 40% <END>
+what is the <START:credito> credit <END> balance that the <START:cliente> client Pedro <END> has?
+<START:venda> sell <END> <START:quantidade> 4 <END> <START:produto> 1TB SSD <END> to the <START:cliente> client GamerX <END>
+<START:compra> I need <END> <START:quantidade> 20 <END> <START:produto> DDR4 RAM memories <END> from the <START:fornecedor> supplier KingMemory <END>
+<START:ajuste> decrease by <END> <START:percentual> 50% <END> the stock of <START:produto> 32GB flash drives <END>
+<START:venda> sell <END> <START:quantidade> 1 <END> <START:produto> i7 laptop <END> from <START:lote> batch NOTE-i7-002 <END> to <START:cliente> client Joana Tech <END>
+see the sales of the <START:vendedor> salesperson manuel <END>
+<START:venda> sell <END> <START:quantidade> 30 <END> <START:produto> HDMI cables <END>
+<START:venda> sell <END> to the <START:cliente> client TVStore <END> <START:quantidade> 10 <END> <START:produto> wall mounts for TV <END>
+<START:ajuste> increase <END> <START:percentual> 25 percent <END> the stock of the <START:produto> product Power Strip <END>
+what is the available <START:credito> credit <END> for the <START:cliente> client Sofia <END>?
+<START:venda> sell <END> <START:quantidade> 2 <END> <START:produto> UPS devices <END> to the <START:cliente> client ProSegurança <END> from <START:lote> batch NB-987 <END>
+<START:compra> order <END> <START:quantidade> 10 <END> <START:produto> 8-port switch <END> from the <START:fornecedor> supplier ConectaRedes <END>
+<START:venda> sell <END> <START:quantidade> 5 <END> <START:produto> Wi-Fi 6 routers <END>
+<START:venda> sell <END> <START:quantidade> 2 <END> <START:produto> laptop backpacks <END> to the <START:cliente> client Viajante <END>
+<START:ajuste> reduce the stock of <END> <START:produto> laptop sleeves <END> by <START:percentual> 18% <END>
+compare sales from <START:periodo> this month <END> with those from the <START:periodo> same period last year <END>
+<START:habito> add the habit of <END> <START:acao> generating reports <END> every <START:dia> monday <END>
+<START:habito> I want you to remind me to <END> <START:acao> check the stock <END> on <START:dia> wednesdays <END>
+<START:habito> add a habit to <END> <START:acao> see debtor clients <END> on <START:dia> friday <END>
+<START:habito> register the habit of <END> <START:acao> analyzing sales <END> on <START:dia> saturday <END>

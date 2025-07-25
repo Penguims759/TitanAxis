@@ -3,6 +3,7 @@ package com.titanaxis.service.ai.flows;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 import java.util.Map;
 
@@ -16,24 +17,22 @@ public class GenerateReportFlow extends AbstractConversationFlow {
     @Override
     protected void defineSteps() {
         steps.put("reportType", new Step(
-                "Claro. Que tipo de relatório você deseja? (vendas ou inventario)",
+                I18n.getString("flow.generateReport.askType"),
                 input -> StringUtil.normalize(input).contains("vendas") || StringUtil.normalize(input).contains("inventario"),
-                "Por favor, escolha 'vendas' ou 'inventario'."
+                I18n.getString("flow.generateReport.validation.invalidType")
         ));
         steps.put("format", new Step(
-                "E em qual formato? (pdf ou csv)",
+                I18n.getString("flow.generateReport.askFormat"),
                 input -> StringUtil.normalize(input).contains("pdf") || StringUtil.normalize(input).contains("csv"),
-                "Por favor, escolha 'pdf' ou 'csv'."
+                I18n.getString("flow.generateReport.validation.invalidFormat")
         ));
     }
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
-        // A lógica de geração do relatório em si será tratada pela DashboardFrame
-        // através de uma nova Action.
         return new AssistantResponse(
-                "Ok, a preparar o seu relatório...",
-                Action.DIRECT_GENERATE_SALES_REPORT_PDF, // Podemos reutilizar esta action ou criar uma mais genérica
+                I18n.getString("flow.generateReport.generating"),
+                Action.DIRECT_GENERATE_SALES_REPORT_PDF,
                 conversationData
         );
     }

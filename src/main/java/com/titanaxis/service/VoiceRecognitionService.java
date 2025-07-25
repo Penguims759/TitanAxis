@@ -1,6 +1,7 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/service/VoiceRecognitionService.java
 package com.titanaxis.service;
 
+import com.google.inject.Singleton;
+import com.titanaxis.util.AppLogger;
 import com.titanaxis.util.I18n;
 import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.LiveSpeechRecognizer;
@@ -8,50 +9,61 @@ import edu.cmu.sphinx.api.SpeechResult;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
+@Singleton
 public class VoiceRecognitionService {
 
     private LiveSpeechRecognizer recognizer;
     private volatile boolean listening = false;
     private final Object lock = new Object();
     private boolean available = true;
+    private static final Logger logger = AppLogger.getLogger();
 
     public VoiceRecognitionService() {
+        // O construtor agora é vazio. A inicialização é feita sob demanda.
+    }
+
+    private void initialize() {
+        if (recognizer != null) {
+            return; // Já inicializado
+        }
         try {
-            // *** INÍCIO DA ALTERAÇÃO ***
-            // Verifica se o idioma atual tem um pacote de voz correspondente.
-            // Atualmente, apenas "en-US" está disponível.
-            String languageTag = I18n.getCurrentLocale().toLanguageTag();
-            if (!"en-US".equalsIgnoreCase(languageTag)) {
-                System.err.println("AVISO: Pacote de voz para o idioma '" + languageTag + "' não está disponível. Apenas 'en-US' é suportado.");
-                available = false;
-                return; // Interrompe a inicialização
-            }
-            // *** FIM DA ALTERAÇÃO ***
-
             Configuration configuration = new Configuration();
+            String lang = I18n.getCurrentLocale().getLanguage();
 
-            configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
-            configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
-            configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+            if ("pt".equals(lang)) {
+                logger.info("A configurar o reconhecimento de voz para Português (pt_BR)...");
+                configuration.setAcousticModelPath("resource:/voice/pt_BR/acoustic-model");
+                configuration.setDictionaryPath("resource:/voice/pt_BR/dictionary/br-pt.dic");
+                configuration.setLanguageModelPath("resource:/voice/pt_BR/language-model/pt_BR.lm");
+            } else {
+                logger.info("A configurar o reconhecimento de voz para Inglês (en-US)...");
+                configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+                configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
+                configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+            }
 
             recognizer = new LiveSpeechRecognizer(configuration);
+            available = true;
 
         } catch (IOException | IllegalStateException e) {
-            System.err.println("AVISO: Serviço de reconhecimento de voz não disponível. Causa: " + e.getMessage());
+            logger.severe("Serviço de reconhecimento de voz não pôde ser inicializado. Causa: " + e.getMessage());
             available = false;
             recognizer = null;
         }
     }
 
     public boolean isAvailable() {
+        if (recognizer == null) {
+            initialize();
+        }
         return available;
     }
 
     public void startListening(Consumer<String> onResult) {
-        if (!available || listening) return;
+        if (!isAvailable() || listening) return;
 
         synchronized (lock) {
             if (listening) return;
@@ -59,20 +71,21 @@ public class VoiceRecognitionService {
         }
 
         new Thread(() -> {
-            System.out.println("Microphone open. Start speaking.");
+            logger.info("Microfone aberto. A iniciar o reconhecimento de voz...");
             recognizer.startRecognition(true);
 
-            SpeechResult result;
-            while (listening && (result = recognizer.getResult()) != null) {
-                String hypothesis = result.getHypothesis();
-                if (hypothesis != null && !hypothesis.isEmpty()) {
-                    System.out.println("Recognized text: " + hypothesis);
-                    SwingUtilities.invokeLater(() -> onResult.accept(hypothesis));
+            while (listening) {
+                SpeechResult result = recognizer.getResult();
+                if (result != null) {
+                    String hypothesis = result.getHypothesis();
+                    if (hypothesis != null && !hypothesis.isEmpty()) {
+                        logger.info("Texto reconhecido: " + hypothesis);
+                        SwingUtilities.invokeLater(() -> onResult.accept(hypothesis));
+                    }
                 }
             }
-
             recognizer.stopRecognition();
-            System.out.println("Speech recognition stopped.");
+            logger.info("Reconhecimento de voz parado.");
         }).start();
     }
 
@@ -81,6 +94,15 @@ public class VoiceRecognitionService {
         synchronized (lock) {
             if (!listening) return;
             listening = false;
+        }
+    }
+
+    public void shutdown() {
+        if (recognizer != null) {
+            stopListening();
+            recognizer = null;
+            available = false;
+            logger.info("Serviço de reconhecimento de voz desligado e recursos libertados.");
         }
     }
 

@@ -6,6 +6,7 @@ import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.Intent;
+import com.titanaxis.util.I18n;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -27,19 +28,19 @@ public class CreateUserFlow extends AbstractConversationFlow {
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
         if (!authService.isGerente()) {
-            return new AssistantResponse("Desculpe, apenas gestores ou administradores podem criar novos utilizadores.");
+            return new AssistantResponse(I18n.getString("flow.createUser.error.permissionDenied"));
         }
         return super.process(userInput, conversationData);
     }
 
     @Override
     protected void defineSteps() {
-        steps.put("username", new Step("Certo. Qual o nome do novo utilizador?"));
-        steps.put("password", new Step(data -> "Qual será a senha para '" + data.get("username") + "'?"));
+        steps.put("username", new Step(I18n.getString("flow.createUser.askUsername")));
+        steps.put("password", new Step(data -> I18n.getString("flow.createUser.askPassword", data.get("username"))));
         steps.put("level", new Step(
-                "E qual o nível de acesso? (padrao, gerente, ou admin)",
+                I18n.getString("flow.createUser.askLevel"),
                 (input, data) -> isNivelAcessoValido(input),
-                "Nível inválido. Use 'padrao', 'gerente' ou 'admin'."
+                I18n.getString("flow.createUser.validation.invalidLevel")
         ));
     }
 
@@ -49,7 +50,7 @@ public class CreateUserFlow extends AbstractConversationFlow {
         conversationData.put("level", nivel);
 
         return new AssistantResponse(
-                "A criar o utilizador '" + conversationData.get("username") + "'...",
+                I18n.getString("flow.createUser.creating", conversationData.get("username")),
                 Action.DIRECT_CREATE_USER,
                 conversationData
         );

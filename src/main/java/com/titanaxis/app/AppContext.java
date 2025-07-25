@@ -21,6 +21,7 @@ public class AppContext {
     private final DevolucaoService devolucaoService;
     private final FinanceiroService financeiroService;
     private final UserHabitService userHabitService;
+    private final VoiceRecognitionService voiceRecognitionService; // <-- ADICIONADO
 
     @Inject
     public AppContext(AuthService authService, CategoriaService categoriaService,
@@ -29,7 +30,8 @@ public class AppContext {
                       AlertaService alertaService, MovimentoService movimentoService,
                       AIAssistantService aiAssistantService, AnalyticsService analyticsService,
                       FornecedorService fornecedorService, DevolucaoService devolucaoService,
-                      FinanceiroService financeiroService, UserHabitService userHabitService) {
+                      FinanceiroService financeiroService, UserHabitService userHabitService,
+                      VoiceRecognitionService voiceRecognitionService) { // <-- ADICIONADO
         this.authService = authService;
         this.categoriaService = categoriaService;
         this.clienteService = clienteService;
@@ -44,6 +46,7 @@ public class AppContext {
         this.devolucaoService = devolucaoService;
         this.financeiroService = financeiroService;
         this.userHabitService = userHabitService;
+        this.voiceRecognitionService = voiceRecognitionService; // <-- ADICIONADO
     }
 
     public AuthService getAuthService() { return authService; }
@@ -60,4 +63,5 @@ public class AppContext {
     public DevolucaoService getDevolucaoService() { return devolucaoService; }
     public FinanceiroService getFinanceiroService() { return financeiroService; }
     public UserHabitService getUserHabitService() { return userHabitService; }
+    public VoiceRecognitionService getVoiceRecognitionService() { return voiceRecognitionService; } // <-- ADICIONADO
 }

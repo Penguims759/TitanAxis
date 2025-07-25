@@ -1,4 +1,3 @@
-// Conteúdo já fornecido e correto na resposta anterior
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -10,6 +9,7 @@ import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.util.Map;
 import java.util.Optional;
@@ -35,8 +35,7 @@ public class QueryStockFlow implements ConversationFlow {
         String productName = (String) data.get("entity");
 
         if (productName == null) {
-            // Se a entidade não foi fornecida, o fluxo precisa de perguntar.
-            return new AssistantResponse("De qual produto você gostaria de ver o stock?", Action.AWAITING_INFO, null);
+            return new AssistantResponse(I18n.getString("flow.queryStock.askProductName"), Action.AWAITING_INFO, null);
         }
 
         try {
@@ -46,14 +45,14 @@ public class QueryStockFlow implements ConversationFlow {
 
             if (produtoOpt.isPresent()) {
                 Produto produto = produtoOpt.get();
-                data.put("foundEntity", produto); // Guarda a entidade encontrada para o contexto
+                data.put("foundEntity", produto);
                 int totalStock = produto.getQuantidadeTotal();
-                return new AssistantResponse("O stock atual do produto '" + produto.getNome() + "' é de " + totalStock + " unidades.");
+                return new AssistantResponse(I18n.getString("flow.queryStock.currentStock", produto.getNome(), totalStock));
             } else {
-                return new AssistantResponse("Não consegui encontrar o produto '" + productName + "'. Por favor, verifique o nome.");
+                return new AssistantResponse(I18n.getString("flow.generic.error.entityNotFound", productName));
             }
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar a base de dados. Tente novamente.");
+            return new AssistantResponse(I18n.getString("flow.generic.error.persistence"));
         }
     }
 }

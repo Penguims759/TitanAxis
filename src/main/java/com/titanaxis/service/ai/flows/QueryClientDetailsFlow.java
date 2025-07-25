@@ -9,6 +9,7 @@ import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class QueryClientDetailsFlow implements ConversationFlow {
         String clientName = (String) data.get("entity");
 
         if (clientName == null) {
-            return new AssistantResponse("Qual cliente você gostaria de consultar?", Action.AWAITING_INFO, null);
+            return new AssistantResponse(I18n.getString("flow.queryDetails.askClientName"), Action.AWAITING_INFO, null);
         }
 
         try {
@@ -45,19 +46,18 @@ public class QueryClientDetailsFlow implements ConversationFlow {
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
                 data.put("foundEntity", cliente);
-                String details = String.format(
-                        "Aqui estão os detalhes do cliente '%s':\n- Nome: %s\n- Contato: %s\n- Endereço: %s",
+                String details = I18n.getString("flow.queryDetails.details",
                         cliente.getNome(),
                         cliente.getNome(),
-                        cliente.getContato() != null ? cliente.getContato() : "Não informado",
-                        cliente.getEndereco() != null ? cliente.getEndereco() : "Não informado"
+                        cliente.getContato() != null ? cliente.getContato() : I18n.getString("general.notSpecified"),
+                        cliente.getEndereco() != null ? cliente.getEndereco() : I18n.getString("general.notSpecified")
                 );
                 return new AssistantResponse(details);
             } else {
-                return new AssistantResponse("Não consegui encontrar o cliente '" + clientName + "'. Por favor, verifique o nome.");
+                return new AssistantResponse(I18n.getString("flow.generic.error.entityNotFound", clientName));
             }
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar a base de dados. Tente novamente.");
+            return new AssistantResponse(I18n.getString("flow.generic.error.persistence"));
         }
     }
 }

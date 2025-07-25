@@ -1,4 +1,3 @@
-// Conteúdo já fornecido e correto na resposta anterior
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -11,6 +10,7 @@ import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,7 +40,7 @@ public class QueryProductLotsFlow implements ConversationFlow {
         String productName = (String) data.get("entity");
 
         if (productName == null) {
-            return new AssistantResponse("De qual produto você gostaria de ver os lotes?", Action.AWAITING_INFO, null);
+            return new AssistantResponse(I18n.getString("flow.queryLots.askProductName"), Action.AWAITING_INFO, null);
         }
 
         try {
@@ -54,24 +54,23 @@ public class QueryProductLotsFlow implements ConversationFlow {
                 List<Lote> lotes = produto.getLotes();
 
                 if (lotes.isEmpty()) {
-                    return new AssistantResponse("O produto '" + produto.getNome() + "' não possui nenhum lote cadastrado.");
+                    return new AssistantResponse(I18n.getString("flow.queryLots.noLots", produto.getNome()));
                 }
 
                 String lotesDetails = lotes.stream()
-                        .map(lote -> String.format(
-                                "- Lote nº %s: %d unidades (Validade: %s)",
+                        .map(lote -> I18n.getString("flow.queryLots.lotLine",
                                 lote.getNumeroLote(),
                                 lote.getQuantidade(),
-                                lote.getDataValidade() != null ? lote.getDataValidade().format(DATE_FORMATTER) : "N/A"
+                                lote.getDataValidade() != null ? lote.getDataValidade().format(DATE_FORMATTER) : I18n.getString("general.notAvailable")
                         ))
                         .collect(Collectors.joining("\n"));
 
-                return new AssistantResponse("Encontrei estes lotes para o produto '" + produto.getNome() + "':\n" + lotesDetails);
+                return new AssistantResponse(I18n.getString("flow.queryLots.header", produto.getNome()) + "\n" + lotesDetails);
             } else {
-                return new AssistantResponse("Não consegui encontrar o produto '" + productName + "'.");
+                return new AssistantResponse(I18n.getString("flow.generic.error.entityNotFound", productName));
             }
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar a base de dados.");
+            return new AssistantResponse(I18n.getString("flow.generic.error.persistence"));
         }
     }
 }

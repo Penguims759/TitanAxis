@@ -8,6 +8,7 @@ import com.titanaxis.service.AuthService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.UserHabitService;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.util.I18n;
 
 import java.time.format.TextStyle;
 import java.util.List;
@@ -35,27 +36,27 @@ public class QueryUserHabitsFlow implements ConversationFlow {
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
         int userId = authService.getUsuarioLogadoId();
         if (userId == 0) {
-            return new AssistantResponse("Precisa de estar autenticado para ver os seus hábitos.");
+            return new AssistantResponse(I18n.getString("flow.generic.error.authRequired"));
         }
 
         try {
             List<Habito> habitos = userHabitService.findHabitsForUser(userId);
             if (habitos.isEmpty()) {
-                return new AssistantResponse("Ainda não aprendi nenhum dos seus hábitos. Com o tempo, farei sugestões automáticas!");
+                return new AssistantResponse(I18n.getString("flow.queryHabits.noHabits"));
             }
 
             String habitosFormatados = habitos.stream()
-                    .map(h -> String.format("- Ação '%s' na %s (Tipo: %s)",
+                    .map(h -> I18n.getString("flow.queryHabits.habitLine",
                             h.getAcao(),
                             h.getDiaDaSemana().getDisplayName(TextStyle.FULL, new Locale("pt", "BR")),
                             h.getTipo().toString().toLowerCase()
                     ))
                     .collect(Collectors.joining("\n"));
 
-            return new AssistantResponse("Encontrei os seguintes hábitos registados para si:\n" + habitosFormatados);
+            return new AssistantResponse(I18n.getString("flow.queryHabits.header") + "\n" + habitosFormatados);
 
         } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao consultar os seus hábitos.");
+            return new AssistantResponse(I18n.getString("flow.queryHabits.error.generic"));
         }
     }
 }

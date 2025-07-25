@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/view/dialogs/CommandBarDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.app.AppContext;
@@ -37,6 +36,8 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         super(owner, false);
         this.appContext = appContext;
         this.ownerFrame = (DashboardFrame) owner;
+        this.voiceService = appContext.getVoiceRecognitionService();
+
         initComponents();
         new AIAssistantPresenter(this, appContext.getAIAssistantService());
         SwingUtilities.invokeLater(() -> listener.onViewOpened());
@@ -68,8 +69,7 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         commandField = new JTextField();
-        // *** ALTERAÇÃO VISUAL APLICADA AQUI ***
-        commandField.setFont(new Font("Arial", Font.PLAIN, 14)); // Tamanho da fonte reduzido de 18 para 14
+        commandField.setFont(new Font("Arial", Font.PLAIN, 14));
         commandField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -107,6 +107,9 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
                 if (ownerFrame != null) {
                     ownerFrame.setOverlayVisible(false);
                 }
+                if (voiceService != null && voiceService.isListening()) {
+                    voiceService.stopListening();
+                }
                 appContext.getAIAssistantService().getContext().fullReset();
             }
         });
@@ -128,7 +131,6 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         southPanel.setOpaque(false);
         southPanel.add(commandField, BorderLayout.CENTER);
 
-        voiceService = new VoiceRecognitionService();
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
         buttonPanel.setOpaque(false);
 
@@ -161,6 +163,10 @@ public class CommandBarDialog extends JDialog implements AIAssistantView {
         if (!voiceService.isListening()) {
             voiceButton.setForeground(Color.RED);
             voiceService.startListening(transcribedText -> {
+                if (voiceService.isListening()) {
+                    voiceService.stopListening();
+                    voiceButton.setForeground(null);
+                }
                 commandField.setText(transcribedText);
                 sendMessage();
             });

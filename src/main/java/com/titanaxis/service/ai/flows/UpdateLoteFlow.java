@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/UpdateLoteFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -24,6 +23,9 @@ public class UpdateLoteFlow implements ConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
+        // Esta classe simplesmente delega toda a sua lógica para o AdjustStockFlow,
+        // pois a funcionalidade de "atualizar um lote" é, na prática,
+        // a mesma de "ajustar o estoque de um lote".
         return adjustStockFlow.process(userInput, conversationData);
     }
 }

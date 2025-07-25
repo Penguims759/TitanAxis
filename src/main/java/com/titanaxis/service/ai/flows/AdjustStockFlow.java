@@ -5,6 +5,7 @@ import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.StringUtil;
 
 import java.util.HashMap;
@@ -35,29 +36,29 @@ public class AdjustStockFlow extends AbstractConversationFlow {
     @Override
     protected void defineSteps() {
         steps.put("productName", new Step(
-                "Ok, vamos alterar um lote. Qual o nome do produto?",
+                I18n.getString("flow.adjustStock.askProductName"),
                 (input, data) -> validationService.isProdutoValido(input),
-                "Produto não encontrado. Por favor, verifique o nome ou diga 'cancelar'."
+                I18n.getString("flow.manageStock.validation.productNotFound") // Reutilizando
         ));
         steps.put("lotNumber", new Step(
-                data -> "Qual o número do lote para '" + data.get("productName") + "'?",
+                data -> I18n.getString("flow.adjustStock.askLotNumber", data.get("productName")),
                 (input, data) -> validationService.isLoteValido((String) data.get("productName"), input),
-                "Lote não encontrado para este produto. Verifique o número ou diga 'cancelar'."
+                I18n.getString("flow.adjustStock.validation.lotNotFound")
         ));
         steps.put("quantity", new Step(
-                "Qual a nova quantidade total para este lote? (Ex: digite 50 para definir o estoque como 50)",
+                I18n.getString("flow.adjustStock.askQuantity"),
                 StringUtil::isNumeric,
-                "A quantidade deve ser um número inteiro."
+                I18n.getString("flow.validation.invalidNumber")
         ));
         steps.put("confirmation", new Step(
                 data -> {
                     int quantity = Integer.parseInt((String) data.get("quantity"));
                     data.put("quantity", quantity);
-                    return String.format("Confirma a alteração do estoque do lote %s (produto %s) para %d unidades? (sim/não)",
+                    return I18n.getString("flow.adjustStock.askConfirmation",
                             data.get("lotNumber"), data.get("productName"), quantity);
                 },
                 input -> StringUtil.normalize(input).equals("sim") || StringUtil.normalize(input).equals("nao"),
-                "Por favor, responda com 'sim' ou 'não'."
+                I18n.getString("flow.validation.confirmYesNo")
         ));
     }
 
@@ -65,11 +66,11 @@ public class AdjustStockFlow extends AbstractConversationFlow {
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         if ("sim".equalsIgnoreCase((String) conversationData.get("confirmation"))) {
             return new AssistantResponse(
-                    "Ok, a enviar o ajuste de estoque...",
+                    I18n.getString("flow.adjustStock.updating"),
                     Action.DIRECT_ADJUST_STOCK,
                     new HashMap<>(conversationData));
         } else {
-            return new AssistantResponse("Ok, ação cancelada.");
+            return new AssistantResponse(I18n.getString("flow.generic.actionCanceled"));
         }
     }
 }
