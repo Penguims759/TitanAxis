@@ -1,10 +1,7 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/MovimentosPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
-import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
-import com.titanaxis.presenter.MovimentoPresenter;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.VendaDetalhesDialog;
@@ -34,11 +31,10 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     private JSpinner dataInicioSpinner;
     private JSpinner dataFimSpinner;
     private final Timer dateFilterTimer;
-    private final AppContext appContext;
+    private AppContext appContext; // Injetado via setter
     private final Frame owner;
 
-    public MovimentosPanel(Frame owner, AppContext appContext) {
-        this.appContext = appContext;
+    public MovimentosPanel(Frame owner) {
         this.owner = owner;
 
         tableModel = new DefaultTableModel(new String[]{
@@ -56,12 +52,13 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         sorter = new TableRowSorter<>(tableModel);
 
         initComponents();
-        new MovimentoPresenter(this, appContext.getMovimentoService());
 
         dateFilterTimer = new Timer(500, e -> listener.aoFiltrarPorData());
         dateFilterTimer.setRepeats(false);
+    }
 
-        listener.aoCarregarMovimentos();
+    public void setAppContext(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     private void initComponents() {
@@ -102,6 +99,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     }
 
     private void abrirDetalhesVenda(int vendaId) {
+        if (appContext == null) return;
         try {
             appContext.getVendaService().buscarVendaCompletaPorId(vendaId)
                     .ifPresentOrElse(
@@ -147,7 +145,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
         JButton refreshButton = new JButton(I18n.getString("button.refresh"));
         refreshButton.addActionListener(e -> listener.aoCarregarMovimentos());
 
-        JButton clearFilterButton = new JButton(I18n.getString("button.clearFilters")); // CORRIGIDO
+        JButton clearFilterButton = new JButton(I18n.getString("button.clearFilters"));
         clearFilterButton.addActionListener(e -> {
             filterField.setText("");
             dataInicioSpinner.setValue(new Date());

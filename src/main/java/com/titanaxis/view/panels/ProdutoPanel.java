@@ -1,10 +1,8 @@
-// src/main/java/com/titanaxis/view/panels/ProdutoPanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Lote;
 import com.titanaxis.model.Produto;
-import com.titanaxis.presenter.ProdutoPresenter;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.dialogs.LoteDialog;
@@ -25,7 +23,7 @@ import java.util.List;
 public class ProdutoPanel extends JPanel implements ProdutoView {
 
     private ProdutoViewListener listener;
-    private final AppContext appContext;
+    private AppContext appContext; // Mantido para a criação de Dialogs
 
     private final DefaultTableModel produtoTableModel;
     private final DefaultTableModel loteTableModel;
@@ -44,9 +42,7 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public ProdutoPanel(AppContext appContext) {
-        this.appContext = appContext;
-
+    public ProdutoPanel() {
         produtoTableModel = new DefaultTableModel(new String[]{
                 I18n.getString("product.table.header.id"),
                 I18n.getString("product.table.header.name"),
@@ -80,8 +76,10 @@ public class ProdutoPanel extends JPanel implements ProdutoView {
 
         addTooltips();
         initComponents();
+    }
 
-        new ProdutoPresenter(this, appContext.getProdutoService(), appContext.getAuthService());
+    public void setAppContext(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     private void addTooltips() {

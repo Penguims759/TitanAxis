@@ -10,7 +10,7 @@ import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
-import com.titanaxis.view.panels.ChatBubbleRenderer;
+import com.titanaxis.view.renderer.ChatBubbleRenderer;
 
 import javax.swing.*;
 import java.awt.*;

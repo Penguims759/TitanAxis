@@ -1,5 +1,6 @@
-package com.titanaxis.model;
+package com.titanaxis.model.converter;
 
+import com.titanaxis.model.NivelAcesso;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.stream.Stream;

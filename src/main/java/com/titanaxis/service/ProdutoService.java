@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ProdutoService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -12,7 +11,7 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.repository.CategoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,6 +42,13 @@ public class ProdutoService {
         );
     }
 
+    // NOVO MÉTODO ADICIONADO PARA CORRIGIR O ERRO
+    public Optional<Produto> buscarProdutoPorNome(String nome) throws PersistenciaException {
+        return transactionService.executeInTransactionWithResult(em ->
+                produtoRepository.findByNome(nome, em)
+        );
+    }
+
     public boolean loteExiste(String nomeProduto, String numeroLote) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em -> {
             Optional<Produto> produtoOpt = produtoRepository.findByNome(nomeProduto, em);
@@ -57,7 +63,7 @@ public class ProdutoService {
 
     public String importarProdutosDeCsv(File ficheiro, Usuario ator) throws IOException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.product.error.importAuth")); // ALTERADO
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.product.error.importAuth"));
         }
 
         final int[] sucessos = {0};
@@ -84,7 +90,7 @@ public class ProdutoService {
 
                             Categoria categoria = categoriaRepository.findByNome(nomeCategoria, em)
                                     .orElse(categoriaRepository.findByNome("Geral", em)
-                                            .orElseThrow(() -> new RuntimeException(I18n.getString("service.product.error.defaultCategoryNotFound")))); // ALTERADO
+                                            .orElseThrow(() -> new RuntimeException(I18n.getString("service.product.error.defaultCategoryNotFound"))));
 
                             Produto produto = new Produto(nome, descricao, preco, categoria);
                             produto.setAtivo(true);
@@ -95,12 +101,12 @@ public class ProdutoService {
                         }
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(I18n.getString("service.product.error.csvRead"), e); // ALTERADO
+                    throw new RuntimeException(I18n.getString("service.product.error.csvRead"), e);
                 }
             });
         }
 
-        return I18n.getString("service.product.importResult", sucessos[0], falhas[0]); // ALTERADO
+        return I18n.getString("service.product.importResult", sucessos[0], falhas[0]);
     }
 
     public List<Produto> listarProdutos(boolean incluirInativos) throws PersistenciaException {
@@ -142,7 +148,7 @@ public class ProdutoService {
 
     public Produto salvarProduto(Produto produto, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated"));
         }
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.save(produto, ator, em)
@@ -151,7 +157,7 @@ public class ProdutoService {
 
     public Lote salvarLote(Lote lote, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException, LoteDuplicadoException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated"));
         }
         try {
             return transactionService.executeInTransactionWithResult(em -> {
@@ -159,13 +165,13 @@ public class ProdutoService {
                     boolean loteExiste = lote.getProduto().getLotes().stream()
                             .anyMatch(l -> l.getNumeroLote().equalsIgnoreCase(lote.getNumeroLote()));
                     if (loteExiste) {
-                        throw new RuntimeException(I18n.getString("service.product.error.batchExists", lote.getNumeroLote())); // ALTERADO
+                        throw new RuntimeException(I18n.getString("service.product.error.batchExists", lote.getNumeroLote()));
                     }
                 }
                 return produtoRepository.saveLote(lote, ator, em);
             });
         } catch (RuntimeException e) {
-            if (e.getMessage().contains(I18n.getString("service.product.error.batchExists.check"))) { // ALTERADO
+            if (e.getMessage().contains(I18n.getString("service.product.error.batchExists.check"))) {
                 throw new LoteDuplicadoException(e.getMessage());
             }
             throw e;
@@ -189,16 +195,16 @@ public class ProdutoService {
 
     public Lote ajustarEstoqueLote(String nomeProduto, String numeroLote, int novaQuantidade, Usuario ator) throws PersistenciaException, IllegalArgumentException {
         if (novaQuantidade < 0) {
-            throw new IllegalArgumentException(I18n.getString("service.product.error.negativeQuantity")); // ALTERADO
+            throw new IllegalArgumentException(I18n.getString("service.product.error.negativeQuantity"));
         }
         return transactionService.executeInTransactionWithResult(em -> {
             Produto produto = produtoRepository.findByNome(nomeProduto, em)
-                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.notFound", nomeProduto))); // ALTERADO
+                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.notFound", nomeProduto)));
 
             Lote lote = produto.getLotes().stream()
                     .filter(l -> l.getNumeroLote().equalsIgnoreCase(numeroLote))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.batchNotFoundForProduct", numeroLote, nomeProduto))); // ALTERADO
+                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.batchNotFoundForProduct", numeroLote, nomeProduto)));
 
             int quantidadeAnterior = lote.getQuantidade();
             int diferenca = novaQuantidade - quantidadeAnterior;
@@ -224,12 +230,12 @@ public class ProdutoService {
     public Lote adicionarEstoqueLote(String nomeProduto, String numeroLote, int quantidadeAdicionar, Usuario ator) throws PersistenciaException, IllegalArgumentException {
         return transactionService.executeInTransactionWithResult(em -> {
             Produto produto = produtoRepository.findByNome(nomeProduto, em)
-                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.notFound", nomeProduto))); // Reaproveitado
+                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.notFound", nomeProduto)));
 
             Lote lote = produto.getLotes().stream()
                     .filter(l -> l.getNumeroLote().equalsIgnoreCase(numeroLote))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.batchNotFoundForProduct", numeroLote, nomeProduto))); // Reaproveitado
+                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.batchNotFoundForProduct", numeroLote, nomeProduto)));
 
             lote.setQuantidade(lote.getQuantidade() + quantidadeAdicionar);
             Lote loteSalvo = produtoRepository.saveLote(lote, ator, em);
@@ -248,7 +254,7 @@ public class ProdutoService {
 
     public void removerLote(int loteId, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated"));
         }
         transactionService.executeInTransaction(em ->
                 produtoRepository.deleteLoteById(loteId, ator, em)
@@ -257,7 +263,7 @@ public class ProdutoService {
 
     public void alterarStatusProduto(int produtoId, boolean novoStatus, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated"));
         }
         transactionService.executeInTransaction(em ->
                 produtoRepository.updateStatusAtivo(produtoId, novoStatus, ator, em)
@@ -266,23 +272,23 @@ public class ProdutoService {
 
     public String ajustarEstoquePercentual(String nomeProduto, double percentual, Usuario ator) throws PersistenciaException, IllegalArgumentException {
         if (ator == null) {
-            throw new IllegalArgumentException(I18n.getString("service.auth.error.notAuthenticated")); // Reaproveitado
+            throw new IllegalArgumentException(I18n.getString("service.auth.error.notAuthenticated"));
         }
 
         return transactionService.executeInTransactionWithResult(em -> {
             Produto produto = produtoRepository.findByNome(nomeProduto, em)
-                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.notFound", nomeProduto))); // Reaproveitado
+                    .orElseThrow(() -> new IllegalArgumentException(I18n.getString("service.product.error.notFound", nomeProduto)));
 
             int quantidadeAtual = produto.getQuantidadeTotal();
             if (quantidadeAtual == 0 && percentual > 0) {
-                throw new IllegalArgumentException(I18n.getString("service.product.error.adjustZeroStock")); // ALTERADO
+                throw new IllegalArgumentException(I18n.getString("service.product.error.adjustZeroStock"));
             }
 
             int quantidadeAjuste = (int) Math.round(quantidadeAtual * (percentual / 100.0));
             int novaQuantidadeTotal = quantidadeAtual + quantidadeAjuste;
 
             if (novaQuantidadeTotal < 0) {
-                throw new IllegalArgumentException(I18n.getString("service.product.error.adjustResultsInNegative")); // ALTERADO
+                throw new IllegalArgumentException(I18n.getString("service.product.error.adjustResultsInNegative"));
             }
 
             Lote loteParaAjuste = produto.getLotes().stream()
@@ -291,12 +297,12 @@ public class ProdutoService {
                     .orElse(produto.getLotes().stream().findFirst().orElse(null));
 
             if (loteParaAjuste == null) {
-                throw new IllegalArgumentException(I18n.getString("service.product.error.noBatchesToAdjust")); // ALTERADO
+                throw new IllegalArgumentException(I18n.getString("service.product.error.noBatchesToAdjust"));
             }
 
             int novaQuantidadeLote = loteParaAjuste.getQuantidade() + quantidadeAjuste;
             if (novaQuantidadeLote < 0) {
-                throw new IllegalArgumentException(I18n.getString("service.product.error.batchGoesNegative")); // ALTERADO
+                throw new IllegalArgumentException(I18n.getString("service.product.error.batchGoesNegative"));
             }
             loteParaAjuste.setQuantidade(novaQuantidadeLote);
             produtoRepository.saveLote(loteParaAjuste, ator, em);
@@ -310,7 +316,7 @@ public class ProdutoService {
             movimento.setTipoMovimento(quantidadeAjuste >= 0 ? "AJUSTE_AUMENTO" : "AJUSTE_REDUCAO");
             em.persist(movimento);
 
-            return I18n.getString("service.product.adjustSuccess", nomeProduto, quantidadeAjuste, percentual, quantidadeAtual, novaQuantidadeTotal); // ALTERADO
+            return I18n.getString("service.product.adjustSuccess", nomeProduto, quantidadeAjuste, percentual, quantidadeAtual, novaQuantidadeTotal);
         });
     }
 }

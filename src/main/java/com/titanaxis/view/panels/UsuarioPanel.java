@@ -1,11 +1,8 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/UsuarioPanel.java
 package com.titanaxis.view.panels;
 
-import com.titanaxis.app.AppContext;
 import com.titanaxis.model.NivelAcesso;
 import com.titanaxis.model.Usuario;
-import com.titanaxis.presenter.UsuarioPresenter;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.interfaces.UsuarioView;
 
@@ -25,7 +22,7 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
     private final JPasswordField passwordField;
     private final JComboBox<NivelAcesso> nivelAcessoComboBox;
 
-    public UsuarioPanel(AppContext appContext) {
+    public UsuarioPanel() {
         idField = new JTextField();
         idField.setEditable(false);
         usernameField = new JTextField();
@@ -33,7 +30,6 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
         nivelAcessoComboBox = new JComboBox<>(NivelAcesso.values());
         searchField = new JTextField(25);
 
-        // ALTERADO
         tableModel = new DefaultTableModel(new String[]{
                 I18n.getString("user.table.header.id"),
                 I18n.getString("user.table.header.name"),
@@ -44,7 +40,6 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
         table = new JTable(tableModel);
 
         initComponents();
-        new UsuarioPresenter(this, appContext.getAuthService());
     }
 
     private void initComponents() {
@@ -73,23 +68,23 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("user.border.details"))); // ALTERADO
-        panel.add(new JLabel(I18n.getString("user.label.id"))); // ALTERADO
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("user.border.details")));
+        panel.add(new JLabel(I18n.getString("user.label.id")));
         panel.add(idField);
-        panel.add(new JLabel(I18n.getString("user.label.username"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("user.label.username")));
         panel.add(usernameField);
-        panel.add(new JLabel(I18n.getString("user.label.newPassword"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("user.label.newPassword")));
         panel.add(passwordField);
-        panel.add(new JLabel(I18n.getString("user.label.accessLevel"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("user.label.accessLevel")));
         panel.add(nivelAcessoComboBox);
         return panel;
     }
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton saveButton = new JButton(I18n.getString("user.button.save")); // ALTERADO
-        JButton deleteButton = new JButton(I18n.getString("user.button.delete")); // ALTERADO
-        JButton clearButton = new JButton(I18n.getString("user.button.clear")); // ALTERADO
+        JButton saveButton = new JButton(I18n.getString("user.button.save"));
+        JButton deleteButton = new JButton(I18n.getString("user.button.delete"));
+        JButton clearButton = new JButton(I18n.getString("user.button.clear"));
         saveButton.addActionListener(e -> listener.aoSalvar());
         deleteButton.addActionListener(e -> listener.aoApagar());
         clearButton.addActionListener(e -> listener.aoLimpar());
@@ -101,9 +96,9 @@ public class UsuarioPanel extends JPanel implements UsuarioView {
 
     private JPanel createSearchPanel(JTextField searchField) {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton(I18n.getString("user.button.search")); // ALTERADO
-        JButton clearSearchButton = new JButton(I18n.getString("user.button.clearSearch")); // ALTERADO
-        searchPanel.add(new JLabel(I18n.getString("user.label.searchByName"))); // ALTERADO
+        JButton searchButton = new JButton(I18n.getString("user.button.search"));
+        JButton clearSearchButton = new JButton(I18n.getString("user.button.clearSearch"));
+        searchPanel.add(new JLabel(I18n.getString("user.label.searchByName")));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);

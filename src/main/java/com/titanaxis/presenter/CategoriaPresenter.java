@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/CategoriaPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.NomeDuplicadoException;
@@ -8,7 +7,7 @@ import com.titanaxis.model.Categoria;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.CategoriaService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.view.interfaces.CategoriaView;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             List<Categoria> categorias = categoriaService.listarTodasCategorias();
             view.setCategoriasNaTabela(categorias);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.load", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.load", e.getMessage()), true);
         }
     }
 
@@ -41,7 +40,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
     public void aoSalvar() {
         String nome = view.getNome().trim();
         if (nome.isEmpty()) {
-            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.category.error.nameRequired"), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.category.error.nameRequired"), true);
             return;
         }
 
@@ -52,30 +51,30 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
 
         try {
             categoriaService.salvar(categoria, ator);
-            String successMessage = isUpdate ? I18n.getString("presenter.category.success.update") : I18n.getString("presenter.category.success.add"); // ALTERADO
-            view.mostrarMensagem(I18n.getString("success.title"), successMessage, false); // ALTERADO
+            String successMessage = isUpdate ? I18n.getString("presenter.category.success.update") : I18n.getString("presenter.category.success.add");
+            view.mostrarMensagem(I18n.getString("success.title"), successMessage, false);
             aoLimpar();
             aoCarregarDadosIniciais();
         } catch (NomeDuplicadoException e) {
-            view.mostrarMensagem(I18n.getString("error.duplication.title"), e.getMessage(), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.duplication.title"), e.getMessage(), true);
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.save", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.save", e.getMessage()), true);
         }
     }
 
     @Override
     public void aoApagar() {
         if (view.getId().isEmpty()) {
-            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.category.error.selectToDelete"), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.category.error.selectToDelete"), true);
             return;
         }
 
         String nomeCategoria = view.getNome();
-        String mensagem = I18n.getString("presenter.category.confirm.delete", nomeCategoria); // ALTERADO
+        String mensagem = I18n.getString("presenter.category.confirm.delete", nomeCategoria);
 
-        if (!view.mostrarConfirmacao(I18n.getString("presenter.category.confirm.delete.title"), mensagem)) { // ALTERADO
+        if (!view.mostrarConfirmacao(I18n.getString("presenter.category.confirm.delete.title"), mensagem)) {
             return;
         }
 
@@ -83,13 +82,13 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         try {
             categoriaService.deletar(id, ator);
-            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.category.success.delete"), false); // ALTERADO
+            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.category.success.delete"), false);
             aoLimpar();
             aoCarregarDadosIniciais();
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.delete", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.delete", e.getMessage()), true);
         }
     }
 
@@ -111,7 +110,7 @@ public class CategoriaPresenter implements CategoriaView.CategoriaViewListener {
             }
         }
         catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.search", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.category.error.search", e.getMessage()), true);
         }
     }
 

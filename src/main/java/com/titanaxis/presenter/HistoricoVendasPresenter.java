@@ -1,10 +1,9 @@
-// src/main/java/com/titanaxis/presenter/HistoricoVendasPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Venda;
 import com.titanaxis.service.VendaService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.view.interfaces.HistoricoVendasView;
 import javax.swing.SwingWorker;
 import java.util.List;
@@ -18,6 +17,7 @@ public class HistoricoVendasPresenter implements HistoricoVendasView.HistoricoVe
         this.view = view;
         this.vendaService = vendaService;
         this.view.setListener(this);
+        aoAplicarFiltros();
     }
 
     @Override
@@ -41,7 +41,6 @@ public class HistoricoVendasPresenter implements HistoricoVendasView.HistoricoVe
                     view.setVendasNaTabela(vendas);
                 } catch (Exception e) {
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
-                    // ALTERADO
                     String msg = (cause instanceof PersistenciaException) ? I18n.getString("error.db.generic", cause.getMessage()) : I18n.getString("error.unexpected.title");
                     view.mostrarErro(I18n.getString("presenter.history.error.load"), msg);
                 } finally {
@@ -54,13 +53,11 @@ public class HistoricoVendasPresenter implements HistoricoVendasView.HistoricoVe
 
     @Override
     public void aoLimparFiltros() {
-        // A lógica de limpar os componentes da UI está no próprio painel.
-        // Após limpar, o painel deve chamar aoAplicarFiltros().
         aoAplicarFiltros();
     }
 
     @Override
     public void aoVerDetalhesVenda(int vendaId) {
-        // A lógica para mostrar o diálogo de detalhes será tratada pelo próprio painel.
+        // A lógica é tratada na View
     }
 }

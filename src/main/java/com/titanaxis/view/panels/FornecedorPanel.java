@@ -1,14 +1,8 @@
-// src/main/java/com/titanaxis/view/panels/FornecedorPanel.java
 package com.titanaxis.view.panels;
 
-import com.titanaxis.app.AppContext;
-import com.titanaxis.exception.NomeDuplicadoException;
 import com.titanaxis.exception.PersistenciaException;
-import com.titanaxis.exception.UtilizadorNaoAutenticadoException;
 import com.titanaxis.model.Fornecedor;
-import com.titanaxis.presenter.FornecedorPresenter;
-import com.titanaxis.service.FornecedorService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.FornecedorView;
@@ -22,21 +16,14 @@ import java.util.List;
 public class FornecedorPanel extends JPanel implements FornecedorView, DashboardFrame.Refreshable {
 
     private FornecedorViewListener listener;
-    private final AppContext appContext;
-    private final FornecedorService fornecedorService;
-
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField idField, nomeField, cnpjField, contatoNomeField, contatoTelefoneField, contatoEmailField, enderecoField;
     private final JTextField searchField;
 
-    public FornecedorPanel(AppContext appContext) {
-        this.appContext = appContext;
-        this.fornecedorService = appContext.getFornecedorService();
-
+    public FornecedorPanel() {
         setLayout(new BorderLayout(10, 10));
 
-        // Form fields
         idField = new JTextField();
         idField.setEditable(false);
         nomeField = new JTextField();
@@ -47,7 +34,6 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
         enderecoField = new JTextField();
         searchField = new JTextField(25);
 
-        // Table - ALTERADO
         String[] columnNames = {
                 I18n.getString("supplier.table.header.id"),
                 I18n.getString("supplier.table.header.name"),
@@ -64,18 +50,14 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
         table = new JTable(tableModel);
 
         initComponents();
-        new FornecedorPresenter(this, this.fornecedorService, this.appContext.getAuthService());
-        listener.aoCarregarDados();
     }
 
     private void initComponents() {
-        // Painel Norte com o formulário e botões
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(createFormPanel(), BorderLayout.CENTER);
         northPanel.add(createButtonPanel(), BorderLayout.SOUTH);
         add(northPanel, BorderLayout.NORTH);
 
-        // Painel Central com a busca e a tabela
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
         centerPanel.add(createSearchPanel(), BorderLayout.NORTH);
         centerPanel.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -85,39 +67,34 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
             if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
                 int modelRow = table.convertRowIndexToModel(table.getSelectedRow());
                 int fornecedorId = (int) tableModel.getValueAt(modelRow, 0);
-                preencherCamposPelaTabela(fornecedorId);
+                listener.aoSelecionarFornecedor(fornecedorId);
             }
         });
     }
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("supplier.border.details"))); // ALTERADO
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("supplier.border.details")));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Linha 0 - ALTERADO
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.id")), gbc);
         gbc.gridx = 1; gbc.weightx = 0.2; panel.add(idField, gbc);
         gbc.gridx = 2; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.cnpj")), gbc);
         gbc.gridx = 3; gbc.weightx = 0.8; panel.add(cnpjField, gbc);
 
-        // Linha 1 - ALTERADO
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.name")), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; panel.add(nomeField, gbc);
 
-        // Linha 2 - ALTERADO
         gbc.gridy = 2; gbc.gridx = 0; gbc.gridwidth = 1; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.contactName")), gbc);
         gbc.gridx = 1; gbc.weightx = 1.0; panel.add(contatoNomeField, gbc);
         gbc.gridx = 2; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.phone")), gbc);
         gbc.gridx = 3; gbc.weightx = 1.0; panel.add(contatoTelefoneField, gbc);
 
-        // Linha 3 - ALTERADO
         gbc.gridy = 3; gbc.gridx = 0; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.email")), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; panel.add(contatoEmailField, gbc);
 
-        // Linha 4 - ALTERADO
         gbc.gridy = 4; gbc.gridx = 0; gbc.gridwidth = 1; gbc.weightx = 0; panel.add(new JLabel(I18n.getString("supplier.label.address")), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; panel.add(enderecoField, gbc);
 
@@ -126,9 +103,9 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton saveButton = new JButton(I18n.getString("supplier.button.save")); // ALTERADO
-        JButton deleteButton = new JButton(I18n.getString("supplier.button.delete")); // ALTERADO
-        JButton clearButton = new JButton(I18n.getString("supplier.button.clear")); // ALTERADO
+        JButton saveButton = new JButton(I18n.getString("supplier.button.save"));
+        JButton deleteButton = new JButton(I18n.getString("supplier.button.delete"));
+        JButton clearButton = new JButton(I18n.getString("supplier.button.clear"));
 
         saveButton.addActionListener(e -> salvar());
         deleteButton.addActionListener(e -> deletar());
@@ -142,10 +119,10 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton(I18n.getString("supplier.button.search")); // ALTERADO
-        JButton clearSearchButton = new JButton(I18n.getString("supplier.button.clearSearch")); // ALTERADO
+        JButton searchButton = new JButton(I18n.getString("supplier.button.search"));
+        JButton clearSearchButton = new JButton(I18n.getString("supplier.button.clearSearch"));
 
-        searchPanel.add(new JLabel(I18n.getString("supplier.label.searchByName"))); // ALTERADO
+        searchPanel.add(new JLabel(I18n.getString("supplier.label.searchByName")));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);
@@ -164,7 +141,7 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private void salvar() {
         if (nomeField.getText().trim().isEmpty()) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.nameRequired"), I18n.getString("error.validation.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.nameRequired"), I18n.getString("error.validation.title"));
             return;
         }
         Fornecedor f = new Fornecedor();
@@ -180,27 +157,20 @@ public class FornecedorPanel extends JPanel implements FornecedorView, Dashboard
 
     private void deletar() {
         if (idField.getText().isEmpty()) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.selectToDelete"), I18n.getString("error.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.selectToDelete"), I18n.getString("error.title"));
             return;
         }
         listener.aoApagar(Integer.parseInt(idField.getText()));
     }
 
-    private void preencherCamposPelaTabela(int fornecedorId) {
-        try {
-            appContext.getFornecedorService().buscarPorId(fornecedorId)
-                    .ifPresent(f -> {
-                        idField.setText(String.valueOf(f.getId()));
-                        nomeField.setText(f.getNome());
-                        cnpjField.setText(f.getCnpj());
-                        contatoNomeField.setText(f.getContatoNome());
-                        contatoTelefoneField.setText(f.getContatoTelefone());
-                        contatoEmailField.setText(f.getContatoEmail());
-                        enderecoField.setText(f.getEndereco());
-                    });
-        } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("supplier.error.fetchDetails", e.getMessage()), I18n.getString("error.title")); // ALTERADO
-        }
+    public void preencherCamposPeloFornecedor(Fornecedor f) {
+        idField.setText(String.valueOf(f.getId()));
+        nomeField.setText(f.getNome());
+        cnpjField.setText(f.getCnpj());
+        contatoNomeField.setText(f.getContatoNome());
+        contatoTelefoneField.setText(f.getContatoTelefone());
+        contatoEmailField.setText(f.getContatoEmail());
+        enderecoField.setText(f.getEndereco());
     }
 
     @Override

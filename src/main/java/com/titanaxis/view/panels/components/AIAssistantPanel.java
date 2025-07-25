@@ -1,5 +1,5 @@
 // penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/AIAssistantPanel.java
-package com.titanaxis.view.panels;
+package com.titanaxis.view.panels.components;
 
 import com.titanaxis.app.AppContext;
 import com.titanaxis.model.ai.ChatMessage;
@@ -9,6 +9,7 @@ import com.titanaxis.service.VoiceRecognitionService;
 import com.titanaxis.util.I18n;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.interfaces.AIAssistantView;
+import com.titanaxis.view.renderer.ChatBubbleRenderer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

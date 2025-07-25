@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/ProdutoPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.PersistenciaException;
@@ -8,7 +7,7 @@ import com.titanaxis.model.Produto;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ProdutoService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.view.dialogs.LoteDialog;
 import com.titanaxis.view.dialogs.ProdutoDialog;
 import com.titanaxis.view.interfaces.ProdutoView;
@@ -34,7 +33,6 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
 
     @Override
     public void aoClicarImportarCsv() {
-        // ALTERADO
         String infoMessage = I18n.getString("presenter.product.import.csvInfo");
         view.mostrarMensagem(I18n.getString("presenter.product.import.csvInfo.title"), infoMessage, false);
 
@@ -43,7 +41,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
             return;
         }
 
-        view.mostrarMensagem(I18n.getString("presenter.product.import.wait.title"), I18n.getString("presenter.product.import.wait.message"), false); // ALTERADO
+        view.mostrarMensagem(I18n.getString("presenter.product.import.wait.title"), I18n.getString("presenter.product.import.wait.message"), false);
 
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
@@ -56,10 +54,10 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
             protected void done() {
                 try {
                     String resultado = get();
-                    view.mostrarMensagem(I18n.getString("presenter.product.import.complete.title"), resultado, false); // ALTERADO
+                    view.mostrarMensagem(I18n.getString("presenter.product.import.complete.title"), resultado, false);
                     aoCarregarProdutos();
                 } catch (Exception e) {
-                    view.mostrarMensagem(I18n.getString("presenter.product.import.error.title"), I18n.getString("presenter.product.import.error.message", e.getMessage()), true); // ALTERADO
+                    view.mostrarMensagem(I18n.getString("presenter.product.import.error.title"), I18n.getString("presenter.product.import.error.message", e.getMessage()), true);
                 }
             }
         };
@@ -70,7 +68,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
     public void aoClicarImportarPdf() {
         File ficheiro = view.mostrarSeletorDeFicheiroPdf();
         if (ficheiro != null) {
-            view.mostrarMensagem(I18n.getString("presenter.product.import.pdf.title"), I18n.getString("presenter.product.import.pdf.message"), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("presenter.product.import.pdf.title"), I18n.getString("presenter.product.import.pdf.message"), true);
         }
     }
 
@@ -84,7 +82,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         try {
             view.setProdutosNaTabela(produtoService.listarProdutos(view.isMostrarInativos()));
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.product.error.load", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.product.error.load", e.getMessage()), true);
         }
     }
 
@@ -97,13 +95,13 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
                 this.produtoSelecionado.getLotes().sort(Comparator.comparing(Lote::getDataValidade, Comparator.nullsLast(Comparator.naturalOrder())));
                 view.setLotesNaTabela(this.produtoSelecionado.getLotes());
                 view.setBotoesDeAcaoEnabled(true);
-                view.setTextoBotaoStatus(produtoSelecionado.isAtivo() ? I18n.getString("presenter.product.button.deactivate") : I18n.getString("presenter.product.button.reactivate")); // ALTERADO
+                view.setTextoBotaoStatus(produtoSelecionado.isAtivo() ? I18n.getString("presenter.product.button.deactivate") : I18n.getString("presenter.product.button.reactivate"));
             } else {
                 this.produtoSelecionado = null;
                 view.limparPainelDeDetalhes();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.product.error.fetchDetails", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.product.error.fetchDetails", e.getMessage()), true);
         }
     }
 
@@ -133,16 +131,16 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         if (produtoSelecionado == null) return;
         Usuario ator = authService.getUsuarioLogado().orElse(null);
         boolean novoStatus = !produtoSelecionado.isAtivo();
-        String acao = novoStatus ? I18n.getString("action.reactivate") : I18n.getString("action.deactivate"); // ALTERADO
-        String mensagem = I18n.getString("presenter.product.confirm.toggleStatus", acao, produtoSelecionado.getNome()); // ALTERADO
-        if (view.mostrarConfirmacao(I18n.getString("presenter.product.confirm.toggleStatus.title"), mensagem)) { // ALTERADO
+        String acao = novoStatus ? I18n.getString("action.reactivate") : I18n.getString("action.deactivate");
+        String mensagem = I18n.getString("presenter.product.confirm.toggleStatus", acao, produtoSelecionado.getNome());
+        if (view.mostrarConfirmacao(I18n.getString("presenter.product.confirm.toggleStatus.title"), mensagem)) {
             try {
                 produtoService.alterarStatusProduto(produtoSelecionado.getId(), novoStatus, ator);
                 aoCarregarProdutos();
                 view.limparPainelDeDetalhes();
                 view.limparSelecaoDaTabelaDeProdutos();
             } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-                view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.product.error.toggleStatus", e.getMessage()), true); // ALTERADO
+                view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.product.error.toggleStatus", e.getMessage()), true);
             }
         }
     }
@@ -161,7 +159,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         if (produtoSelecionado == null) return;
         int loteId = view.getSelectedLoteId();
         if (loteId == -1) {
-            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.product.error.selectBatchToEdit"), false); // ALTERADO
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.product.error.selectBatchToEdit"), false);
             return;
         }
         try {
@@ -171,7 +169,7 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
                 dialog.getLoteSalvo().ifPresent(this::processarLoteSalvo);
             });
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.product.error.fetchBatch", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.product.error.fetchBatch", e.getMessage()), true);
         }
     }
 
@@ -180,17 +178,17 @@ public class ProdutoPresenter implements ProdutoView.ProdutoViewListener {
         if (produtoSelecionado == null) return;
         int loteId = view.getSelectedLoteId();
         if (loteId == -1) {
-            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.product.error.selectBatchToRemove"), false); // ALTERADO
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.product.error.selectBatchToRemove"), false);
             return;
         }
         Usuario ator = authService.getUsuarioLogado().orElse(null);
-        if (view.mostrarConfirmacao(I18n.getString("presenter.product.confirm.removeBatch.title"), I18n.getString("presenter.product.confirm.removeBatch.message"))) { // ALTERADO
+        if (view.mostrarConfirmacao(I18n.getString("presenter.product.confirm.removeBatch.title"), I18n.getString("presenter.product.confirm.removeBatch.message"))) {
             try {
                 produtoService.removerLote(loteId, ator);
                 aoSelecionarProduto(produtoSelecionado.getId());
                 aoCarregarProdutos();
             } catch (UtilizadorNaoAutenticadoException | PersistenciaException e) {
-                view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.product.error.removeBatch", e.getMessage()), true); // ALTERADO
+                view.mostrarMensagem(I18n.getString("error.title"), I18n.getString("presenter.product.error.removeBatch", e.getMessage()), true);
             }
         }
     }

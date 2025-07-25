@@ -1,11 +1,9 @@
 package com.titanaxis.view.panels;
 
-import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Categoria;
-import com.titanaxis.presenter.CategoriaPresenter;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
-import com.titanaxis.view.interfaces.CategoriaView; // IMPORT CORRIGIDO
+import com.titanaxis.view.interfaces.CategoriaView;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,7 +19,7 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
     private final JTextField nomeField;
     private final JTextField searchField;
 
-    public CategoriaPanel(AppContext appContext) {
+    public CategoriaPanel() {
         idField = new JTextField();
         idField.setEditable(false);
         nomeField = new JTextField();
@@ -37,7 +35,6 @@ public class CategoriaPanel extends JPanel implements CategoriaView {
         table = new JTable(tableModel);
 
         initComponents();
-        new CategoriaPresenter(this, appContext.getCategoriaService(), appContext.getAuthService());
     }
 
     private void initComponents() {

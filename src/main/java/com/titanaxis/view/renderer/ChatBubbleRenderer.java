@@ -1,5 +1,5 @@
 // penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/view/panels/ChatBubbleRenderer.java
-package com.titanaxis.view.panels;
+package com.titanaxis.view.renderer;
 
 import com.titanaxis.model.ai.ChatMessage;
 import com.titanaxis.view.panels.components.ChatBubble;

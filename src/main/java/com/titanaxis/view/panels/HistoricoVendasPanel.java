@@ -4,7 +4,6 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Venda;
 import com.titanaxis.model.VendaStatus;
-import com.titanaxis.presenter.HistoricoVendasPresenter;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.DashboardFrame;
@@ -33,7 +32,7 @@ import java.util.Optional;
 public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView, DashboardFrame.Refreshable {
 
     private HistoricoVendasListener listener;
-    private final AppContext appContext;
+    private AppContext appContext;
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JSpinner dataInicioSpinner;
@@ -46,11 +45,9 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
     private final Timer dateFilterTimer;
 
 
-    public HistoricoVendasPanel(AppContext appContext) {
-        this.appContext = appContext;
+    public HistoricoVendasPanel() {
         setLayout(new BorderLayout(10, 10));
 
-        // Filtros
         SpinnerDateModel inicioModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
         dataInicioSpinner = new JSpinner(inicioModel);
         dataInicioSpinner.setEditor(new JSpinner.DateEditor(dataInicioSpinner, "dd/MM/yyyy"));
@@ -68,7 +65,6 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         convertButton = new JButton(I18n.getString("history.button.convertQuote"));
         returnButton = new JButton(I18n.getString("history.button.registerReturn"));
 
-        // Tabela
         String[] columnNames = {
                 I18n.getString("history.table.header.id"),
                 I18n.getString("history.table.header.date"),
@@ -84,13 +80,16 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         table = new JTable(tableModel);
 
         initComponents();
-        new HistoricoVendasPresenter(this, appContext.getVendaService());
 
         dateFilterTimer = new Timer(500, e -> listener.aoAplicarFiltros());
         dateFilterTimer.setRepeats(false);
 
         dataInicioSpinner.addChangeListener(e -> dateFilterTimer.restart());
         dataFimSpinner.addChangeListener(e -> dateFilterTimer.restart());
+    }
+
+    public void setAppContext(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override
@@ -122,7 +121,6 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("history.border.searchFilters")));
 
-        // Painel Esquerdo: Filtros de texto e status
         JPanel leftFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         statusComboBox.addItem(null);
         for (VendaStatus status : VendaStatus.values()) {
@@ -137,7 +135,6 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
         leftFilterPanel.add(statusComboBox);
 
 
-        // Painel Direito: Filtros de data e botões
         JPanel rightFilterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         atualizarButton.addActionListener(e -> listener.aoAplicarFiltros());
         limparButton.addActionListener(e -> {
@@ -186,6 +183,7 @@ public class HistoricoVendasPanel extends JPanel implements HistoricoVendasView,
     }
 
     private Optional<Venda> getSelectedVenda() {
+        if (appContext == null) return Optional.empty();
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
             UIMessageUtil.showWarningMessage(this, I18n.getString("history.error.noSaleSelected"), I18n.getString("history.error.noSaleSelected.title"));

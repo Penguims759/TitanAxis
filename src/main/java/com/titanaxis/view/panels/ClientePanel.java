@@ -1,10 +1,7 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/view/panels/ClientePanel.java
 package com.titanaxis.view.panels;
 
-import com.titanaxis.app.AppContext;
 import com.titanaxis.model.Cliente;
-import com.titanaxis.presenter.ClientePresenter;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
 import com.titanaxis.view.interfaces.ClienteView;
 
@@ -28,10 +25,9 @@ public class ClientePanel extends JPanel implements ClienteView {
     private final JTextField searchField;
     private JButton saveButton;
 
-    public ClientePanel(AppContext appContext) {
+    public ClientePanel() {
         searchField = new JTextField(25);
 
-        // ALTERADO
         tableModel = new DefaultTableModel(new String[]{
                 I18n.getString("client.table.header.id"),
                 I18n.getString("client.table.header.name"),
@@ -50,7 +46,6 @@ public class ClientePanel extends JPanel implements ClienteView {
 
         initComponents();
         addFormValidation();
-        new ClientePresenter(this, appContext.getClienteService(), appContext.getAuthService());
     }
 
     private void initComponents() {
@@ -80,27 +75,27 @@ public class ClientePanel extends JPanel implements ClienteView {
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("client.border.details"))); // ALTERADO
-        panel.add(new JLabel(I18n.getString("client.label.id"))); // ALTERADO
+        panel.setBorder(BorderFactory.createTitledBorder(I18n.getString("client.border.details")));
+        panel.add(new JLabel(I18n.getString("client.label.id")));
         panel.add(idField);
-        panel.add(new JLabel(I18n.getString("client.label.name"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("client.label.name")));
         panel.add(nomeField);
-        panel.add(new JLabel(I18n.getString("client.label.contact"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("client.label.contact")));
         panel.add(contatoField);
-        panel.add(new JLabel(I18n.getString("client.label.address"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("client.label.address")));
         panel.add(enderecoField);
         return panel;
     }
 
     private JPanel createButtonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        saveButton = new JButton(I18n.getString("client.button.save")); // ALTERADO
+        saveButton = new JButton(I18n.getString("client.button.save"));
         saveButton.setMnemonic(KeyEvent.VK_S);
 
-        JButton deleteButton = new JButton(I18n.getString("client.button.delete")); // ALTERADO
+        JButton deleteButton = new JButton(I18n.getString("client.button.delete"));
         deleteButton.setMnemonic(KeyEvent.VK_E);
 
-        JButton clearButton = new JButton(I18n.getString("client.button.clear")); // ALTERADO
+        JButton clearButton = new JButton(I18n.getString("client.button.clear"));
         clearButton.setMnemonic(KeyEvent.VK_L);
 
         saveButton.addActionListener(e -> listener.aoSalvar());
@@ -115,12 +110,12 @@ public class ClientePanel extends JPanel implements ClienteView {
 
     private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton searchButton = new JButton(I18n.getString("client.button.search")); // ALTERADO
+        JButton searchButton = new JButton(I18n.getString("client.button.search"));
         searchButton.setMnemonic(KeyEvent.VK_B);
 
-        JButton clearSearchButton = new JButton(I18n.getString("client.button.clearSearch")); // ALTERADO
+        JButton clearSearchButton = new JButton(I18n.getString("client.button.clearSearch"));
 
-        searchPanel.add(new JLabel(I18n.getString("client.label.searchByName"))); // ALTERADO
+        searchPanel.add(new JLabel(I18n.getString("client.label.searchByName")));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.add(clearSearchButton);

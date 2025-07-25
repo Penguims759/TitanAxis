@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/ClientePresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.PersistenciaException;
@@ -7,7 +6,7 @@ import com.titanaxis.model.Cliente;
 import com.titanaxis.model.Usuario;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.ClienteService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.view.interfaces.ClienteView;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
             List<Cliente> clientes = clienteService.listarTodos();
             view.setClientesNaTabela(clientes);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.load", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.load", e.getMessage()), true);
         }
     }
 
@@ -40,7 +39,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
     public void aoSalvar() {
         String nome = view.getNome().trim();
         if (nome.isEmpty()) {
-            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.client.error.nameRequired"), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.validation.title"), I18n.getString("presenter.client.error.nameRequired"), true);
             return;
         }
 
@@ -51,33 +50,33 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
 
         try {
             Cliente clienteSalvo = clienteService.salvar(cliente, ator);
-            String successMessage = isUpdate ? I18n.getString("presenter.client.success.update") : I18n.getString("presenter.client.success.add"); // ALTERADO
+            String successMessage = isUpdate ? I18n.getString("presenter.client.success.update") : I18n.getString("presenter.client.success.add");
             if (isUpdate) {
                 view.atualizarClienteNaTabela(clienteSalvo);
-                view.mostrarMensagem(I18n.getString("success.title"), successMessage, false); // ALTERADO
+                view.mostrarMensagem(I18n.getString("success.title"), successMessage, false);
             } else {
                 view.adicionarClienteNaTabela(clienteSalvo);
-                view.mostrarMensagem(I18n.getString("success.title"), successMessage, false); // ALTERADO
+                view.mostrarMensagem(I18n.getString("success.title"), successMessage, false);
             }
             aoLimpar();
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.save", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.save", e.getMessage()), true);
         }
     }
 
     @Override
     public void aoApagar() {
         if (view.getId().isEmpty()) {
-            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.client.error.selectToDelete"), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("warning.title"), I18n.getString("presenter.client.error.selectToDelete"), true);
             return;
         }
 
         String nomeCliente = view.getNome();
-        String mensagem = I18n.getString("presenter.client.confirm.delete", nomeCliente); // ALTERADO
+        String mensagem = I18n.getString("presenter.client.confirm.delete", nomeCliente);
 
-        if (!view.mostrarConfirmacao(I18n.getString("presenter.client.confirm.delete.title"), mensagem)) { // ALTERADO
+        if (!view.mostrarConfirmacao(I18n.getString("presenter.client.confirm.delete.title"), mensagem)) {
             return;
         }
         int id = Integer.parseInt(view.getId());
@@ -85,12 +84,12 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
         try {
             clienteService.deletar(id, ator);
             view.removerClienteDaTabela(id);
-            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.client.success.delete"), false); // ALTERADO
+            view.mostrarMensagem(I18n.getString("success.title"), I18n.getString("presenter.client.success.delete"), false);
             aoLimpar();
         } catch (UtilizadorNaoAutenticadoException e) {
-            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.auth.title"), e.getMessage(), true);
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.delete", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.delete", e.getMessage()), true);
         }
     }
 
@@ -113,7 +112,7 @@ public class ClientePresenter implements ClienteView.ClienteViewListener {
                 aoCarregarDadosIniciais();
             }
         } catch (PersistenciaException e) {
-            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.search", e.getMessage()), true); // ALTERADO
+            view.mostrarMensagem(I18n.getString("error.db.title"), I18n.getString("presenter.client.error.search", e.getMessage()), true);
         }
     }
 

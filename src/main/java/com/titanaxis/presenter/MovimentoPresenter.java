@@ -1,10 +1,9 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-3281ebcc37f2e4fc4ae9f1a9f16e291130f76009/src/main/java/com/titanaxis/presenter/MovimentoPresenter.java
 package com.titanaxis.presenter;
 
 import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.service.MovimentoService;
-import com.titanaxis.util.I18n; // Importado
+import com.titanaxis.util.I18n;
 import com.titanaxis.view.interfaces.MovimentoView;
 
 import javax.swing.*;
@@ -19,6 +18,7 @@ public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
         this.view = view;
         this.movimentoService = movimentoService;
         this.view.setListener(this);
+        aoCarregarMovimentos();
     }
 
     @Override
@@ -49,7 +49,6 @@ public class MovimentoPresenter implements MovimentoView.MovimentoViewListener {
                     view.setMovimentosNaTabela(movimentos);
                 } catch (Exception e) {
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
-                    // ALTERADO
                     String msg = (cause instanceof PersistenciaException) ? I18n.getString("error.db.generic", cause.getMessage()) : I18n.getString("error.unexpected.message");
                     view.mostrarErro(I18n.getString("presenter.movement.error.load.title"), msg);
                 } finally {
