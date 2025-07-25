@@ -9,21 +9,23 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.repository.CategoriaRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
+import com.titanaxis.service.ai.FlowValidationService;
 import com.titanaxis.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class CreateProductFlow extends AbstractConversationFlow {
 
     private final TransactionService transactionService;
     private final CategoriaRepository categoriaRepository;
+    private final FlowValidationService validationService;
 
     @Inject
-    public CreateProductFlow(TransactionService transactionService, CategoriaRepository categoriaRepository) {
+    public CreateProductFlow(TransactionService transactionService, CategoriaRepository categoriaRepository, FlowValidationService validationService) {
         this.transactionService = transactionService;
         this.categoriaRepository = categoriaRepository;
+        this.validationService = validationService;
     }
 
     @Override
@@ -41,7 +43,7 @@ public class CreateProductFlow extends AbstractConversationFlow {
         ));
         steps.put("categoria", new Step(
                 "A qual categoria este produto pertence?",
-                this::isCategoriaValida,
+                validationService::isCategoriaValida,
                 "Categoria não encontrada. Verifique o nome ou crie a categoria primeiro."
         ));
     }
@@ -64,7 +66,6 @@ public class CreateProductFlow extends AbstractConversationFlow {
             actionParams.put("preco", preco);
             actionParams.put("categoria", categoria);
 
-            // Coloca a entidade criada nos dados para ser guardada no contexto pelo serviço
             conversationData.put("foundEntity", novoProduto);
 
             return new AssistantResponse(
@@ -74,16 +75,6 @@ public class CreateProductFlow extends AbstractConversationFlow {
             );
         } catch (PersistenciaException e) {
             return new AssistantResponse("Ocorreu um erro na base de dados ao finalizar a criação do produto.");
-        }
-    }
-
-    private boolean isCategoriaValida(String nomeCategoria) {
-        try {
-            return transactionService.executeInTransactionWithResult(em ->
-                    categoriaRepository.findByNome(nomeCategoria, em)
-            ).isPresent();
-        } catch (PersistenciaException e) {
-            return false;
         }
     }
 }

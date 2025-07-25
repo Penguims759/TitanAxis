@@ -1,12 +1,10 @@
-// src/main/java/com/titanaxis/service/ai/flows/ManageStockFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
-import com.titanaxis.service.ProdutoService;
+import com.titanaxis.service.ai.FlowValidationService;
 import com.titanaxis.util.StringUtil;
 
 import java.util.HashMap;
@@ -14,11 +12,11 @@ import java.util.Map;
 
 public class ManageStockFlow extends AbstractConversationFlow {
 
-    private final ProdutoService produtoService;
+    private final FlowValidationService validationService;
 
     @Inject
-    public ManageStockFlow(ProdutoService produtoService) {
-        this.produtoService = produtoService;
+    public ManageStockFlow(FlowValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Override
@@ -38,7 +36,7 @@ public class ManageStockFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("productName", new Step(
                 "Ok. Qual o nome do produto?",
-                this::isProdutoValido,
+                (input, data) -> validationService.isProdutoValido(input),
                 "Produto não encontrado. Por favor, verifique o nome ou diga 'cancelar'."
         ));
         steps.put("lotNumber", new Step(data -> "Certo. Qual o número do lote para '" + data.get("productName") + "'?"));
@@ -55,22 +53,13 @@ public class ManageStockFlow extends AbstractConversationFlow {
         ));
     }
 
-    private boolean isProdutoValido(String nomeProduto) {
-        try {
-            return produtoService.produtoExiste(nomeProduto);
-        } catch (PersistenciaException e) {
-            return false;
-        }
-    }
-
-
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         if ("sim".equalsIgnoreCase((String) conversationData.get("confirmation"))) {
             return new AssistantResponse(
                     "Ok, a atualizar o stock...",
                     Action.DIRECT_ADD_STOCK,
-                    new HashMap<>(conversationData)); // CORREÇÃO APLICADA
+                    new HashMap<>(conversationData));
         } else {
             return new AssistantResponse("Ok, ação cancelada.");
         }

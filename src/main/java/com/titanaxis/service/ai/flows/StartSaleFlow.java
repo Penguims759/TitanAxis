@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/ai/flows/StartSaleFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
@@ -6,22 +5,19 @@ import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.Cliente;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
-import com.titanaxis.repository.ClienteRepository;
 import com.titanaxis.service.Intent;
-import com.titanaxis.service.TransactionService;
-import com.titanaxis.util.StringUtil; // Importado
+import com.titanaxis.service.ai.FlowValidationService;
+import com.titanaxis.util.StringUtil;
 import java.util.Map;
 import java.util.Optional;
 
 public class StartSaleFlow extends AbstractConversationFlow {
 
-    private final TransactionService transactionService;
-    private final ClienteRepository clienteRepository;
+    private final FlowValidationService validationService;
 
     @Inject
-    public StartSaleFlow(TransactionService transactionService, ClienteRepository clienteRepository) {
-        this.transactionService = transactionService;
-        this.clienteRepository = clienteRepository;
+    public StartSaleFlow(FlowValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Override
@@ -44,7 +40,7 @@ public class StartSaleFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("clientName", new Step(
                 "Para qual cliente é a venda? (Opcional, pode deixar em branco)",
-                this::isClientNameValidOrEmpty,
+                (input, data) -> isClientNameValidOrEmpty(input),
                 "Cliente não encontrado. Verifique o nome ou deixe em branco para continuar."
         ));
     }
@@ -52,31 +48,22 @@ public class StartSaleFlow extends AbstractConversationFlow {
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         String clientName = (String) conversationData.get("clientName");
-        if (clientName == null || clientName.trim().isEmpty() || isClientless(clientName)) { // ALTERADO
+        if (clientName == null || clientName.trim().isEmpty() || isClientless(clientName)) {
             return new AssistantResponse("Ok, a abrir o painel de vendas.", Action.UI_NAVIGATE, Map.of("destination", "Vendas"));
         }
         return validateAndFinish(clientName, conversationData);
     }
 
     private AssistantResponse validateAndFinish(String clientName, Map<String, Object> data) {
-        try {
-            Optional<Cliente> clienteOpt = transactionService.executeInTransactionWithResult(em ->
-                    clienteRepository.findByNome(clientName, em));
-
-            if (clienteOpt.isPresent()) {
-                Cliente cliente = clienteOpt.get();
-                data.put("cliente", cliente);
-                data.put("foundEntity", cliente);
-                return new AssistantResponse(
-                        "Ok, a iniciar a venda para o cliente " + clientName,
-                        Action.START_SALE_FOR_CLIENT,
-                        data
-                );
-            } else {
-                return new AssistantResponse("Cliente '" + clientName + "' não encontrado. Gostaria de o criar primeiro?");
-            }
-        } catch (PersistenciaException e) {
-            return new AssistantResponse("Ocorreu um erro ao verificar o cliente na base de dados.");
+        if (validationService.isClienteValido(clientName)) {
+            data.put("cliente", new Cliente(clientName, "", "")); // Simples DTO por agora
+            return new AssistantResponse(
+                    "Ok, a iniciar a venda para o cliente " + clientName,
+                    Action.START_SALE_FOR_CLIENT,
+                    data
+            );
+        } else {
+            return new AssistantResponse("Cliente '" + clientName + "' não encontrado. Gostaria de o criar primeiro?");
         }
     }
 
@@ -86,15 +73,9 @@ public class StartSaleFlow extends AbstractConversationFlow {
     }
 
     private boolean isClientNameValidOrEmpty(String name) {
-        if (name == null || name.trim().isEmpty() || isClientless(name)) { // ALTERADO
+        if (name == null || name.trim().isEmpty() || isClientless(name)) {
             return true;
         }
-        try {
-            return transactionService.executeInTransactionWithResult(em ->
-                    clienteRepository.findByNome(name, em)
-            ).isPresent();
-        } catch (PersistenciaException e) {
-            return false;
-        }
+        return validationService.isClienteValido(name);
     }
 }

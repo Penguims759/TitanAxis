@@ -1,12 +1,10 @@
-// src/main/java/com/titanaxis/service/ai/flows/AdjustStockFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
-import com.titanaxis.exception.PersistenciaException;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.Intent;
-import com.titanaxis.service.ProdutoService;
+import com.titanaxis.service.ai.FlowValidationService;
 import com.titanaxis.util.StringUtil;
 
 import java.util.HashMap;
@@ -14,16 +12,15 @@ import java.util.Map;
 
 public class AdjustStockFlow extends AbstractConversationFlow {
 
-    private final ProdutoService produtoService;
+    private final FlowValidationService validationService;
 
     @Inject
-    public AdjustStockFlow(ProdutoService produtoService) {
-        this.produtoService = produtoService;
+    public AdjustStockFlow(FlowValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Override
     public boolean canHandle(Intent intent) {
-        // Este fluxo agora lida com ambas as intenções
         return intent == Intent.ADJUST_STOCK || intent == Intent.UPDATE_LOTE;
     }
 
@@ -39,12 +36,12 @@ public class AdjustStockFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("productName", new Step(
                 "Ok, vamos alterar um lote. Qual o nome do produto?",
-                (input, data) -> isProdutoValido(input),
+                (input, data) -> validationService.isProdutoValido(input),
                 "Produto não encontrado. Por favor, verifique o nome ou diga 'cancelar'."
         ));
         steps.put("lotNumber", new Step(
                 data -> "Qual o número do lote para '" + data.get("productName") + "'?",
-                (input, data) -> isLoteValido((String) data.get("productName"), input),
+                (input, data) -> validationService.isLoteValido((String) data.get("productName"), input),
                 "Lote não encontrado para este produto. Verifique o número ou diga 'cancelar'."
         ));
         steps.put("quantity", new Step(
@@ -64,30 +61,13 @@ public class AdjustStockFlow extends AbstractConversationFlow {
         ));
     }
 
-    private boolean isProdutoValido(String nomeProduto) {
-        try {
-            return produtoService.produtoExiste(nomeProduto);
-        } catch (PersistenciaException e) {
-            return false;
-        }
-    }
-
-    private boolean isLoteValido(String nomeProduto, String numeroLote) {
-        try {
-            return produtoService.loteExiste(nomeProduto, numeroLote);
-        } catch (PersistenciaException e) {
-            return false;
-        }
-    }
-
-
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
         if ("sim".equalsIgnoreCase((String) conversationData.get("confirmation"))) {
             return new AssistantResponse(
                     "Ok, a enviar o ajuste de estoque...",
                     Action.DIRECT_ADJUST_STOCK,
-                    new HashMap<>(conversationData)); // CORREÇÃO APLICADA
+                    new HashMap<>(conversationData));
         } else {
             return new AssistantResponse("Ok, ação cancelada.");
         }

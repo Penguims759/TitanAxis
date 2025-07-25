@@ -9,7 +9,7 @@ import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.FinanceiroService;
 import com.titanaxis.service.Intent;
-import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.service.ai.FlowValidationService; // IMPORT ADICIONADO
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -24,13 +24,15 @@ public class QuerySalespersonPerformanceFlow extends AbstractConversationFlow {
     private final AuthService authService;
     private final AnalyticsService analyticsService;
     private final FinanceiroService financeiroService;
+    private final FlowValidationService validationService; // NOVA DEPENDÊNCIA
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     @Inject
-    public QuerySalespersonPerformanceFlow(AuthService authService, AnalyticsService analyticsService, FinanceiroService financeiroService) {
+    public QuerySalespersonPerformanceFlow(AuthService authService, AnalyticsService analyticsService, FinanceiroService financeiroService, FlowValidationService validationService) {
         this.authService = authService;
         this.analyticsService = analyticsService;
         this.financeiroService = financeiroService;
+        this.validationService = validationService; // INICIALIZAÇÃO
     }
 
     @Override
@@ -42,18 +44,12 @@ public class QuerySalespersonPerformanceFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("username", new Step(
                 "Claro. Qual o nome do utilizador que gostaria de analisar?",
-                this::isUserValid,
+                (input, data) -> validationService.isUserValido(input), // ALTERADO para usar o serviço
                 "Utilizador não encontrado. Por favor, verifique o nome."
         ));
     }
 
-    private boolean isUserValid(String username) {
-        try {
-            return authService.listarUsuarios().stream().anyMatch(u -> u.getNomeUsuario().equalsIgnoreCase(username));
-        } catch (PersistenciaException e) {
-            return false;
-        }
-    }
+    // O método isUserValid() local foi REMOVIDO daqui.
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
@@ -76,7 +72,6 @@ public class QuerySalespersonPerformanceFlow extends AbstractConversationFlow {
 
             double valorVendido = analyticsService.getVendasPorVendedorNoPeriodo(user.getId(), startOfMonth, endOfMonth);
 
-            // Buscar a meta do utilizador para o mês corrente
             Optional<MetaVenda> metaOpt = financeiroService.listarMetas().stream()
                     .filter(m -> m.getUsuario().getId() == user.getId() &&
                             !today.isBefore(m.getDataInicio()) &&
@@ -91,7 +86,6 @@ public class QuerySalespersonPerformanceFlow extends AbstractConversationFlow {
             if (metaOpt.isPresent()) {
                 MetaVenda meta = metaOpt.get();
                 double metaValue = meta.getValorMeta();
-                // Calcula o progresso com base no período da meta, não apenas no mês atual
                 double valorVendidoNoPeriodoDaMeta = analyticsService.getVendasPorVendedorNoPeriodo(user.getId(), meta.getDataInicio(), meta.getDataFim());
                 double progresso = (metaValue > 0) ? (valorVendidoNoPeriodoDaMeta / metaValue) * 100 : 0;
 

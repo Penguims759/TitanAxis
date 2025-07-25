@@ -26,7 +26,7 @@ public class CreateUserFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        if (!authService.isGerente()) { // Apenas Gerentes ou Admins podem criar utilizadores
+        if (!authService.isGerente()) {
             return new AssistantResponse("Desculpe, apenas gestores ou administradores podem criar novos utilizadores.");
         }
         return super.process(userInput, conversationData);
@@ -38,14 +38,13 @@ public class CreateUserFlow extends AbstractConversationFlow {
         steps.put("password", new Step(data -> "Qual será a senha para '" + data.get("username") + "'?"));
         steps.put("level", new Step(
                 "E qual o nível de acesso? (padrao, gerente, ou admin)",
-                this::isNivelAcessoValido,
+                (input, data) -> isNivelAcessoValido(input),
                 "Nível inválido. Use 'padrao', 'gerente' ou 'admin'."
         ));
     }
 
     @Override
     protected AssistantResponse completeFlow(Map<String, Object> conversationData) {
-        // Converte o nível de acesso de String para o Enum antes de enviar
         NivelAcesso nivel = NivelAcesso.valueOf(((String) conversationData.get("level")).trim().toUpperCase());
         conversationData.put("level", nivel);
 

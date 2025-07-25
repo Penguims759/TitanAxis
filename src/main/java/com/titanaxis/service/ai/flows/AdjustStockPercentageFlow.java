@@ -6,6 +6,7 @@ import com.titanaxis.model.ai.AssistantResponse;
 import com.titanaxis.service.AuthService;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.ProdutoService;
+import com.titanaxis.service.ai.FlowValidationService;
 import com.titanaxis.util.StringUtil;
 
 import java.util.Map;
@@ -16,12 +17,14 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
 
     private final ProdutoService produtoService;
     private final AuthService authService;
+    private final FlowValidationService validationService;
     private static final Pattern PERCENTAGE_PATTERN = Pattern.compile("([+-]?\\d*\\.?\\d+)\\s*%");
 
     @Inject
-    public AdjustStockPercentageFlow(ProdutoService produtoService, AuthService authService) {
+    public AdjustStockPercentageFlow(ProdutoService produtoService, AuthService authService, FlowValidationService validationService) {
         this.produtoService = produtoService;
         this.authService = authService;
+        this.validationService = validationService;
     }
 
     @Override
@@ -31,7 +34,6 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
 
     @Override
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
-        // Extrair entidades da pergunta inicial
         if (conversationData.get("entity") == null) {
             String productName = StringUtil.extractValueAfter(userInput, new String[]{"de", "do", "da"});
             Matcher matcher = PERCENTAGE_PATTERN.matcher(userInput);
@@ -51,7 +53,7 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("produto", new Step(
                 "Qual produto você deseja ajustar?",
-                this::isProdutoValido,
+                (input, data) -> validationService.isProdutoValido(input),
                 "Produto não encontrado. Por favor, verifique o nome."
         ));
         steps.put("percentual", new Step(
@@ -67,7 +69,6 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
             String productName = (String) conversationData.get("produto");
             double percentage;
 
-            // Re-processar o percentual caso tenha sido inserido no segundo passo
             Object percObj = conversationData.get("percentual");
             if (percObj instanceof String) {
                 Matcher matcher = PERCENTAGE_PATTERN.matcher((String) percObj);
@@ -90,14 +91,6 @@ public class AdjustStockPercentageFlow extends AbstractConversationFlow {
             return new AssistantResponse("Não foi possível ajustar o estoque: " + e.getMessage());
         } catch (Exception e) {
             return new AssistantResponse("Ocorreu um erro inesperado: " + e.getMessage());
-        }
-    }
-
-    private boolean isProdutoValido(String nomeProduto) {
-        try {
-            return produtoService.produtoExiste(nomeProduto);
-        } catch (PersistenciaException e) {
-            return false;
         }
     }
 }

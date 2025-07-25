@@ -1,28 +1,25 @@
-// Caminho: penguims759/titanaxis/Penguims759-TitanAxis-d11978d74c8d39dd19a6d1a7bb798e37ccb09060/src/main/java/com/titanaxis/service/ai/flows/UpdateProductFlow.java
 package com.titanaxis.service.ai.flows;
 
 import com.google.inject.Inject;
 import com.titanaxis.exception.PersistenciaException;
-import com.titanaxis.model.Produto;
 import com.titanaxis.model.ai.Action;
 import com.titanaxis.model.ai.AssistantResponse;
-import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.service.Intent;
 import com.titanaxis.service.TransactionService;
+import com.titanaxis.service.ai.FlowValidationService;
 import com.titanaxis.util.StringUtil;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class UpdateProductFlow extends AbstractConversationFlow {
 
     private final TransactionService transactionService;
-    private final ProdutoRepository produtoRepository;
+    private final FlowValidationService validationService;
 
     @Inject
-    public UpdateProductFlow(TransactionService transactionService, ProdutoRepository produtoRepository) {
+    public UpdateProductFlow(TransactionService transactionService, FlowValidationService validationService) {
         this.transactionService = transactionService;
-        this.produtoRepository = produtoRepository;
+        this.validationService = validationService;
     }
 
     @Override
@@ -34,17 +31,11 @@ public class UpdateProductFlow extends AbstractConversationFlow {
     public AssistantResponse process(String userInput, Map<String, Object> conversationData) {
         if (conversationData.get("entity") != null && !conversationData.containsKey("productName")) {
             String productNameFromContext = (String) conversationData.get("entity");
-            if(isProdutoValido(productNameFromContext)){
+            if(validationService.isProdutoValido(productNameFromContext)){
                 conversationData.put("productName", productNameFromContext);
-                // Guarda a entidade encontrada para manter o contexto se o fluxo for concluído
-                try {
-                    transactionService.executeInTransactionWithResult(em -> produtoRepository.findByNome(productNameFromContext, em))
-                            .ifPresent(p -> conversationData.put("foundEntity", p));
-                } catch (PersistenciaException e) { /* Ignora o erro de contexto */ }
             }
         }
 
-        // Lógica dos sub-fluxos (preço, status)
         String flowStep = (String) conversationData.get("flow");
         if ("PRICE_UPDATE".equals(flowStep)) {
             return handlePriceUpdate(userInput, conversationData);
@@ -52,7 +43,7 @@ public class UpdateProductFlow extends AbstractConversationFlow {
             return handleStatusUpdate(userInput, conversationData);
         } else if ("CONFIRM_UPDATE".equals(flowStep)) {
             if (userInput.equalsIgnoreCase("sim")) {
-                return completeFlow(conversationData);
+                return new AssistantResponse("Ok, a enviar a atualização...", Action.DIRECT_UPDATE_PRODUCT, conversationData);
             } else {
                 conversationData.clear();
                 return new AssistantResponse("Ok, ação cancelada.");
@@ -67,7 +58,7 @@ public class UpdateProductFlow extends AbstractConversationFlow {
     protected void defineSteps() {
         steps.put("productName", new Step(
                 "Qual produto você deseja alterar?",
-                this::isProdutoValido,
+                (input, data) -> validationService.isProdutoValido(input),
                 "Não encontrei este produto. Por favor, verifique o nome."
         ));
 
@@ -110,15 +101,5 @@ public class UpdateProductFlow extends AbstractConversationFlow {
         String confirmationMessage = String.format("Você confirma a %s do produto %s? (sim/não)", ((Boolean) data.get("active") ? "ativação" : "inativação"), data.get("productName"));
         data.put("flow", "CONFIRM_UPDATE");
         return new AssistantResponse(confirmationMessage, Action.AWAITING_INFO, null);
-    }
-
-    private boolean isProdutoValido(String nomeProduto) {
-        try {
-            return transactionService.executeInTransactionWithResult(em ->
-                    produtoRepository.findByNome(nomeProduto, em)
-            ).isPresent();
-        } catch (PersistenciaException e) {
-            return false;
-        }
     }
 }

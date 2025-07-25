@@ -4,47 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4b6255a0-d200-4045-ac81-4eabf4f6facf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/ActionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/AddStockAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/AdjustStockAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/ChangeThemeAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/CreateCategoryAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/CreateClientAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/CreateFornecedorAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/CreateProductAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/CreateUserAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/DashboardAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/GenerateReportAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/GuideAddLoteAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/GuideAddProductAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/NavigateAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/StartSaleForClientAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/handler/actions/UpdateProductAction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/builder/DashboardMenuBarFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/builder/DashboardViewBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/model/NivelAcessoConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/model/converter/NivelAcessoConverter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/CategoriaPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/CategoriaPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/ClientePresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/ClientePresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/FornecedorPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/FornecedorPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/HistoricoVendasPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/HistoricoVendasPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/MovimentoPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/MovimentoPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/ProdutoPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/ProdutoPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/UsuarioPresenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/presenter/UsuarioPresenter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/ProdutoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/ProdutoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/DashboardFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/DashboardFrame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/CommandBarDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/dialogs/CommandBarDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/AIAssistantPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/components/AIAssistantPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/CategoriaPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/CategoriaPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ChatBubbleRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/renderer/ChatBubbleRenderer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ClientePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ClientePanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/FornecedorPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/FornecedorPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/HistoricoVendasPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/HistoricoVendasPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/MovimentosPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/MovimentosPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ProdutoPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/ProdutoPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/UsuarioPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/view/panels/UsuarioPanel.java" afterDir="false" />
-    </list>
+    <list default="true" id="4b6255a0-d200-4045-ac81-4eabf4f6facf" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

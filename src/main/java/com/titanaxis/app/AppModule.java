@@ -7,6 +7,7 @@ import com.titanaxis.repository.*;
 import com.titanaxis.repository.impl.*;
 import com.titanaxis.service.*;
 import com.titanaxis.service.ai.ConversationFlow;
+import com.titanaxis.service.ai.FlowValidationService; // NOVO IMPORT
 import com.titanaxis.service.ai.NLPIntentService;
 import com.titanaxis.service.ai.NerService;
 import com.titanaxis.service.ai.flows.*;
@@ -25,7 +26,7 @@ public class AppModule extends AbstractModule {
         bind(FornecedorRepository.class).to(FornecedorRepositoryImpl.class).in(Singleton.class);
         bind(DevolucaoRepository.class).to(DevolucaoRepositoryImpl.class).in(Singleton.class);
         bind(FinanceiroRepository.class).to(FinanceiroRepositoryImpl.class).in(Singleton.class);
-        bind(HabitoRepository.class).to(HabitoRepositoryImpl.class).in(Singleton.class); // NOVO
+        bind(HabitoRepository.class).to(HabitoRepositoryImpl.class).in(Singleton.class);
 
         // Serviços
         bind(TransactionService.class).in(Singleton.class);
@@ -47,6 +48,8 @@ public class AppModule extends AbstractModule {
         bind(NLPIntentService.class).in(Singleton.class);
         bind(NerService.class).in(Singleton.class);
         bind(AIAssistantService.class).in(Singleton.class);
+        bind(FlowValidationService.class).in(Singleton.class); // NOVO BIND
+
         Multibinder<ConversationFlow> flowBinder = Multibinder.newSetBinder(binder(), ConversationFlow.class);
         flowBinder.addBinding().to(StartSaleFlow.class);
         flowBinder.addBinding().to(ExecuteFullSaleFlow.class);
@@ -76,8 +79,8 @@ public class AppModule extends AbstractModule {
         flowBinder.addBinding().to(QuerySalesComparisonFlow.class);
         flowBinder.addBinding().to(QuerySystemInsightsFlow.class);
         flowBinder.addBinding().to(QueryClientCreditFlow.class);
-        flowBinder.addBinding().to(QueryUserHabitsFlow.class); // NOVO
-        flowBinder.addBinding().to(CreateManualHabitFlow.class); // NOVO
+        flowBinder.addBinding().to(QueryUserHabitsFlow.class);
+        flowBinder.addBinding().to(CreateManualHabitFlow.class);
 
         bind(AppContext.class).in(Singleton.class);
     }
