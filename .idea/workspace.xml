@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4b6255a0-d200-4045-ac81-4eabf4f6facf" name="Changes" comment="" />
+    <list default="true" id="4b6255a0-d200-4045-ac81-4eabf4f6facf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/util/reporter/AbstractPdfReportGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/util/reporter/AuditoriaPdfReportGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/util/reporter/InventarioPdfReportGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/util/reporter/ReciboVendaPdfGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/util/reporter/VendasPdfReportGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/RelatorioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/titanaxis/service/RelatorioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/titanaxis/util/PdfReportGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_prefs/prefs_admin.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user_prefs/prefs_admin.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

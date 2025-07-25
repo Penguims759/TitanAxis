@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/RelatorioService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;
@@ -10,8 +9,11 @@ import com.titanaxis.model.VendaItem;
 import com.titanaxis.repository.AuditoriaRepository;
 import com.titanaxis.repository.ProdutoRepository;
 import com.titanaxis.repository.VendaRepository;
-import com.titanaxis.util.I18n; // Importado
-import com.titanaxis.util.PdfReportGenerator;
+import com.titanaxis.util.I18n;
+import com.titanaxis.util.reporter.AuditoriaPdfReportGenerator;
+import com.titanaxis.util.reporter.InventarioPdfReportGenerator;
+import com.titanaxis.util.reporter.ReciboVendaPdfGenerator;
+import com.titanaxis.util.reporter.VendasPdfReportGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,7 +45,6 @@ public class RelatorioService {
                 produtoRepository.findAllIncludingInactive(em)
         );
         StringBuilder csv = new StringBuilder();
-        // ALTERADO
         csv.append(I18n.getString("report.inventory.header.id")).append(";")
                 .append(I18n.getString("report.inventory.header.name")).append(";")
                 .append(I18n.getString("report.inventory.header.category")).append(";")
@@ -65,7 +66,7 @@ public class RelatorioService {
         List<Produto> produtos = transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findAllIncludingInactive(em)
         );
-        return PdfReportGenerator.generateInventarioPdf(produtos);
+        return new InventarioPdfReportGenerator().generate(produtos);
     }
 
     public String gerarRelatorioVendas() throws PersistenciaException {
@@ -73,7 +74,6 @@ public class RelatorioService {
                 vendaRepository.findAll(em)
         );
         StringBuilder csv = new StringBuilder();
-        // ALTERADO
         csv.append(I18n.getString("report.sales.header.id")).append(";")
                 .append(I18n.getString("report.sales.header.date")).append(";")
                 .append(I18n.getString("report.sales.header.client")).append(";")
@@ -93,24 +93,22 @@ public class RelatorioService {
         List<Venda> vendas = transactionService.executeInTransactionWithResult(em ->
                 vendaRepository.findAll(em)
         );
-        return PdfReportGenerator.generateVendasPdf(vendas);
+        return new VendasPdfReportGenerator().generate(vendas);
     }
 
     public ByteArrayOutputStream gerarReciboVendaPdf(Venda venda) throws DocumentException {
-        return PdfReportGenerator.generateReciboVendaPdf(venda);
+        return new ReciboVendaPdfGenerator().generate(venda);
     }
 
     public String gerarReciboVendaCsv(Venda venda) {
         StringBuilder csv = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-        // Cabeçalho do Recibo - ALTERADO
         csv.append(I18n.getString("receipt.header.title", venda.getId())).append("\n");
         csv.append(I18n.getString("receipt.header.date")).append(";").append(venda.getDataVenda().format(formatter)).append("\n");
         csv.append(I18n.getString("receipt.header.client")).append(";").append(tratarStringParaCSV(venda.getCliente() != null ? venda.getCliente().getNome() : I18n.getString("general.notAvailable"))).append("\n");
         csv.append(I18n.getString("receipt.header.seller")).append(";").append(tratarStringParaCSV(venda.getUsuario() != null ? venda.getUsuario().getNomeUsuario() : I18n.getString("general.notAvailable"))).append("\n\n");
 
-        // Itens - ALTERADO
         csv.append(I18n.getString("receipt.items.header.product")).append(";")
                 .append(I18n.getString("receipt.items.header.batch")).append(";")
                 .append(I18n.getString("receipt.items.header.quantity")).append(";")
@@ -124,7 +122,6 @@ public class RelatorioService {
                     .append(formatarMoedaParaCSV(item.getQuantidade() * item.getPrecoUnitario())).append("\n");
         }
 
-        // Total - ALTERADO
         csv.append("\n;;;;").append(I18n.getString("receipt.footer.total")).append("\n");
         csv.append(";;;;").append(formatarMoedaParaCSV(venda.getValorTotal())).append("\n");
 
@@ -143,8 +140,8 @@ public class RelatorioService {
         return csv.toString();
     }
 
-    public ByteArrayOutputStream gerarRelatorioAuditoriaPdf(String title, String[] headers, List<Vector<Object>> data) throws DocumentException {
-        return PdfReportGenerator.generateAuditoriaPdf(title, headers, data);
+    public ByteArrayOutputStream gerarRelatorioAuditoriaPdf(String title, String[] headers, List<Vector<Object>> data) throws DocumentException, IOException {
+        return new AuditoriaPdfReportGenerator(title, headers).generate(data);
     }
 
     public List<Vector<Object>> getAuditoriaAcoes() throws PersistenciaException {
