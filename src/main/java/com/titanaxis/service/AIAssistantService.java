@@ -259,17 +259,18 @@ public class AIAssistantService {
         String targetPanel = null;
         String normalizedDestination = StringUtil.normalize(destination);
 
-        if (normalizedDestination.contains("venda")) targetPanel = "Vendas";
-        else if (normalizedDestination.contains("cliente")) targetPanel = "Clientes";
-        else if (normalizedDestination.contains("produto") || normalizedDestination.contains("estoque")) targetPanel = "Produtos & Estoque";
-        else if (normalizedDestination.contains("relatorio")) targetPanel = "Relatórios";
-        else if (normalizedDestination.contains("categoria")) targetPanel = "Categorias";
-        else if (normalizedDestination.contains("alerta")) targetPanel = "Alertas de Estoque";
-        else if (normalizedDestination.contains("movimento")) targetPanel = "Histórico de Movimentos";
-        else if (normalizedDestination.contains("usuario") || normalizedDestination.contains("utilizador")) targetPanel = "Gestão de Usuários";
-        else if (normalizedDestination.contains("auditoria") || normalizedDestination.contains("log")) targetPanel = "Logs de Auditoria";
-        else if (normalizedDestination.contains("inicio") || normalizedDestination.contains("home")) targetPanel = "Início";
-        else if (normalizedDestination.contains("financeiro")) targetPanel = "Financeiro";
+        if (normalizedDestination.contains("venda")) targetPanel = I18n.getString("dashboard.tab.sales");
+        else if (normalizedDestination.contains("cliente")) targetPanel = I18n.getString("dashboard.tab.clients");
+            // ALTERADO AQUI para usar a chave de tradução
+        else if (normalizedDestination.contains("produto") || normalizedDestination.contains("estoque")) targetPanel = I18n.getString("dashboard.tab.productsAndStock");
+        else if (normalizedDestination.contains("relatorio")) targetPanel = I18n.getString("dashboard.tab.reports");
+        else if (normalizedDestination.contains("categoria")) targetPanel = I18n.getString("dashboard.tab.categories");
+        else if (normalizedDestination.contains("alerta")) targetPanel = I18n.getString("dashboard.tab.stockAlerts");
+        else if (normalizedDestination.contains("movimento")) targetPanel = I18n.getString("dashboard.tab.movementHistory");
+        else if (normalizedDestination.contains("usuario") || normalizedDestination.contains("utilizador")) targetPanel = I18n.getString("dashboard.tab.userManagement");
+        else if (normalizedDestination.contains("auditoria") || normalizedDestination.contains("log")) targetPanel = I18n.getString("dashboard.tab.auditLogs");
+        else if (normalizedDestination.contains("inicio") || normalizedDestination.contains("home")) targetPanel = I18n.getString("dashboard.tab.home");
+        else if (normalizedDestination.contains("financeiro")) targetPanel = I18n.getString("dashboard.tab.financial");
 
         if (targetPanel != null) {
             return new AssistantResponse(I18n.getString("flow.navigate.navigatingTo", targetPanel), Action.UI_NAVIGATE, Map.of("destination", targetPanel));
