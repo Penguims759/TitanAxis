@@ -1,0 +1,5 @@
+[33mcommit e3eb52fdc417676b05f5162cb874e462ea283ffb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Gustavo Correa <penguimscanfly@gmail.com>
+Date:   Fri Jul 25 13:24:17 2025 -0300
+
+    Feat: Internacionaliza o reconhecimento de voz e corrige o bug de bloqueio do microfone

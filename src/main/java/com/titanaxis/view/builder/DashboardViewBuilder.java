@@ -32,12 +32,12 @@ public class DashboardViewBuilder {
         frame.setHomePanel(homePanel);
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.home"), homePanel);
 
-        // Aba Vendas
+        // --- ALTERAÇÃO FINAL: "Produtos" e "Vendas" são agora visíveis para todos, nesta ordem. ---
+        mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), buildProdutosEstoqueTabbedPane());
         mainTabbedPane.addTab(I18n.getString("dashboard.tab.sales"), buildVendasTabbedPane());
 
-        // Abas para Gerentes e Admins
+        // Abas para Gerentes e Admins continuam a ter a sua lógica de permissão
         if (authService.isGerente()) {
-            mainTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndStock"), buildProdutosEstoqueTabbedPane());
             FinanceiroPanel financeiroPanel = new FinanceiroPanel(appContext);
             frame.setFinanceiroPanel(financeiroPanel);
             mainTabbedPane.addTab(I18n.getString("dashboard.tab.financial"), financeiroPanel);
@@ -64,6 +64,7 @@ public class DashboardViewBuilder {
         vendasTabbedPane.addTab(I18n.getString("dashboard.tab.newSale"), vendaPanel);
 
         HistoricoVendasPanel historicoVendasPanel = new HistoricoVendasPanel();
+        historicoVendasPanel.setAppContext(appContext);
         new HistoricoVendasPresenter(historicoVendasPanel, appContext.getVendaService());
         frame.setHistoricoVendasPanel(historicoVendasPanel);
         vendasTabbedPane.addTab(I18n.getString("dashboard.tab.history"), historicoVendasPanel);
@@ -77,23 +78,28 @@ public class DashboardViewBuilder {
         produtosEstoqueTabbedPane.addChangeListener(createRefreshListener());
 
         ProdutoPanel produtoPanel = new ProdutoPanel();
+        produtoPanel.setAppContext(appContext);
         new ProdutoPresenter(produtoPanel, appContext.getProdutoService(), authService);
         frame.setProdutoPanel(produtoPanel);
         produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.productsAndBatches"), produtoPanel);
 
-        CategoriaPanel categoriaPanel = new CategoriaPanel();
-        new CategoriaPresenter(categoriaPanel, appContext.getCategoriaService(), authService);
-        frame.setCategoriaPanel(categoriaPanel);
-        produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel);
+        // Apenas Gerentes e Admins podem ver estas sub-abas
+        if (authService.isGerente()) {
+            CategoriaPanel categoriaPanel = new CategoriaPanel();
+            new CategoriaPresenter(categoriaPanel, appContext.getCategoriaService(), authService);
+            frame.setCategoriaPanel(categoriaPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.categories"), categoriaPanel);
 
-        AlertaPanel alertaPanel = new AlertaPanel(appContext);
-        frame.setAlertaPanel(alertaPanel);
-        produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel);
+            AlertaPanel alertaPanel = new AlertaPanel(appContext);
+            frame.setAlertaPanel(alertaPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.stockAlerts"), alertaPanel);
 
-        MovimentosPanel movimentosPanel = new MovimentosPanel(frame);
-        new MovimentoPresenter(movimentosPanel, appContext.getMovimentoService());
-        frame.setMovimentosPanel(movimentosPanel);
-        produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel);
+            MovimentosPanel movimentosPanel = new MovimentosPanel(frame);
+            movimentosPanel.setAppContext(appContext);
+            new MovimentoPresenter(movimentosPanel, appContext.getMovimentoService());
+            frame.setMovimentosPanel(movimentosPanel);
+            produtosEstoqueTabbedPane.addTab(I18n.getString("dashboard.tab.movementHistory"), movimentosPanel);
+        }
 
         frame.setProdutosEstoqueTabbedPane(produtosEstoqueTabbedPane);
         return produtosEstoqueTabbedPane;
