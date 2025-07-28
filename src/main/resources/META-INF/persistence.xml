@@ -19,24 +19,20 @@
         <class>com.titanaxis.model.DevolucaoItem</class>
         <class>com.titanaxis.model.ContasAReceber</class>
         <class>com.titanaxis.model.MetaVenda</class>
+        <class>com.titanaxis.model.auditoria.Habito</class>
 
         <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/titanaxis_db"/>
-            <property name="jakarta.persistence.jdbc.user" value="titan_user"/>
-            <property name="jakarta.persistence.jdbc.password" value="titanpass"/>
-
+            <!-- Database connection properties will be set programmatically -->
+            <!-- See JpaUtil.java for dynamic configuration -->
+            
+            <!-- Connection pool settings will be set programmatically -->
             <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
-            <property name="hibernate.hikari.minimumIdle" value="5"/>
-            <property name="hibernate.hikari.maximumPoolSize" value="20"/>
-            <property name="hibernate.hikari.idleTimeout" value="30000"/>
-            <property name="hibernate.hikari.connectionTimeout" value="30000"/>
-            <property name="hibernate.hikari.maxLifetime" value="1800000"/>
-            <property name="hibernate.hikari.poolName" value="TitanAxisHikariCP"/>
-
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            
+            <!-- Hibernate settings will be set programmatically -->
+            <!-- Default fallback values in case configuration fails -->
             <property name="hibernate.hbm2ddl.auto" value="validate"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>
