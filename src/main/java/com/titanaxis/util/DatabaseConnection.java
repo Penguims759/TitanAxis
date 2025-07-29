@@ -21,20 +21,30 @@ public class DatabaseConnection {
 
     static {
         try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("config.properties")) {
-            if (input == null) {
-                String errorMessage = "Ficheiro de configuração 'config.properties' não encontrado no classpath.";
-                logger.error(errorMessage);
-                throw new RuntimeException(errorMessage);
+            if (input != null) {
+                properties.load(input);
+                logger.info("Configuração da base de dados carregada com sucesso.");
+            } else {
+                logger.warn("Ficheiro de configuração 'config.properties' não encontrado no classpath. A tentar usar variáveis de ambiente.");
             }
-            properties.load(input);
-            URL = properties.getProperty("database.url");
-            USER = properties.getProperty("database.user");
-            PASSWORD = properties.getProperty("database.password");
-            logger.info("Configuração da base de dados carregada com sucesso.");
         } catch (IOException ex) {
             logger.error("Erro ao carregar o ficheiro de configuração.", ex);
-            throw new RuntimeException("Falha crítica ao ler a configuração da base de dados.", ex);
         }
+
+        URL = getEnvOrProperty("DATABASE_URL", "database.url");
+        USER = getEnvOrProperty("DATABASE_USER", "database.user");
+        PASSWORD = getEnvOrProperty("DATABASE_PASSWORD", "database.password");
+
+        if (URL == null || USER == null || PASSWORD == null) {
+            String errorMessage = "Parâmetros da base de dados não configurados.";
+            logger.error(errorMessage);
+            throw new RuntimeException(errorMessage);
+        }
+    }
+
+    private static String getEnvOrProperty(String envVar, String propertyKey) {
+        String value = System.getenv(envVar);
+        return value != null ? value : properties.getProperty(propertyKey);
     }
 
     public static void initializeDatabase() {
