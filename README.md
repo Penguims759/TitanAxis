@@ -1,6 +1,8 @@
 # TitanAxis
 
 TitanAxis is a desktop application that relies on a MariaDB database. The application will read connection details from the environment when available and fall back to `src/main/resources/config.properties` otherwise.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
 ## Prerequisites
 
 - Java 21
