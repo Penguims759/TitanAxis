@@ -16,7 +16,7 @@ public enum VendaStatus {
     }
 
     public String getDescricao() {
-        // ALTERADO: Busca a descrição do arquivo de propriedades
+        
         return switch (this) {
             case ORCAMENTO -> I18n.getString("status.quote");
             case EM_ANDAMENTO -> I18n.getString("status.inProgress");

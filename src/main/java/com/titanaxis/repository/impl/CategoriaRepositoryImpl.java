@@ -28,7 +28,7 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
         if (usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            // ALTERADO
+            
             String acaoDesc = isUpdate ? I18n.getString("log.action.updated") : I18n.getString("log.action.created");
             String detalhes = I18n.getString("log.category.saved", categoriaSalva.getNome(), categoriaSalva.getId(), acaoDesc);
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Categoria", categoriaSalva.getId(), detalhes, em);
@@ -41,7 +41,7 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
         Optional<Categoria> categoriaOpt = findById(id, em);
         categoriaOpt.ifPresent(categoria -> {
             if (usuarioLogado != null) {
-                // ALTERADO
+                
                 String detalhes = I18n.getString("log.category.deleted", categoria.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Categoria", id, detalhes, em);
             }

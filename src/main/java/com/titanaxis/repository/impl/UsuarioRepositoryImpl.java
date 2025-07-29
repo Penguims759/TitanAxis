@@ -26,7 +26,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         Usuario usuarioSalvo = em.merge(usuario);
         if (ator != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            // ALTERADO
+            
             String detalhes = I18n.getString("log.user.saved", usuarioSalvo.getNomeUsuario());
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Usuário", usuarioSalvo.getId(), detalhes, em);
         }
@@ -38,7 +38,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
         Optional<Usuario> usuarioOpt = findById(id, em);
         usuarioOpt.ifPresent(usuario -> {
             if (ator != null) {
-                // ALTERADO
+                
                 String detalhes = I18n.getString("log.user.deleted", usuario.getNomeUsuario());
                 auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO", "Usuário", id, detalhes, em);
             }

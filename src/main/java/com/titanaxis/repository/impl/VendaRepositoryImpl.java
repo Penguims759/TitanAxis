@@ -34,7 +34,7 @@ public class VendaRepositoryImpl implements VendaRepository {
         Venda vendaSalva = em.merge(venda);
 
         String acao;
-        // ALTERADO
+        
         if (venda.getStatus() == VendaStatus.FINALIZADA) {
             acao = I18n.getString("log.sale.action.finalize");
             for (VendaItem item : venda.getItens()) {
@@ -54,9 +54,9 @@ public class VendaRepositoryImpl implements VendaRepository {
         }
 
         if (ator != null) {
-            String nomeCliente = vendaSalva.getCliente() != null ? vendaSalva.getCliente().getNome() : I18n.getString("general.notAvailable"); // ALTERADO
+            String nomeCliente = vendaSalva.getCliente() != null ? vendaSalva.getCliente().getNome() : I18n.getString("general.notAvailable"); 
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-            // ALTERADO
+            
             String detalhes = I18n.getString("log.sale.details",
                     vendaSalva.getId(), venda.getStatus().getDescricao(), nomeCliente, currencyFormat.format(vendaSalva.getValorTotal()));
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Venda", vendaSalva.getId(), detalhes, em);
@@ -67,7 +67,7 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public void deleteById(Integer id, Usuario ator, EntityManager em) {
-        logger.warn(I18n.getString("log.sale.deleteNotImplemented")); // ALTERADO
+        logger.warn(I18n.getString("log.sale.deleteNotImplemented")); 
     }
 
     @Override

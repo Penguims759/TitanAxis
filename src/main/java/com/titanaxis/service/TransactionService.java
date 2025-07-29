@@ -31,12 +31,12 @@ public class TransactionService {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw new PersistenciaException(I18n.getString("service.transaction.error.communication"), e); // ALTERADO
+            throw new PersistenciaException(I18n.getString("service.transaction.error.communication"), e); 
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw new PersistenciaException(I18n.getString("service.transaction.error.generic", e.getMessage()), e); // ALTERADO
+            throw new PersistenciaException(I18n.getString("service.transaction.error.generic", e.getMessage()), e); 
         } finally {
             if (em.isOpen()) {
                 em.close();

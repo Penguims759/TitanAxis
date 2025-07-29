@@ -66,29 +66,29 @@ public class AlertaService {
      * @return Lista de mensagens de alerta.
      */
     public List<String> gerarMensagensDeAlerta() throws PersistenciaException {
-        logger.info(I18n.getString("log.generatingAlerts")); // ALTERADO
+        logger.info(I18n.getString("log.generatingAlerts")); 
         List<String> mensagens = new ArrayList<>();
 
         // 1. Alerta de Estoque Baixo
         List<Produto> comEstoqueBaixo = getProdutosComEstoqueBaixo();
         if (!comEstoqueBaixo.isEmpty()) {
-            mensagens.add(I18n.getString("alert.service.lowStock.header")); // ALTERADO
-            comEstoqueBaixo.forEach(p -> mensagens.add(I18n.getString("alert.service.lowStock.line", p.getNome(), p.getQuantidadeTotal()))); // ALTERADO
+            mensagens.add(I18n.getString("alert.service.lowStock.header")); 
+            comEstoqueBaixo.forEach(p -> mensagens.add(I18n.getString("alert.service.lowStock.line", p.getNome(), p.getQuantidadeTotal()))); 
         }
 
         // 2. Alertas de Vencimento
         List<Lote> proximosVencimento = getLotesProximosDoVencimento();
         if (!proximosVencimento.isEmpty()) {
             if (!mensagens.isEmpty()) mensagens.add("");
-            mensagens.add(I18n.getString("alert.service.expiry.header")); // ALTERADO
-            proximosVencimento.forEach(lote -> mensagens.add(I18n.getString("alert.service.expiry.line", lote.getProduto().getNome(), lote.getNumeroLote(), lote.getDataValidade().format(DATE_FORMATTER)))); // ALTERADO
+            mensagens.add(I18n.getString("alert.service.expiry.header")); 
+            proximosVencimento.forEach(lote -> mensagens.add(I18n.getString("alert.service.expiry.line", lote.getProduto().getNome(), lote.getNumeroLote(), lote.getDataValidade().format(DATE_FORMATTER)))); 
         }
 
         if (mensagens.isEmpty()) {
             mensagens.add(I18n.getString("alert.panel.noAlerts")); // Reaproveitando chave
         }
 
-        logger.info(I18n.getString("log.alertsGenerated")); // ALTERADO
+        logger.info(I18n.getString("log.alertsGenerated")); 
         return mensagens;
     }
 }

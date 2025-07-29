@@ -29,7 +29,7 @@ public class FornecedorRepositoryImpl implements FornecedorRepository {
 
         if (usuarioLogado != null) {
             String acao = isUpdate ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            // ALTERADO
+            
             String acaoDesc = isUpdate ? I18n.getString("log.action.updated") : I18n.getString("log.action.created");
             String detalhes = I18n.getString("log.supplier.saved", fornecedorSalvo.getNome(), fornecedorSalvo.getId(), acaoDesc);
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), acao, "Fornecedor", fornecedorSalvo.getId(), detalhes, em);
@@ -41,7 +41,7 @@ public class FornecedorRepositoryImpl implements FornecedorRepository {
     public void deleteById(Integer id, Usuario usuarioLogado, EntityManager em) {
         findById(id, em).ifPresent(fornecedor -> {
             if (usuarioLogado != null) {
-                // ALTERADO
+                
                 String detalhes = I18n.getString("log.supplier.deleted", fornecedor.getNome(), id);
                 auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "EXCLUSÃO", "Fornecedor", id, detalhes, em);
             }

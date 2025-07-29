@@ -42,7 +42,7 @@ public class ProdutoService {
         );
     }
 
-    // NOVO MÉTODO ADICIONADO PARA CORRIGIR O ERRO
+    
     public Optional<Produto> buscarProdutoPorNome(String nome) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 produtoRepository.findByNome(nome, em)

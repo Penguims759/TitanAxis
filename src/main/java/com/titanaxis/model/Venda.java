@@ -36,7 +36,7 @@ public class Venda {
     @Column(nullable = false, length = 50)
     private VendaStatus status;
 
-    // NOVOS CAMPOS
+    
     @Column(name = "forma_pagamento", nullable = false)
     private String formaPagamento;
 
@@ -80,7 +80,7 @@ public class Venda {
     public String getNomeCliente() { return (cliente != null) ? cliente.getNome() : "N/A"; }
     public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
 
-    // NOVOS GETTERS E SETTERS
+    
     public String getFormaPagamento() { return formaPagamento; }
     public void setFormaPagamento(String formaPagamento) { this.formaPagamento = formaPagamento; }
     public int getNumeroParcelas() { return numeroParcelas; }

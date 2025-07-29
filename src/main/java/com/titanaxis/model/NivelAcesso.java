@@ -20,7 +20,7 @@ public enum NivelAcesso {
 
     @Override
     public String toString() {
-        // ALTERADO: Busca o nome de exibição do arquivo de propriedades
+        
         return switch (this) {
             case PADRAO -> I18n.getString("accesslevel.standard");
             case GERENTE -> I18n.getString("accesslevel.manager");

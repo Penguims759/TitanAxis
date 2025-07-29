@@ -17,14 +17,14 @@ public class DashboardData {
     public final Map<String, Double> topClients;
     public final List<Insight> assistantInsights;
     public final Map<String, Map<LocalDate, Double>> categorySalesEvolution;
-    public final List<CategoryTrend> categoryTrends; // NOVO CAMPO
+    public final List<CategoryTrend> categoryTrends; 
 
     public DashboardData(double vendasHoje, double receitaMes, int novosClientes, int numAlertas,
                          Map<?, Double> salesChartData, double receitaMesAnterior, double ticketMedio,
                          double ticketMedioMesAnterior, Map<String, Integer> topProducts,
                          Map<String, Double> topClients, List<Insight> assistantInsights,
                          Map<String, Map<LocalDate, Double>> categorySalesEvolution,
-                         List<CategoryTrend> categoryTrends) { // NOVO PARÂMETRO
+                         List<CategoryTrend> categoryTrends) { 
         this.vendasHoje = vendasHoje;
         this.receitaMes = receitaMes;
         this.novosClientes = novosClientes;
@@ -37,6 +37,6 @@ public class DashboardData {
         this.topClients = topClients;
         this.assistantInsights = assistantInsights;
         this.categorySalesEvolution = categorySalesEvolution;
-        this.categoryTrends = categoryTrends; // NOVA ATRIBUIÇÃO
+        this.categoryTrends = categoryTrends; 
     }
 }

@@ -21,7 +21,7 @@ public interface ProdutoView {
     boolean mostrarConfirmacao(String titulo, String mensagem);
 
     File mostrarSeletorDeFicheiroCsv();
-    // NOVO
+    
     File mostrarSeletorDeFicheiroPdf();
     void setFiltroDeTexto(String texto);
     void aplicarFiltroNaTabela(String texto);
@@ -34,7 +34,7 @@ public interface ProdutoView {
         void aoSelecionarProduto(int produtoId);
         void aoClicarNovoProduto();
         void aoClicarImportarCsv();
-        // NOVO
+        
         void aoClicarImportarPdf();
         void aoFiltrarTexto(String texto);
         void aoClicarEditarProduto();

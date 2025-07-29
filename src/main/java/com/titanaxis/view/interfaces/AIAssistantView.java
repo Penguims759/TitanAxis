@@ -18,7 +18,7 @@ public interface AIAssistantView {
 
     interface AIAssistantViewListener {
         void onSendMessage(String message);
-        void onViewOpened(); // NOVO MÉTODO
+        void onViewOpened(); 
     }
 
     void setListener(AIAssistantViewListener listener);
