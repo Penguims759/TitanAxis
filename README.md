@@ -1,6 +1,11 @@
 # TitanAxis
 
 TitanAxis is a desktop application that relies on a MariaDB database. The application will read connection details from the environment when available and fall back to `src/main/resources/config.properties` otherwise.
+## Prerequisites
+
+- Java 21
+- Maven 3+
+
 
 ## Environment variables
 
@@ -19,3 +24,23 @@ The project includes a `docker-compose.yml` that starts a MariaDB instance. You 
 ```bash
 docker compose up -d
 ```
+## Building with Maven
+
+Compile and package the application using:
+
+```bash
+mvn clean package
+```
+
+This will also execute the unit tests.
+
+## Running tests
+
+To run the JUnit tests only:
+
+```bash
+mvn test
+```
+
+The `docker-compose.yml` can be used to start a local MariaDB instance as described above.
+
