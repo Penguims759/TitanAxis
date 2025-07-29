@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class DashboardMenuBarFactory {
     private final DashboardFrame frame;
@@ -149,7 +148,7 @@ public class DashboardMenuBarFactory {
             builder.start();
             System.exit(0);
         } catch (URISyntaxException | IOException e) {
-            logger.log(Level.SEVERE, "Falha ao tentar reiniciar a aplicação.", e);
+            logger.error("Falha ao tentar reiniciar a aplicação.", e);
             UIMessageUtil.showErrorMessage(frame, "Não foi possível reiniciar a aplicação automaticamente. Por favor, reinicie manualmente.", "Erro de Reinicialização");
             System.exit(0);
         }

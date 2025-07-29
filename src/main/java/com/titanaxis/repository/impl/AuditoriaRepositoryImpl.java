@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class AuditoriaRepositoryImpl implements AuditoriaRepository {
     private static final Logger logger = AppLogger.getLogger();
