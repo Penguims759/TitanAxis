@@ -47,7 +47,7 @@ public final class I18n {
             // Se não encontrar, procura no bundle do sistema
             return systemBundle.getString(key);
         } catch (MissingResourceException e) {
-            logger.warning("Chave de internacionalização não encontrada em nenhum bundle: " + key);
+            logger.warn("Chave de internacionalização não encontrada em nenhum bundle: " + key);
             return "!" + key + "!";
         }
     }

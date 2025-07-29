@@ -60,7 +60,7 @@ public class NLPIntentService {
     private void trainAndSaveModel(File modelFile, String trainingFile, String lang) throws IOException {
         try (InputStream dataIn = getClass().getResourceAsStream(trainingFile)) {
             if (dataIn == null) {
-                logger.warning("Ficheiro de treino não encontrado: " + trainingFile + ". A usar o ficheiro de treino padrão (pt_BR).");
+                logger.warn("Ficheiro de treino não encontrado: " + trainingFile + ". A usar o ficheiro de treino padrão (pt_BR).");
                 trainAndSaveModel(new File("nlp-intent-model_pt_BR.bin"), "/ai/intent-train_pt_BR.txt", "pt");
                 return;
             }
@@ -85,7 +85,7 @@ public class NLPIntentService {
 
     public Intent getIntent(String userInput) {
         if (categorizer == null) {
-            logger.warning("O categorizador de intenção não está disponível. A retornar UNKNOWN.");
+            logger.warn("O categorizador de intenção não está disponível. A retornar UNKNOWN.");
             return Intent.UNKNOWN;
         }
         try {

@@ -88,7 +88,7 @@ public class LoginFrame extends JFrame {
                 this.dispose();
             } else {
                 UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.invalidCredentials"), I18n.getString("error.title"));
-                logger.warning("Falha de login para o usuário: " + username);
+                logger.warn("Falha de login para o usuário: " + username);
             }
         } catch (PersistenciaException ex) {
             logger.error("Erro de base de dados durante o login do usuário: " + username, ex);

@@ -23,7 +23,7 @@ public class DatabaseConnection {
         try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
                 String errorMessage = "Ficheiro de configuração 'config.properties' não encontrado no classpath.";
-                logger.severe(errorMessage);
+                logger.error(errorMessage);
                 throw new RuntimeException(errorMessage);
             }
             properties.load(input);

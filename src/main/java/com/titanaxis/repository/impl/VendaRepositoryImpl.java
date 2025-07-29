@@ -67,7 +67,7 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public void deleteById(Integer id, Usuario ator, EntityManager em) {
-        logger.warning(I18n.getString("log.sale.deleteNotImplemented")); // ALTERADO
+        logger.warn(I18n.getString("log.sale.deleteNotImplemented")); // ALTERADO
     }
 
     @Override

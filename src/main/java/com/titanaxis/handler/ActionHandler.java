@@ -48,7 +48,7 @@ public class ActionHandler {
                 logger.error("Erro detalhado ao executar a ação '" + action + "': ", e);
             }
         } else {
-            logger.warning("Ação não mapeada no ActionHandler: " + action);
+            logger.warn("Ação não mapeada no ActionHandler: " + action);
             UIMessageUtil.showWarningMessage(null, "A ação '" + action + "' ainda não foi implementada.", "Funcionalidade Futura");
         }
     }
