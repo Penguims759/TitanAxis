@@ -105,7 +105,7 @@ public class HomePanel extends JPanel implements DashboardFrame.Refreshable {
 
         // Painel de saudação
         JPanel greetingPanel = new JPanel(new BorderLayout());
-        greetingPanel.setOpaque(true); // ALTERADO para que a cor de fundo seja visível
+        greetingPanel.setOpaque(true); 
         greetingPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 5, 0, 0, new Color(34, 139, 34)),
                 BorderFactory.createEmptyBorder(10, 15, 10, 15)

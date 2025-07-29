@@ -30,12 +30,12 @@ public class FornecedorService {
             return transactionService.executeInTransactionWithResult(em -> {
                 Optional<Fornecedor> existente = fornecedorRepository.findByNome(fornecedor.getNome(), em);
                 if (existente.isPresent() && existente.get().getId() != fornecedor.getId()) {
-                    throw new RuntimeException(I18n.getString("service.supplier.error.nameExists", fornecedor.getNome())); // ALTERADO
+                    throw new RuntimeException(I18n.getString("service.supplier.error.nameExists", fornecedor.getNome())); 
                 }
                 return fornecedorRepository.save(fornecedor, ator, em);
             });
         } catch (RuntimeException e) {
-            if(e.getMessage().contains(I18n.getString("service.supplier.error.nameExists.check"))) { // ALTERADO
+            if(e.getMessage().contains(I18n.getString("service.supplier.error.nameExists.check"))) { 
                 throw new NomeDuplicadoException(e.getMessage());
             }
             throw new PersistenciaException(e.getMessage(), e);

@@ -41,12 +41,12 @@ public class CategoriaService {
             transactionService.executeInTransaction(em -> {
                 Optional<Categoria> catExistenteOpt = categoriaRepository.findByNome(categoria.getNome(), em);
                 if (catExistenteOpt.isPresent() && catExistenteOpt.get().getId() != categoria.getId()) {
-                    throw new RuntimeException(I18n.getString("service.category.error.nameExists", categoria.getNome())); // ALTERADO
+                    throw new RuntimeException(I18n.getString("service.category.error.nameExists", categoria.getNome())); 
                 }
                 categoriaRepository.save(categoria, usuarioLogado, em);
             });
         } catch (RuntimeException e) {
-            if(e.getMessage().contains(I18n.getString("service.category.error.nameExists.check"))){ // ALTERADO
+            if(e.getMessage().contains(I18n.getString("service.category.error.nameExists.check"))){ 
                 throw new NomeDuplicadoException(e.getMessage());
             }
             throw new PersistenciaException(e.getMessage(), e);

@@ -16,7 +16,7 @@ public class FinanceiroPanel extends JTabbedPane implements DashboardFrame.Refre
         this.contasAReceberPanel = new ContasAReceberPanel(appContext);
         this.metasPanel = new MetasPanel(appContext);
 
-        // ALTERADO
+        
         addTab(I18n.getString("financial.tab.accountsReceivable"), this.contasAReceberPanel);
         addTab(I18n.getString("financial.tab.salesGoals"), this.metasPanel);
 

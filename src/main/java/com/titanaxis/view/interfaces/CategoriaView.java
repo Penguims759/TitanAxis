@@ -32,7 +32,7 @@ public interface CategoriaView {
         void aoBuscar();
         void aoLimparBusca();
         void aoSelecionarCategoria(Categoria categoria);
-        void aoCarregarDadosIniciais(); // NOVO: Método para o Presenter carregar os dados iniciais
+        void aoCarregarDadosIniciais(); 
     }
 
     // Método para a View se registar no Presenter

@@ -15,7 +15,7 @@ public class ConversationContext {
     private Object lastEntity;
     private Intent lastIntent;
 
-    // NOVO: Para guardar o contexto de uma pergunta proativa
+    
     private Action pendingProactiveAction;
     private Map<String, Object> proactiveActionParams;
 
@@ -66,7 +66,6 @@ public class ConversationContext {
         this.lastIntent = lastIntent;
     }
 
-    // --- NOVOS MÉTODOS ---
     public Optional<Action> getPendingProactiveAction() {
         return Optional.ofNullable(pendingProactiveAction);
     }

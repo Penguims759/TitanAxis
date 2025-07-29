@@ -30,13 +30,13 @@ public class LoteDialog extends JDialog {
     private final JFormattedTextField dataValidadeField;
 
     public LoteDialog(Frame owner, ProdutoService ps, Produto produtoPai, Lote l, Usuario ator) {
-        super(owner, I18n.getString("batchDialog.title"), true); // ALTERADO
+        super(owner, I18n.getString("batchDialog.title"), true); 
         this.produtoService = ps;
         this.produtoPai = produtoPai;
         this.lote = (l != null) ? l : new Lote();
         this.ator = ator;
 
-        // ALTERADO
+        
         setTitle(l == null || l.getId() == 0 ? I18n.getString("batchDialog.title.new", produtoPai.getNome()) : I18n.getString("batchDialog.title.edit"));
         setLayout(new BorderLayout());
 
@@ -68,7 +68,7 @@ public class LoteDialog extends JDialog {
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // ALTERADO
+        
         formPanel.add(new JLabel(I18n.getString("batchDialog.label.number")));
         formPanel.add(numeroLoteField);
         formPanel.add(new JLabel(I18n.getString("batchDialog.label.quantity")));
@@ -78,9 +78,9 @@ public class LoteDialog extends JDialog {
         add(formPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton(I18n.getString("button.save")); // ALTERADO
+        JButton saveButton = new JButton(I18n.getString("button.save")); 
         saveButton.addActionListener(e -> save());
-        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); 
         cancelButton.addActionListener(e -> dispose());
 
         buttonPanel.add(saveButton);
@@ -110,7 +110,7 @@ public class LoteDialog extends JDialog {
             }
 
             if (lote.getNumeroLote().isEmpty() || lote.getQuantidade() <= 0) {
-                UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.requiredFields"), I18n.getString("error.title")); // ALTERADO
+                UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.requiredFields"), I18n.getString("error.title")); 
                 return;
             }
 
@@ -125,18 +125,18 @@ public class LoteDialog extends JDialog {
             dispose();
 
         } catch (NumberFormatException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidQuantity"), I18n.getString("error.format.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidQuantity"), I18n.getString("error.format.title")); 
         } catch (java.time.format.DateTimeParseException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidDate"), I18n.getString("error.format.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.invalidDate"), I18n.getString("error.format.title")); 
         } catch (UtilizadorNaoAutenticadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.auth.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.auth.title")); 
         } catch (LoteDuplicadoException e) {
-            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.duplication.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, e.getMessage(), I18n.getString("error.duplication.title")); 
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.save", e.getMessage()), I18n.getString("error.persistence.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.save", e.getMessage()), I18n.getString("error.persistence.title")); 
         } catch (Exception e) {
             AppLogger.getLogger().error("Erro inesperado ao salvar o lote.", e);
-            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.unexpectedSave", e.getMessage()), I18n.getString("error.unexpected.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.unexpectedSave", e.getMessage()), I18n.getString("error.unexpected.title")); 
             this.loteSalvo = null;
         }
     }

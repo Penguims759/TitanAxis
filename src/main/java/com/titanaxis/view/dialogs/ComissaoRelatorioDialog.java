@@ -16,7 +16,7 @@ public class ComissaoRelatorioDialog extends JDialog {
     private boolean confirmado = false;
 
     public ComissaoRelatorioDialog(Frame owner) {
-        super(owner, I18n.getString("commissionDialog.title"), true); // ALTERADO
+        super(owner, I18n.getString("commissionDialog.title"), true); 
         setLayout(new BorderLayout(10, 10));
 
         dataInicioChooser = new JDateChooser(new Date());
@@ -24,18 +24,18 @@ public class ComissaoRelatorioDialog extends JDialog {
 
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panel.add(new JLabel(I18n.getString("commissionDialog.label.startDate"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("commissionDialog.label.startDate"))); 
         panel.add(dataInicioChooser);
-        panel.add(new JLabel(I18n.getString("commissionDialog.label.endDate"))); // ALTERADO
+        panel.add(new JLabel(I18n.getString("commissionDialog.label.endDate"))); 
         panel.add(dataFimChooser);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton okButton = new JButton(I18n.getString("commissionDialog.button.generate")); // ALTERADO
+        JButton okButton = new JButton(I18n.getString("commissionDialog.button.generate")); 
         okButton.addActionListener(e -> {
             confirmado = true;
             dispose();
         });
-        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); 
         cancelButton.addActionListener(e -> dispose());
         buttonPanel.add(cancelButton);
         buttonPanel.add(okButton);

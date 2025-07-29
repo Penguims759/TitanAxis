@@ -41,7 +41,7 @@ public interface ClienteView {
         void aoBuscar();
         void aoLimparBusca();
         void aoSelecionarCliente(Cliente cliente);
-        void aoCarregarDadosIniciais(); // NOVO: Método para o Presenter carregar os dados iniciais
+        void aoCarregarDadosIniciais(); 
     }
 
     void setListener(ClienteViewListener listener);

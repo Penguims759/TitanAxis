@@ -261,7 +261,7 @@ public class AIAssistantService {
 
         if (normalizedDestination.contains("venda")) targetPanel = I18n.getString("dashboard.tab.sales");
         else if (normalizedDestination.contains("cliente")) targetPanel = I18n.getString("dashboard.tab.clients");
-            // ALTERADO AQUI para usar a chave de tradução
+            
         else if (normalizedDestination.contains("produto") || normalizedDestination.contains("estoque")) targetPanel = I18n.getString("dashboard.tab.productsAndStock");
         else if (normalizedDestination.contains("relatorio")) targetPanel = I18n.getString("dashboard.tab.reports");
         else if (normalizedDestination.contains("categoria")) targetPanel = I18n.getString("dashboard.tab.categories");

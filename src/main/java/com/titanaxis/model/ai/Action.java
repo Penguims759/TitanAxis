@@ -24,7 +24,7 @@ public enum Action {
     // Ações Proativas (para confirmação do utilizador)
     PROACTIVE_SUGGEST_ADD_LOTE,
     PROACTIVE_SUGGEST_START_SALE,
-    PROACTIVE_SUGGEST_CREATE_PURCHASE_ORDER, // NOVO
+    PROACTIVE_SUGGEST_CREATE_PURCHASE_ORDER, 
 
     // Ação especial
     AWAITING_INFO,

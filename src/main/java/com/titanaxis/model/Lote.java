@@ -62,7 +62,7 @@ public class Lote {
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String validadeFormatada = (dataValidade != null) ? dataValidade.format(formatter) : I18n.getString("general.notAvailable");
-        // ALTERADO: Utiliza o I18n para formatar a string
+        
         return I18n.getString("renderer.lote.format", numeroLote, validadeFormatada, quantidade);
     }
 }

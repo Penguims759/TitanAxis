@@ -22,7 +22,7 @@ public class AlertaPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel(I18n.getString("alert.panel.title"), SwingConstants.CENTER); // ALTERADO
+        JLabel titleLabel = new JLabel(I18n.getString("alert.panel.title"), SwingConstants.CENTER); 
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(titleLabel, BorderLayout.NORTH);
 
@@ -34,7 +34,7 @@ public class AlertaPanel extends JPanel {
         alertaTextArea.setFocusable(false);
         add(new JScrollPane(alertaTextArea), BorderLayout.CENTER);
 
-        JButton refreshButton = new JButton(I18n.getString("alert.panel.refreshButton")); // ALTERADO
+        JButton refreshButton = new JButton(I18n.getString("alert.panel.refreshButton")); 
         refreshButton.addActionListener(e -> refreshData());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(refreshButton);
@@ -57,7 +57,7 @@ public class AlertaPanel extends JPanel {
                     List<String> mensagens = get();
                     StringBuilder sb = new StringBuilder();
                     if (mensagens.isEmpty() || (mensagens.size() == 1 && mensagens.get(0).startsWith("Nenhum"))) { // Lógica para tratar o caso de nenhum alerta
-                        sb.append(I18n.getString("alert.panel.noAlerts")); // ALTERADO
+                        sb.append(I18n.getString("alert.panel.noAlerts")); 
                     } else {
                         for (String msg : mensagens) {
                             sb.append(msg).append("\n\n");
@@ -69,11 +69,11 @@ public class AlertaPanel extends JPanel {
                 } catch (Exception e) {
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
                     logger.error("Falha ao carregar alertas.", cause);
-                    String errorMessage = I18n.getString("alert.panel.error.load"); // ALTERADO
+                    String errorMessage = I18n.getString("alert.panel.error.load"); 
                     if (cause instanceof PersistenciaException) {
-                        errorMessage = I18n.getString("error.db.generic", cause.getMessage()); // ALTERADO
+                        errorMessage = I18n.getString("error.db.generic", cause.getMessage()); 
                     }
-                    UIMessageUtil.showErrorMessage(AlertaPanel.this, errorMessage + "\n" + I18n.getString("error.seeLogs"), I18n.getString("error.title")); // ALTERADO
+                    UIMessageUtil.showErrorMessage(AlertaPanel.this, errorMessage + "\n" + I18n.getString("error.seeLogs"), I18n.getString("error.title")); 
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }

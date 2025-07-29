@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProdutoRepository extends Repository<Produto, Integer> {
-    // ALTERADO: Agora recebem um EntityManager
+    
     List<Produto> findByNomeContaining(String nome, EntityManager em);
     Optional<Produto> findByNome(String nome, EntityManager em);
     List<Produto> findAllIncludingInactive(EntityManager em);

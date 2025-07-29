@@ -20,7 +20,7 @@ public class Cliente {
     @Column(nullable = false, columnDefinition = "DECIMAL(10,2)")
     private double credito;
 
-    // NOVO CAMPO
+    
     @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao;
 
@@ -55,14 +55,14 @@ public class Cliente {
     public String getContato() { return contato; }
     public String getEndereco() { return endereco; }
     public double getCredito() { return credito; }
-    public LocalDateTime getDataCriacao() { return dataCriacao; } // NOVO GETTER
+    public LocalDateTime getDataCriacao() { return dataCriacao; } 
 
     public void setId(int id) { this.id = id; }
     public void setNome(String nome) { this.nome = nome; }
     public void setContato(String contato) { this.contato = contato; }
     public void setEndereco(String endereco) { this.endereco = endereco; }
     public void setCredito(double credito) { this.credito = credito; }
-    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; } // NOVO SETTER
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; } 
     public void adicionarCredito(double valor) { this.credito += valor; }
 
     public void debitarCredito(double valor) {

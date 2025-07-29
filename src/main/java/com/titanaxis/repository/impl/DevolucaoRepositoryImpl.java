@@ -23,7 +23,7 @@ public class DevolucaoRepositoryImpl implements DevolucaoRepository {
     public Devolucao save(Devolucao devolucao, Usuario usuarioLogado, EntityManager em) {
         Devolucao devolucaoSalva = em.merge(devolucao);
         if (usuarioLogado != null) {
-            // ALTERADO
+            
             String detalhes = I18n.getString("log.return.registered",
                     devolucaoSalva.getId(), devolucao.getVenda().getId(), devolucao.getValorEstornado());
             auditoriaRepository.registrarAcao(usuarioLogado.getId(), usuarioLogado.getNomeUsuario(), "REGISTRO DE DEVOLUÇÃO", "Venda", devolucao.getVenda().getId(), detalhes, em);

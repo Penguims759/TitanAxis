@@ -14,7 +14,7 @@ public class DashboardCustomizationDialog extends JDialog {
     private final Runnable onSaveCallback;
 
     public DashboardCustomizationDialog(Frame owner, UIPersonalizationService personalizationService, Runnable onSaveCallback) {
-        super(owner, I18n.getString("dashboardCustomization.title"), true); // ALTERADO
+        super(owner, I18n.getString("dashboardCustomization.title"), true); 
         this.personalizationService = personalizationService;
         this.onSaveCallback = onSaveCallback;
 
@@ -24,10 +24,9 @@ public class DashboardCustomizationDialog extends JDialog {
 
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
-        checkPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("dashboardCustomization.border.selectComponents"))); // ALTERADO
+        checkPanel.setBorder(BorderFactory.createTitledBorder(I18n.getString("dashboardCustomization.border.selectComponents"))); 
         checkPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        // Checkboxes - ALTERADO
         addCheckBox(checkPanel, "kpi_cards", I18n.getString("dashboardCustomization.checkbox.kpi"));
         addCheckBox(checkPanel, "financial_summary", I18n.getString("dashboardCustomization.checkbox.financialSummary"));
         addCheckBox(checkPanel, "inventory_snapshot", I18n.getString("dashboardCustomization.checkbox.inventorySnapshot"));
@@ -37,9 +36,9 @@ public class DashboardCustomizationDialog extends JDialog {
         addCheckBox(checkPanel, "quick_actions", I18n.getString("dashboardCustomization.checkbox.quickActions"));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton(I18n.getString("button.save")); // ALTERADO
+        JButton saveButton = new JButton(I18n.getString("button.save")); 
         saveButton.addActionListener(e -> savePreferences());
-        JButton cancelButton = new JButton(I18n.getString("button.cancel")); // ALTERADO
+        JButton cancelButton = new JButton(I18n.getString("button.cancel")); 
         cancelButton.addActionListener(e -> dispose());
 
         buttonPanel.add(saveButton);

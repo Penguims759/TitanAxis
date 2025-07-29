@@ -25,7 +25,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Produto produtoSalvo = em.merge(produto);
         if (ator != null) {
             String acao = produto.getId() != 0 ? "ATUALIZAÇÃO" : "CRIAÇÃO";
-            // ALTERADO
+            
             String detalhes = I18n.getString("log.product.saved", produtoSalvo.getNome());
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produtoSalvo.getId(), detalhes, em);
         }
@@ -37,7 +37,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Lote loteSalvo = em.merge(lote);
         if (ator != null) {
             String acao = lote.getId() != 0 ? "ATUALIZAÇÃO DE LOTE" : "ENTRADA DE LOTE";
-            // ALTERADO
+            
             String detalhes = I18n.getString("log.batch.saved", loteSalvo.getNumeroLote(), lote.getProduto().getNome());
             auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Estoque", loteSalvo.getProdutoId(), detalhes, em);
         }
@@ -51,7 +51,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
             produto.setAtivo(ativo);
             if (ator != null) {
                 String acao = ativo ? "REATIVAÇÃO" : "INATIVAÇÃO";
-                // ALTERADO
+                
                 String detalhes = I18n.getString("log.product.statusChanged", produto.getNome());
                 auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), acao, "Produto", produto.getId(), detalhes, em);
             }
@@ -63,7 +63,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Produto> produtoOpt = findById(id, em);
         produtoOpt.ifPresent(produto -> {
             if (ator != null) {
-                // ALTERADO
+                
                 String detalhes = I18n.getString("log.product.deleted", produto.getNome());
                 auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO FÍSICA", "Produto", produto.getId(), detalhes, em);
             }
@@ -76,7 +76,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository {
         Optional<Lote> loteOpt = findLoteById(loteId, em);
         loteOpt.ifPresent(lote -> {
             if (ator != null) {
-                // ALTERADO
+                
                 String detalhes = I18n.getString("log.batch.removed", lote.getNumeroLote());
                 auditoriaRepository.registrarAcao(ator.getId(), ator.getNomeUsuario(), "EXCLUSÃO DE LOTE", "Estoque", lote.getProdutoId(), detalhes, em);
             }

@@ -32,7 +32,7 @@ public class MovimentoEstoque {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    // NOVO CAMPO: Para associar o movimento a uma venda
+    
     @Column(name = "venda_id")
     private Integer vendaId;
 
@@ -51,8 +51,8 @@ public class MovimentoEstoque {
     public void setDataMovimento(LocalDateTime dataMovimento) { this.dataMovimento = dataMovimento; }
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
-    public Integer getVendaId() { return vendaId; } // NOVO
-    public void setVendaId(Integer vendaId) { this.vendaId = vendaId; } // NOVO
+    public Integer getVendaId() { return vendaId; } 
+    public void setVendaId(Integer vendaId) { this.vendaId = vendaId; } 
 
     // Métodos utilitários para a view
     public String getNomeProduto() { return produto != null ? produto.getNome() : "N/A"; }

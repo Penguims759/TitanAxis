@@ -35,12 +35,12 @@ public class AuthService {
         if (usuarioOpt.isPresent() && PasswordUtil.checkPassword(senha, usuarioOpt.get().getSenhaHash())) {
             this.usuarioLogado = usuarioOpt.get();
             transactionService.executeInTransaction(em ->
-                    auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", I18n.getString("service.auth.log.loginSuccess"), em) // ALTERADO
+                    auditoriaRepository.registrarAcao(usuarioLogado.getId(), nomeUsuario, "LOGIN_SUCESSO", "Autenticação", I18n.getString("service.auth.log.loginSuccess"), em) 
             );
             return Optional.of(usuarioLogado);
         }
 
-        // ALTERADO
+        
         String detalhes = usuarioOpt.isPresent() ? I18n.getString("service.auth.log.loginFail.wrongPassword") : I18n.getString("service.auth.log.loginFail.userNotFound");
         Integer idTentativa = usuarioOpt.map(Usuario::getId).orElse(null);
         transactionService.executeInTransaction(em ->
@@ -52,12 +52,12 @@ public class AuthService {
 
     public void cadastrarUsuario(String nomeUsuario, String senha, NivelAcesso nivelAcesso, Usuario ator) throws NomeDuplicadoException, UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // ALTERADO
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); 
         }
         try {
             transactionService.executeInTransaction(em -> {
                 if (usuarioRepository.findByNomeUsuario(nomeUsuario, em).isPresent()) {
-                    throw new RuntimeException(I18n.getString("service.auth.error.userExists", nomeUsuario)); // ALTERADO
+                    throw new RuntimeException(I18n.getString("service.auth.error.userExists", nomeUsuario)); 
                 }
                 String senhaHash = PasswordUtil.hashPassword(senha);
                 Usuario novoUsuario = new Usuario(nomeUsuario, senhaHash, nivelAcesso);
@@ -70,7 +70,7 @@ public class AuthService {
 
     public boolean atualizarUsuario(Usuario usuario, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // ALTERADO
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); 
         }
         Usuario salvo = transactionService.executeInTransactionWithResult(em ->
                 usuarioRepository.save(usuario, ator, em)
@@ -80,7 +80,7 @@ public class AuthService {
 
     public void deletarUsuario(int id, Usuario ator) throws UtilizadorNaoAutenticadoException, PersistenciaException {
         if (ator == null) {
-            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); // ALTERADO
+            throw new UtilizadorNaoAutenticadoException(I18n.getString("service.auth.error.notAuthenticated")); 
         }
         transactionService.executeInTransaction(em ->
                 usuarioRepository.deleteById(id, ator, em)
