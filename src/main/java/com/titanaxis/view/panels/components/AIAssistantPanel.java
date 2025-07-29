@@ -37,7 +37,7 @@ public class AIAssistantPanel extends JPanel implements AIAssistantView {
         add(createChatPanel(appContext), BorderLayout.CENTER);
     }
 
-    // NOVO MÉTODO: Para ser chamado externamente quando o painel fica invisível.
+    
     public void stopServices() {
         if (voiceService != null && voiceService.isListening()) {
             voiceService.stopListening();

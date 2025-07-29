@@ -21,7 +21,7 @@ public class Usuario {
     private NivelAcesso nivelAcesso;
 
     @Column(name = "percentual_comissao", nullable = false, columnDefinition = "DECIMAL(5,2)")
-    private double percentualComissao; // NOVO
+    private double percentualComissao; 
 
     public Usuario() {
     }
@@ -46,13 +46,13 @@ public class Usuario {
     public String getNomeUsuario() { return nomeUsuario; }
     public String getSenhaHash() { return senhaHash; }
     public NivelAcesso getNivelAcesso() { return nivelAcesso; }
-    public double getPercentualComissao() { return percentualComissao; } // NOVO
+    public double getPercentualComissao() { return percentualComissao; } 
 
     public void setId(int id) { this.id = id; }
     public void setNomeUsuario(String nomeUsuario) { this.nomeUsuario = nomeUsuario; }
     public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
     public void setNivelAcesso(NivelAcesso nivelAcesso) { this.nivelAcesso = nivelAcesso; }
-    public void setPercentualComissao(double percentualComissao) { this.percentualComissao = percentualComissao; } // NOVO
+    public void setPercentualComissao(double percentualComissao) { this.percentualComissao = percentualComissao; } 
 
     @Override
     public String toString() {

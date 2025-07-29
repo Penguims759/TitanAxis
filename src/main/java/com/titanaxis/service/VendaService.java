@@ -23,7 +23,7 @@ public class VendaService {
 
     private final VendaRepository vendaRepository;
     private final TransactionService transactionService;
-    private final FinanceiroService financeiroService; // NOVA DEPENDÊNCIA
+    private final FinanceiroService financeiroService; 
 
     @Inject
     public VendaService(VendaRepository vendaRepository, TransactionService transactionService, FinanceiroService financeiroService) { // ATUALIZADO

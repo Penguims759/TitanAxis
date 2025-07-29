@@ -1,5 +1,5 @@
 // src/main/java/com/titanaxis/util/AppLogger.java
-package com.titanaxis.util; // ALTERADO
+package com.titanaxis.util; 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

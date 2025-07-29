@@ -81,7 +81,7 @@ public class Carrinho {
         }
     }
 
-    // NOVO MÉTODO
+    
     public void aplicarCredito(double credito) {
         if (credito >= 0) {
             this.venda.setCreditoUtilizado(credito);
@@ -102,7 +102,7 @@ public class Carrinho {
         this.itens.clear();
         this.venda.setCliente(null);
         this.venda.setDescontoTotal(0);
-        this.venda.setCreditoUtilizado(0); // NOVO
+        this.venda.setCreditoUtilizado(0); 
         recalcularTotal();
     }
 
@@ -111,7 +111,7 @@ public class Carrinho {
                 .mapToDouble(VendaItem::getSubtotal)
                 .sum();
         double totalComDesconto = subtotalItens - this.venda.getDescontoTotal();
-        double totalFinal = totalComDesconto - this.venda.getCreditoUtilizado(); // NOVO
+        double totalFinal = totalComDesconto - this.venda.getCreditoUtilizado(); 
         this.venda.setValorTotal(Math.max(0, totalFinal)); // Garante que o total não seja negativo
     }
 

@@ -32,9 +32,9 @@ public class ContasAReceberPanel extends JPanel implements DashboardFrame.Refres
     public ContasAReceberPanel(AppContext appContext) {
         this.financeiroService = appContext.getFinanceiroService();
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createTitledBorder(I18n.getString("accountsReceivable.panel.title"))); // ALTERADO
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("accountsReceivable.panel.title"))); 
 
-        // ALTERADO
+        
         tableModel = new DefaultTableModel(new String[]{
                 I18n.getString("accountsReceivable.table.header.id"),
                 I18n.getString("accountsReceivable.table.header.saleId"),
@@ -52,16 +52,16 @@ public class ContasAReceberPanel extends JPanel implements DashboardFrame.Refres
         table = new JTable(tableModel);
         table.setDefaultRenderer(Object.class, new ContasAReceberTableCellRenderer());
 
-        mostrarPagosCheckBox = new JCheckBox(I18n.getString("accountsReceivable.checkbox.showPaid")); // ALTERADO
-        totalPendenteLabel = new JLabel(I18n.getString("accountsReceivable.label.totalPending", "R$ 0,00")); // ALTERADO
-        totalAtrasadoLabel = new JLabel(I18n.getString("accountsReceivable.label.totalOverdue", "R$ 0,00")); // ALTERADO
+        mostrarPagosCheckBox = new JCheckBox(I18n.getString("accountsReceivable.checkbox.showPaid")); 
+        totalPendenteLabel = new JLabel(I18n.getString("accountsReceivable.label.totalPending", "R$ 0,00")); 
+        totalAtrasadoLabel = new JLabel(I18n.getString("accountsReceivable.label.totalOverdue", "R$ 0,00")); 
 
         initComponents();
     }
 
     private void initComponents() {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton refreshButton = new JButton(I18n.getString("button.refresh")); // ALTERADO
+        JButton refreshButton = new JButton(I18n.getString("button.refresh")); 
         refreshButton.addActionListener(e -> refreshData());
         mostrarPagosCheckBox.addActionListener(e -> refreshData());
 
@@ -86,7 +86,7 @@ public class ContasAReceberPanel extends JPanel implements DashboardFrame.Refres
                 if (row >= 0 && evt.getClickCount() == 2) {
                     int contaId = (int) tableModel.getValueAt(row, 0);
                     String status = (String) tableModel.getValueAt(row, 6);
-                    if (!I18n.getString("status.paid").equalsIgnoreCase(status)) { // ALTERADO
+                    if (!I18n.getString("status.paid").equalsIgnoreCase(status)) { 
                         confirmarPagamento(contaId);
                     }
                 }
@@ -109,7 +109,7 @@ public class ContasAReceberPanel extends JPanel implements DashboardFrame.Refres
             for (ContasAReceber conta : contas) {
                 String status = conta.getStatus();
                 if (status.equals("Pendente") && conta.getDataVencimento().isBefore(hoje)) {
-                    status = I18n.getString("status.overdue"); // ALTERADO
+                    status = I18n.getString("status.overdue"); 
                 } else if(status.equalsIgnoreCase("Pago")){
                     status = I18n.getString("status.paid");
                 } else {
@@ -117,9 +117,9 @@ public class ContasAReceberPanel extends JPanel implements DashboardFrame.Refres
                 }
 
 
-                if (!status.equals(I18n.getString("status.paid"))) { // ALTERADO
+                if (!status.equals(I18n.getString("status.paid"))) { 
                     totalPendente += conta.getValorParcela();
-                    if (status.equals(I18n.getString("status.overdue"))) { // ALTERADO
+                    if (status.equals(I18n.getString("status.overdue"))) { 
                         totalAtrasado += conta.getValorParcela();
                     }
                 }
@@ -135,22 +135,22 @@ public class ContasAReceberPanel extends JPanel implements DashboardFrame.Refres
                 });
             }
 
-            totalPendenteLabel.setText(I18n.getString("accountsReceivable.label.totalPending", currencyFormat.format(totalPendente))); // ALTERADO
-            totalAtrasadoLabel.setText(I18n.getString("accountsReceivable.label.totalOverdue", currencyFormat.format(totalAtrasado))); // ALTERADO
+            totalPendenteLabel.setText(I18n.getString("accountsReceivable.label.totalPending", currencyFormat.format(totalPendente))); 
+            totalAtrasadoLabel.setText(I18n.getString("accountsReceivable.label.totalOverdue", currencyFormat.format(totalAtrasado))); 
 
         } catch (PersistenciaException e) {
-            UIMessageUtil.showErrorMessage(this, I18n.getString("accountsReceivable.error.load", e.getMessage()), I18n.getString("error.db.title")); // ALTERADO
+            UIMessageUtil.showErrorMessage(this, I18n.getString("accountsReceivable.error.load", e.getMessage()), I18n.getString("error.db.title")); 
         }
     }
 
     private void confirmarPagamento(int contaId) {
-        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("accountsReceivable.dialog.confirmPayment"), I18n.getString("accountsReceivable.dialog.confirmPayment.title"))) { // ALTERADO
+        if (UIMessageUtil.showConfirmDialog(this, I18n.getString("accountsReceivable.dialog.confirmPayment"), I18n.getString("accountsReceivable.dialog.confirmPayment.title"))) { 
             try {
                 financeiroService.registrarPagamento(contaId);
                 refreshData();
-                UIMessageUtil.showInfoMessage(this, I18n.getString("accountsReceivable.success.paymentRegistered"), I18n.getString("success.title")); // ALTERADO
+                UIMessageUtil.showInfoMessage(this, I18n.getString("accountsReceivable.success.paymentRegistered"), I18n.getString("success.title")); 
             } catch (PersistenciaException e) {
-                UIMessageUtil.showErrorMessage(this, I18n.getString("accountsReceivable.error.registerPayment", e.getMessage()), I18n.getString("error.db.title")); // ALTERADO
+                UIMessageUtil.showErrorMessage(this, I18n.getString("accountsReceivable.error.registerPayment", e.getMessage()), I18n.getString("error.db.title")); 
             }
         }
     }

@@ -27,7 +27,7 @@ public interface UsuarioView {
         void aoBuscar();
         void aoLimparBusca();
         void aoSelecionarUsuario(Usuario usuario);
-        void aoCarregarDadosIniciais(); // NOVO: Método para o Presenter carregar os dados iniciais
+        void aoCarregarDadosIniciais(); 
     }
 
     void setListener(UsuarioViewListener listener);

@@ -79,7 +79,7 @@ public class ClienteRepositoryImpl implements ClienteRepository {
 
     @Override
     public long countNewClientesBetweenDates(LocalDateTime start, LocalDateTime end, EntityManager em) {
-        // LÓGICA ALTERADA
+        
         TypedQuery<Long> query = em.createQuery(
                 "SELECT COUNT(c) FROM Cliente c WHERE c.dataCriacao BETWEEN :start AND :end", Long.class);
         query.setParameter("start", start);

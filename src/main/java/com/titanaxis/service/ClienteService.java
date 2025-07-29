@@ -22,21 +22,21 @@ public class ClienteService {
         this.transactionService = transactionService;
     }
 
-    // ALTERADO: Adicionada a declaração "throws"
+    
     public List<Cliente> listarTodos() throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.findAll(em)
         );
     }
 
-    // ALTERADO: Adicionada a declaração "throws"
+    
     public Optional<Cliente> buscarPorId(int id) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.findById(id, em)
         );
     }
 
-    // ALTERADO: Adicionada a declaração "throws"
+    
     public List<Cliente> buscarPorNome(String nome) throws PersistenciaException {
         return transactionService.executeInTransactionWithResult(em ->
                 clienteRepository.findByNomeContaining(nome, em)

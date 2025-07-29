@@ -29,7 +29,7 @@ public class VendaDetalhesDialog extends JDialog {
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     public VendaDetalhesDialog(Frame owner, Venda venda, RelatorioService relatorioService) {
-        super(owner, I18n.getString("saleDetailDialog.title", venda.getId()), true); // ALTERADO
+        super(owner, I18n.getString("saleDetailDialog.title", venda.getId()), true); 
         this.venda = venda;
         this.relatorioService = relatorioService;
 
@@ -118,16 +118,16 @@ public class VendaDetalhesDialog extends JDialog {
 
     private JPanel createFooterPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        JLabel totalLabel = new JLabel(I18n.getString("saleDetailDialog.label.totalValue", currencyFormat.format(venda.getValorTotal()))); // ALTERADO
+        JLabel totalLabel = new JLabel(I18n.getString("saleDetailDialog.label.totalValue", currencyFormat.format(venda.getValorTotal()))); 
         totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(totalLabel, BorderLayout.WEST);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        JButton exportCsvButton = new JButton(I18n.getString("saleDetailDialog.button.exportCsv")); // ALTERADO
+        JButton exportCsvButton = new JButton(I18n.getString("saleDetailDialog.button.exportCsv")); 
         exportCsvButton.addActionListener(e -> exportarVendaParaCsv());
 
-        JButton exportPdfButton = new JButton(I18n.getString("saleDetailDialog.button.exportPdf")); // ALTERADO
+        JButton exportPdfButton = new JButton(I18n.getString("saleDetailDialog.button.exportPdf")); 
         exportPdfButton.addActionListener(e -> exportarVendaParaPdf());
 
         buttonsPanel.add(exportCsvButton);
@@ -146,10 +146,10 @@ public class VendaDetalhesDialog extends JDialog {
                 String csvContent = relatorioService.gerarReciboVendaCsv(venda);
                 try (PrintWriter out = new PrintWriter(fileToSave, StandardCharsets.UTF_8)) {
                     out.print(csvContent);
-                    UIMessageUtil.showInfoMessage(this, I18n.getString("saleDetailDialog.export.success"), I18n.getString("success.title")); // ALTERADO
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("saleDetailDialog.export.success"), I18n.getString("success.title")); 
                 }
             } catch (IOException ex) {
-                UIMessageUtil.showErrorMessage(this, I18n.getString("saleDetailDialog.export.error.csv", ex.getMessage()), I18n.getString("saleDetailDialog.export.error.title")); // ALTERADO
+                UIMessageUtil.showErrorMessage(this, I18n.getString("saleDetailDialog.export.error.csv", ex.getMessage()), I18n.getString("saleDetailDialog.export.error.title")); 
             }
         }
     }
@@ -162,19 +162,19 @@ public class VendaDetalhesDialog extends JDialog {
                 ByteArrayOutputStream baos = relatorioService.gerarReciboVendaPdf(venda);
                 try (FileOutputStream fos = new FileOutputStream(fileToSave)) {
                     baos.writeTo(fos);
-                    UIMessageUtil.showInfoMessage(this, I18n.getString("saleDetailDialog.export.success"), I18n.getString("success.title")); // ALTERADO
+                    UIMessageUtil.showInfoMessage(this, I18n.getString("saleDetailDialog.export.success"), I18n.getString("success.title")); 
                 }
             } catch (DocumentException | IOException ex) {
-                UIMessageUtil.showErrorMessage(this, I18n.getString("saleDetailDialog.export.error.pdf", ex.getMessage()), I18n.getString("saleDetailDialog.export.error.title")); // ALTERADO
+                UIMessageUtil.showErrorMessage(this, I18n.getString("saleDetailDialog.export.error.pdf", ex.getMessage()), I18n.getString("saleDetailDialog.export.error.title")); 
             }
         }
     }
 
     private JFileChooser createFileChooser(String extension) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(I18n.getString("saleDetailDialog.dialog.save.title")); // ALTERADO
-        fileChooser.setSelectedFile(new File(I18n.getString("saleDetailDialog.dialog.save.fileName", venda.getId()) + "." + extension)); // ALTERADO
-        fileChooser.setFileFilter(new FileNameExtensionFilter(I18n.getString("saleDetailDialog.dialog.save.filter", extension.toUpperCase(), extension), extension)); // ALTERADO
+        fileChooser.setDialogTitle(I18n.getString("saleDetailDialog.dialog.save.title")); 
+        fileChooser.setSelectedFile(new File(I18n.getString("saleDetailDialog.dialog.save.fileName", venda.getId()) + "." + extension)); 
+        fileChooser.setFileFilter(new FileNameExtensionFilter(I18n.getString("saleDetailDialog.dialog.save.filter", extension.toUpperCase(), extension), extension)); 
         return fileChooser;
     }
 }

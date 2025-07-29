@@ -35,9 +35,9 @@ public class AuditoriaPanel extends JPanel {
     public AuditoriaPanel(AppContext appContext) {
         this.relatorioService = appContext.getRelatorioService();
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createTitledBorder(I18n.getString("audit.panel.title"))); // ALTERADO
+        setBorder(BorderFactory.createTitledBorder(I18n.getString("audit.panel.title"))); 
 
-        // ALTERADO
+        
         acoesTableModel = new DefaultTableModel(new String[]{
                 I18n.getString("audit.table.header.datetime"),
                 I18n.getString("audit.table.header.user"),
@@ -49,7 +49,7 @@ public class AuditoriaPanel extends JPanel {
         };
         acoesTable = new JTable(acoesTableModel);
 
-        // ALTERADO
+        
         acessoTableModel = new DefaultTableModel(new String[]{
                 I18n.getString("audit.table.header.datetime"),
                 I18n.getString("audit.table.header.user"),
@@ -62,8 +62,8 @@ public class AuditoriaPanel extends JPanel {
         acessoTable = new JTable(acessoTableModel);
 
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(I18n.getString("audit.tab.actions"), createLogPanel(true)); // ALTERADO
-        tabbedPane.addTab(I18n.getString("audit.tab.access"), createLogPanel(false)); // ALTERADO
+        tabbedPane.addTab(I18n.getString("audit.tab.actions"), createLogPanel(true)); 
+        tabbedPane.addTab(I18n.getString("audit.tab.access"), createLogPanel(false)); 
 
         tabbedPane.addChangeListener(e -> refreshData());
         add(tabbedPane, BorderLayout.CENTER);
@@ -106,22 +106,22 @@ public class AuditoriaPanel extends JPanel {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filterPanel.add(new JLabel(I18n.getString("audit.label.filter"))); // ALTERADO
+        filterPanel.add(new JLabel(I18n.getString("audit.label.filter"))); 
         filterPanel.add(filterField);
         topPanel.add(filterPanel, BorderLayout.CENTER);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton refreshButton = new JButton(I18n.getString("button.refresh")); // ALTERADO
+        JButton refreshButton = new JButton(I18n.getString("button.refresh")); 
         refreshButton.addActionListener(e -> {
             if (isAcoes) loadAcoesLogs(); else loadAcessoLogs();
         });
         buttonsPanel.add(refreshButton);
 
-        JButton csvButton = new JButton(I18n.getString("button.generateCsv")); // ALTERADO
+        JButton csvButton = new JButton(I18n.getString("button.generateCsv")); 
         csvButton.addActionListener(e -> exportarLogParaCsv(isAcoes, headers));
         buttonsPanel.add(csvButton);
 
-        JButton pdfButton = new JButton(I18n.getString("button.generatePdf")); // ALTERADO
+        JButton pdfButton = new JButton(I18n.getString("button.generatePdf")); 
         pdfButton.addActionListener(e -> exportarLogParaPdf(isAcoes, headers));
         buttonsPanel.add(pdfButton);
         topPanel.add(buttonsPanel, BorderLayout.EAST);
@@ -158,7 +158,7 @@ public class AuditoriaPanel extends JPanel {
                         model.addRow(row);
                     }
                 } catch (Exception e) {
-                    handleException(I18n.getString("audit.error.load"), e); // ALTERADO
+                    handleException(I18n.getString("audit.error.load"), e); 
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -182,7 +182,7 @@ public class AuditoriaPanel extends JPanel {
                     String csvContent = get();
                     salvarRelatorioCsv(fileNameBase, csvContent);
                 } catch (Exception e) {
-                    handleException(I18n.getString("audit.error.generateCsv"), e); // ALTERADO
+                    handleException(I18n.getString("audit.error.generateCsv"), e); 
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -192,7 +192,7 @@ public class AuditoriaPanel extends JPanel {
     }
 
     private void exportarLogParaPdf(boolean isAcoes, String[] headers) {
-        String title = isAcoes ? I18n.getString("audit.pdf.title.actions") : I18n.getString("audit.pdf.title.access"); // ALTERADO
+        String title = isAcoes ? I18n.getString("audit.pdf.title.actions") : I18n.getString("audit.pdf.title.access"); 
         String fileNameBase = isAcoes ? "Relatorio_Auditoria_Acoes" : "Relatorio_Auditoria_Acesso";
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingWorker<ByteArrayOutputStream, Void> worker = new SwingWorker<>() {
@@ -207,7 +207,7 @@ public class AuditoriaPanel extends JPanel {
                     ByteArrayOutputStream baos = get();
                     salvarRelatorioPdf(fileNameBase, baos);
                 } catch (Exception e) {
-                    handleException(I18n.getString("audit.error.generatePdf"), e); // ALTERADO
+                    handleException(I18n.getString("audit.error.generatePdf"), e); 
                 } finally {
                     setCursor(Cursor.getDefaultCursor());
                 }
@@ -217,27 +217,27 @@ public class AuditoriaPanel extends JPanel {
     }
 
     private void salvarRelatorioCsv(String nomeBase, String conteudo) {
-        JFileChooser fileChooser = createFileChooser(nomeBase, "csv", I18n.getString("report.fileChooser.csvFilter")); // ALTERADO
+        JFileChooser fileChooser = createFileChooser(nomeBase, "csv", I18n.getString("report.fileChooser.csvFilter")); 
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File arquivo = getSelectedFileWithExtension(fileChooser, ".csv");
             try (PrintWriter out = new PrintWriter(arquivo, StandardCharsets.UTF_8)) {
                 out.print(conteudo);
-                UIMessageUtil.showInfoMessage(this, I18n.getString("report.save.success"), I18n.getString("success.title")); // ALTERADO
+                UIMessageUtil.showInfoMessage(this, I18n.getString("report.save.success"), I18n.getString("success.title")); 
             } catch (IOException e) {
-                handleException(I18n.getString("report.save.error"), e); // ALTERADO
+                handleException(I18n.getString("report.save.error"), e); 
             }
         }
     }
 
     private void salvarRelatorioPdf(String nomeBase, ByteArrayOutputStream baos) {
-        JFileChooser fileChooser = createFileChooser(nomeBase, "pdf", I18n.getString("report.fileChooser.pdfFilter")); // ALTERADO
+        JFileChooser fileChooser = createFileChooser(nomeBase, "pdf", I18n.getString("report.fileChooser.pdfFilter")); 
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File arquivo = getSelectedFileWithExtension(fileChooser, ".pdf");
             try (FileOutputStream fos = new FileOutputStream(arquivo)) {
                 baos.writeTo(fos);
-                UIMessageUtil.showInfoMessage(this, I18n.getString("report.save.success"), I18n.getString("success.title")); // ALTERADO
+                UIMessageUtil.showInfoMessage(this, I18n.getString("report.save.success"), I18n.getString("success.title")); 
             } catch (IOException e) {
-                handleException(I18n.getString("report.save.error"), e); // ALTERADO
+                handleException(I18n.getString("report.save.error"), e); 
             }
         }
     }
@@ -245,18 +245,18 @@ public class AuditoriaPanel extends JPanel {
     private void handleException(String message, Exception ex) {
         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
         AppLogger.getLogger().error(message, cause);
-        String errorMessage = I18n.getString("error.unexpected.title"); // ALTERADO
+        String errorMessage = I18n.getString("error.unexpected.title"); 
         if (cause instanceof PersistenciaException) {
-            errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage(); // ALTERADO
+            errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage(); 
         } else if (cause instanceof IOException) {
-            errorMessage = I18n.getString("error.file.title") + ": " + I18n.getString("report.error.saveFile"); // ALTERADO
+            errorMessage = I18n.getString("error.file.title") + ": " + I18n.getString("report.error.saveFile"); 
         }
-        UIMessageUtil.showErrorMessage(this, errorMessage + "\n" + I18n.getString("error.seeLogs"), I18n.getString("error.title")); // ALTERADO
+        UIMessageUtil.showErrorMessage(this, errorMessage + "\n" + I18n.getString("error.seeLogs"), I18n.getString("error.title")); 
     }
 
     private JFileChooser createFileChooser(String nomeBase, String ext, String desc) {
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle(I18n.getString("report.fileChooser.title")); // ALTERADO
+        fc.setDialogTitle(I18n.getString("report.fileChooser.title")); 
         fc.setSelectedFile(new File(nomeBase + "_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "." + ext));
         fc.setFileFilter(new FileNameExtensionFilter(desc, ext));
         return fc;

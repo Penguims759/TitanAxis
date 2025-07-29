@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 public final class I18n {
 
     private static final String SYSTEM_BUNDLE_BASE_NAME = "i18n.messages";
-    private static final String AI_BUNDLE_BASE_NAME = "i18n.messages_ai"; // NOVO
+    private static final String AI_BUNDLE_BASE_NAME = "i18n.messages_ai"; 
     private static ResourceBundle systemBundle;
-    private static ResourceBundle aiBundle; // NOVO
+    private static ResourceBundle aiBundle; 
     private static Locale currentLocale;
     private static final Logger logger = AppLogger.getLogger();
 
@@ -24,7 +24,7 @@ public final class I18n {
         currentLocale = locale;
         try {
             systemBundle = ResourceBundle.getBundle(SYSTEM_BUNDLE_BASE_NAME, currentLocale, Thread.currentThread().getContextClassLoader());
-            aiBundle = ResourceBundle.getBundle(AI_BUNDLE_BASE_NAME, currentLocale, Thread.currentThread().getContextClassLoader()); // NOVO
+            aiBundle = ResourceBundle.getBundle(AI_BUNDLE_BASE_NAME, currentLocale, Thread.currentThread().getContextClassLoader()); 
             logger.info("ResourceBundles para o locale '" + locale + "' carregados com sucesso.");
         } catch (Exception e) {
             logger.error("Não foi possível carregar os ResourceBundles para o locale " + locale, e);
