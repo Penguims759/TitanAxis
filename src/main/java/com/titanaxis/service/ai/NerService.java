@@ -19,8 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 @Singleton
 public class NerService {
@@ -51,14 +50,14 @@ public class NerService {
                 trainAndSaveModel(modelFile, trainingFileName, I18n.getCurrentLocale().getLanguage());
             }
         } catch (java.io.IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo NER para o locale " + localeString, e);
+            logger.error("Falha crítica ao carregar ou treinar o modelo NER para o locale " + localeString, e);
         }
     }
 
     private void trainAndSaveModel(File modelFile, String trainingFile, String lang) throws java.io.IOException {
         try (InputStream dataIn = getClass().getResourceAsStream(trainingFile)) {
             if (dataIn == null) {
-                logger.warning("Ficheiro de treino NER não encontrado: " + trainingFile + ". A usar o ficheiro de treino padrão (pt_BR).");
+                logger.warn("Ficheiro de treino NER não encontrado: " + trainingFile + ". A usar o ficheiro de treino padrão (pt_BR).");
                 trainAndSaveModel(new File("ner-model_pt_BR.bin"), "/ai/ner-train_pt_BR.txt", "pt");
                 return;
             }
@@ -82,7 +81,7 @@ public class NerService {
 
     public Map<String, String> extractEntities(String sentence) {
         if (nerModel == null) {
-            logger.warning("O modelo NER não está disponível. A extração de entidades não pode ser realizada.");
+            logger.warn("O modelo NER não está disponível. A extração de entidades não pode ser realizada.");
             return Collections.emptyMap();
         }
 

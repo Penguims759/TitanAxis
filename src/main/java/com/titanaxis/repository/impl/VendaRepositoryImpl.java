@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class VendaRepositoryImpl implements VendaRepository {
     private static final Logger logger = AppLogger.getLogger();
@@ -67,7 +67,7 @@ public class VendaRepositoryImpl implements VendaRepository {
 
     @Override
     public void deleteById(Integer id, Usuario ator, EntityManager em) {
-        logger.warning(I18n.getString("log.sale.deleteNotImplemented")); // ALTERADO
+        logger.warn(I18n.getString("log.sale.deleteNotImplemented")); // ALTERADO
     }
 
     @Override

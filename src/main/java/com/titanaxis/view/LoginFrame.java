@@ -11,8 +11,7 @@ import com.titanaxis.util.UIMessageUtil;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class LoginFrame extends JFrame {
     private final AppContext appContext;
@@ -89,13 +88,13 @@ public class LoginFrame extends JFrame {
                 this.dispose();
             } else {
                 UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.invalidCredentials"), I18n.getString("error.title"));
-                logger.warning("Falha de login para o usuário: " + username);
+                logger.warn("Falha de login para o usuário: " + username);
             }
         } catch (PersistenciaException ex) {
-            logger.log(Level.SEVERE, "Erro de base de dados durante o login do usuário: " + username, ex);
+            logger.error("Erro de base de dados durante o login do usuário: " + username, ex);
             UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.dbConnection"), I18n.getString("login.error.connectionTitle"));
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Erro inesperado durante o login do usuário: " + username, ex);
+            logger.error("Erro inesperado durante o login do usuário: " + username, ex);
             UIMessageUtil.showErrorMessage(this, I18n.getString("login.error.unexpected"), I18n.getString("error.title"));
         }
     }
