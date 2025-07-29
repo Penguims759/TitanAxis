@@ -21,8 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 @Singleton
 public class NLPIntentService {
@@ -54,7 +53,7 @@ public class NLPIntentService {
                 trainAndSaveModel(modelFile, trainingFileName, I18n.getCurrentLocale().getLanguage());
             }
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo de intenção para o locale " + localeString, e);
+            logger.error("Falha crítica ao carregar ou treinar o modelo de intenção para o locale " + localeString, e);
         }
     }
 
@@ -94,7 +93,7 @@ public class NLPIntentService {
             String bestCategory = categorizer.getBestCategory(outcomes);
             return Intent.valueOf(bestCategory);
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Não foi possível determinar a intenção para a entrada: '" + userInput + "'.", e);
+            logger.warn("Não foi possível determinar a intenção para a entrada: '" + userInput + "'.", e);
             return Intent.UNKNOWN;
         }
     }

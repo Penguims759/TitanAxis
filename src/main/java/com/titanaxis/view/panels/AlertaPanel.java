@@ -11,8 +11,7 @@ import com.titanaxis.util.UIMessageUtil;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class AlertaPanel extends JPanel {
     private final AlertaService alertaService;
@@ -70,7 +69,7 @@ public class AlertaPanel extends JPanel {
                     logger.info("Alertas carregados e exibidos.");
                 } catch (Exception e) {
                     Throwable cause = e.getCause() != null ? e.getCause() : e;
-                    logger.log(Level.SEVERE, "Falha ao carregar alertas.", cause);
+                    logger.error("Falha ao carregar alertas.", cause);
                     String errorMessage = I18n.getString("alert.panel.error.load"); // ALTERADO
                     if (cause instanceof PersistenciaException) {
                         errorMessage = I18n.getString("error.db.generic", cause.getMessage()); // ALTERADO

@@ -20,8 +20,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class RelatorioPanel extends JPanel {
     private final RelatorioService relatorioService;
@@ -232,7 +231,7 @@ public class RelatorioPanel extends JPanel {
 
     private void handleException(String message, Exception ex) {
         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
-        logger.log(Level.SEVERE, message, cause);
+        logger.error(message, cause);
         String errorMessage = I18n.getString("error.unexpected.title");
         if (cause instanceof PersistenciaException) {
             errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage();

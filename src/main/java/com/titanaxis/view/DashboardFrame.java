@@ -19,8 +19,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class DashboardFrame extends JFrame {
     private final AppContext appContext;
@@ -212,7 +211,7 @@ public class DashboardFrame extends JFrame {
             personalizationService.savePreference("theme", themeName);
             logger.info("Tema alterado para: " + themeName);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
+            logger.error("Falha ao mudar o tema.", ex);
             UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.theme.error"), I18n.getString("dashboard.theme.errorTitle"));
         }
     }

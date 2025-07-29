@@ -18,7 +18,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public class ProdutoDialog extends JDialog {
     private final ProdutoService produtoService;
@@ -141,7 +140,7 @@ public class ProdutoDialog extends JDialog {
         } catch (PersistenciaException e) {
             UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.save", e.getMessage()), I18n.getString("error.persistence.title")); // ALTERADO
         } catch (Exception e) {
-            AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o produto.", e);
+            AppLogger.getLogger().error("Erro inesperado ao salvar o produto.", e);
             UIMessageUtil.showErrorMessage(this, I18n.getString("productDialog.error.unexpected", e.getMessage()), I18n.getString("error.unexpected.title")); // ALTERADO
         }
     }

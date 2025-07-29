@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 
 public class AuditoriaPanel extends JPanel {
     private final JTabbedPane tabbedPane;
@@ -245,7 +244,7 @@ public class AuditoriaPanel extends JPanel {
 
     private void handleException(String message, Exception ex) {
         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
-        AppLogger.getLogger().log(Level.SEVERE, message, cause);
+        AppLogger.getLogger().error(message, cause);
         String errorMessage = I18n.getString("error.unexpected.title"); // ALTERADO
         if (cause instanceof PersistenciaException) {
             errorMessage = I18n.getString("error.db.title") + ": " + cause.getMessage(); // ALTERADO

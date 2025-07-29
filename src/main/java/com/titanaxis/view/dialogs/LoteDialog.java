@@ -19,7 +19,6 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.logging.Level;
 
 public class LoteDialog extends JDialog {
     private final ProdutoService produtoService;
@@ -52,7 +51,7 @@ public class LoteDialog extends JDialog {
             tempValidadeField = new JFormattedTextField(dateFormatter);
         } catch (ParseException e) {
             tempValidadeField = new JFormattedTextField();
-            AppLogger.getLogger().log(Level.SEVERE, "Erro ao criar MaskFormatter para data de validade.", e);
+            AppLogger.getLogger().error("Erro ao criar MaskFormatter para data de validade.", e);
         }
         this.dataValidadeField = tempValidadeField;
 
@@ -137,7 +136,7 @@ public class LoteDialog extends JDialog {
         } catch (PersistenciaException e) {
             UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.save", e.getMessage()), I18n.getString("error.persistence.title")); // ALTERADO
         } catch (Exception e) {
-            AppLogger.getLogger().log(Level.SEVERE, "Erro inesperado ao salvar o lote.", e);
+            AppLogger.getLogger().error("Erro inesperado ao salvar o lote.", e);
             UIMessageUtil.showErrorMessage(this, I18n.getString("batchDialog.error.unexpectedSave", e.getMessage()), I18n.getString("error.unexpected.title")); // ALTERADO
             this.loteSalvo = null;
         }

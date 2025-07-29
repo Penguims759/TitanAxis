@@ -19,8 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 @Singleton
 public class NerService {
@@ -51,7 +50,7 @@ public class NerService {
                 trainAndSaveModel(modelFile, trainingFileName, I18n.getCurrentLocale().getLanguage());
             }
         } catch (java.io.IOException e) {
-            logger.log(Level.SEVERE, "Falha crítica ao carregar ou treinar o modelo NER para o locale " + localeString, e);
+            logger.error("Falha crítica ao carregar ou treinar o modelo NER para o locale " + localeString, e);
         }
     }
 

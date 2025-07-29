@@ -3,8 +3,7 @@ package com.titanaxis.util;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public final class I18n {
 
@@ -28,7 +27,7 @@ public final class I18n {
             aiBundle = ResourceBundle.getBundle(AI_BUNDLE_BASE_NAME, currentLocale, Thread.currentThread().getContextClassLoader()); // NOVO
             logger.info("ResourceBundles para o locale '" + locale + "' carregados com sucesso.");
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Não foi possível carregar os ResourceBundles para o locale " + locale, e);
+            logger.error("Não foi possível carregar os ResourceBundles para o locale " + locale, e);
             // Fallback para bundles vazios para evitar NullPointerException
             systemBundle = createEmptyBundle();
             aiBundle = createEmptyBundle();

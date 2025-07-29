@@ -12,8 +12,7 @@ import com.titanaxis.view.LoginFrame;
 
 import javax.swing.*;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class MainApp {
     private static final Logger logger = AppLogger.getLogger();
@@ -30,7 +29,7 @@ public class MainApp {
                 FlatDarkLaf.setup();
                 logger.info("Look and Feel FlatLaf inicializado com sucesso.");
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Falha ao inicializar o Look and Feel FlatLaf", ex);
+                logger.error("Falha ao inicializar o Look and Feel FlatLaf", ex);
             }
 
             Injector injector = Guice.createInjector(new AppModule());
