@@ -16,6 +16,7 @@ Set the following variables to configure the database connection:
 - `DATABASE_URL` – JDBC connection URL
 - `DATABASE_USER` – database user
 - `DATABASE_PASSWORD` – database user's password
+- `ADMIN_PASSWORD` – password for the initial `admin` user (defaults to `admin`)
 
 These variables can be placed in a `.env` file or configured in your deployment environment. When not provided, the values defined in `config.properties` are used.
 
