@@ -4,6 +4,7 @@ import com.titanaxis.app.AppContext;
 import com.titanaxis.model.MovimentoEstoque;
 import com.titanaxis.util.I18n;
 import com.titanaxis.util.UIMessageUtil;
+import com.titanaxis.util.AppLogger;
 import com.titanaxis.view.dialogs.VendaDetalhesDialog;
 import com.titanaxis.view.interfaces.MovimentoView;
 import com.titanaxis.view.renderer.MovimentoTableCellRenderer;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
 
 public class MovimentosPanel extends JPanel implements MovimentoView {
     private MovimentoViewListener listener;
@@ -27,6 +29,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
     private final JTable table;
     private final TableRowSorter<DefaultTableModel> sorter;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static final Logger logger = AppLogger.getLogger();
 
     private JSpinner dataInicioSpinner;
     private JSpinner dataFimSpinner;
@@ -110,7 +113,7 @@ public class MovimentosPanel extends JPanel implements MovimentoView {
                             () -> UIMessageUtil.showWarningMessage(this, I18n.getString("movement.error.detailsNotFound"), I18n.getString("warning.title"))
                     );
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao abrir detalhes de venda.", e);
             UIMessageUtil.showErrorMessage(this, I18n.getString("movement.error.unexpectedDetails", e.getMessage()), I18n.getString("error.critical.title"));
         }
     }
