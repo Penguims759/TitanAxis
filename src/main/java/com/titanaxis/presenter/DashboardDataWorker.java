@@ -9,6 +9,7 @@ import com.titanaxis.service.AnalyticsService;
 import com.titanaxis.service.UserHabitService;
 import com.titanaxis.view.DashboardFrame;
 import com.titanaxis.view.panels.HomePanel;
+import com.titanaxis.util.AppLogger;
 
 import javax.swing.*;
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
 
 public class DashboardDataWorker extends SwingWorker<DashboardData, Void> {
 
@@ -23,6 +25,7 @@ public class DashboardDataWorker extends SwingWorker<DashboardData, Void> {
     private final DashboardFrame parentFrame;
     private final AppContext appContext;
     private final String chartPeriod;
+    private static final Logger logger = AppLogger.getLogger();
 
     public DashboardDataWorker(HomePanel homePanel, AppContext appContext, String chartPeriod, DashboardFrame parentFrame) {
         this.homePanel = homePanel;
@@ -68,7 +71,7 @@ public class DashboardDataWorker extends SwingWorker<DashboardData, Void> {
             DashboardData data = get();
             homePanel.updateUI(data);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Falha ao obter dados do dashboard.", e);
             homePanel.showErrorState(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
         } finally {
             homePanel.setLoadingState(false);
