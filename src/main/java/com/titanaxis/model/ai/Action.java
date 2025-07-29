@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/ai/Action.java
 package com.titanaxis.model.ai;
 
 public enum Action {

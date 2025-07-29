@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-89442e18c0bde108be6f07bfed961a2a7a562e37/src/main/java/com/titanaxis/view/panels/HomePanel.java
 package com.titanaxis.view.panels;
 
 import com.titanaxis.app.AppContext;

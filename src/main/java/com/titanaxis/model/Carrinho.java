@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/Carrinho.java
 package com.titanaxis.model;
 
 import java.util.ArrayList;

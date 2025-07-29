@@ -1,4 +1,3 @@
-// File: penguims759/titanaxis/Penguims759-TitanAxis-5e774d0e21ca474f2c1a48a6f8706ffbdf671398/src/main/java/com/titanaxis/util/UIMessageUtil.java
 package com.titanaxis.util;
 
 import javax.swing.*;
