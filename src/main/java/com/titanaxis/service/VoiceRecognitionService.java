@@ -10,7 +10,7 @@ import edu.cmu.sphinx.api.SpeechResult;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 @Singleton
 public class VoiceRecognitionService {
@@ -49,7 +49,7 @@ public class VoiceRecognitionService {
             available = true;
 
         } catch (IOException | IllegalStateException e) {
-            logger.severe("Serviço de reconhecimento de voz não pôde ser inicializado. Causa: " + e.getMessage());
+            logger.error("Serviço de reconhecimento de voz não pôde ser inicializado. Causa: " + e.getMessage());
             available = false;
             recognizer = null;
         }

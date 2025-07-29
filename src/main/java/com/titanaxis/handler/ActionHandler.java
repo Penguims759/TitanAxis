@@ -10,8 +10,7 @@ import com.titanaxis.view.DashboardFrame;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class ActionHandler {
     private final Map<Action, DashboardAction> actionMap = new EnumMap<>(Action.class);
@@ -46,10 +45,10 @@ public class ActionHandler {
                 command.execute(params);
             } catch (Exception e) {
                 UIMessageUtil.showErrorMessage(null, I18n.getString("dashboard.action.errorExecuting", e.getMessage()), I18n.getString("dashboard.action.errorTitle"));
-                logger.log(Level.SEVERE, "Erro detalhado ao executar a ação '" + action + "': ", e);
+                logger.error("Erro detalhado ao executar a ação '" + action + "': ", e);
             }
         } else {
-            logger.warning("Ação não mapeada no ActionHandler: " + action);
+            logger.warn("Ação não mapeada no ActionHandler: " + action);
             UIMessageUtil.showWarningMessage(null, "A ação '" + action + "' ainda não foi implementada.", "Funcionalidade Futura");
         }
     }

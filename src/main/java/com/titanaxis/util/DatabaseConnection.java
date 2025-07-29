@@ -10,8 +10,7 @@ import org.flywaydb.core.Flyway;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class DatabaseConnection {
     private static final Logger logger = AppLogger.getLogger();
@@ -24,7 +23,7 @@ public class DatabaseConnection {
         try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
                 String errorMessage = "Ficheiro de configuração 'config.properties' não encontrado no classpath.";
-                logger.severe(errorMessage);
+                logger.error(errorMessage);
                 throw new RuntimeException(errorMessage);
             }
             properties.load(input);
@@ -33,7 +32,7 @@ public class DatabaseConnection {
             PASSWORD = properties.getProperty("database.password");
             logger.info("Configuração da base de dados carregada com sucesso.");
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Erro ao carregar o ficheiro de configuração.", ex);
+            logger.error("Erro ao carregar o ficheiro de configuração.", ex);
             throw new RuntimeException("Falha crítica ao ler a configuração da base de dados.", ex);
         }
     }
@@ -50,7 +49,7 @@ public class DatabaseConnection {
             logger.info("Migrações da base de dados concluídas com sucesso!");
             ensureInitialDataExists();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao executar as migrações do Flyway: " + e.getMessage(), e);
+            logger.error("Erro ao executar as migrações do Flyway: " + e.getMessage(), e);
             throw new RuntimeException("Falha crítica ao migrar a base de dados.", e);
         }
     }
@@ -86,7 +85,7 @@ public class DatabaseConnection {
             if (em != null && em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            logger.log(Level.SEVERE, "Erro ao verificar ou inserir dados iniciais com JPA.", e);
+            logger.error("Erro ao verificar ou inserir dados iniciais com JPA.", e);
         } finally {
             if (em != null) {
                 em.close();
