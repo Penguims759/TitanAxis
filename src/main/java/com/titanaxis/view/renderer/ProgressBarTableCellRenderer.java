@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/renderer/ProgressBarTableCellRenderer.java
 package com.titanaxis.view.renderer;
 
 import javax.swing.*;

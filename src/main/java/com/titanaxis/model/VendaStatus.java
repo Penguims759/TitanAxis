@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/VendaStatus.java
 package com.titanaxis.model;
 
 import com.titanaxis.util.I18n; // Importado

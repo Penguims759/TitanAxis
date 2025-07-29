@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/service/AlertaService.java
 package com.titanaxis.service;
 
 import com.google.inject.Inject;

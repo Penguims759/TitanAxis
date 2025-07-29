@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/util/StringUtil.java
 package com.titanaxis.util;
 
 import java.text.Normalizer;

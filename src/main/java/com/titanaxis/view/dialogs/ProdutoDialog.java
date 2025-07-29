@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/dialogs/ProdutoDialog.java
 package com.titanaxis.view.dialogs;
 
 import com.titanaxis.exception.PersistenciaException;

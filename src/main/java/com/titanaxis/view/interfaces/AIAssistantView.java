@@ -1,4 +1,3 @@
-// penguims759/titanaxis/Penguims759-TitanAxis-e9669e5c4e163f98311d4f51683c348827675c7a/src/main/java/com/titanaxis/view/interfaces/AIAssistantView.java
 package com.titanaxis.view.interfaces;
 
 import com.titanaxis.model.ai.Action;

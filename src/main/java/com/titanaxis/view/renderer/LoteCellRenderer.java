@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/renderer/LoteCellRenderer.java
 package com.titanaxis.view.renderer;
 
 import com.titanaxis.model.Lote;

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/util/UIGuide.java
 package com.titanaxis.util;
 
 import javax.swing.*;

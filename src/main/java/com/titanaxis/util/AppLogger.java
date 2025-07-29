@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/util/AppLogger.java
 package com.titanaxis.util; // ALTERADO
 
 import org.slf4j.Logger;

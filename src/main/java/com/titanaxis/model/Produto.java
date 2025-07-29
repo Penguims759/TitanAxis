@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/model/Produto.java
 package com.titanaxis.model;
 
 import jakarta.persistence.*;

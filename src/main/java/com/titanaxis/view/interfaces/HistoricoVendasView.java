@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/view/interfaces/HistoricoVendasView.java
 package com.titanaxis.view.interfaces;
 
 import com.titanaxis.model.Venda;

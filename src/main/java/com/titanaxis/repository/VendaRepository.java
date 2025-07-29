@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/repository/VendaRepository.java
 package com.titanaxis.repository;
 
 import com.titanaxis.model.Venda;

@@ -1,4 +1,3 @@
-// src/main/java/com/titanaxis/repository/FornecedorRepository.java
 package com.titanaxis.repository;
 
 import com.titanaxis.model.Fornecedor;
