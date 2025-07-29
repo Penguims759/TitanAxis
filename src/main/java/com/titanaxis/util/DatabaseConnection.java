@@ -74,7 +74,11 @@ public class DatabaseConnection {
             TypedQuery<Long> userQuery = em.createQuery("SELECT COUNT(u) FROM Usuario u WHERE u.nomeUsuario = :nome", Long.class);
             userQuery.setParameter("nome", "admin");
             if (userQuery.getSingleResult() == 0) {
-                String adminPassword = "admin";
+                String adminPassword = System.getenv("ADMIN_PASSWORD");
+                if (adminPassword == null || adminPassword.isBlank()) {
+                    adminPassword = "admin";
+                    logger.warn("ADMIN_PASSWORD não definido. A utilizar palavra-passe padrão.");
+                }
                 String hashedAdminPassword = PasswordUtil.hashPassword(adminPassword);
                 Usuario adminUser = new Usuario("admin", hashedAdminPassword, NivelAcesso.ADMIN);
                 em.persist(adminUser);
