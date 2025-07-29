@@ -1,6 +1,6 @@
 # TitanAxis
 
-TitanAxis is a desktop application that relies on a MariaDB database. The application will read connection details from the environment when available and fall back to `src/main/resources/config.properties` otherwise.
+TitanAxis is a desktop application that relies on a MariaDB database. Connection details are now supplied at runtime from environment variables or from `src/main/resources/config.properties` when the variables are not present.
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Prerequisites
@@ -11,13 +11,13 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Environment variables
 
-Set the following variables to configure the database connection:
+Set the following variables to configure the database connection (or edit `config.properties` using the same keys):
 
 - `DATABASE_URL` – JDBC connection URL
 - `DATABASE_USER` – database user
 - `DATABASE_PASSWORD` – database user's password
 
-These variables can be placed in a `.env` file or configured in your deployment environment. When not provided, the values defined in `config.properties` are used.
+These variables can be placed in a `.env` file or configured in your deployment environment. When not provided, the values defined in `config.properties` are used. The `persistence.xml` file no longer stores credentials so they must be provided by one of these methods.
 
 ## Running with Docker
 
