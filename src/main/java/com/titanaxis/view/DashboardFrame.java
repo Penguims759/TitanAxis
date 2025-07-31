@@ -1,7 +1,5 @@
 package com.titanaxis.view;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLightLaf;
 import com.titanaxis.app.AppContext;
 import com.titanaxis.handler.ActionHandler;
 import com.titanaxis.model.ai.Action;
@@ -205,16 +203,9 @@ public class DashboardFrame extends JFrame {
         return null;
     }
 
+    // Temporarily no-op theme switcher until JavaFX migration is complete.
     public void setTheme(String themeName) {
-        try {
-            UIManager.setLookAndFeel("light".equals(themeName) ? new FlatLightLaf() : new FlatDarkLaf());
-            SwingUtilities.updateComponentTreeUI(this);
-            personalizationService.savePreference("theme", themeName);
-            logger.info("Tema alterado para: " + themeName);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Falha ao mudar o tema.", ex);
-            UIMessageUtil.showErrorMessage(this, I18n.getString("dashboard.theme.error"), I18n.getString("dashboard.theme.errorTitle"));
-        }
+        logger.info("Tema atual: " + themeName);
     }
 
     public void confirmarSaida() {

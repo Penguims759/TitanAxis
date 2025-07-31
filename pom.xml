@@ -77,9 +77,15 @@
             <version>0.4</version>
         </dependency>
         <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>3.4.1</version>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.librepdf</groupId>
