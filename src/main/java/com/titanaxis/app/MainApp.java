@@ -1,8 +1,11 @@
 package com.titanaxis.app;
 
 import atlantafx.base.theme.Dracula;
+import com.titanaxis.fx.view.DashboardView;
 import com.titanaxis.fx.view.LoginView;
+import com.titanaxis.fx.viewmodel.DashboardViewModel;
 import com.titanaxis.fx.viewmodel.LoginViewModel;
+import com.titanaxis.util.I18n;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -19,9 +22,16 @@ public class MainApp extends Application {
         Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
 
         LoginViewModel viewModel = new LoginViewModel();
+        viewModel.setOnLoginSuccess(() -> {
+            DashboardViewModel dashboardVM = new DashboardViewModel(viewModel.usernameProperty().get());
+            Scene dashboardScene = new Scene(new DashboardView(dashboardVM), 800, 600);
+            stage.setScene(dashboardScene);
+            stage.setTitle(I18n.getString("dashboard.title"));
+        });
+
         Scene scene = new Scene(new LoginView(viewModel), 320, 240);
 
-        stage.setTitle("TitanAxis");
+        stage.setTitle(I18n.getString("login.title"));
         stage.setScene(scene);
         stage.show();
     }
