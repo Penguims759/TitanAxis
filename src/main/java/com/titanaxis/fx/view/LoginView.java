@@ -1,6 +1,7 @@
 package com.titanaxis.fx.view;
 
 import com.titanaxis.fx.viewmodel.LoginViewModel;
+import com.titanaxis.util.I18n;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,14 +19,18 @@ public class LoginView extends VBox {
         setPadding(new Insets(20));
 
         TextField userField = new TextField();
-        PasswordField passField = new PasswordField();
-        Button loginButton = new Button("Login");
+        userField.textProperty().bindBidirectional(viewModel.usernameProperty());
 
-        loginButton.setOnAction(e -> viewModel.login(userField.getText(), passField.getText()));
+        PasswordField passField = new PasswordField();
+        passField.textProperty().bindBidirectional(viewModel.passwordProperty());
+
+        Button loginButton = new Button(I18n.getString("login.loginButton"));
+
+        loginButton.setOnAction(e -> viewModel.login());
 
         getChildren().addAll(
-            new Label("Usuário"), userField,
-            new Label("Senha"), passField,
+            new Label(I18n.getString("login.usernameLabel")), userField,
+            new Label(I18n.getString("login.passwordLabel")), passField,
             loginButton
         );
     }
