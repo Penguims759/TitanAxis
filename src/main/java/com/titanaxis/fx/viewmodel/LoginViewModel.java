@@ -9,11 +9,24 @@ import javafx.beans.property.StringProperty;
  */
 public class LoginViewModel {
 
+    private final StringProperty username = new SimpleStringProperty();
+    private final StringProperty password = new SimpleStringProperty();
     private final StringProperty lastUser = new SimpleStringProperty();
 
-    public void login(String user, String password) {
-        // TODO: integrar com o serviço de autenticação real
-        lastUser.set(user);
+    /**
+     * Simulates the login process by recording the current username as the
+     * last successful user.
+     */
+    public void login() {
+        lastUser.set(username.get());
+    }
+
+    public StringProperty usernameProperty() {
+        return username;
+    }
+
+    public StringProperty passwordProperty() {
+        return password;
     }
 
     public StringProperty lastUserProperty() {
