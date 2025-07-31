@@ -1,48 +1,33 @@
 package com.titanaxis.app;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.titanaxis.service.UIPersonalizationService;
-import com.titanaxis.util.AppLogger;
-import com.titanaxis.util.DatabaseConnection;
-import com.titanaxis.util.I18n;
-import com.titanaxis.util.JpaUtil;
-import com.titanaxis.view.LoginFrame;
+import atlantafx.base.theme.Dracula;
+import com.titanaxis.fx.view.LoginView;
+import com.titanaxis.fx.viewmodel.LoginViewModel;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+/**
+ * Entry point for the JavaFX-based TitanAxis application.
+ * The view layer follows a simple MVVM structure where the
+ * {@link LoginView} interacts with a {@link LoginViewModel}.
+ */
+public class MainApp extends Application {
 
-public class MainApp {
-    private static final Logger logger = AppLogger.getLogger();
+    @Override
+    public void start(Stage stage) {
+        Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
+
+        LoginViewModel viewModel = new LoginViewModel();
+        Scene scene = new Scene(new LoginView(viewModel), 320, 240);
+
+        stage.setTitle("TitanAxis");
+        stage.setScene(scene);
+        stage.show();
+    }
 
     public static void main(String[] args) {
-        DatabaseConnection.initializeDatabase();
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-                UIPersonalizationService startupPrefs = new UIPersonalizationService("default_user");
-                String savedLocaleTag = startupPrefs.getPreference("locale", "pt-BR");
-                I18n.setLocale(Locale.forLanguageTag(savedLocaleTag));
-
-                FlatDarkLaf.setup();
-                logger.info("Look and Feel FlatLaf inicializado com sucesso.");
-            } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Falha ao inicializar o Look and Feel FlatLaf", ex);
-            }
-
-            Injector injector = Guice.createInjector(new AppModule());
-            AppContext appContext = injector.getInstance(AppContext.class);
-            LoginFrame loginFrame = new LoginFrame(appContext);
-            loginFrame.setVisible(true);
-
-            // A lógica de shutdown foi movida para o window listener da DashboardFrame
-            // para um ciclo de vida mais controlado.
-        });
-
-        // Adiciona um gancho de encerramento geral para o JpaUtil, garantindo que a conexão é fechada.
-        Runtime.getRuntime().addShutdownHook(new Thread(JpaUtil::close));
+        launch(args);
     }
 }
+
